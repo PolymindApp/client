@@ -1,0 +1,137 @@
+<template>
+	<v-input v-bind="$attrs" class="editor" :height="height ? height : null">
+		<fieldset style="width: 100%; height: 100%">
+			<editor v-model="content" ref="editor" @init="editorInit" :lang="lang" :theme="dark ? 'twilight' : 'chrome'"></editor>
+		</fieldset>
+	</v-input>
+</template>
+
+<script>
+import Vue from 'vue';
+
+export default Vue.extend({
+
+	props: {
+		dark: {
+			type: Boolean,
+			default: true,
+		},
+		lineNumber: {
+			type: Boolean,
+			default: true,
+		},
+		readonly: {
+			type: Boolean,
+			default: false,
+		},
+	    height: {
+	        type: Number,
+			default: null,
+		},
+	    value: {
+	        type: String,
+			default: '',
+		},
+	    lang: {
+	        type: String,
+			default: 'javascript',
+		},
+	},
+
+	components: {
+		editor: require('vue2-ace-editor'),
+	},
+
+	methods: {
+		editorInit: function () {
+			require('brace/ext/language_tools');
+			require('brace/mode/html');
+			require('brace/mode/javascript');
+			require('brace/mode/less');
+			require('brace/theme/twilight');
+			require('brace/theme/chrome');
+			require('brace/snippets/javascript');
+			require('brace/snippets/javascript');
+
+			this.editor = this.$refs.editor.editor;
+			this.editor.setWrapBehavioursEnabled(true);
+			this.editor.session.setTabSize(4);
+
+			let options = {
+				enableBasicAutocompletion: true,
+				enableSnippets: true,
+				enableLiveAutocompletion: true,
+				fontSize: '15px',
+			};
+
+			if (this.lineNumber) {
+            	this.editor.setOption('showLineNumbers', this.lineNumber);
+			}
+
+			if (this.readonly) {
+            	this.editor.setReadOnly(this.readonly);
+			}
+
+			if (this.dark) {
+				this.editor.setTheme("ace/theme/twilight");
+				options.theme = 'ace/theme/twilight';
+			}
+
+			this.editor.setOptions(options);
+			this.content = this.value;
+		}
+	},
+
+	data() {
+		return {
+			updateTimeout: null,
+			content: '',
+			editor: null,
+		}
+	},
+
+	watch: {
+	    content: function(val) {
+	        if (val !== this.value) {
+
+				// TODO: To prevent digesting scopes too fast (not the best fix)
+				clearTimeout(this.updateTimeout);
+				this.updateTimeout = setTimeout(() => {
+					this.$emit('input', val);
+				}, 250);
+			}
+		},
+		value: function(val) {
+	        if (this.value !== this.content) {
+	            this.content = this.value;
+			}
+		},
+	}
+});
+</script>
+
+<style lang="scss" scoped>
+	.v-input {
+
+		& >>> .v-input__control,
+		& >>> .v-input__slot {
+			height: 100%;
+		}
+
+		& >>> .ace_editor {
+			width: 100%;
+			height: 100% !important;
+		}
+
+		&[disabled] >>> .ace_editor {
+			opacity: 0.5 !important;
+		}
+
+		fieldset {
+			overflow: hidden;
+			border: rgba(0,0,0,.24) solid 1px;
+			transition: border .333s ease;
+			border-radius: 4px;
+		}
+	}
+</style>

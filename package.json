@@ -1,0 +1,80 @@
+{
+	"name": "@polymind/client",
+	"version": "0.1.1",
+	"private": true,
+	"author": "Danny Coulombe <contact@dannycoulombe.com>",
+	"engines": {
+		"node": "10.15.0"
+	},
+	"scripts": {
+		"serve": "vue-cli-service serve --port 4000 --host 0.0.0.0",
+		"build": "vue-cli-service build",
+		"build:cordova": "vue-cli-service build && copyfiles -u 1 dist/**/* www",
+		"lint": "vue-cli-service lint",
+		"lintfix": "eslint --fix --ext .js,.vue src",
+		"postinstall": "npm run build",
+		"start": "node server.js",
+		"pwa-asset": "npx pwa-asset-generator public/pwa/index.html public/pwa/output --background=\"rgba(255, 255, 255, .5)\" --manifest=public/manifest.json --index=public/index.html",
+		"cordova-assets": "splashicon-generator --imagespath=res",
+		"android:run": "cordova prepare android && cordova run android",
+		"android:build": "cordova build android",
+		"android:build:sign": "jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore polymind.keystore platforms/android/app/build/outputs/apk/x86_64/debug/app-x86_64-debug.apk Flipped",
+		"android:build:zipalign": "zipalign -v 4 platforms/android/app/build/outputs/apk/x86_64/debug/app-x86_64-debug.apk platforms/android/app/build/outputs/apk/x86_64/debug/app-x86_64-debug-signed-zipaligned.apk",
+		"android:release": "cordova build android --release && cd ./platforms/android/ && gradlew bundleRelease",
+		"android:release:sign": "jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore polymind.keystore platforms/android/app/build/outputs/bundle/x86_64Release/app.aab Flipped",
+		"android:release:zipalign": "zipalign -v 4 platforms/android/app/build/outputs/bundle/x86_64Release/app.aab platforms/android/app/build/outputs/bundle/x86_64Release/app-signed-zipaligned.aab",
+		"monaca:preview": "npm run dev & npm run watch",
+		"monaca:transpile": "npm run build",
+		"monaca:debug": "npm run watch"
+	},
+	"dependencies": {
+		"cordova": "^8.1.2",
+		"cordova-android": "^8.0.0",
+		"cordova-plugin-whitelist": "1",
+		"core-js": "^2.6.5",
+		"eslint-plugin-editorconfig": "^2.1.2",
+		"express": "^4.17.1",
+		"jimp": "^0.8.4",
+		"moment": "^2.24.0",
+		"papaparse": "^5.1.0",
+		"register-service-worker": "^1.6.2",
+		"tiptap": "^1.25.0",
+		"tiptap-extensions": "^1.27.0",
+		"vue": "^2.6.10",
+		"vue-analytics": "^5.17.2",
+		"vue-cookies": "^1.5.13",
+		"vue-cordova": "^0.1.2",
+		"vue-i18n": "^8.13.0",
+		"vue-router": "^3.0.3",
+		"vue-socket.io": "^3.0.7",
+		"vue2-ace-editor": "^0.0.13",
+		"vue2-google-maps": "^0.10.7",
+		"vuedraggable": "^2.23.0",
+		"vuetify": "^2.0.0",
+		"vuex": "^3.0.1"
+	},
+	"devDependencies": {
+		"@vue/cli-plugin-babel": "^3.10.0",
+		"@vue/cli-plugin-eslint": "^3.10.0",
+		"@vue/cli-plugin-pwa": "^3.10.0",
+		"@vue/cli-service": "^3.10.0",
+		"babel-eslint": "^10.0.1",
+		"base-href-webpack-plugin": "^2.0.0",
+		"cordova-plugin-whitelist": "^1.3.4",
+		"eslint": "^5.16.0",
+		"eslint-plugin-vue": "^5.0.0",
+		"interactjs": "^1.4.0-rc.13",
+		"node-sass": "^4.9.0",
+		"sass": "^1.17.4",
+		"sass-loader": "^7.1.0",
+		"vue-cli-plugin-vuetify": "^0.6.3",
+		"vue-template-compiler": "^2.6.10",
+		"vuetify-loader": "^1.2.2"
+	},
+	"cordova": {
+		"plugins": {
+			"cordova-plugin-whitelist": {}
+		},
+		"platforms": []
+	}
+}
