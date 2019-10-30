@@ -1,18 +1,39 @@
 <template>
-	<v-card tile flat dark class="d-flex flex-column align-center justify-center" style="width: 100%">
-		<div>
-			<v-icon color="primary" style="font-size: 5rem">mdi-file-question-outline</v-icon>
+	<v-card tile flat color="secondary" dark class="d-flex flex-column align-center justify-center w-100">
+		<div class="limited-content text-center">
+			<h1 class="display-2 font-weight-thin">
+				{{$t('error404.title')}}
+			</h1>
+			<p class="mt-4">
+				{{$t('error404.desc')}}
+			</p>
+			<div>
+				<v-tooltip bottom>
+					<template v-slot:activator="{ on }">
+						<v-btn v-on="on" color="primary" @click="goBack()">
+							<v-icon>mdi-arrow-left</v-icon>
+						</v-btn>
+					</template>
+					<span v-text="$t('error404.tooltips.goBack')"></span>
+				</v-tooltip>
+				<v-tooltip bottom>
+					<template v-slot:activator="{ on }">
+						<v-btn class="ml-4" v-on="on" color="primary" @click="goHome()">
+							<v-icon>mdi-home</v-icon>
+						</v-btn>
+					</template>
+					<span v-text="$t('error404.tooltips.goHome')"></span>
+				</v-tooltip>
+				<v-tooltip bottom>
+					<template v-slot:activator="{ on }">
+						<v-btn disabled class="ml-4" v-on="on" color="primary" @click="search()">
+							<v-icon>mdi-search-web</v-icon>
+						</v-btn>
+					</template>
+					<span v-text="$t('error404.tooltips.search')"></span>
+				</v-tooltip>
+			</div>
 		</div>
-		<h1 class="display-1 mt-4">
-			{{$t('title.error404')}}
-		</h1>
-		<p class="grey--text">
-			{{$t('error404.desc')}}
-		</p>
-		<v-btn color="primary" @click="goBack()">
-			<v-icon left>mdi-arrow-left</v-icon>
-			{{ $t('error.goBack') }}
-		</v-btn>
 	</v-card>
 </template>
 
@@ -26,7 +47,15 @@ export default Vue.extend({
 
 	    goBack() {
 	        this.$router.back();
-		}
+		},
+
+        goHome() {
+			this.$router.push('/');
+		},
+
+        search() {
+
+		},
 	},
 
 	data() {

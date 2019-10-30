@@ -22,19 +22,17 @@ return {
     })
 };`,
 			icon: '',
-			data: {
-				columns: [
-					{ guid: Hash.guid(), text: 'Front', type: 'text', required: true, },
-					{ guid: Hash.guid(), text: 'Back', type: 'text', required: true, },
-				],
-				rows: [
-					[Hash.guid(), 'To talk', 'Parler', true, new Date()],
-					[Hash.guid(), 'To think', 'Penser', true, new Date()],
-					[Hash.guid(), 'To do', 'Faire', true, new Date()],
-				],
-				deletedColumns: [],
-				deletedRows: [],
-			},
+			datasetColumn: [
+				{ id: Hash.guid(), name: 'Front', type: 'text', required: true, },
+				{ id: Hash.guid(), name: 'Back', type: 'text', required: true, },
+			],
+			datasetRow: [
+				// [Hash.guid(), 'To talk', 'Parler', true, new Date()],
+				// [Hash.guid(), 'To think', 'Penser', true, new Date()],
+				// [Hash.guid(), 'To do', 'Faire', true, new Date()],
+			],
+			deletedColumns: [],
+			deletedRows: [],
 		});
 	}
 }

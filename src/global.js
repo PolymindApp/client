@@ -12,6 +12,12 @@ const globalVariables = {
 	toolbarContextual: {
 		component: false
 	},
+	shortcuts: {
+		visible: false,
+	},
+	help: {
+		visible: false,
+	},
 };
 
 export default globalVariables;

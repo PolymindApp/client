@@ -2,7 +2,7 @@
 	<v-card flat class="fill-height">
 
 		<!-- MODAL: COPY ROWS -->
-		<v-dialog v-model="modalCopyRows.visible" persistent max-width="500px">
+		<v-dialog v-model="modalCopyRows.visible" scrollable persistent max-width="500px">
 			<v-card>
 				<v-card-title class="headline">
 					<v-icon color="primary" slot="icon" size="36" left>mdi-database-plus</v-icon>
@@ -34,7 +34,7 @@
 		</v-dialog>
 
 		<!-- MODAL: MOVE ROWS -->
-		<v-dialog v-model="modalMoveRows.visible" persistent max-width="500px">
+		<v-dialog v-model="modalMoveRows.visible" scrollable persistent max-width="500px">
 			<v-card>
 				<v-card-title class="headline">
 					<v-icon color="primary" slot="icon" size="36" left>mdi-database-export</v-icon>
@@ -66,7 +66,7 @@
 		</v-dialog>
 
 		<!-- MODAL: IMPORT CSV -->
-		<v-dialog v-model="modalImportCSV.visible" persistent max-width="750px">
+		<v-dialog v-model="modalImportCSV.visible" scrollable persistent max-width="750px">
 			<v-card>
 				<v-card-title class="headline">
 					<v-icon color="primary" slot="icon" size="36" left>mdi-database-import</v-icon>
@@ -133,33 +133,31 @@
 		</v-dialog>
 
 		<!-- MODAL: MANAGE COLUMNS -->
-		<v-dialog v-model="modalManageColumn.visible" persistent max-width="750px">
+		<v-dialog v-model="modalManageColumn.visible" scrollable persistent max-width="750px">
 			<v-card>
 				<v-card-title class="headline">
 					<v-icon color="primary" slot="icon" size="36" left>mdi-table-settings</v-icon>
 					{{$t('dataset.data.modal.manageColumn.title')}}
+
+					<v-alert class="mt-4 w-100" type="warning" border="left" outlined>{{$t('dataset.data.modal.manageColumn.warning')}}</v-alert>
 				</v-card-title>
 
-				<v-card-text class="mt-4">
-					<v-alert type="warning" border="left" outlined>{{$t('dataset.data.modal.manageColumn.warning')}}</v-alert>
-
-					<div class="mt-8">
-						<SimpleListBuilder v-model="modalManageColumn.columns" :empty-item="modalManageColumn.emptyColumn" sortable>
-							<template v-slot:item="{ item }">
-								<v-row>
-									<v-col cols="5" class="py-0">
-										<v-text-field v-model="item.text" :label="$t('dataset.data.modal.manageColumn.columnName')"></v-text-field>
-									</v-col>
-									<v-col cols="4" class="py-0">
-										<v-select v-model="item.type" :items="modalManageColumn.types" :label="$t('dataset.data.modal.manageColumn.columnType')"></v-select>
-									</v-col>
-									<v-col cols="3" class="py-0">
-										<v-checkbox v-model="item.required" color="primary" :label="$t('dataset.data.modal.manageColumn.required')"></v-checkbox>
-									</v-col>
-								</v-row>
-							</template>
-						</SimpleListBuilder>
-					</div>
+				<v-card-text>
+					<SimpleListBuilder v-model="modalManageColumn.columns" :empty-item="modalManageColumn.emptyColumn" sortable>
+						<template v-slot:item="{ item }">
+							<v-row>
+								<v-col cols="5" class="py-0">
+									<v-text-field v-model="item.name" :label="$t('dataset.data.modal.manageColumn.columnName')"></v-text-field>
+								</v-col>
+								<v-col cols="4" class="py-0">
+									<v-select v-model="item.type" :items="modalManageColumn.types" :label="$t('dataset.data.modal.manageColumn.columnType')"></v-select>
+								</v-col>
+								<v-col cols="3" class="py-0">
+									<v-checkbox v-model="item.is_required" color="primary" :label="$t('dataset.data.modal.manageColumn.required')"></v-checkbox>
+								</v-col>
+							</v-row>
+						</template>
+					</SimpleListBuilder>
 				</v-card-text>
 
 				<v-card-actions>
@@ -181,7 +179,7 @@
 		</v-dialog>
 
 		<!-- MODAL: EDIT/NEW DATA -->
-		<v-dialog v-model="modalEditData.visible" persistent max-width="500px">
+		<v-dialog v-model="modalEditData.visible" scrollable persistent max-width="500px">
 			<v-form @submit="applyData($event, modalEditData.data)">
 				<v-card>
 					<v-card-title class="headline">
@@ -199,7 +197,7 @@
 								<v-icon v-else>mdi-checkbox-blank-outline</v-icon>
 							</v-col>
 							<v-col class="grow py-0">
-								<v-text-field :ref="'editData_' + index" v-model="modalEditData.data[index]" :label="header.text" clearable></v-text-field>
+								<DataType :type="header.type"  :ref="'editData_' + index" v-model="modalEditData.data[index]" :label="header.text" clearable />
 							</v-col>
 						</v-row>
 					</v-card-text>
@@ -269,6 +267,9 @@
 			v-model="selected"
 			show-select hide-default-footer fixed-header
 			@page-count="pageCount = $event"
+			:no-results-text="$t('dataset.data.noResults')"
+			:no-data-text="$t('dataset.data.noData')"
+			:loading-text="$t('dataset.data.isLoading')"
 			:items-per-page="itemsPerPage"
 			:page.sync="page"
 			:dense="dense"
@@ -276,29 +277,38 @@
 
 			<!-- ROWS DATA -->
 			<template v-slot:item="props">
-				<tr v-bind:class="{ deleted: dataset.data.deletedRows.indexOf(props.item.index) !== -1 }">
-					<td class="select" @click="toggleSelect(props)">
+				<tr v-bind:class="{ deleted: dataset.deletedRows.indexOf(props.item.index) !== -1 }">
+					<td class="select shrink" @click="toggleSelect(props)">
 						<v-checkbox v-model="props.isSelected" color="secondary" hide-details class="ma-0 pa-0"></v-checkbox>
 					</td>
-					<td :style="{ width: (100 / editableHeaders.length) + '%' }" @dblclick="editCell(headerIdx, props.item.index)" v-for="(header, headerIdx) in editableHeaders">
-						<div v-if="editingCell !== (headerIdx + ':' + props.item.index)" v-text="props.item[header.value]"></div>
-						<div v-else>
-							<v-text-field ref="editedField" v-model="props.item[header.value]" @keydown="handleKeyDown" @blur="editingCell = false" hide-details class="mt-n3" />
-						</div>
+					<td :style="{ width: header.type === 'text' ? ((100 / editableHeaders.length) + '%') : null }" @dblclick="editCell(headerIdx, props.item.index)" v-for="(header, headerIdx) in editableHeaders">
+						<DataType ref="editedField" :type="header.type" v-model="props.item[header.value]" @keydown="handleKeyDown" @blur="editingCell = false" :readonly="editingCell !== (headerIdx + ':' + props.item.index)" hide-details />
 					</td>
-					<td @click="toggleActive(props)">
+					<td class="shrink" @click="toggleActive(props)">
 						<v-switch v-model="props.item.active" color="success" hide-details class="ma-0 pa-0"></v-switch>
 					</td>
-					<td>
+					<td class="shrink">
 						<span class="text-no-wrap">{{ props.item.created_at | date }}</span>
 					</td>
-					<td class="actions">
-						<v-btn v-if="dataset.data.deletedRows.indexOf(props.item.index) === -1" @click="removeItems([props.item])" icon>
-							<v-icon>mdi-delete</v-icon>
-						</v-btn>
-						<v-btn v-if="dataset.data.deletedRows.indexOf(props.item.index) !== -1" @click="restoreItems([props.item])" icon>
-							<v-icon>mdi-delete-restore</v-icon>
-						</v-btn>
+					<td class="actions shrink">
+
+						<v-tooltip left>
+							<template v-slot:activator="{ on }">
+								<v-btn v-on="on" v-if="dataset.deletedRows.indexOf(props.item.index) === -1" @click="removeItems([props.item])" icon>
+									<v-icon>mdi-delete</v-icon>
+								</v-btn>
+							</template>
+							<span v-text="$t('dataset.data.tooltip.delete')"></span>
+						</v-tooltip>
+
+						<v-tooltip left>
+							<template v-slot:activator="{ on }">
+								<v-btn v-on="on" v-if="dataset.deletedRows.indexOf(props.item.index) !== -1" @click="restoreItems([props.item])" icon>
+									<v-icon>mdi-delete-restore</v-icon>
+								</v-btn>
+							</template>
+							<span v-text="$t('dataset.data.tooltip.restore')"></span>
+						</v-tooltip>
 					</td>
 				</tr>
 			</template>
@@ -416,12 +426,13 @@ import Hash from "../../../utils/Hash";
 import File from "../../../utils/File";
 import Papa from "papaparse";
 import SimpleListBuilder from "../../../components/SimpleListBuilder";
+import DataType from "../../../components/DataType";
 
 export default Vue.extend({
 
 	props: ['dataset', 'formErrors'],
 
-	components: { SimpleListBuilder },
+	components: { SimpleListBuilder, DataType },
 
 	mounted() {
 	    this.headers = this.getHeaders();
@@ -436,31 +447,46 @@ export default Vue.extend({
 
         getHeaders() {
             let items = [];
-            this.dataset.data.columns.forEach(column => {
+            this.dataset.datasetColumn.forEach(column => {
                 items.push({
-                    text: column.text,
+                    id: column.id,
+                    order: column.order,
+                    text: column.name,
+                    type: column.type,
+                    class: column.type !== 'text' ? 'shrink' : null,
                     editable: true,
                     value: Hash.guid(),
                 });
             });
+
+            items.sort((a, b) => (a.order > b.order) ? 1 : -1);
+
             items.push(
-                { text: 'Active', value: 'active', class: 'shrink', editable: false, },
-                { text: 'Created At', value: 'created_at', class: 'shrink', editable: false, },
-                { text: '', value: 'actions', class: 'shrink', editable: false, },
+                { text: this.$t('dataset.data.columnIsActive'), value: 'active', class: 'shrink', editable: false, },
+                { text: this.$t('dataset.data.columnCreatedAt'), value: 'created_at', class: 'shrink', editable: false, },
+                { text: '', value: 'actions', class: 'shrink', editable: false, sortable: false, },
             );
             return items;
         },
 
 		getItems() {
 			let items = [];
-			this.dataset.data.rows.forEach((cells, index) => {
+			this.dataset.datasetRow.forEach((row, index) => {
 				let item = {
 					index,
-					guid: cells[0],
+					guid: row.id,
 				};
-				cells.forEach((cell, cellIndex) => {
-				    if (cellIndex === 0) {return};
-					item[this.headers[cellIndex - 1].value] = cell;
+				row.datasetEntry.forEach((cell, cellIndex) => {
+				    const header = this.headers.find(header => header.id === cell.dataset_column_id);
+				    if (header) {
+
+				        switch(header.type) {
+							case 'relation':
+                                item[header.value] = cell; // TODO: Not functioning
+							default:
+                                item[header.value] = cell['value_' + header.type];
+						}
+					}
 				});
 				items.push(item);
 			});
@@ -489,7 +515,7 @@ export default Vue.extend({
 			this.importCsvPreview.forEach(importEntries => {
 
 			    if (skipDuplicate) {
-                    const found = this.dataset.data.rows.find(row => {
+                    const found = this.dataset.datasetRow.find(row => {
                         for (let i = 0; i < importEntries.length; i++) {
                             if (row[i] !== importEntries[i]) {
                                 return false;
@@ -506,7 +532,7 @@ export default Vue.extend({
 			    items.push(item);
 			});
 
-            this.dataset.data.rows = this.dataset.data.rows.concat(items);
+            this.dataset.datasetRow = this.dataset.datasetRow.concat(items);
             Object.assign(this.modalImportCSV, {
                 showTotalImported: true,
                 totalImported: items.length,
@@ -574,19 +600,19 @@ export default Vue.extend({
 	            this.selected.forEach(item => {
                     this.modalEditData.data.forEach((data, index) => {
                         if (data !== '' && data !== null) {
-                            this.dataset.data.rows[item.index][index + 1] = typeof data === 'string' ? data.trim() : data;
+                            this.dataset.datasetRow[item.index][index + 1] = typeof data === 'string' ? data.trim() : data;
 						}
 					});
 				});
                 this.modalEditData.hasModifiedMultiple = true;
 			} else {
-                this.dataset.data.rows.push([Hash.guid(), ...this.modalEditData.data.map(entry => typeof entry === 'string' ? entry.trim() : entry), new Date()]);
+                this.dataset.datasetRow.push([Hash.guid(), ...this.modalEditData.data.map(entry => typeof entry === 'string' ? entry.trim() : entry), new Date()]);
                 this.modalEditData.hasAdded = true;
 			}
 
             this.resetEditData();
             this.$nextTick(() => {
-                this.$refs.editData_0[0].focus();
+                this.$refs.editData_0.focus();
             });
 
             this.$emit('update', this.dataset);
@@ -600,18 +626,57 @@ export default Vue.extend({
 		    this.editingCell = headerIdx + ':' + rowIdx;
 		    this.$nextTick().then(() => {
 		        this.$refs.editedField[0].focus();
-		        this.$refs.editedField[0].$el.querySelector('input').select();
 			});
 		},
 
         manageColumns() {
             this.modalManageColumn.riskUnderstood = false;
-            this.modalManageColumn.columns = [...this.dataset.data.columns];
+            this.modalManageColumn.columns = [...this.dataset.datasetColumn];
             this.modalManageColumn.visible = true;
 		},
 
         applyManageColumns() {
-            this.dataset.data.columns = [...this.modalManageColumn.columns];
+
+            // Map old to new columns
+            const toMove = [], toAdd = [];
+            this.modalManageColumn.columns.forEach((newColumn, newIdx) => {
+                const oldColumnIdx = this.dataset.datasetColumn.findIndex(oldColumn => oldColumn.guid === newColumn.guid);
+                if (oldColumnIdx === -1) {
+                    toAdd.push(newIdx + 1); // +1 (Skip GUID)
+				} else if (oldColumnIdx !== newIdx) {
+                    toMove.push([oldColumnIdx + 1, newIdx + 1]); // +1 (Skip GUID)
+				}
+			});
+
+            if (toMove.length > 0 || toAdd.length > 0) {
+                const originalRows = [...this.dataset.datasetRow];
+                const modifiedRows = [...this.dataset.datasetRow];
+
+                if (toAdd.length > 0) {
+                    originalRows.forEach((row, currIdx) => {
+						const clonedRow = [...row];
+						toAdd.forEach(idx => {
+							clonedRow.splice(idx, 0, null);
+						});
+                        modifiedRows[currIdx] = [...clonedRow];
+					});
+                    this.dataset.datasetRow = [...modifiedRows];
+				}
+
+                if (toMove.length > 0) {
+                    this.dataset.datasetRow.forEach((row, currIdx) => {
+                        const clonedRow = [...row];
+                        toMove.forEach(([oldIdx, newIdx]) => {
+                            const oldValue = originalRows[currIdx][oldIdx];
+                            clonedRow[newIdx] = oldValue;
+                        });
+                        this.dataset.datasetRow[currIdx] = [...clonedRow];
+                    });
+                }
+            }
+
+            this.dataset.datasetColumn = [...this.modalManageColumn.columns];
+
             this.modalManageColumn.visible = false;
             this.$emit('update', this.dataset);
 		},
@@ -651,9 +716,9 @@ export default Vue.extend({
         },
 
         toggleActive(props) {
-            const row = this.dataset.data.rows[props.item.index];
+            const row = this.dataset.datasetRow[props.item.index];
             const activeIndex = row.length - 2;
-            this.dataset.data.rows[props.item.index][activeIndex] = !row[activeIndex];
+            this.dataset.datasetRow[props.item.index][activeIndex] = !row[activeIndex];
             this.$emit('update', {...this.dataset});
         },
 
@@ -667,8 +732,8 @@ export default Vue.extend({
                 //     i--;
                 // }
 
-                if (this.dataset.data.deletedRows.indexOf(item.index) === -1) {
-                    this.dataset.data.deletedRows.push(item.index);
+                if (this.dataset.deletedRows.indexOf(item.index) === -1) {
+                    this.dataset.deletedRows.push(item.index);
 				}
             }
         },
@@ -683,15 +748,15 @@ export default Vue.extend({
 				// 	i--;
 				// }
 
-				const deletedIndex = this.dataset.data.deletedRows.indexOf(item.index);
+				const deletedIndex = this.dataset.deletedRows.indexOf(item.index);
                 if (deletedIndex !== -1) {
-                    this.dataset.data.deletedRows.splice(deletedIndex, 1);
+                    this.dataset.deletedRows.splice(deletedIndex, 1);
                 }
 			}
 		},
 
 		editItem (item) {
-			this.editedIndex = this.dataset.data.rows.indexOf(item);
+			this.editedIndex = this.dataset.datasetRow.indexOf(item);
 			this.editedItem = Object.assign({}, item);
 			this.dialog = true;
 		},
@@ -706,9 +771,9 @@ export default Vue.extend({
 
 		save () {
 			if (this.editedIndex > -1) {
-				Object.assign(this.dataset.data.rows[this.editedIndex], this.editedItem);
+				Object.assign(this.dataset.datasetRow[this.editedIndex], this.editedItem);
 			} else {
-				this.dataset.data.rows.push(this.editedItem);
+				this.dataset.datasetRow.push(this.editedItem);
 			}
 			this.close();
 		},
@@ -744,7 +809,7 @@ export default Vue.extend({
 
         importCsvPreview() {
 		    let items = [];
-
+// TODO: Error if empty column before
             const unionKeys = Object.keys(this.modalImportCSV.union).filter(union => this.modalImportCSV.union[union] !== undefined);
             if(unionKeys.length > 0) {
                 const csvHeader = this.modalImportCSV.parsedCsv[0];
@@ -822,7 +887,7 @@ export default Vue.extend({
 			    visible: false,
                 columns: [],
                 riskUnderstood: false,
-				emptyColumn: { text: '', type: 'text', required: true },
+				emptyColumn: { text: '', type: 'text', is_required: true },
                 types: [
 					{ text: this.$t('dataset.data.modal.manageColumn.types.text'), value: 'text' },
 					{ text: this.$t('dataset.data.modal.manageColumn.types.number'), value: 'number' },
@@ -862,11 +927,11 @@ export default Vue.extend({
 	},
 
 	watch: {
-	    'dataset.data.columns'(columns) {
+	    'dataset.datasetColumn'(columns) {
 	        this.headers = this.getHeaders();
             this.items = this.getItems();
 		},
-	    'dataset.data.rows'(rows) {
+	    'dataset.datasetRow'(rows) {
 	        this.items = this.getItems();
 		},
 		dialog (val) {

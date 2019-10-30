@@ -42,10 +42,20 @@
 				<v-divider v-if="!collapse" inset vertical class="ml-8"></v-divider>
 			</template>
 
+			<!-- SHORTCUTS -->
+			<v-tooltip v-if="!collapse" bottom>
+				<template v-slot:activator="{ on }">
+					<v-btn :class="$vuetify.breakpoint.smAndUp ? 'ml-4' : null" @click="toggleShortcut()" v-on="on" text>
+						<v-icon>mdi-keyboard</v-icon>
+					</v-btn>
+				</template>
+				<span>{{$t('toolbar.tooltip.shortcuts')}}</span>
+			</v-tooltip>
+
 			<!-- HELP -->
 			<v-tooltip v-if="!collapse" bottom>
 				<template v-slot:activator="{ on }">
-					<v-btn v-on="on" :class="$vuetify.breakpoint.smAndUp ? 'ml-4' : null" text to="/help">
+					<v-btn class="ml-4" v-on="on" text @click="toggleHelp()">
 						<v-icon :left="$vuetify.breakpoint.smAndUp">mdi-help-circle-outline</v-icon>
 						<span v-if="$vuetify.breakpoint.smAndUp">{{$t('toolbar.help')}}</span>
 					</v-btn>
@@ -162,6 +172,14 @@ export default Vue.extend({
 
 		fullScreenEvent(active) {
 			this.collapse = active;
+		},
+
+        toggleShortcut() {
+		    this.$root.shortcuts.visible = !this.$root.shortcuts.visible;
+		},
+
+        toggleHelp() {
+		    this.$root.help.visible = !this.$root.help.visible;
 		},
 
 		setSearchFocus() {

@@ -1,8 +1,8 @@
 <template>
-	<v-dialog v-model="visible" max-width="600">
-		<v-card>
+	<v-dialog :dark="color ? true : false" v-model="visible" max-width="600">
+		<v-card :color="color">
 			<v-card-title class="headline">
-				<v-icon slot="icon" color="error" size="36" left>mdi-alert-box</v-icon>
+				<v-icon slot="icon" size="36" left>mdi-alert-box</v-icon>
 				{{ title }}
 			</v-card-title>
 
@@ -46,6 +46,7 @@ export default Vue.extend({
 
 			this.showMessage = this.env !== 'production';
 			this.buttons = [];
+			this.color = 'default';
 
 		    if (response instanceof RestError) {
 				this.visible = response.response.status < 200 || response.response.status >= 300;
@@ -55,6 +56,7 @@ export default Vue.extend({
 				this.visible = true;
 				this.title = response.title;
 				this.message = response.desc;
+                this.color = 'error';
 
 				if (response.options) {
 					this.buttons = response.options.buttons || [];
@@ -80,6 +82,7 @@ export default Vue.extend({
 			showMessage: false,
 			visible: false,
 			buttons: [],
+			color: null,
 			env: process.env.NODE_ENV,
 			title: this.$t('general.defaultError.title'),
 			message: this.$t('general.defaultError.desc'),

@@ -10,7 +10,9 @@
 			{{ $t('component.page.unauthorized') }}
 		</v-alert>
 
-		<div v-html="content" />
+		<v-scroll-y-transition mode="out-in">
+			<div v-if="content" v-html="content" />
+		</v-scroll-y-transition>
 	</div>
 </template>
 

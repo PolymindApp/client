@@ -19,6 +19,8 @@ const literals = {
 		error404: 'Page non trouvé',
 		register: 'Inscription',
 		activate: 'Activation',
+		sound: true,
+		widgets: false,
 		forgotPassword: 'Oublie de mot de passe',
 		resetPassword: 'Réinitialisation de mot de passe',
 		strategy: 'Stratégie',
@@ -26,7 +28,13 @@ const literals = {
 		dataset: 'Base de données',
 	},
 	error404: {
-		desc: 'Un vent de mystère se lève sur nous...'
+		title: 'Oups ! Cette page ne semble pas exister.',
+		desc: 'Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée. Utilisez les boutons de navigation ci-dessous afin de retrouver votre chemin.',
+		tooltips: {
+			goBack: 'Retourner',
+			goHome: 'Page d\'accueil',
+			search: 'Rechercher',
+		}
 	},
 	dashboard: {
 		contextual: {
@@ -164,9 +172,12 @@ const literals = {
 		data: {
 			title: 'Données',
 			pagination: '{offset} - {limit} de {total} éléments',
-			columnIsActive: 'Actif',
+			columnIsActive: 'Active',
 			columnCreatedAt: 'Ajouté le',
 			searchLabel: 'Rechercher/Filtrer...',
+			noResults: 'Aucun résultat ne correspond à vos critères de recherches...',
+			noData: 'Aucune donnée disponible',
+			isLoading: 'Chargement en cours...',
 			bulkActions: 'Action en vrac',
 			bulkAction: {
 				delete: 'Effacer',
@@ -183,6 +194,8 @@ const literals = {
 				export: 'Exporter vers CSV',
 				dense: 'Basculer la densité',
 				manageColumn: 'Gérer les colonnes',
+				delete: 'Effacer la donnée',
+				restore: 'Restorer la donnée',
 			},
 			modal: {
 				copy: {
@@ -268,6 +281,7 @@ const literals = {
 			addstrategies: 'Ajouter une stratégie',
 			addcomponents: 'Ajouter une composante',
 			adddataset: 'Ajouter une base de données',
+			shortcuts: 'Raccourcis',
 		},
 	},
 	switch: {
@@ -275,7 +289,10 @@ const literals = {
 		disabled: 'Désactivé',
 	},
 	help: {
-		sectionTitle: 'Questions pertinantes :',
+		title: 'Manuel d\'aide',
+		close: 'Fermer',
+		noSelectTitle: 'Manuel d\'aide',
+		noSelectDesc: 'Veuillez sélectionner un élément du menu contextuel',
 	},
 	diff: {
 		quote: 'A changé sa citation pour <strong>{value}</strong>',
@@ -556,6 +573,20 @@ const literals = {
 		user: 'Utilisateur',
 		admin: 'Administrateur',
 		dev: 'Développeur',
+	},
+	dataType: {
+		optionsTooltip: 'Options',
+		options: {
+			edit: 'Modifier',
+			comment: 'Commenter',
+			clean: 'Nettoyer',
+		},
+		playAudioTooltip: 'Reproduire',
+		stopAudioTooltip: 'Intérrompre',
+	},
+	shortcuts: {
+		generalTitle: 'Raccourcis généraux',
+		availableTitle: 'Raccourcis disponible sur cet écran',
 	}
 };
 

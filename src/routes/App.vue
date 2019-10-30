@@ -11,6 +11,12 @@
 			</v-btn>
 		</v-snackbar>
 
+		<!-- SHORTCUTS -->
+		<Shortcuts :visible="$root.shortcuts.visible" />
+
+		<!-- SHORTCUTS -->
+		<Help :visible="$root.help.visible" />
+
 		<!-- IS DELETE -->
 		<v-snackbar color="success" v-model="$root.isDeleted">
 			<v-icon class="white--text" left>mdi-delete-circle-outline</v-icon>
@@ -41,22 +47,24 @@ import Vue from 'vue';
 import moment from 'moment';
 
 import Dashboard from './App/Dashboard.vue';
-import Preferences from './App/Preferences.vue';
+// import Preferences from './App/Preferences.vue';
 import Account from './App/Account.vue';
 import Error404 from './Error/Error404.vue';
 import Toolbar from '../components/Toolbar.vue';
 import Sidebar from '../components/Sidebar.vue';
-import Stats from "./App/Stats.vue";
-import DeckView from "./App/Deck/View.vue";
-import DeckEdit from "./App/Deck/Edit.vue";
-import Shop from "./App/Shop.vue";
-import Help from "./App/Help.vue";
+import Shortcuts from '../components/Shortcuts.vue';
+import Help from '../components/Help.vue';
+// import Stats from "./App/Stats.vue";
+// import DeckView from "./App/Deck/View.vue";
+// import DeckEdit from "./App/Deck/Edit.vue";
+// import Shop from "./App/Shop.vue";
+// import Help from "./App/Help.vue";
 import UserService from "../services/User";
 import ErrorDialog from '../components/ErrorDialog.vue';
-import Community from './App/Community.vue';
+// import Community from './App/Community.vue';
 import About from './App/About.vue';
 import Notifications from './App/Notifications.vue';
-import Customize from "./App/Customize";
+// import Customize from "./App/Customize";
 import Component from "./App/Component";
 import Strategy from "./App/Strategy";
 import DataSet from "./App/DataSet";
@@ -67,8 +75,8 @@ export const routes = [
 	// {path: '/shop', component: Shop, name: 'shop'},
 	// {path: '/community', component: Community, name: 'community'},
 	// {path: '/stats', component: Stats, name: 'stats'},
-	{path: '/help', redirect: '/help/welcome'},
-	{path: '/help/:section', component: Help, name: 'help'},
+	// {path: '/help', redirect: '/help/welcome'},
+	// {path: '/help/:section', component: Help, name: 'help'},
 	{path: '/notifications', component: Notifications, name: 'notifications'},
 	// {path: '/deck/:id', component: DeckView, name: 'deck'},
 	// {path: '/deck/:id/edit', component: DeckEdit},
@@ -102,7 +110,7 @@ export default Vue.extend({
 	name: 'App',
 
 	components: {
-		Toolbar, Sidebar, ErrorDialog,
+		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help,
 	},
 
 	mounted() {
@@ -116,6 +124,10 @@ export default Vue.extend({
 	},
 
 	methods: {
+
+	},
+
+	computed: {
 
 	},
 

@@ -14,9 +14,13 @@
 			<h1 class="display-1 mb-4" v-if="$attrs.title !== undefined" v-text="title"></h1>
 		</slot>
 
-		<slot name="content" v-if="!isLoading" :page="page">
-			<div v-html="content" />
-		</slot>
+		<v-scroll-y-transition mode="out-in">
+			<div v-if="content">
+				<slot name="content" :page="page">
+					<div v-html="content" />
+				</slot>
+			</div>
+		</v-scroll-y-transition>
 	</div>
 </template>
 

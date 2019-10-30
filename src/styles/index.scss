@@ -12,7 +12,15 @@
 		linear-gradient(to right, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
 		linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
 }
-
+.limited-content {
+	max-width: 30rem;
+}
+.very-limited-content {
+	max-width: 15rem;
+}
+.w-100 {
+	width: 100%;
+}
 ul + p {
 	margin-top: 16px;
 }
