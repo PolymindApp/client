@@ -1,85 +1,72 @@
 <template>
-	<div class="fill-height d-flex align-center inner-flex-full">
+	<div :class="{ 'datatype fill-height d-flex align-center inner-flex-full': true, hovered: hovered }" @mouseenter="hovered = true" @mouseleave="hovered = false">
 
-		<!-- TEXT -->
-		<template v-if="type === 'text'">
-			<span v-if="readonly" v-text="value"></span>
-			<v-text-field v-else ref="input" type="text" v-model="value" v-bind="$attrs" v-on="$listeners" />
-		</template>
+		<!-- MODAL: COMMENT DATA -->
+		<v-dialog v-model="modalCommentData.visible" scrollable persistent max-width="500px">
+			<v-card>
+				<v-card-title class="headline">
+					<v-icon color="primary" slot="icon" size="36" left>mdi-comment-plus-outline</v-icon>
+					{{$t('dataset.data.modal.comment.title')}}
+				</v-card-title>
 
-		<!-- NUMBER -->
-		<template v-else-if="type === 'number'">
-			<span v-if="readonly" v-text="value"></span>
-			<v-text-field v-else ref="input" type="number" v-model="value" v-bind="$attrs" v-on="$listeners" />
-		</template>
+				<v-card-text class="mt-4 pt-1">
+					<v-textarea ref="comment" v-model="modalCommentData.comment" :label="$t('dataset.data.modal.comment.commentLabel')" outlined hide-details></v-textarea>
+				</v-card-text>
 
-		<!-- DATE -->
-		<template v-else-if="type === 'date'">
-			<span v-if="readonly" v-text="value"></span>
-			<v-text-field v-else ref="input" type="date" v-model="value" v-bind="$attrs" v-on="$listeners" />
-		</template>
+				<v-card-actions>
+					<v-spacer></v-spacer>
 
-		<!-- IMAGE -->
-		<template v-else-if="type === 'image'">
-			<v-card class="d-flex align-center justify-center w-100 fill-height grey lighten-2" @click="addImage()" v-bind="$attrs" v-on="$listeners" dark tile flat>
+					<v-btn color="primary" @click="postComment()" :disabled="!modalCommentData.comment">
+						<v-icon left>mdi-comment-plus-outline</v-icon>
+						{{$t('modal.post')}}
+					</v-btn>
 
-				<v-icon class="icon-abs-middle" size="32">mdi-image-outline</v-icon>
-
-				<v-hover v-slot:default="{ hover }">
-					<div v-if="!value" class="w-100 fill-height">
-						<v-scale-transition>
-							<div v-if="hover" class="hover">
-								<v-icon>mdi-plus</v-icon>
-							</div>
-						</v-scale-transition>
-					</div>
-					<v-img v-else class="d-flex align-center text-center fill-height" width="48" height="48" src="https://picsum.photos/64/64" contain>
-						<v-scale-transition>
-							<div v-if="hover" class="hover">
-								<v-icon dark>mdi-arrow-expand</v-icon>
-							</div>
-						</v-scale-transition>
-					</v-img>
-				</v-hover>
+					<v-btn @click="modalCommentData.visible = false">
+						{{$t('modal.cancel')}}
+					</v-btn>
+				</v-card-actions>
 			</v-card>
-		</template>
+		</v-dialog>
 
-		<!-- AUDIO -->
-		<template v-else-if="type === 'audio'">
-			<div v-if="readonly" style="position: relative">
-				<v-tooltip bottom>
-					<template v-slot:activator="{ on }">
-						<v-btn @click="toggleAudio()" v-on=" on" icon>
-							<v-progress-circular color="primary" rotate="270" :value="audioProgress">
-								<v-icon v-if="!isPlaying">mdi-play</v-icon>
-								<v-icon v-else>mdi-stop</v-icon>
-							</v-progress-circular>
-						</v-btn>
-					</template>
-					<span v-text="isPlaying ? $t('dataType.stopAudioTooltip') : $t('dataType.playAudioTooltip')"></span>
-				</v-tooltip>
+		<!-- INPUTS -->
+		<DataText ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-if="type === 'text'" />
+		<DataNumber ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'number'" />
+		<DataDate ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'date'" />
+		<DataImage ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'image'" />
+		<DataAudio ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'audio'" />
+		<DataRecording ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'recording'" />
+		<DataFile ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'file'" />
 
-				<audio ref="audio">
-					<source :src="'https://file-examples.com/wp-content/uploads/2017/11/file_example_MP3_700KB.mp3'" type="audio/mpeg">
-					Your browser does not support the audio element.
-				</audio>
-			</div>
-			<div v-else>
-				<v-file-input ref="input" v-model="value" v-bind="$attrs" v-on="$listeners" />
-			</div>
-		</template>
+		<!-- COMMENTS -->
+		<div v-if="comments.length > 0" class="comments" style="flex: 0">
+			<v-menu auto>
+				<template v-slot:activator="{ on: menu }">
+					<v-tooltip bottom>
+						<template v-slot:activator="{ on: tooltip }">
+							<v-btn class="ml-2" v-on="{ ...tooltip, ...menu }" icon>
+								<v-badge>
+									<template v-slot:badge>{{comments.length}}</template>
+									<v-icon>mdi-comment-processing-outline</v-icon>
+								</v-badge>
+							</v-btn>
+						</template>
+						<span v-text="$t('dataType.commentsTooltip')"></span>
+					</v-tooltip>
+				</template>
 
-		<!-- FILE -->
-		<template v-else-if="type === 'file'">
-			<div v-if="readonly">
-				<a :href="value" target="_blank" v-text="value" class="text-truncate d-inline-block"></a>
-			</div>
-			<div v-else>
-				<v-file-input ref="input" v-model="value" v-bind="$attrs" v-on="$listeners" />
-			</div>
-		</template>
+				<v-list dense>
+					<v-list-item v-for="(comment, index) in comments" :key="index" @click="comment.callback()" :disabled="comment.disabled && comment.disabled()">
+						<v-list-item-icon>
+							<v-icon v-text="comment.icon" :disabled="comment.disabled && comment.disabled()"></v-icon>
+						</v-list-item-icon>
+						<v-list-item-title v-text="comment.title"></v-list-item-title>
+					</v-list-item>
+				</v-list>
+			</v-menu>
+		</div>
 
-		<div style="flex: 0">
+		<!-- OPTIONS -->
+		<div class="options" style="flex: 0">
 			<v-menu auto>
 				<template v-slot:activator="{ on: menu }">
 					<v-tooltip bottom>
@@ -93,9 +80,9 @@
 				</template>
 
 				<v-list dense>
-					<v-list-item v-for="(option, index) in audioOptions" :key="index" @click="option.callback">
+					<v-list-item v-for="(option, index) in options" :key="index" @click="option.callback()" :disabled="option.disabled && option.disabled()">
 						<v-list-item-icon>
-							<v-icon v-text="option.icon"></v-icon>
+							<v-icon v-text="option.icon" :disabled="option.disabled && option.disabled()"></v-icon>
 						</v-list-item-icon>
 						<v-list-item-title v-text="option.title"></v-list-item-title>
 					</v-list-item>
@@ -107,7 +94,13 @@
 
 <script>
     import Vue from 'vue';
-    import File from '../utils/File';
+    import DataText from './DataType/Text';
+    import DataNumber from './DataType/Number';
+    import DataDate from './DataType/Date';
+    import DataImage from './DataType/Image';
+    import DataAudio from './DataType/Audio';
+    import DataRecording from './DataType/Recording';
+    import DataFile from './DataType/File';
 
     export default Vue.extend({
 
@@ -127,7 +120,7 @@
 			},
 		},
 
-        components: {},
+        components: { DataText, DataNumber, DataDate, DataImage, DataAudio, DataRecording, DataFile },
 
         mounted() {
 
@@ -139,72 +132,94 @@
 
         methods: {
 
+            edit() {
+                this.$refs.input.edit();
+			},
+
             focus() {
-                this.$nextTick(() => {
+                this.$refs.input.focus();
+			},
 
-                    if (!this.$refs.input) {
-                        return;
-					}
+			clear() {
+                this.$refs.input.clear();
+			},
 
-					this.$refs.input.focus();
-					this.$refs.input.$el.querySelector('input').select();
+			reset() {
+                this.$refs.input.reset();
+			},
+
+			openComment() {
+                this.modalCommentData.visible = true;
+                setTimeout(() => {
+                    this.$refs.comment.focus();
 				});
 			},
 
-            setAudioProgress() {
-                this.audioProgress = ((this.$refs.audio.currentTime * 100 ) / this.$refs.audio.duration) || 0;
+            postComment() {
+
+                this.comments.push({ comment: this.modalCommentData.comment });
+
+                this.$emit('comment', this.modalCommentData.comment);
+                this.modalCommentData.comment = null;
+                this.modalCommentData.visible = false;
 			},
 
-			playAudio() {
-                this.$refs.audio.ontimeupdate = this.setAudioProgress;
-                this.$refs.audio.addEventListener('ended', this.stopAudio);
-                this.isPlaying = true;
-                this.$refs.audio.play();
-			},
+            canReset() {
 
-            toggleAudio() {
-                this.isPlaying ? this.stopAudio() : this.playAudio();
-			},
+                if (!this.$refs.input) {
+                    return false;
+                }
 
-			stopAudio() {
-                this.isPlaying = false;
-                this.audioProgress = 0;
-                this.$refs.audio.pause();
-                this.$refs.audio.currentTime = 0;
-			},
-
-            addImage() {
-                File.promptFileDialog(files => {
-                    console.log(files);
-				}, 'image/jpg', 'image/jpeg', 'image/png', 'image/gif');
-			}
+                return this.$refs.input.canReset;
+            },
 		},
 
         computed: {
 
+            canEdit() {
+
+                if (!this.$refs.input) {
+                    return false;
+                }
+
+                return this.$refs.input.canEdit;
+			},
 		},
 
         data() {
 
             const defaultOptions = [
 				{ icon: 'mdi-pencil', title: this.$t('dataType.options.edit'), callback: () => {
-
+					this.$refs.input.edit();
 				} },
 				{ icon: 'mdi-comment-plus-outline', title: this.$t('dataType.options.comment'), callback: () => {
-
+				    this.openComment();
 				} },
+				{ icon: 'mdi-refresh mdi-flip-h', title: this.$t('dataType.options.reset'), callback: () => {
+					this.$refs.input.reset();
+				}, disabled: () => { return !this.canReset(); } },
 				{ icon: 'mdi-file-remove-outline', title: this.$t('dataType.options.clean'), callback: () => {
-
-				} }
+					this.$refs.input.clear();
+				}, disabled: () => { return this.value === null; } }
 			];
 
             return {
-                audio: {},
+                currentValue: this.value,
                 defaultOptions: defaultOptions,
-                audioOptions: [...defaultOptions],
-                isPlaying: false,
-				audioProgress: 0,
+                options: [...defaultOptions],
+                comments: [],
+                hovered: false,
+                modalCommentData: {
+                    visible: false,
+                    comment: null,
+                },
 			};
+        },
+
+        watch: {
+            value(value) {
+                this.currentValue = value;
+            }
         }
     });
 </script>
@@ -213,21 +228,15 @@
 	.inner-flex-full > * {
 		flex: 1;
 	}
-	.hover {
-		position: relative;
-		z-index: 2;
-		background-color: rgba(0, 0, 0, 0.25);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		height: 100%;
-		width: 100%;
+	.comments,
+	.options {
+		opacity: 0;
+		transition: opacity 300ms ease;
 	}
-	.icon-abs-middle {
-		position: absolute;
-		top: calc(50% - 1rem);
-		left: calc(50% - 1rem);
-		pointer-events: none;
-		z-index: 0;
+	.hovered {
+		.comments,
+		.options {
+			opacity: 1;
+		}
 	}
 </style>

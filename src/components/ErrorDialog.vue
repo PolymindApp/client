@@ -1,12 +1,15 @@
 <template>
-	<v-dialog :dark="color ? true : false" v-model="visible" max-width="600">
+	<v-dialog :dark="color ? true : false" v-model="visible" scrollable max-width="600">
 		<v-card :color="color">
 			<v-card-title class="headline">
 				<v-icon slot="icon" size="36" left>mdi-alert-box</v-icon>
-				{{ title }}
+				{{ title.length > 64 ? $t('error.default') : title }}
 			</v-card-title>
 
-			<v-card-text v-if="showMessage" v-html="message" class="my-5"></v-card-text>
+			<v-card-text v-if="showMessage" class="my-5">
+				<h3 v-if="title.length > 64" class="mb-4" v-text="title"></h3>
+				<div v-html="message"></div>
+			</v-card-text>
 
 			<v-card-actions>
 				<v-spacer></v-spacer>
@@ -93,7 +96,6 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 	.v-card >>> pre {
-		overflow: auto;
 		padding: 2rem;
 		border-radius: 0.25rem;
 		background-color: rgba(0, 0, 0, 0.05);

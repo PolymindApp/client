@@ -52,11 +52,12 @@
 
 <script>
 import Vue from 'vue';
-import Data from "./DataSet/Data";
-import Settings from "./DataSet/Settings";
-import DataSetService from "../../services/DataSet";
+import Data from "./Dataset/Data";
+import Settings from "./Dataset/Settings";
+import DatasetService from "../../services/Dataset";
 import DeleteDialog from "../../components/DeleteDialog";
-import DataSet from "../../models/DataSet";
+import Dataset from "../../models/Dataset";
+import {VSkeletonLoader} from "vuetify";
 
 export default Vue.extend({
 
@@ -77,7 +78,14 @@ export default Vue.extend({
 		updateTab() {
 
 			const section = (this.$route.params.section ? this.$route.params.section : 'edit');
-			const sectionTitle = this.isNew ? this.$t('dataset.newTitle') : this.dataset.name;
+			const sectionTitle = this.isNew ? this.$t('dataset.newTitle') : (
+			    this.dataset.id
+					? this.dataset.name
+					: Vue.component('loading', {
+					    components: { VSkeletonLoader },
+					    template: `<v-skeleton-loader type="text"></v-skeleton-loader>`,
+					})
+			);
 			const thirdTitle = this.$t('dataset.' + section + '.title');
 
 			this.$root.breadcrumbs = [
@@ -97,7 +105,7 @@ export default Vue.extend({
 		},
 
 		updateOriginalData() {
-			this.originalDataSet = JSON.parse(JSON.stringify(this.dataset));
+			this.originalDataset = JSON.parse(JSON.stringify(this.dataset));
 		},
 
 		load() {
@@ -106,11 +114,11 @@ export default Vue.extend({
 
 			if (!this.isNew) {
 				this.$root.isLoading = true;
-				DataSetService.get.bind(this)(this.id)
+				DatasetService.get.bind(this)(this.id)
 					.then(response => {
 						this.id = response.data.id;
 						this.isNew = false;
-						this.dataset = Object.assign(new DataSet(), response.data);
+						this.dataset = Object.assign(new Dataset(), response.data);
 						this.updateOriginalData();
 						this.updateTab();
 					})
@@ -123,7 +131,7 @@ export default Vue.extend({
 					.finally(() => this.$root.isLoading = false);
 			} else {
 				// this.$root.isLoading = true;
-				// DataSetService.get.bind(this)(1)
+				// DatasetService.get.bind(this)(1)
 				//     .then(response => {
 				//         this.initializeValues();
 				//         // this.dataset.html = response.data.html;
@@ -143,19 +151,19 @@ export default Vue.extend({
 		},
 
 		reset() {
-			this.dataset = JSON.parse(JSON.stringify(this.originalDataSet));
+			this.dataset = JSON.parse(JSON.stringify(this.originalDataset));
 			this.$emit('cancel');
 		},
 
 		initializeValues() {
-			this.dataset = new DataSet();
+			this.dataset = new Dataset();
 		},
 
 		save() {
 
 			this.formErrors = [];
 			this.$root.isLoading = true;
-			DataSetService.save.bind(this)(this.id !== 'new' ? this.id : null, this.dataset)
+			DatasetService.save.bind(this)(this.id !== 'new' ? this.id : null, this.dataset)
 				.then(response => {
 					    this.id = response.data.id;
 					    this.isNew = false;
@@ -171,7 +179,7 @@ export default Vue.extend({
 
 			if (force) {
 				this.$root.isLoading = true;
-				DataSetService.remove.bind(this)(this.id)
+				DatasetService.remove.bind(this)(this.id)
 					.then(response => {
 						this.isDeleted = true;
 						this.$refs.deleteModal.hide();
@@ -191,7 +199,7 @@ export default Vue.extend({
 	computed: {
 
 		dataHasChanged() {
-			return JSON.stringify(this.dataset) !== JSON.stringify(this.originalDataSet);
+			return JSON.stringify(this.dataset) !== JSON.stringify(this.originalDataset);
 		},
 	},
 
@@ -202,7 +210,7 @@ export default Vue.extend({
 			isDeleted: false,
 			formErrors: [],
 			tab: '/dataset/new/edit',
-			originalDataSet: {},
+			originalDataset: {},
 			dataset: {},
 		}
 	},

@@ -28,14 +28,15 @@
 		"monaca:debug": "npm run watch"
 	},
 	"dependencies": {
+		"@directus/sdk-js": "^5.3.4",
 		"cordova": "^8.1.2",
 		"cordova-android": "^8.0.0",
-		"cordova-plugin-whitelist": "1",
 		"core-js": "^2.6.5",
 		"eslint-plugin-editorconfig": "^2.1.2",
 		"express": "^4.17.1",
 		"jimp": "^0.8.4",
 		"moment": "^2.24.0",
+		"object-assign-deep": "^0.4.0",
 		"papaparse": "^5.1.0",
 		"register-service-worker": "^1.6.2",
 		"tiptap": "^1.25.0",
@@ -50,7 +51,7 @@
 		"vue2-ace-editor": "^0.0.13",
 		"vue2-google-maps": "^0.10.7",
 		"vuedraggable": "^2.23.0",
-		"vuetify": "^2.0.0",
+		"vuetify": "^2.1.9",
 		"vuex": "^3.0.1"
 	},
 	"devDependencies": {

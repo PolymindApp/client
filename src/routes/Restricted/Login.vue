@@ -65,7 +65,9 @@
 
 			<p class="mt-4 overline mb-0" v-html="$t('restricted.acceptTermsLoginHint')" style="opacity: 0.5"></p>
 
-			<v-btn class="mt-2 white--text" to="/register" text>
+			<v-divider class="my-4"></v-divider>
+
+			<v-btn class="white--text" to="/register" text>
 				{{ $t("restricted.registerLink") }}
 			</v-btn>
 
@@ -95,12 +97,12 @@ export default Vue.extend({
 				this.$root.isLoading = true;
 				UserService.login.bind(this)(this.email, this.password)
 					.then(response => {
-						localStorage.setItem('jwt', response.data.jwt);
+						// localStorage.setItem('jwt', response.data.token);
 						this.$router.go(0);
 					})
 					.catch(error => {
-						if (error.data.message) {
-							switch (error.data.message) {
+						if (error.message) {
+							switch (error.message) {
 								case 'NOT_CONFIRMED':
 									return this.$root.error = new ServerError(this, error, {
 										buttons: [
@@ -120,8 +122,8 @@ export default Vue.extend({
 							}
 						}
 						this.$handleError(this, error);
-					})
-					.finally(() => this.$root.isLoading = false);
+                        this.$root.isLoading = false;
+					});
 			} else {
 				this.$refs.email.focus();
 			}

@@ -96,7 +96,7 @@
 
 <script>
 import Vue from 'vue';
-import Shortcut from '../utils/Shortcut';
+// import Shortcut from '../utils/Shortcut';
 
 export default Vue.extend({
 
@@ -118,17 +118,17 @@ export default Vue.extend({
 			this.player.position = 0;
 			this.player.isPlaying = false;
 
-			const shortcut = new Shortcut();
-			shortcut.attach(document.body);
+			// const shortcut = new Shortcut();
+			// shortcut.attach(document.body);
 
-			this.$root.user.setting.shortcuts.forEach(userShortcut => {
-				shortcut.add(userShortcut.action, userShortcut.action.keys, () => {
-					switch (userShortcut.action) {
-						case 'previous': this.previous(); break;
-						case 'next': this.next(); break;
-					}
-				});
-			});
+			// this.$root.user.setting.shortcuts.forEach(userShortcut => {
+			// 	shortcut.add(userShortcut.action, userShortcut.action.keys, () => {
+			// 		switch (userShortcut.action) {
+			// 			case 'previous': this.previous(); break;
+			// 			case 'next': this.next(); break;
+			// 		}
+			// 	});
+			// });
 		},
 
 		toggle() {

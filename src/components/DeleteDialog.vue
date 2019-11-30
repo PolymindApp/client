@@ -1,5 +1,5 @@
 <template>
-	<v-dialog v-model="visible" max-width="500px">
+	<v-dialog v-model="visible" scrollable max-width="500px">
 		<v-card color="error" class="white--text">
 			<v-card-title class="headline">
 				<v-icon slot="icon" color="white" size="36" left>mdi-alert</v-icon>

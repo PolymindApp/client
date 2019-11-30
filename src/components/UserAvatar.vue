@@ -5,12 +5,12 @@
 			<v-progress-circular :size="size / 2" color="primary" indeterminate></v-progress-circular>
 		</v-overlay>
 
-		<div class="overlay-edit d-flex align-center justify-center" v-if="!isUploading" @click="modify('picture_id')">
+		<div class="overlay-edit d-flex align-center justify-center" v-if="!isUploading && $root.user.id === user.id" @click="modify('picture_id')">
 			<v-icon :style="{ fontSize: (size / 42) + 'rem' }">mdi-upload</v-icon>
 		</div>
 
-		<img v-if="user.profile.picture.url" :src="user.profile.picture.url" alt="avatar" />
-		<span :class="(size >= 96 ? 'display-3' : 'display-1') + ' white--text'" v-else>{{user.profile.screen_name.substring(0, 1).toUpperCase()}}</span>
+		<img v-if="user.avatar" :src="$thumbnails(user.avatar.filename, 256, 256)" alt="avatar" />
+		<span :class="(size >= 96 ? 'display-3' : 'display-1') + ' white--text'" v-else>{{user.first_name.substring(0, 1).toUpperCase()}}</span>
 	</v-avatar>
 </template>
 
@@ -18,7 +18,7 @@
 import Vue from 'vue';
 import File from '../utils/File';
 import FileService from "../services/File";
-import ProfileService from "../services/Profile";
+import UserService from "../services/User";
 
 export default Vue.extend({
 	props: {
@@ -34,22 +34,23 @@ export default Vue.extend({
 	methods: {
 
 	    modify(param) {
+
 			File.promptFileDialog(images => {
 				this.isUploading = true;
-				this.$crop(images, [128, 128]).then(croppedImages => {
-					FileService.upload.bind(this)(croppedImages)
+				this.$crop(images, [512, 512]).then(croppedImages => {
+					FileService.upload.bind(this)(croppedImages, progress => {
+						const percent = (progress.loaded * 100) / progress.total;
+						// this.percentUploaded = percent.toFixed(2) + '%';
+					})
 						.then(filesResponse => {
-
-							let payload = {};
-							payload[param] = filesResponse.data.id;
-
-							ProfileService.update.bind(this)(this.user.profile.id, payload)
-								.then(profileResponse => {
-									this.$root.user.profile.picture.url = filesResponse.data.url;
-									this.user.profile.picture.url = filesResponse.data.url;
-								})
-								.catch(error => this.$handleError(this, error))
-								.finally(() => this.isUploading = false);
+                            UserService.update.bind(this)(this.$root.user.id, {
+                                avatar: filesResponse.data.id
+                            })
+                                .then(response => {
+                                    Object.assign(this.$root.user, response.data);
+                                })
+                                .catch(error => this.$handleError(this, error))
+                                .finally(() => this.isUploading = false);
 						})
 						.catch(error => {
 							this.$handleError(this, error);

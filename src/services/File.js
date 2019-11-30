@@ -2,17 +2,11 @@ import Server from "../utils/Server";
 
 export default class FileService {
 
-	static upload(files = []) {
+	static getAll() {
+		return Server.get.bind(this)('/file');
+	}
 
-		if (!(files instanceof Array)) {
-			files = [files];
-		}
-
-		let form = new FormData();
-		files.forEach(file => {
-			form.append('file', file);
-		});
-
-		return Server.post.bind(this)('/file', form);
+	static upload(files = [], onProgress = () => {}) {
+		return Server.upload.bind(this)(files);
 	}
 }

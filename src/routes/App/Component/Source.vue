@@ -1,5 +1,5 @@
 <template>
-	<v-card :class="{ 'flex-column': tabDirection === 'horizontal', 'd-flex fill-height source': true }" flat>
+	<v-card :class="{ 'flex-column': tabDirection === 'horizontal', 'd-flex fill-height source': true }" tile flat>
 
 		<v-navigation-drawer temporary right absolute v-model="console.opened" width="300">
 			<Console v-model="logs" />
@@ -87,7 +87,7 @@ export default Vue.extend({
 	components: { CodeEditorField, Console },
 
 	mounted() {
-		    const vm = this;
+		const vm = this;
 		// console.log = function(...params) {
 		//
 		//     let log = {
@@ -103,7 +103,7 @@ export default Vue.extend({
 	},
 
 	destroyed() {
-		    console.log = originalConsoleLog;
+		console.log = originalConsoleLog;
 	},
 
 	methods: {
@@ -136,6 +136,8 @@ export default Vue.extend({
 			//         .on('resizemove', onMove)
 			//         .on('resizeend', onEnd);
 			// });
+
+            this.dynamicComponent = this.getDynamicComponent();
 		},
 
 		switchView() {
@@ -146,27 +148,20 @@ export default Vue.extend({
 			this.console.lastCount = 0;
 			this.console.opened = true;
 		},
-	},
 
-	computed: {
+		getDynamicComponent() {
 
-		    tabDirection() {
-			return this.$vuetify.breakpoint.mdAndUp && this.view === 'vertical'
-				? 'vertical'
-				: 'horizontal';
-		},
+		    if (!this.component) {
+		        this.dynamicComponent = this.defaultComponent;
+		        return;
+			}
 
-		showTabs() {
-			return (this.$vuetify.breakpoint.smAndDown || this.view === 'vertical') && !this.component.is_invisible;
-		},
-
-		dynamicComponent() {
 			try {
 				let js = eval(this.component.js);
 				let structure = Object.assign(js, {
 					components: { VBtn, VIcon, VSheet, VCard, VProgressCircular },
 					template: '<div class="polycomp">'
-							+ (this.component.is_invisible ? '' : this.component.html)
+						+ (this.component.is_invisible ? '' : this.component.html)
 						+ '</div>',
 				});
 
@@ -174,7 +169,7 @@ export default Vue.extend({
 				structure.data = () => {
 					return {
 						parameters: structure.parameters,
-                        	events: structure.events,
+						events: structure.events,
 						...oldData(),
 					}
 				};
@@ -192,20 +187,46 @@ export default Vue.extend({
 			} catch (e) {
 				return this.emptyComp;
 			}
+		}
+	},
+
+	computed: {
+
+		tabDirection() {
+			return this.$vuetify.breakpoint.mdAndUp && this.view === 'vertical'
+				? 'vertical'
+				: 'horizontal';
+		},
+
+		showTabs() {
+			return (this.$vuetify.breakpoint.smAndDown || this.view === 'vertical') && !this.component.is_invisible;
 		},
 	},
 
 	data() {
+
+	    const defaultComponent = {
+            components: { VProgressCircular },
+            template: `<div class="text-center white--text">
+					<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+				</div>`,
+            data: () => {
+                return {};
+            },
+        };
+
 		return {
 			logs: [],
 			tab: 0,
 			view: 'horizontal',
 			originalConsoleLog: console.log,
+            dynamicComponent: defaultComponent,
+			defaultComponent: defaultComponent,
 			emptyComp: {
 				components: { VIcon },
 				template: `<div class="text-center white--text">
 						<v-icon color="error" style="font-size: 3rem">mdi-alert</v-icon>
-						<br />There's an issue with your code
+						<br /><span v-text="$t('component.source.codeIssue')"></span>
 					</div>`,
 				data: () => {
 					return {};
@@ -219,11 +240,16 @@ export default Vue.extend({
 	},
 
 	watch: {
-		    view() {
+
+		view() {
 			setTimeout(() => {
 				const event = new Event('resize');
 				window.dispatchEvent(event);
 			});
+		},
+
+		component(component) {
+            this.dynamicComponent = this.getDynamicComponent();
 		}
 	}
 })

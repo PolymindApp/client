@@ -19,7 +19,7 @@
 		</template>
 		<v-list>
 			<v-list-item v-for="(lang, i) in $root.languages" :key="i" @click="switchLang(lang.abbreviation)">
-				<v-list-item-title>{{ lang.origin_name }}</v-list-item-title>
+				<v-list-item-title>{{ lang.origin_title }}</v-list-item-title>
 			</v-list-item>
 		</v-list>
 	</v-menu>
@@ -51,7 +51,7 @@ export default Vue.extend({
 			const lang = this.$root.languages.find(lang => lang.abbreviation === this.value);
 
 			if (lang) {
-				return this.full !== null ? lang.origin_name : lang.abbreviation;
+				return this.full !== null ? lang.origin_title : lang.abbreviation;
 			}
 
 			return null;

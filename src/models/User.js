@@ -1,20 +1,17 @@
+import objectAssignDeep from 'object-assign-deep';
+
 export default class User {
 
-	constructor() {
+	constructor(props) {
 
-		Object.assign(this, {
-			profile: {
-				screen_name: '',
-				picture: {
-					url: false
-				},
-				wallpaper: {
-					url: false
-				}
+		objectAssignDeep(this, {
+			first_name: '',
+			last_name: '',
+			avatar: null,
+			wallpaper: null,
+			role: {
+				name: ''
 			},
-			roles: [
-				{ name: '' }
-			]
-		});
+		}, props);
 	}
 }

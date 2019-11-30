@@ -1,5 +1,5 @@
 <template>
-	<v-card tile class="default-gradient wallpaper" :style="{ backgroundImage: 'url(\'' + user.profile.wallpaper.url + '\')' }">
+	<v-card tile class="default-gradient wallpaper" :style="{ backgroundImage: backgroundImage }">
 
 		<v-overlay :absolute="true" :value="isUploading">
 			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
@@ -14,10 +14,10 @@
 				</div>
 				<div>
 					<h1 class="display-2 font-weight-thin">
-						{{ user.profile.screen_name }}
+						{{ user.first_name }} {{ user.last_name }}
 					</h1>
-					<h4 class="subheading">
-						{{ $t('role.' + user.roles[0].name) }}
+					<h4 class="subheading" v-if="user.role.name">
+						{{ $t('role.' + user.role.name.toLowerCase()) }}
 					</h4>
 				</div>
 			</v-sheet>
@@ -34,7 +34,7 @@
 
 				<div class="biography text-right">
 					<v-icon>mdi-format-quote-open</v-icon>
-					<span class="title font-italic font-weight-light" v-text="user.profile.quote"></span>
+					<span class="title font-italic font-weight-light" v-text="user.quote"></span>
 					<v-icon>mdi-format-quote-close</v-icon>
 				</div>
 			</v-sheet>
@@ -47,7 +47,7 @@ import Vue from 'vue';
 import File from "../../../utils/File";
 import UserAvatar from "../../../components/UserAvatar";
 import FileService from "../../../services/File";
-import ProfileService from "../../../services/Profile";
+import UserService from "../../../services/User";
 
 export default Vue.extend({
 
@@ -62,26 +62,30 @@ export default Vue.extend({
 				this.$crop(images, [1400, 350]).then(croppedImages => {
 					FileService.upload.bind(this)(croppedImages)
 						.then(filesResponse => {
-
-							let payload = {};
-							payload[param] = filesResponse.data.id;
-
-							ProfileService.update.bind(this)(this.user.profile.id, payload)
-								.then(profileResponse => {
-									this.$root.user.profile.wallpaper.url = filesResponse.data.url;
-									this.user.profile.wallpaper.url = filesResponse.data.url;
-									this.$root.isSaved = true;
+                            UserService.update.bind(this)(this.$root.user.id, {
+							    wallpaper: filesResponse.data.id
+							})
+								.then(response => {
+								    this.$root.user = Object.assign(this.$root.user, response.data);
+								    this.user = Object.assign(this.user, response.data);
 								})
-								.catch(error => this.$handleError(this, error))
-								.finally(() => this.isUploading = false);
+                                .catch(error => this.$handleError(this, error))
+                                .finally(() => this.isUploading = false);
 						})
-						.catch(error => {
-							this.$handleError(this, error);
-							this.isUploading = false;
-						});
+						.catch(error => this.$handleError(this, error))
+                        .finally(() => this.isUploading = false);
 				}).catch(error => this.isUploading = false);
 			}, 'image/png, image/jpeg, image/gif');
 		},
+	},
+
+	computed: {
+
+	    backgroundImage() {
+	        return this.user.wallpaper
+				? 'url(\'' + this.$thumbnails(this.user.wallpaper.filename, 1500, 350) + '\')'
+				: null;
+		}
 	},
 
 	data: function() {

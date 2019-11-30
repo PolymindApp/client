@@ -26,6 +26,7 @@ const literals = {
 		strategy: 'Stratégie',
 		component: 'Composante',
 		dataset: 'Base de données',
+		accountMessaging: 'Messagerie',
 	},
 	error404: {
 		title: 'Oups ! Cette page ne semble pas exister.',
@@ -61,9 +62,23 @@ const literals = {
 			title: 'Contact'
 		},
 	},
+	mediaBrowser: {
+		filterPlaceholder: 'Filtrer les étiquettes...',
+		types: {
+			all: 'Tous les fichiers',
+			images: 'Images',
+			audios: 'Audios',
+			others: 'Autres',
+			tags: 'Étiquettes',
+		},
+	},
 	account: {
 		messages: 'Derniers messages',
 		recentActivities: 'Récentes activités',
+		activities: {
+			messagesEmpty: 'Aucun message pour le moment',
+			historyEmpty: 'Aucune historique pour le moment',
+		},
 		changeWallpaper: 'Changer le fond d\'écran',
 		wall: {
 			title: 'Activités'
@@ -79,6 +94,15 @@ const literals = {
 			genderLabel: 'Sexe',
 			quoteLabel: 'Citation',
 			applyChanges: 'Appliquer les changements',
+		},
+		messaging: {
+			title: 'Messagerie',
+			newMessagePlaceholder: 'Écrivez votre message...',
+			empty: 'Aucun message',
+			selectUserFirst: 'Veuillez sélectionner un fil de discussion',
+		},
+		notifications: {
+			title: 'Notifications',
 		}
 	},
 	app: {
@@ -107,6 +131,9 @@ const literals = {
 			title: 'Flux de travail',
 		},
 	},
+	media: {
+		title: 'Galerie de médias',
+	},
 	component: {
 
 		newTitle: 'Nouveau',
@@ -125,12 +152,18 @@ const literals = {
 			title: 'Source',
 			viewTooltip: 'Basculer le mode de vue',
 			consoleTooltip: 'Afficher la console',
+			codeIssue: 'Il y a un problème avec votre code',
 		},
 		params: {
 			title: 'Paramètres',
 		},
 		events: {
 			title: 'Événements',
+		},
+
+		iconListField: {
+			clear: 'Nettoyer',
+			selectIcon: 'Sélectionner une icône',
 		},
 
 		page: {
@@ -182,6 +215,7 @@ const literals = {
 			bulkAction: {
 				delete: 'Effacer',
 				restore: 'Restaurer',
+				reset: 'Réinitialiser',
 				modifyValue: 'Modifier',
 				moveTo: 'Déplacer vers...',
 				copyTo: 'Copier vers...',
@@ -196,6 +230,7 @@ const literals = {
 				manageColumn: 'Gérer les colonnes',
 				delete: 'Effacer la donnée',
 				restore: 'Restorer la donnée',
+				edit: 'Modifier la donnée',
 			},
 			modal: {
 				copy: {
@@ -204,6 +239,10 @@ const literals = {
 					databaseLabel: 'Base de donnée',
 					newDbLabel: 'Nouvelle base de donnée',
 					newDbNameLabel: 'Nom de la base de donnée',
+				},
+				comment: {
+					title: 'Commenter une donnée',
+					commentLabel: 'Commentaire',
 				},
 				move: {
 					title: 'Déplacer vers...',
@@ -249,6 +288,7 @@ const literals = {
 						multipleChoice: 'Sélection multiple',
 						image: 'Image',
 						audio: 'Audio',
+						recording: 'Enregistrement',
 						file: 'Fichier',
 						relation: 'Relation',
 					}
@@ -282,6 +322,8 @@ const literals = {
 			addcomponents: 'Ajouter une composante',
 			adddataset: 'Ajouter une base de données',
 			shortcuts: 'Raccourcis',
+			collapse: 'Rabaisser',
+			expand: 'Étendre',
 		},
 	},
 	switch: {
@@ -293,13 +335,25 @@ const literals = {
 		close: 'Fermer',
 		noSelectTitle: 'Manuel d\'aide',
 		noSelectDesc: 'Veuillez sélectionner un élément du menu contextuel',
+		filterPlaceholder: 'Filtrer/rechercher...',
+		noItems: 'Aucun élément d\'aide n\'a été ajouté pour le moment.',
+		general: 'Générale',
 	},
 	diff: {
 		quote: 'A changé sa citation pour <strong>{value}</strong>',
 		screen_name: 'A changé son surnom pour <strong>{value}</strong>',
+		first_name: 'A changé son prénom pour <strong>{value}</strong>',
+		last_name: 'A changé son nom de famille pour <strong>{value}</strong>',
+		gender: 'A changé son sexe pour <strong>{value}</strong>',
+		biography: 'A changé sa biographie',
+		settings: 'A changé ses paramètres',
+		avatar: 'A changé sa photo de profil',
+		wallpaper: 'A changé son fond d\'écran',
+		title: 'A changé sa position',
 	},
 	error: {
 
+		default: 'Erreur',
 		goBack: 'Revenir en arrière',
 
 		code400: 'Mauvaise Requête',
@@ -368,6 +422,10 @@ const literals = {
 			desc: 'Une erreur inconnue est survenue',
 		},
 	},
+	modalGallery: {
+		title: 'Galerie d\'images',
+		download: 'Télécharger',
+	},
 	modal: {
 		add: 'Ajouter',
 		close: 'Fermer',
@@ -380,6 +438,7 @@ const literals = {
 		copy: 'Copier',
 		move: 'Déplacer',
 		import: 'Importer',
+		post: 'Poster',
 	},
 	modalDelete: {
 		title: 'Effacer cette entité',
@@ -497,6 +556,7 @@ const literals = {
 		name: 'Nom complet',
 		email: 'Adresse courriel',
 		subject: 'Sujet',
+		subjectOther: 'Autre sujet',
 		message: 'Message',
 		sendCopy: 'Envoyez-moi une copie',
 		send: 'Envoyez',
@@ -571,22 +631,44 @@ const literals = {
 	role: {
 		guest: 'Visiteur',
 		user: 'Utilisateur',
+		member: 'Utilisateur',
 		admin: 'Administrateur',
+		administrator: 'Administrateur',
 		dev: 'Développeur',
 	},
 	dataType: {
 		optionsTooltip: 'Options',
+		commentsTooltip: 'Commentaires',
 		options: {
 			edit: 'Modifier',
 			comment: 'Commenter',
 			clean: 'Nettoyer',
+			reset: 'Reinitialiser',
 		},
 		playAudioTooltip: 'Reproduire',
 		stopAudioTooltip: 'Intérrompre',
 	},
 	shortcuts: {
-		generalTitle: 'Raccourcis généraux',
-		availableTitle: 'Raccourcis disponible sur cet écran',
+		main: {
+			escape: {
+				title: 'Sortir',
+				desc: 'Sortir d\'un context (fenêtre, couverture, etc)',
+			},
+			help: {
+				title: 'Aide',
+				desc: 'Basculer la fenêtre du manuel d\'aide',
+			},
+		},
+		datasetData: {
+			add: {
+				title: 'Ajouter une donnée',
+				desc: 'Ouvre le panneau d\'ajout de donnée',
+			},
+		},
+		groupTitles: {
+			main: 'Généraux',
+			datasetData: 'Gestion de données',
+		},
 	}
 };
 

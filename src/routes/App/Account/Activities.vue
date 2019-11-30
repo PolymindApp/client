@@ -3,25 +3,30 @@
 		<v-col cols="12" md="7">
 			<v-card-title>{{ $t('account.messages') }}</v-card-title>
 
-			TBD
+			<v-alert v-if="messages.length === 0" type="info" class="mb-6" transition="scale-transition" border="left" colored-border light elevation="2">
+				{{$t('account.activities.messagesEmpty')}}
+			</v-alert>
 		</v-col>
 		<v-col cols="12" md="5">
 			<v-card-title>{{ $t('account.recentActivities') }}</v-card-title>
 
-			<v-timeline dense clipped>
+			<v-alert v-if="histories.length === 0" type="info" class="mb-6" transition="scale-transition" border="left" colored-border light elevation="2">
+				{{$t('account.activities.historyEmpty')}}
+			</v-alert>
+			<v-timeline v-else dense clipped>
 				<v-timeline-item v-for="(history, index) in histories" :key="index" color="grey" small label>
 					<v-row justify="space-between">
 						<v-col cols="7">
 							<v-card class="elevation-2">
 								<v-card-text>
-									<template v-for="(value, key) in history.diff">
+									<template v-for="(value, key) in history.delta">
 										<span :key="key" v-html="$t('diff.' + key, { value: value })" />.
 									</template>
 								</v-card-text>
 							</v-card>
 						</v-col>
 						<v-col class="text-right align-center d-flex justify-end" cols="5">
-							{{ history.created_at | timeAgo }}
+							{{ history.activity.action_on | timeAgo }}
 						</v-col>
 					</v-row>
 				</v-timeline-item>
@@ -54,8 +59,8 @@ export default Vue.extend({
 
 	data() {
 		return {
-			activities: [],
-			histories: false,
+            messages: [],
+			histories: [],
 		}
 	},
 });

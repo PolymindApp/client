@@ -88,11 +88,26 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
+
 	.page-component blockquote {
 		margin: 1rem;
 		border-left: rgba(255, 255, 255, 0.2) solid 3px;
 		padding-left: 1rem;
 		color: rgba(255, 255, 255, 0.75);
 		font-size: 1.25rem;
+	}
+
+	.page-component h1,
+	.page-component h2,
+	.page-component h3,
+	.page-component h4,
+	.page-component h5,
+	.page-component h6 {
+		margin-bottom: 1rem;
+	}
+
+	.page-component ul > li + li,
+	.page-component ol > li + li {
+		margin-top: 0.5rem;
 	}
 </style>

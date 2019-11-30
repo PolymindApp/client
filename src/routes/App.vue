@@ -31,63 +31,48 @@
 			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
 		</v-overlay>
 
-		<Sidebar v-if="$root.user.id" v-model="sidebar"></Sidebar>
-		<Toolbar v-if="$root.user.id" :sidebar="sidebar"></Toolbar>
+		<v-scroll-y-transition>
+			<Sidebar v-if="$root.user.id" v-model="sidebar"></Sidebar>
+		</v-scroll-y-transition>
+		<v-scroll-y-transition>
+			<Toolbar v-if="$root.user.id" :sidebar="sidebar"></Toolbar>
+		</v-scroll-y-transition>
 
-		<v-content v-if="$root.user.id" class="main-content">
-			<v-layout fill-height>
-				<router-view></router-view>
-			</v-layout>
-		</v-content>
+		<v-scroll-y-transition>
+			<v-content v-if="$root.user.id" class="main-content">
+				<v-layout fill-height>
+					<router-view></router-view>
+				</v-layout>
+			</v-content>
+		</v-scroll-y-transition>
 	</v-app>
 </template>
 
 <script>
 import Vue from 'vue';
 import moment from 'moment';
-
 import Dashboard from './App/Dashboard.vue';
-// import Preferences from './App/Preferences.vue';
 import Account from './App/Account.vue';
 import Error404 from './Error/Error404.vue';
 import Toolbar from '../components/Toolbar.vue';
 import Sidebar from '../components/Sidebar.vue';
 import Shortcuts from '../components/Shortcuts.vue';
 import Help from '../components/Help.vue';
-// import Stats from "./App/Stats.vue";
-// import DeckView from "./App/Deck/View.vue";
-// import DeckEdit from "./App/Deck/Edit.vue";
-// import Shop from "./App/Shop.vue";
-// import Help from "./App/Help.vue";
 import UserService from "../services/User";
 import ErrorDialog from '../components/ErrorDialog.vue';
-// import Community from './App/Community.vue';
 import About from './App/About.vue';
-import Notifications from './App/Notifications.vue';
-// import Customize from "./App/Customize";
+import HelpGeneral from './App/Help/General.vue';
 import Component from "./App/Component";
 import Strategy from "./App/Strategy";
-import DataSet from "./App/DataSet";
+import Dataset from "./App/Dataset";
+import User from "../models/User";
 
 export const routes = [
 	{path: '/', component: Dashboard, name: 'dashboard'},
 	{path: '/login', redirect: '/'},
-	// {path: '/shop', component: Shop, name: 'shop'},
-	// {path: '/community', component: Community, name: 'community'},
-	// {path: '/stats', component: Stats, name: 'stats'},
-	// {path: '/help', redirect: '/help/welcome'},
-	// {path: '/help/:section', component: Help, name: 'help'},
-	{path: '/notifications', component: Notifications, name: 'notifications'},
-	// {path: '/deck/:id', component: DeckView, name: 'deck'},
-	// {path: '/deck/:id/edit', component: DeckEdit},
-	// {path: '/deck/:id/edit/:section', component: DeckEdit},
-	// {path: '/preferences', component: Preferences, name: 'preferences'},
-	// {path: '/preferences/:section', component: Preferences},
 	{path: '/account/:id', redirect: '/account/:id/wall' },
 	{path: '/account/:id/:section', component: Account, name: 'account'},
-	// {path: '/account/:id/decks', component: Account},
-	// {path: '/customize', component: Customize, name: 'customize'},
-	// {path: '/customize/:section', component: Customize},
+	{path: '/account/:id/:section/:key', component: Account, name: 'accountMessaging'},
 	{path: '/about', component: About, name: 'about'},
 	{path: '/about/:section', component: About},
 	{path: '/strategy/:id', redirect: '/strategy/:id/settings'},
@@ -95,14 +80,10 @@ export const routes = [
 	{path: '/component/:id', redirect: '/component/:id/settings'},
 	{path: '/component/:id/:section', component: Component, name: 'component'},
 	{path: '/dataset/:id', redirect: '/dataset/:id/settings'},
-	{path: '/dataset/:id/:section', component: DataSet, name: 'dataset'},
+	{path: '/dataset/:id/:section', component: Dataset, name: 'dataset'},
 	{path: '/contact', redirect: '/about/contact'},
 	{path: '/terms', redirect: '/about/terms'},
 	{path: '/privacy', redirect: '/about/privacy'},
-	// {path: '/admin/users', component: AdminUsers, name: 'admin.users'},
-	// {path: '/admin/roles', component: AdminRoles, name: 'admin.roles'},
-	// {path: '/admin/groups', component: AdminGroups, name: 'admin.groups'},
-	// {path: '/admin/permissions', component: AdminPermissions, name: 'admin.permissions'},
 	{path: '*', component: Error404, name: 'error404'},
 ];
 
@@ -114,17 +95,41 @@ export default Vue.extend({
 	},
 
 	mounted() {
+
 		moment.locale(this.$i18n.locale);
 		UserService.me.bind(this)().then(response => {
-			this.$root.user = Object.assign({}, this.$root.user, response.data);
+			this.$root.user = new User(response.data);
+
+			this.sidebar.permanent = this.$root.user.settings.sidebar.fixed;
+			this.sidebar.opened = this.$root.user.settings.sidebar.fixed;
 			// this.$i18n.locale = user.language_abbreviation;
 			// this.$vuetify.theme.themes.light.primary = user.setting.colorFrom;
 			this.$forceUpdate();
 		});
+
+		this.$shortcuts.attach(document.body);
+        this.$shortcuts.add(this.$t('shortcuts.main.escape.title'), this.$t('shortcuts.main.escape.desc'), 'main', 'Escape', this.shortcutEscape);
+        this.$shortcuts.add(this.$t('shortcuts.main.help.title'), this.$t('shortcuts.main.help.desc'), 'main', 'F1', this.shortcutHelp);
+
+        this.$help.items.slice(0, this.$help.length);
+        this.$help.add('general', this.$t('help.general'), 'doc', HelpGeneral);
+	},
+
+	destroyed() {
+		this.$shortcut.remove(this.shortcutEscape);
+		this.$shortcut.remove(this.shortcutHelp);
 	},
 
 	methods: {
 
+	    shortcutEscape() {
+			this.$root.help.visible = false;
+			this.$root.shortcuts.visible = false;
+        },
+
+	    shortcutHelp() {
+            this.$root.help.visible = !this.$root.help.visible;
+        },
 	},
 
 	computed: {
@@ -135,11 +140,7 @@ export default Vue.extend({
 		return {
 			sidebar: {
 				opened: false,
-				pinned: false,
 				permanent: false,
-				// opened: this.$vuetify.breakpoint.mdAndUp,
-				// pinned: this.$vuetify.breakpoint.mdAndUp,
-				// permanent: this.$vuetify.breakpoint.mdAndUp,
 				miniVariant: false,
 				hideOverlay: false,
 			},

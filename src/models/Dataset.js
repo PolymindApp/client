@@ -1,6 +1,6 @@
-import Hash from "../utils/Hash";
+import DatasetColumn from "./DatasetColumn";
 
-export default class DataSet {
+export default class Dataset {
 
 	constructor() {
 
@@ -23,8 +23,8 @@ return {
 };`,
 			icon: '',
 			datasetColumn: [
-				{ id: Hash.guid(), name: 'Front', type: 'text', required: true, },
-				{ id: Hash.guid(), name: 'Back', type: 'text', required: true, },
+				new DatasetColumn({ name: 'Front' }),
+				new DatasetColumn({ name: 'Back' }),
 			],
 			datasetRow: [
 				// [Hash.guid(), 'To talk', 'Parler', true, new Date()],

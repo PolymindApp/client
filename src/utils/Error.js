@@ -11,7 +11,9 @@ $error.install = function (Vue, options) {
 			return vm.$root.error = new ServerError(vm, error);
 		} else if (typeof error.data === 'string') {
 			return vm.$root.error = new ServerError(vm, error.data);
-		}else if (error.data.fields) {
+		} else if (typeof error.code === 'number') {
+			return vm.$root.error = new ServerError(vm, error);
+		} else if (error.data.fields) {
 			vm.formErrors = Form.applyErrors(vm, error.data.fields, vm.$refs);
 		} else if (error.data.message) {
 			vm.$root.error = new ServerError(vm, error);

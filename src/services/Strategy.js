@@ -3,23 +3,23 @@ import Server from '../utils/Server';
 export default class StrategyService {
 
 	static getAll() {
-		return Server.get.bind(this)('/strategy');
+		return Server.get.bind(this)('/items/strategy');
 	}
 
 	static get(id) {
-		return Server.get.bind(this)('/strategy/' + id);
+		return Server.get.bind(this)('/items/strategy/' + id);
 	}
 
 	static save(id, data) {
 
 		if (id) {
-			return Server.put.bind(this)('/strategy/' + id, data);
+			return Server.put.bind(this)('/items/strategy/' + id, data);
 		} else {
-			return Server.post.bind(this)('/strategy', data);
+			return Server.post.bind(this)('/items/strategy', data);
 		}
 	}
 
 	static remove(id) {
-		return Server.delete.bind(this)('/strategy/' + id);
+		return Server.delete.bind(this)('/items/strategy/' + id);
 	}
 }

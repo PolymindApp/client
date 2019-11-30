@@ -2,8 +2,7 @@
 	<v-navigation-drawer app :hide-overlay="hideOverlay" :temporary="temporary" :permanent="permanent" v-model="sidebar.opened" width="300" :mini-variant="sidebar.miniVariant">
 		<v-card tile height="100%" class="d-flex flex-column">
 			<div style="flex: 0">
-				<!--			<v-card tile class="py-5 lightbox default-gradient" v-bind:style="'background-image: linear-gradient(to bottom, ' + $root.user.setting.colorFrom + ', ' + $root.user.setting.colorTo + ')'">-->
-				<v-card tile class="py-5 lightbox default-gradient user-tile" :style="{ backgroundImage: 'url(\'' + $root.user.profile.wallpaper.url + '\')' }">
+				<v-card tile class="py-5 lightbox default-gradient user-tile" :style="{ backgroundImage: backgroundImage }">
 
 					<v-overlay :absolute="false" :value="isLoading">
 						<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
@@ -17,7 +16,7 @@
 							<v-layout align-end fill-height>
 								<v-list-item>
 									<v-list-item-content>
-										<v-list-item-title class="title white--text">{{ $root.user.profile.screen_name }}</v-list-item-title>
+										<v-list-item-title class="title white--text">{{ $root.user.first_name }} {{ $root.user.last_name }}</v-list-item-title>
 										<v-list-item-subtitle class="white--text">
 											<a class="my-account" :href="'/account/' + this.$root.user.id">
 												{{ $t('sidebar.myAccount') }}
@@ -34,7 +33,7 @@
 
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on }">
-							<v-btn icon small v-on="on" class="white--text sidebar-button" v-if="$vuetify.breakpoint.mdAndUp" absolute top right @click="sidebar.permanent = !sidebar.permanent">
+							<v-btn icon small v-on="on" class="white--text sidebar-button" v-if="$vuetify.breakpoint.mdAndUp" absolute top right @click="toggleSidebar()">
 								<v-icon small v-if="sidebar.permanent">mdi-pin</v-icon>
 								<v-icon small v-if="!sidebar.permanent">mdi-pin-off</v-icon>
 							</v-btn>
@@ -61,35 +60,55 @@
 
 						<v-tooltip v-if="group.canAdd" bottom>
 							<template v-slot:activator="{ on }">
-								<v-btn icon v-on="on" :to="group.addTo" icon color="primary">
+								<v-btn icon @click="toggleSection(group.name)" v-on="on" icon>
+									<v-icon v-if="$root.user.settings.sidebar[group.name]">mdi-chevron-down</v-icon>
+									<v-icon v-else>mdi-chevron-up</v-icon>
+								</v-btn>
+							</template>
+							<span>
+								<span v-if="$root.user.settings.sidebar[group.name]" v-text="$t('toolbar.tooltip.collapse')"></span>
+								<span v-else="$t('toolbar.tooltip.expand')"></span>
+							</span>
+						</v-tooltip>
+
+						<v-tooltip v-if="group.canAdd" bottom>
+							<template v-slot:activator="{ on }">
+								<v-btn class="ml-2" icon v-on="on" :to="group.addTo" icon color="primary">
 									<v-icon>mdi-plus</v-icon>
 								</v-btn>
 							</template>
 							<span>{{$t('toolbar.tooltip.add' + group.name)}}</span>
 						</v-tooltip>
 					</v-subheader>
-					<v-alert v-if="group.canAdd && group.getItems().length === 0" text tile type="warning" class="ma-0">
-						{{$t('sidebar.' + group.name + 'Empty')}}
-					</v-alert>
-					<v-list v-if="group.getItems().length > 0" shaped v-bind:class="group.className">
-<!--						<draggable :disabled="$vuetify.breakpoint.smAndDown" class="draggable-list" :list="decks" v-bind="{ disabled: !group.sortable, animation: 200, }" @end="group.sortable && group.sortable.onEnd()">-->
-							<v-list-item :color="item.color" :key="item.name || item.title" :to="item.link" :exact="item.exact" @click="item.signOut ? signOut() : null" :disabled="item.disabled" v-for="item in group.getItems()">
-								<v-list-item-icon>
-									<v-icon>{{ item.icon }}</v-icon>
-								</v-list-item-icon>
 
-								<v-list-item-content>
-									<v-list-item-title>{{ item.title || (item.name && $t('title.' + item.name)) }}</v-list-item-title>
-								</v-list-item-content>
+					<v-expand-transition>
+						<template v-if="!group.canAdd || $root.user.settings.sidebar[group.name]">
+							<div>
+								<v-alert v-if="group.canAdd && group.getItems().length === 0" text tile type="warning" class="ma-0">
+									{{$t('sidebar.' + group.name + 'Empty')}}
+								</v-alert>
+								<v-list v-if="group.getItems().length > 0" shaped v-bind:class="group.className">
+									<!--						<draggable :disabled="$vuetify.breakpoint.smAndDown" class="draggable-list" :list="decks" v-bind="{ disabled: !group.sortable, animation: 200, }" @end="group.sortable && group.sortable.onEnd()">-->
+									<v-list-item color="primary" :key="item.name || item.title" :to="item.link" :exact="item.exact" @click="item.signOut ? signOut() : null" :disabled="item.disabled" v-for="item in group.getItems()">
+										<v-list-item-icon>
+											<v-icon>{{ item.icon }}</v-icon>
+										</v-list-item-icon>
 
-								<v-list-item-action v-if="item.badge">
-									<v-chip :color="item.badgeColor">
-										{{ item.badge }}
-									</v-chip>
-								</v-list-item-action>
-							</v-list-item>
-<!--						</draggable>-->
-					</v-list>
+										<v-list-item-content>
+											<v-list-item-title>{{ item.title || (item.name && $t('title.' + item.name)) }}</v-list-item-title>
+										</v-list-item-content>
+
+										<v-list-item-action v-if="item.badge">
+											<v-chip :color="item.badgeColor">
+												{{ item.badge }}
+											</v-chip>
+										</v-list-item-action>
+									</v-list-item>
+									<!--						</draggable>-->
+								</v-list>
+							</div>
+						</template>
+					</v-expand-transition>
 				</v-sheet>
 			</div>
 			<div style="flex: 0">
@@ -107,7 +126,8 @@ import UserAvatar from '../components/UserAvatar.vue';
 import draggable from "vuedraggable";
 import ComponentService from "../services/Component";
 import StrategyService from "../services/Strategy";
-import DataSetService from "../services/DataSet";
+import DatasetService from "../services/Dataset";
+import UserService from "../services/User";
 // import DeckService from "../services/Deck";
 
 export default Vue.extend({
@@ -125,7 +145,7 @@ export default Vue.extend({
 	    // this.loadDecks();
 		this.loadComponents();
 		this.loadStrategies();
-		this.loadDataSets();
+		this.loadDatasets();
 
 	    // this.$root.$on('DECK_UPDATE', this.deckUpdateEvent);
 	    this.$root.$on('FULLSCREEN', this.fullScreenEvent);
@@ -137,6 +157,25 @@ export default Vue.extend({
 	},
 
 	methods: {
+
+	    toggleSection(name) {
+
+            this.$root.user.settings.sidebar[name] = !this.$root.user.settings.sidebar[name];
+            UserService.update.bind(this)(this.$root.user.id, {
+                settings: this.$root.user.settings
+            })
+                .catch(error => this.$handleError(this, error));
+		},
+
+	    toggleSidebar() {
+
+	        this.sidebar.permanent = !this.sidebar.permanent;
+	        this.$root.user.settings.sidebar.fixed = this.sidebar.permanent;
+	        UserService.update.bind(this)(this.$root.user.id, {
+	            settings: this.$root.user.settings
+			})
+				.catch(error => this.$handleError(this, error));
+		},
 
 		fullScreenEvent(active) {
 			if (active) {
@@ -172,8 +211,8 @@ export default Vue.extend({
 				// .finally(() => this.$root.isLoading = false);
 		},
 
-		loadDataSets() {
-			DataSetService.getAll.bind(this)().then(response => {
+		loadDatasets() {
+			DatasetService.getAll.bind(this)().then(response => {
 				this.datasets = response.data;
 			})
 				.catch(error => this.$handleError(this, error))
@@ -187,8 +226,11 @@ export default Vue.extend({
 		// },
 
 		signOut() {
-			localStorage.removeItem('jwt');
-			this.$router.go(0);
+		    UserService.logout.bind(this)()
+				.then(() => {
+                    this.$router.go(0);
+				});
+			// localStorage.removeItem('jwt');
 		},
 
 		handleKeyDown(event) {
@@ -205,6 +247,12 @@ export default Vue.extend({
 	},
 
 	computed: {
+
+	    backgroundImage() {
+            return this.$root.user.wallpaper
+                ? 'url(\'' + this.$thumbnails(this.$root.user.wallpaper.filename, 256, 256) + '\')'
+                : null;
+		},
 
 	    hideOverlay() {
 	        return this.sidebar.hideOverlay || this.sidebar.permanent || !this.sidebar.opened;

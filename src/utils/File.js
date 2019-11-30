@@ -53,6 +53,10 @@ export default class File {
 		link.remove();
 	}
 
+	static getFilenameFromUrl(url) {
+		return url.substring(url.lastIndexOf('/') + 1);
+	}
+
 	static promptFileDialog(callback = () => {}, accept, multiple = false) {
 
 		let input = document.createElement('input');

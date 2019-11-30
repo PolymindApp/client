@@ -29,34 +29,40 @@ ul + p {
 	z-index: 4;
 }
 
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.v-navigation-drawer__content::-webkit-scrollbar {
+	display: none !important;
+}
+
 @media all and (min-width: 767px) {
 
-	/* Sizing */
-	::-webkit-scrollbar {
-		width: 0.5rem;
-		height: 0.5rem;
-	}
-
-	/* Track */
-	::-webkit-scrollbar-track {
-		background: white;
-	}
-
-	/* Handle */
-	::-webkit-scrollbar-thumb {
-		transition: background 300ms ease;
-		background: rgba(0, 0, 0, 0.1);
-	}
-
-	/* Handle on hover */
-	::-webkit-scrollbar-thumb:hover {
-		background: rgba(0, 0, 0, 0.2);
-	}
-	::-webkit-scrollbar-corner {
-		background-color: transparent;
-	}
-
 	.ace_editor {
+
+		/* Sizing */
+		::-webkit-scrollbar {
+			width: 0.5rem;
+			height: 0.5rem;
+		}
+
+		/* Track */
+		::-webkit-scrollbar-track {
+			background: white;
+		}
+
+		/* Handle */
+		::-webkit-scrollbar-thumb {
+			transition: background 300ms ease;
+			background: rgba(0, 0, 0, 0.1);
+		}
+
+		/* Handle on hover */
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(0, 0, 0, 0.2);
+		}
+		::-webkit-scrollbar-corner {
+			background-color: transparent;
+		}
 
 		::-webkit-scrollbar-track {
 			background-color: #333;

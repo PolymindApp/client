@@ -2,27 +2,53 @@
 	<v-input v-bind="$attrs" :class="{ 'focused primary--text': focused }">
 		<fieldset style="width: 100%">
 			<legend class="v-label">{{label}}</legend>
-			<v-card :height="height" flat style="background-color: transparent">
-				<div class="icon-container">
-					<div v-for="item in icons" class="icon pa-2">
-						<v-btn :disabled="$attrs.disabled" v-bind:input-value="value === ('mdi-' + item)" :color="(value === 'mdi-' + item) ? 'primary' : 'secondary'" icon @click="icon = item; $emit('input', 'mdi-' + icon)">
-							<v-icon>mdi-{{ item }}</v-icon>
-						</v-btn>
-					</div>
-				</div>
-			</v-card>
+			<v-row no-gutters>
+				<v-col class="shrink icon-selected pa-8 d-flex align-center">
+					<v-scale-transition mode="out-in">
+						<div key="has" v-if="value" class="text-center">
+							<v-icon v-text="value" size="64" color="primary"></v-icon>
+							<v-tooltip bottom>
+								<template v-slot:activator="{ on }">
+									<v-btn class="mt-2" icon @click="remove()" v-on="on">
+										<v-icon>mdi-close</v-icon>
+									</v-btn>
+								</template>
+								<span v-text="$t('component.iconListField.clear')"></span>
+							</v-tooltip>
+						</div>
+						<div key="empty" class="text-center" v-else>
+							<v-icon size="64">mdi-selection-ellipse mdi-dark mdi-inactive</v-icon>
+<!--							<div class="overline mt-2" v-text="$t('component.iconListField.selectIcon')"></div>-->
+						</div>
+					</v-scale-transition>
+				</v-col>
+				<v-col class="grow">
+					<v-card :height="height" flat style="background-color: transparent">
+						<div class="icon-container">
+							<div v-for="item in icons" class="icon pa-2">
+								<v-btn :disabled="$attrs.disabled" v-bind:input-value="value === ('mdi-' + item)" :color="(value === 'mdi-' + item) ? 'primary' : 'secondary'" icon @click="icon = item; $emit('input', 'mdi-' + icon)">
+									<v-icon>mdi-{{ item }}</v-icon>
+								</v-btn>
+							</div>
+						</div>
+					</v-card>
+				</v-col>
+			</v-row>
 		</fieldset>
 	</v-input>
 </template>
 
 <script>
 import Vue from 'vue';
-// import icons from '../assets/icons.json';
 
 export default Vue.extend({
 	props: ['label', 'value', 'height'],
 
 	methods: {
+
+	    remove() {
+			this.$emit('input', null);
+		},
 
 		titleCase(str) {
 			var splitStr = str.toLowerCase().split(' ');
@@ -57,6 +83,10 @@ export default Vue.extend({
 
 		.icon {
 			display: inline-block;
+		}
+
+		.icon-selected .v-icon {
+
 		}
 
 		fieldset {

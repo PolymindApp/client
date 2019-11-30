@@ -18,7 +18,7 @@
 
 		<!-- LOGO -->
 		<v-scale-transition mode="in-out" v-if="$vuetify.breakpoint.smAndUp">
-			<img class="mr-4" v-show="showAppTitle" src="../assets/images/logo-light.svg" height="48" width="62" />
+			<img class="mr-4" v-show="showAppTitle" src="../assets/images/polymind-light.svg" height="48" />
 		</v-scale-transition>
 
 		<!-- TITLE -->
@@ -26,11 +26,19 @@
 			<span v-if="$root.breadcrumbs.length === 0" class="font-weight-light">{{ $router.currentRoute.name && $t('title.' + $router.currentRoute.name) }}</span>
 
 			<template v-for="(breadcrumb, index) in $root.breadcrumbs">
-				<v-scroll-x-transition mode="out-in" v-if="$vuetify.breakpoint.mdAndUp || index === $root.breadcrumbs.length - 1">
-					<span v-if="index === 0" v-show="showTitle" :key="index + '_item'">{{ breadcrumb }}</span>
-					<span v-if="index > 0" v-show="showTitle" :key="index + '_item'" class="font-weight-light">{{ breadcrumb }}</span>
-				</v-scroll-x-transition>
-				<v-icon v-if="index + 1 < $root.breadcrumbs.length && $vuetify.breakpoint.mdAndUp" :key="index + '_chevron'">mdi-chevron-right</v-icon>
+				<div class="d-inline">
+					<span v-if="typeof breadcrumb === 'string'">
+						<span v-if="index === 0" v-show="showTitle" :key="index + '_item'">{{ breadcrumb }}</span>
+						<span v-if="index > 0" v-show="showTitle" :key="index + '_item'" class="font-weight-light">{{ breadcrumb }}</span>
+					</span>
+
+					<template v-if="typeof breadcrumb !== 'string'">
+						<component class="d-inline" :is="breadcrumb[0]" v-bind="breadcrumb[1]" v-if="typeof breadcrumb === 'object'"></component>
+						<component class="d-inline" :is="breadcrumb" v-else></component>
+					</template>
+				</div>
+
+				<v-icon v-if="index + 1 < $root.breadcrumbs.length" :key="index + '_chevron'">mdi-chevron-right</v-icon>
 			</template>
 		</v-toolbar-title>
 
@@ -41,16 +49,6 @@
 				<component :is="contextualComponent.component"></component>
 				<v-divider v-if="!collapse" inset vertical class="ml-8"></v-divider>
 			</template>
-
-			<!-- SHORTCUTS -->
-			<v-tooltip v-if="!collapse" bottom>
-				<template v-slot:activator="{ on }">
-					<v-btn :class="$vuetify.breakpoint.smAndUp ? 'ml-4' : null" @click="toggleShortcut()" v-on="on" text>
-						<v-icon>mdi-keyboard</v-icon>
-					</v-btn>
-				</template>
-				<span>{{$t('toolbar.tooltip.shortcuts')}}</span>
-			</v-tooltip>
 
 			<!-- HELP -->
 			<v-tooltip v-if="!collapse" bottom>
@@ -63,16 +61,27 @@
 				<span>{{$t('toolbar.tooltip.help')}}</span>
 			</v-tooltip>
 
+			<!-- SHORTCUTS -->
+			<v-tooltip v-if="!collapse" bottom>
+				<template v-slot:activator="{ on }">
+					<v-btn :class="$vuetify.breakpoint.smAndUp ? 'ml-4' : null" @click="toggleShortcut()" v-on="on" icon>
+						<v-icon>mdi-keyboard</v-icon>
+					</v-btn>
+				</template>
+				<span>{{$t('toolbar.tooltip.shortcuts')}}</span>
+			</v-tooltip>
+
 			<!-- NOTIFICATIONS -->
 			<v-menu v-if="!collapse" transition="slide-y-transition">
 				<template v-slot:activator="{ on: menu }">
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on: tooltip }">
-							<v-btn :disabled="true" :class="$vuetify.breakpoint.smAndUp ? 'ml-4' : null" text v-on="{ ...tooltip, ...menu }">
-								<v-badge>
-<!--									<template v-slot:badge>5</template>-->
+							<v-btn :disabled="notifications.length === 0" :class="$vuetify.breakpoint.smAndUp ? 'ml-4 mr-0' : null" icon v-on="{ ...tooltip, ...menu }">
+								<v-badge color="error" v-if="newNotifications.length > 0">
+									<template v-slot:badge>{{ newNotifications.length }}</template>
 									<v-icon>mdi-bell</v-icon>
 								</v-badge>
+								<v-icon v-else>mdi-bell</v-icon>
 							</v-btn>
 						</template>
 						<span>{{$t('toolbar.tooltip.notification')}}</span>
@@ -81,17 +90,17 @@
 				<v-card>
 					<v-list>
 						<template v-for="(notification, i) in notifications">
-							<v-list-item :key="'item_' + i" @click="" :class="(!notification.aknowledged ? 'v-list-item--active primary--text' : '') + ' align-center'">
+							<v-list-item :key="'item_' + i" @click="" :class="(!notification.aknowledged_on ? 'v-list-item--active primary--text' : '') + ' align-center'">
 								<v-list-item-avatar>
-									<img :src="notification.user.avatar.url" alt="Avatar" />
+									<UserAvatar :size="48" :user="notification.from" />
 								</v-list-item-avatar>
 
 								<v-list-item-content>
-									<v-list-item-title>{{notification.user.username}}</v-list-item-title>
-									<v-list-item-subtitle>Commented on your deck</v-list-item-subtitle>
+									<v-list-item-title>{{notification.from.first_name}} {{notification.from.last_name}}</v-list-item-title>
+									<v-list-item-subtitle>{{notification.title}}</v-list-item-subtitle>
 								</v-list-item-content>
 
-								<v-list-item-icon v-if="!notification.aknowledged">
+								<v-list-item-icon v-if="!notification.aknowledged_on">
 									<v-icon color="primary" xSmall>
 										mdi-checkbox-blank-circle
 									</v-icon>
@@ -99,9 +108,9 @@
 							</v-list-item>
 						</template>
 
-						<v-divider></v-divider>
+						<v-divider class="my-4" v-if="notifications.length > 0"></v-divider>
 
-						<v-list-item to="/notifications" class="text-center">
+						<v-list-item v-if="notifications.length > 0" :to="'/account/' + $root.user.id + '/notifications'" class="text-center">
 							<v-list-item-content>
 								<v-list-item-title>
 									{{$t('toolbar.seeAllNotif')}}
@@ -131,16 +140,16 @@
 					<v-divider class="my-4"></v-divider>
 				</template>
 
-				<v-list-item to="/help">
+				<v-list-item @click="toggleHelp()">
 					<v-icon left>mdi-help-circle-outline</v-icon>
 					<v-list-item-title>{{$t('toolbar.help')}}</v-list-item-title>
 				</v-list-item>
-				<v-list-item disabled to="/notifications">
+				<v-list-item :disabled="notifications.length === 0" :to="'/account/' + $root.user.id + '/notifications'">
 					<v-icon left>mdi-bell</v-icon>
 					<v-list-item-title>{{$t('toolbar.tooltip.notification')}}</v-list-item-title>
-					<v-list-item-icon>
-						<v-chip color="primary">5</v-chip>
-					</v-list-item-icon>
+
+						<v-chip color="primary" small class="ml-4 text-center">5</v-chip>
+
 				</v-list-item>
 			</v-list>
 		</v-menu>
@@ -151,17 +160,21 @@
 import Vue from 'vue';
 import moment from 'moment';
 import LanguageSwitcher from "../components/LanguageSwitcher.vue";
+import NotificationService from "../services/Notification";
+import UserAvatar from "./UserAvatar";
 
 export default Vue.extend({
 	name: 'Toolbar',
 	props: ['sidebar'],
-	components: { LanguageSwitcher },
+	components: { LanguageSwitcher, UserAvatar },
 
 	mounted() {
 		setTimeout(() => {this.showAppTitle = true; }, 500);
 		setTimeout(() => {this.showTitle = true; }, 750);
 
 		this.$root.$on('FULLSCREEN', this.fullScreenEvent);
+
+		this.init();
 	},
 
 	destroyed() {
@@ -169,6 +182,15 @@ export default Vue.extend({
 	},
 
 	methods: {
+
+	    init() {
+
+	        NotificationService.get.bind(this)()
+				.then(response => {
+				    this.notifications = response.data;
+				})
+				.catch(error => this.$handleError(this, error));
+		},
 
 		fullScreenEvent(active) {
 			this.collapse = active;
@@ -189,6 +211,15 @@ export default Vue.extend({
 		},
 	},
 
+	computed: {
+
+	    newNotifications() {
+	        return this.notifications.filter(notification => {
+	            return notification.aknowledged_on === undefined;
+			});
+		},
+	},
+
 	data() {
 		return {
 			collapse: false,
@@ -200,17 +231,11 @@ export default Vue.extend({
 			showAppTitle: false,
 			showTitle: false,
 			searchMenuOpened: false,
-			notifications: [
-				// { user: { avatar: { url: 'http://localhost:1337/uploads/fe826cb343854f93abc431d32efb22ca.PNG' }, username: 'Danny Coulombe' }, aknowledged: false, },
-				// { user: { avatar: { url: 'http://localhost:1337/uploads/fe826cb343854f93abc431d32efb22ca.PNG' }, username: 'Danny Coulombe' }, aknowledged: false, },
-				// { user: { avatar: { url: 'http://localhost:1337/uploads/fe826cb343854f93abc431d32efb22ca.PNG' }, username: 'Danny Coulombe' }, aknowledged: true, },
-				// { user: { avatar: { url: 'http://localhost:1337/uploads/fe826cb343854f93abc431d32efb22ca.PNG' }, username: 'Danny Coulombe' }, aknowledged: true, },
-				// { user: { avatar: { url: 'http://localhost:1337/uploads/fe826cb343854f93abc431d32efb22ca.PNG' }, username: 'Danny Coulombe' }, aknowledged: true, },
-			],
+			notifications: [],
 			searchItems: [
-				{ title: 'Search result #1', subtitle: 'Category of content', icon: 'mdi-contacts' },
-				{ title: 'Search result #2', subtitle: 'Category of content', icon: 'mdi-notebook' },
-				{ title: 'Search result #3', subtitle: 'Category of content', icon: 'mdi-clipboard-account' },
+				// { title: 'Search result #1', subtitle: 'Category of content', icon: 'mdi-contacts' },
+				// { title: 'Search result #2', subtitle: 'Category of content', icon: 'mdi-notebook' },
+				// { title: 'Search result #3', subtitle: 'Category of content', icon: 'mdi-clipboard-account' },
 			],
 		};
 	},

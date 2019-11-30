@@ -40,7 +40,9 @@
 						<span v-text="$t('dataset.settings.testRemoteURI')"></span>
 					</v-btn>
 
-					<pre class="mt-4" v-if="remoteTestResponse" v-text="remoteTestResponse"></pre>
+					<v-expand-transition>
+						<pre class="mt-4" v-if="remoteTestResponse" v-text="remoteTestResponse"></pre>
+					</v-expand-transition>
 				</div>
 			</v-col>
 		</v-row>

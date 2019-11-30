@@ -11,7 +11,7 @@ if (process.env.CORDOVA === '1') {
 module.exports = {
 	runtimeCompiler: true,
 	publicPath: '/',
-	lintOnSave: true,
+	lintOnSave: false,
 	configureWebpack: {
 		plugins: [
 			new webpack.DefinePlugin({
