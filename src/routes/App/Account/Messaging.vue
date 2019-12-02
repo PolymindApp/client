@@ -4,16 +4,16 @@
 			<v-col cols="4" md="4">
 				<v-list tile flat color="transparent" three-line class="inner-shadow grey lighten-4 fill-height">
 					<template v-for="(user, index) in users">
-						<v-list-item :to="'/account/' + $root.user.id + '/messaging/' + user.created_by.id" :key="index + '_item'" :class="(!user.aknowledged_on ? 'v-list-item--active primary--text' : '') + ' align-center'">
+						<v-list-item :to="'/account/' + $root.user.id + '/messaging/' + user.created_by.id" :key="index + '_item'" :class="(userId === user.created_by.id ? 'v-list-item--active white--text primary inner-shadow' : '') + ' align-center'">
 							<v-col class="shrink">
 								<UserAvatar :size="48" :user="user.created_by" />
 							</v-col>
 							<v-col>
-								<v-list-item-title>{{user.created_by.first_name}} {{user.created_by.last_name}}</v-list-item-title>
+								<v-list-item-title>{{user.created_by | userScreenName}}</v-list-item-title>
 								<v-list-item-subtitle v-html="user.content"></v-list-item-subtitle>
 							</v-col>
 							<v-list-item-icon v-if="!user.aknowledged_on">
-								<v-icon color="primary" xSmall>
+								<v-icon :color="userId !== user.created_by.id ? 'primary' : 'white'" xSmall>
 									mdi-checkbox-blank-circle
 								</v-icon>
 							</v-list-item-icon>
@@ -27,11 +27,9 @@
 					<div style="flex: 1" class="pa-4 py-0 d-flex align-center ">
 						<v-scroll-y-transition mode="out-in">
 							<div v-if="userId" class="align-self-start w-100 d-flex flex-column">
-								<v-scroll-y-transition mode="out-in">
-									<v-card :class="{ 'py-2 px-4 mt-4 d-block-inline': true, 'align-self-start grey lighten-3': userId === message.created_by.id, 'align-self-end light-blue white--text': $root.user.id === message.created_by.id }" :key="index" v-for="(message, index) in messages[userId]" style="max-width: 75%">
-										{{ message.content }}
-									</v-card>
-								</v-scroll-y-transition>
+								<v-card :class="{ 'py-2 px-4 mt-4 d-block-inline': true, 'align-self-start grey lighten-3': userId === message.created_by.id, 'align-self-end primary white--text': $root.user.id === message.created_by.id }" :key="index" v-for="(message, index) in messages[userId]" style="max-width: 75%">
+									{{ message.content }}
+								</v-card>
 							</div>
 							<v-card key="empty" color="transparent" tile flat class="pa-8 d-flex align-center justify-center flex-column align-self-center text-center w-100">
 								<img src="../../../assets/images/polymind.svg" height="128" />
@@ -142,7 +140,9 @@
 		watch: {
             $route() {
                 this.userId = parseInt(this.$route.params.key) || null;
-                this.init();
+                if (this.userId) {
+                	this.init();
+				}
 			}
 		}
     });

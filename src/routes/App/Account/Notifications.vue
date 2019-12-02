@@ -11,7 +11,7 @@
 							<UserAvatar :size="48" :user="notification.created_by" />
 						</v-col>
 						<v-col>
-							<v-list-item-title>{{notification.created_by.first_name}} {{notification.created_by.last_name}}</v-list-item-title>
+							<v-list-item-title>{{notification.created_by | userScreenName}}</v-list-item-title>
 							<v-list-item-subtitle>test</v-list-item-subtitle>
 						</v-col>
 						<v-list-item-icon v-if="!notification.aknowledged_on">

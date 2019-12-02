@@ -47,13 +47,7 @@
 						<v-card v-if="active.length > 0" :key="active[0].key" color="transparent" tile flat class="pa-8 align-self-start">
 							<component :is="active[0].component"></component>
 						</v-card>
-						<v-card v-else color="transparent" tile flat class="pa-8 d-flex align-center flex-column align-self-center text-center w-100">
-							<img src="../assets/images/polymind.svg" height="128" />
-							<div class="very-limited-content mt-2">
-								<h2 class="display-1" v-text="$t('help.noSelectTitle')"></h2>
-								<p class="overline" v-text="$t('help.noSelectDesc')"></p>
-							</div>
-						</v-card>
+						<EmptyView v-else :title="$t('help.noSelectTitle')" :desc="$t('help.noSelectDesc')" />
 					</v-scroll-y-transition>
 				</v-col>
 			</v-row>
@@ -63,6 +57,7 @@
 
 <script>
     import Vue from 'vue';
+    import EmptyView from "./EmptyView";
 
     export default Vue.extend({
 
@@ -70,7 +65,7 @@
 
         props: ['visible'],
 
-        components: {},
+        components: { EmptyView },
 
         mounted() {
 

@@ -42,14 +42,24 @@
 						<span>{{$t('restricted.twitterLogin')}}</span>
 					</v-tooltip>
 				</v-col>
+<!--				<v-col cols="3" class="px-1 py-0">-->
+<!--					<v-tooltip bottom>-->
+<!--						<template v-slot:activator="{ on }">-->
+<!--							<v-btn v-on="on" color="#0E76A8" class="py-6" :href="linkedInLoginUrl" dark style="width: 100%">-->
+<!--								<v-icon>mdi-linkedin</v-icon>-->
+<!--							</v-btn>-->
+<!--						</template>-->
+<!--						<span>{{$t('restricted.linkedInLogin')}}</span>-->
+<!--					</v-tooltip>-->
+<!--				</v-col>-->
 				<v-col cols="3" class="px-1 py-0">
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on }">
-							<v-btn v-on="on" color="#0E76A8" class="py-6" :href="linkedInLoginUrl" dark style="width: 100%">
-								<v-icon>mdi-linkedin</v-icon>
+							<v-btn v-on="on" color="#211F1F" class="py-6" :href="githubLoginUrl" dark style="width: 100%">
+								<v-icon>mdi-github-circle</v-icon>
 							</v-btn>
 						</template>
-						<span>{{$t('restricted.linkedInLogin')}}</span>
+						<span>{{$t('restricted.githubLogin')}}</span>
 					</v-tooltip>
 				</v-col>
 			</v-row>
@@ -135,10 +145,11 @@ export default Vue.extend({
 			activationResent: false,
 			formIsValid: false,
 			formErrors: {},
-			googleLoginUrl: process.env.VUE_APP_API_URL + '/auth/google',
-			facebookLoginUrl: process.env.VUE_APP_API_URL + '/auth/facebook',
-			twitterLoginUrl: process.env.VUE_APP_API_URL + '/auth/twitter',
-			linkedInLoginUrl: process.env.VUE_APP_API_URL + '/auth/linkedin',
+			googleLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/google',
+			facebookLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/facebook',
+			twitterLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/twitter',
+			linkedInLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/linkedin',
+			githubLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/github',
 			email: '',
 			password: '',
 			showPassword: false,

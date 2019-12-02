@@ -10,7 +10,7 @@
 		</div>
 
 		<img v-if="user.avatar" :src="$thumbnails(user.avatar.filename, 256, 256)" alt="avatar" />
-		<span :class="(size >= 96 ? 'display-3' : 'display-1') + ' white--text'" v-else>{{user.first_name.substring(0, 1).toUpperCase()}}</span>
+		<span :class="(size >= 96 ? 'display-3' : 'display-1') + ' white--text'" v-else>{{$options.filters.userScreenName(user).substring(0, 1).toUpperCase()}}</span>
 	</v-avatar>
 </template>
 

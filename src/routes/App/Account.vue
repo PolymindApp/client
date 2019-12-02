@@ -16,11 +16,11 @@
 						<v-icon left>mdi-card-bulleted-outline</v-icon>
 						{{$t('account.information.title')}}
 					</v-tab>
-					<v-tab :to="'/account/' + id + '/messaging'">
+					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/messaging'">
 						<v-icon left>mdi-email</v-icon>
 						{{$t('account.messaging.title')}}
 					</v-tab>
-					<v-tab :to="'/account/' + id + '/notifications'">
+					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/notifications'">
 						<v-icon left>mdi-bell</v-icon>
 						{{$t('account.notifications.title')}}
 					</v-tab>
@@ -37,10 +37,10 @@
 				<v-tab-item color="transparent" :value="'/account/' + id + '/information'" class="pa-4">
 					<Information @update="updateValue($event)" :user="user" :is-different="isDifferent" />
 				</v-tab-item>
-				<v-tab-item color="transparent" :value="'/account/' + id + '/messaging'" class="pa-4">
+				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/messaging'" class="pa-4">
 					<Messaging :user="user" />
 				</v-tab-item>
-				<v-tab-item color="transparent" :value="'/account/' + id + '/notifications'" class="pa-4">
+				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/notifications'" class="pa-4">
 					<Notifications :user="user" />
 				</v-tab-item>
 			</v-tabs-items>
@@ -76,7 +76,7 @@ export default Vue.extend({
 		updateContext() {
 
 			const section = (this.$route.params.section ? this.$route.params.section : 'general');
-			const secondTitle = this.user.first_name + ' ' + this.user.last_name;
+			const secondTitle = this.$options.filters.userScreenName(this.user);
 			const thirdTitle = this.$t('account.' + section + '.title');
 
 			this.$root.breadcrumbs = [
@@ -86,7 +86,7 @@ export default Vue.extend({
 			];
 			document.title = thirdTitle + ' | ' + secondTitle + ' | ' + this.$t('title.account');
 
-			this.id = this.$route.params.id;
+			this.id = parseInt(this.$route.params.id);
 		},
 
 	    load() {
@@ -105,6 +105,10 @@ export default Vue.extend({
 
 	computed: {
 
+	    isCurrentUser() {
+	        return this.$root.user.id === this.id;
+		},
+
 	    isDifferent() {
 	        return JSON.stringify(this.user) !== JSON.stringify(this.originalUser);
 		}
@@ -114,7 +118,7 @@ export default Vue.extend({
 
 		return {
 			tab: '/account/' + this.$route.params.id + '/' + this.$route.params.section,
-			id: this.$route.params.id,
+			id: parseInt(this.$route.params.id),
 			user: new User(),
             originalUser: new User(),
 		}
@@ -130,7 +134,8 @@ export default Vue.extend({
 				}
 			},
 		},
-		'$route.params.id': function() {
+		'$route.params.id': function(id) {
+	        this.id = parseInt(id);
 			this.load();
 		}
 	}

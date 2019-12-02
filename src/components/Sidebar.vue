@@ -16,7 +16,7 @@
 							<v-layout align-end fill-height>
 								<v-list-item>
 									<v-list-item-content>
-										<v-list-item-title class="title white--text">{{ $root.user.first_name }} {{ $root.user.last_name }}</v-list-item-title>
+										<v-list-item-title class="title white--text">{{ $root.user | userScreenName }}</v-list-item-title>
 										<v-list-item-subtitle class="white--text">
 											<a class="my-account" :href="'/account/' + this.$root.user.id">
 												{{ $t('sidebar.myAccount') }}
@@ -67,7 +67,7 @@
 							</template>
 							<span>
 								<span v-if="$root.user.settings.sidebar[group.name]" v-text="$t('toolbar.tooltip.collapse')"></span>
-								<span v-else="$t('toolbar.tooltip.expand')"></span>
+								<span v-else v-text="$t('toolbar.tooltip.expand')"></span>
 							</span>
 						</v-tooltip>
 

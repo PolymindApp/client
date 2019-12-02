@@ -1,9 +1,11 @@
 <template>
-	<div class="text-center fill-height align-center d-flex">
-		<v-form ref="form" v-model="formIsValid" @submit="validate" lazy-validation>
+	<div class="text-center fill-height align-center justify-center d-flex">
 
-			<v-progress-circular v-if="isActive === null" :size="50" color="primary" indeterminate></v-progress-circular>
+		<div class="d-flex justify-center w-100" v-if="isActive === null">
+			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+		</div>
 
+		<v-form v-else ref="form" v-model="formIsValid" @submit="validate" lazy-validation>
 			<div v-if="isActive === false">
 				<p>{{ $t("restricted.resetPasswordExpired") }}</p>
 
@@ -64,15 +66,15 @@ export default Vue.extend({
 	methods: {
 
 	    verify () {
-	        UserService.verifyResetPasswordToken.bind(this)(this.lookup, this.token)
+	        UserService.verifyResetPasswordToken.bind(this)(this.token)
 				.then(response => this.isActive = true)
 				.catch(error => {
-				    if (error.data.message) {
-				        switch (error.data.message) {
+                    this.isActive = false
+				    if (error.message) {
+				        switch (error.message) {
 							case 'BAD_TOKEN':
 							case 'USER_PASSWORD_REQUEST_TOKEN_EXPIRED':
 							case 'USER_PASSWORD_REQUEST_NOT_FOUND':
-							    this.isActive = false;
 							    break;
 							default:
 								this.$handleError(this, error);
@@ -87,7 +89,7 @@ export default Vue.extend({
 
 			if (this.$refs.form.validate()) {
 				this.$root.isLoading = true;
-				UserService.resetPassword.bind(this)(this.lookup, this.token, this.password, this.confirmation)
+				UserService.resetPassword.bind(this)(this.token, this.password)
 					.then(response => this.isResetted = true)
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
@@ -118,7 +120,6 @@ export default Vue.extend({
 			confirmation: '',
 			showPassword: false,
 			showConfirmPassword: false,
-			lookup: this.$route.params.lookup,
 			token: this.$route.params.token,
 			rules: {
 				required: value => Rules.required(value) || this.$t('rules.required'),

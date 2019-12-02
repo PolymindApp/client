@@ -1,5 +1,5 @@
 <template>
-	<v-card tile class="default-gradient wallpaper" :style="{ backgroundImage: backgroundImage }">
+	<v-img class="default-gradient wallpaper" :src="backgroundImage">
 
 		<v-overlay :absolute="true" :value="isUploading">
 			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
@@ -7,39 +7,41 @@
 
 		<v-container class="d-flex pa-4 wallpaper-container">
 
-			<!-- PICTURE / NAME -->
-			<v-sheet style="flex: 1" class="align-self-end d-flex align-center" :dark="true" color="transparent">
-				<div>
-					<UserAvatar :user="user" color="primary" :size="128" class="mr-4" />
-				</div>
-				<div>
-					<h1 class="display-2 font-weight-thin">
-						{{ user.first_name }} {{ user.last_name }}
-					</h1>
-					<h4 class="subheading" v-if="user.role.name">
-						{{ $t('role.' + user.role.name.toLowerCase()) }}
-					</h4>
-				</div>
-			</v-sheet>
+			<v-row>
+				<v-col order="last" order-sm="first" cols="12" sm="6" md="8" class="py-0 d-flex align-end">
 
-			<!-- EDIT WALLPAPER -->
-			<v-sheet style="flex: 0; height: 20rem" class="align-self-start align-content-end d-flex flex-column" :dark="true" color="transparent">
+					<!-- PICTURE / NAME -->
+					<v-sheet style="flex: 1" class="d-flex align-center" :dark="true" color="transparent">
+						<div>
+							<UserAvatar :user="user" color="primary" :size="128" class="mr-4" />
+						</div>
+						<div>
+							<h1 class="display-2 font-weight-thin">
+								{{ user | userScreenName }}
+							</h1>
+							<h4 class="subheading" v-if="user.role.name">
+								{{ $t('role.' + user.role.name.toLowerCase()) }}
+							</h4>
+						</div>
+					</v-sheet>
+				</v-col>
 
-				<div style="flex: 1">
-					<v-btn class="zoom align-self-start" @click="modify('wallpaper_id')" text>
+				<v-col v-if="$vuetify.breakpoint.smAndUp" order="first" order-sm="last" cols="12" sm="6" md="4" class="py-0 d-flex flex-column justify-space-between">
+					<v-btn v-if="isCurrentUser" class="zoom align-self-end" @click="modify('wallpaper_id')" dark text>
 						<v-icon left>mdi-pencil</v-icon>
 						<span>{{ $t('account.changeWallpaper') }}</span>
 					</v-btn>
-				</div>
+					<span v-else></span> <!-- TO PUSH BIO DOWN -->
 
-				<div class="biography text-right">
-					<v-icon>mdi-format-quote-open</v-icon>
-					<span class="title font-italic font-weight-light" v-text="user.quote"></span>
-					<v-icon>mdi-format-quote-close</v-icon>
-				</div>
-			</v-sheet>
+					<div class="biography text-right white--text" v-if="user.quote">
+						<v-icon>mdi-format-quote-open</v-icon>
+						<span class="title font-italic font-weight-light" v-text="user.quote"></span>
+						<v-icon>mdi-format-quote-close</v-icon>
+					</div>
+				</v-col>
+			</v-row>
 		</v-container>
-	</v-card>
+	</v-img>
 </template>
 
 <script>
@@ -81,10 +83,14 @@ export default Vue.extend({
 
 	computed: {
 
+	    isCurrentUser() {
+	        return this.user.id === this.$root.user.id;
+		},
+
 	    backgroundImage() {
 	        return this.user.wallpaper
-				? 'url(\'' + this.$thumbnails(this.user.wallpaper.filename, 1500, 350) + '\')'
-				: null;
+				? this.$thumbnails(this.user.wallpaper.filename, 1500, 350)
+				: '';
 		}
 	},
 

@@ -11,7 +11,7 @@
 
 		<v-expand-transition>
 			<v-row v-if="data.subject === 'other'">
-				<v-col class="shrink py-0 d-flex align-center pb-8">
+				<v-col class="shrink py-0 d-flex align-center pb-8 pl-8">
 					<v-icon>mdi-chevron-right</v-icon>
 				</v-col>
 				<v-col class="grow py-0">

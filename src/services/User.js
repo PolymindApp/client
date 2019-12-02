@@ -28,35 +28,35 @@ export default class UserService {
 	}
 
 	static register(email, password) {
-		return Server.post.bind(this)('/users', {
+		return Server.post.bind(this)('/custom/register', {
 			email: email,
 			password: password,
 		});
 	}
 
 	static forgotPassword(email) {
-		return Server.post.bind(this)('/users/forgot-password', {
+		return Server.post.bind(this)('/custom/reset-password', {
 			email: email,
 		});
 	}
 
-	static resetPassword(lookup, token, password, confirmation) {
-		return Server.post.bind(this)('/users/reset-password/' + lookup + '/' + token, {
+	static resetPassword(token, password) {
+		return Server.post.bind(this)('/auth/password/reset', {
 			password: password,
-			confirmation: confirmation,
+			token: token,
 		});
 	}
 
-	static verifyResetPasswordToken(lookup, token) {
-		return Server.get.bind(this)('/users/reset-password/verify/' + lookup + '/' + token);
+	static verifyResetPasswordToken(token) {
+		return Server.get.bind(this)('/custom/verify-token/' + token);
 	}
 
-	static activate(lookup, token) {
-		return Server.get.bind(this)('/users/activate/' + lookup + '/' + token);
+	static activate(token) {
+		return Server.get.bind(this)('/custom/activate-user/' + token);
 	}
 
 	static resendActivation(lookup) {
-		return Server.get.bind(this)('/users/resend-activation/' + lookup);
+		return Server.get.bind(this)('/custom/resend-activation/' + lookup);
 	}
 
 	static resendActivationLost(email) {

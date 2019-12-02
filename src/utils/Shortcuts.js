@@ -79,20 +79,27 @@ $shortcuts.install = function (Vue, options) {
 				keys: arrKeys,
 				index: this.list[keysStr].length - 1
 			};
-			Object.getPrototypeOf(callback).__zmShortcutReference = callbackRef;
+			// Object.getPrototypeOf(callback).__zmShortcutReference = callbackRef;
+			callback.__zmShortcutReference = callbackRef;
 		},
 
 		remove: function(callback = () => {}) {
 
-			let proto = Object.getPrototypeOf(callback);
-			let ref = proto.__zmShortcutReference;
+			// let proto = Object.getPrototypeOf(callback);
+			// let ref = proto.__zmShortcutReference;
+			let ref = callback.__zmShortcutReference;
 			if (!ref) {
 				return;
 			}
 
 			let info = this.callbacks[ref];
 			if (info) {
-				let keyStr = this.keysToString([info.keys]);
+
+				if (!(info.keys instanceof Array)) {
+					info.keys = [info.keys];
+				}
+
+				let keyStr = this.keysToString(info.keys);
 				if (this.list[keyStr]) {
 					this.list[keyStr].splice(info.index, 1);
 					delete this.callbacks[ref];

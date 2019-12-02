@@ -86,8 +86,8 @@ export default class Server {
 		// 			return Promise.reject(error);
 		// 		}
 		//
-		// 		if (error.data && error.data.message) {
-		// 			switch (error.data.message) {
+		// 		if (error.data && error.message) {
+		// 			switch (error.message) {
 		// 			case 'SESSION_TOKEN_EXPIRED':
 		// 				localStorage.removeItem('jwt');
 		// 				this.$router.go(0);

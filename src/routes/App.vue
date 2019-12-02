@@ -31,17 +31,19 @@
 			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
 		</v-overlay>
 
+		<v-scroll-x-transition>
+			<Sidebar ref="sidebar" v-show="$root.user.id" v-model="sidebar"></Sidebar>
+		</v-scroll-x-transition>
 		<v-scroll-y-transition>
-			<Sidebar v-if="$root.user.id" v-model="sidebar"></Sidebar>
-		</v-scroll-y-transition>
-		<v-scroll-y-transition>
-			<Toolbar v-if="$root.user.id" :sidebar="sidebar"></Toolbar>
+			<Toolbar ref="toolbar" v-show="$root.user.id" :sidebar="sidebar"></Toolbar>
 		</v-scroll-y-transition>
 
 		<v-scroll-y-transition>
 			<v-content v-if="$root.user.id" class="main-content">
 				<v-layout fill-height>
-					<router-view></router-view>
+					<v-fade-transition mode="out-in">
+						<router-view></router-view>
+					</v-fade-transition>
 				</v-layout>
 			</v-content>
 		</v-scroll-y-transition>
@@ -94,6 +96,10 @@ export default Vue.extend({
 		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help,
 	},
 
+	created() {
+        this.$shortcuts.attach(document.body);
+	},
+
 	mounted() {
 
 		moment.locale(this.$i18n.locale);
@@ -107,17 +113,19 @@ export default Vue.extend({
 			this.$forceUpdate();
 		});
 
-		this.$shortcuts.attach(document.body);
         this.$shortcuts.add(this.$t('shortcuts.main.escape.title'), this.$t('shortcuts.main.escape.desc'), 'main', 'Escape', this.shortcutEscape);
         this.$shortcuts.add(this.$t('shortcuts.main.help.title'), this.$t('shortcuts.main.help.desc'), 'main', 'F1', this.shortcutHelp);
+        this.$shortcuts.add(this.$t('shortcuts.main.search.title'), this.$t('shortcuts.main.search.desc'), 'main', ['ControlLeft', 'KeyF'], this.shortcutSearch);
 
         this.$help.items.slice(0, this.$help.length);
         this.$help.add('general', this.$t('help.general'), 'doc', HelpGeneral);
 	},
 
 	destroyed() {
-		this.$shortcut.remove(this.shortcutEscape);
-		this.$shortcut.remove(this.shortcutHelp);
+
+		this.$shortcuts.remove(this.shortcutEscape);
+		this.$shortcuts.remove(this.shortcutHelp);
+		this.$shortcuts.remove(this.shortcutSearch);
 	},
 
 	methods: {
@@ -129,6 +137,14 @@ export default Vue.extend({
 
 	    shortcutHelp() {
             this.$root.help.visible = !this.$root.help.visible;
+        },
+
+        shortcutSearch() {
+
+	        if (this.$refs.toolbar) {
+				this.$refs.toolbar.searchMenuOpened = !this.$refs.toolbar.searchMenuOpened;
+				this.$refs.toolbar.setSearchFocus();
+			}
         },
 	},
 
@@ -150,6 +166,10 @@ export default Vue.extend({
 	watch: {
 	    $route() {
 			this.$root.breadcrumbs = [];
+
+			// Scroll back to top
+			// ISSUE: Sometimes, we don't want to scroll about (tabs)
+            // this.$vuetify.goTo('html');
 		},
 	}
 });

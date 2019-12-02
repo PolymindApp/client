@@ -45,6 +45,11 @@ const literals = {
 			public: 'Publique',
 			andMore: '+{total} autres',
 		},
+		new: {
+			dataset: 'Base de donnée',
+			component: 'Composante',
+			strategy: 'Stratégie',
+		},
 		filteredNoResults: 'Aucun résultat...',
 		filteredNoResultsDesc: 'Vos critères de recherches n\'ont retournés aucun résultat',
 	},
@@ -309,6 +314,13 @@ const literals = {
 	toolbar: {
 		help: 'Aide',
 		seeAllNotif: 'Voir toutes les notifications',
+		seeAllMessages: 'Voir tous les messages',
+		searchPlaceholder: 'Entrez vos termes de recherche...',
+		search: {
+			users: 'Utilisateurs',
+			pages: 'Pages',
+			noResults: 'Aucun résultat trouvé',
+		},
 		tooltip: {
 			search: 'Rechercher',
 			options: 'Options',
@@ -324,6 +336,7 @@ const literals = {
 			shortcuts: 'Raccourcis',
 			collapse: 'Rabaisser',
 			expand: 'Étendre',
+			messaging: 'Messagerie',
 		},
 	},
 	switch: {
@@ -586,6 +599,7 @@ const literals = {
 		facebookLogin: 'Connexion avec Facebook',
 		twitterLogin: 'Connexion avec Twitter',
 		linkedInLogin: 'Connexion avec LinkedIn',
+		githubLogin: 'Connexion avec GitHub',
 		resetPassword: 'Réinitialiser mot de passe',
 		backLogin: 'Retour',
 		registerBtn: 'M\'inscrire',

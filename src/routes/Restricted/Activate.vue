@@ -1,6 +1,6 @@
 <template>
-	<div class="text-center fill-height align-center d-flex" style="max-width: 25rem;">
-		<div v-if="isActivated === true">
+	<div class="text-center fill-height align-center d-flex justify-center" style="margin: 0 auto; max-width: 25rem;">
+		<div v-if="!errorCode && isActivated === true">
 			<div>
 				<v-icon style="font-size: 4rem">mdi-account-check</v-icon>
 			</div>
@@ -12,7 +12,7 @@
 				{{$t('restricted.accessMyAccount')}}
 			</v-btn>
 		</div>
-		<div v-if="isAlreadyActivated">
+		<div v-else-if="errorCode === 100">
 			<div>
 				<v-icon style="font-size: 4rem">mdi-account-alert</v-icon>
 			</div>
@@ -24,7 +24,7 @@
 				{{$t('restricted.login')}}
 			</v-btn>
 		</div>
-		<div v-if="hasBadToken">
+		<div v-else-if="errorCode === 99">
 			<div>
 				<v-icon style="font-size: 4rem">mdi-shield-alert</v-icon>
 			</div>
@@ -36,7 +36,19 @@
 				{{$t('restricted.resendActivation')}}
 			</v-btn>
 		</div>
-		<div v-if="isResent">
+		<div v-else-if="errorCode === 105">
+			<div>
+				<v-icon style="font-size: 4rem">mdi-shield-alert</v-icon>
+			</div>
+
+			<h1 class="mt-4 display-1">{{ $t("error.token_expired.title") }}</h1>
+			<p class="mb-4">{{ $t("error.token_expired.desc") }}</p>
+
+			<v-btn color="primary" @click="resendActivation()" large dark>
+				{{$t('restricted.resendActivation')}}
+			</v-btn>
+		</div>
+		<div v-else-if="isResent">
 			<div>
 				<v-icon style="font-size: 4rem">mdi-email-search</v-icon>
 			</div>
@@ -65,23 +77,17 @@ export default Vue.extend({
 		verify () {
 
 			this.$root.isLoading = true;
-			UserService.activate.bind(this)(this.lookup, this.token)
-				.then(response => {
-					localStorage.setItem('jwt', response.data.jwt);
-					this.isActivated = true;
-				})
+			UserService.activate.bind(this)(this.token)
+				.then(response => this.isActivated = true)
 				.catch(error => {
-				    switch (error.data.message) {
-						case "BAD_TOKEN":
-						    this.hasBadToken = true;
-						    break;
-						case "USER_ALREADY_ACTIVATED":
-						    this.isAlreadyActivated = true;
+                    this.isActivated = false;
+				    switch (error.code) {
+						case 105:
+						    this.errorCode = error.code;
 						    break;
 						default:
 						    this.$handleError(this, error);
 					}
-					this.isActivated = false;
 				})
 				.finally(() => this.$root.isLoading = false);
 		},
@@ -91,7 +97,7 @@ export default Vue.extend({
 			this.$root.isLoading = true;
 			UserService.resendActivation.bind(this)(this.lookup)
 				.then(response => {
-					this.hasBadToken = false;
+					this.errorCode = null;
 					this.isResent = true;
 				})
 				.catch(error => this.$handleError(this, error))
@@ -106,9 +112,8 @@ export default Vue.extend({
 	data() {
 		return {
 			isActivated: null,
-			isAlreadyActivated: false,
+            errorCode: null,
 			isResent: false,
-			hasBadToken: false,
 			lookup: this.$route.params.lookup,
 			token: this.$route.params.token,
 		};
