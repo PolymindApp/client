@@ -95,6 +95,33 @@
 					<v-expand-transition>
 						<v-list v-if="!searchIsLoading && hasSearchResults" max-height="400" style="overflow: auto">
 							<v-scroll-y-transition>
+								<v-list-group value="true" v-if="searchResults.components.length > 0" prepend-icon="mdi-cube-outline">
+									<template v-slot:activator>
+										<v-list-item-title v-text="$t('toolbar.search.components')"></v-list-item-title>
+										<v-list-item-action>
+											<v-badge color="primary">
+												{{searchResults.components.length}}
+											</v-badge>
+										</v-list-item-action>
+									</template>
+
+									<template v-for="(component, index) in searchResults.components">
+										<v-list-item :key="index + '-item'" :to="'/component/' + component.id">
+											<v-list-item-avatar>
+												<v-icon v-text="component.icon"></v-icon>
+											</v-list-item-avatar>
+
+											<v-list-item-content>
+												<v-list-item-title>{{ component.name }}</v-list-item-title>
+												<v-list-item-subtitle v-html="$options.filters.plainExcerpt(component.description)"></v-list-item-subtitle>
+											</v-list-item-content>
+										</v-list-item>
+
+										<v-divider v-if="(index + 1) < searchResults.components.length" :key="index + '-sep'"></v-divider>
+									</template>
+								</v-list-group>
+							</v-scroll-y-transition>
+							<v-scroll-y-transition>
 								<v-list-group value="true" v-if="searchResults.users.length > 0" prepend-icon="mdi-account-circle">
 									<template v-slot:activator>
 										<v-list-item-title v-text="$t('toolbar.search.users')"></v-list-item-title>
@@ -225,7 +252,7 @@
 
 								<v-list-item-content>
 									<v-list-item-title>{{notification.from | userScreenName}}</v-list-item-title>
-									<v-list-item-subtitle>{{notification.title}}</v-list-item-subtitle>
+									<v-list-item-subtitle v-text="$t('notification.types.' + notification.type, notification.created_by)"></v-list-item-subtitle>
 								</v-list-item-content>
 
 								<v-list-item-icon v-if="!notification.aknowledged_on">
@@ -285,10 +312,10 @@
 <script>
 import Vue from 'vue';
 import LanguageSwitcher from "../components/LanguageSwitcher.vue";
-import NotificationService from "../services/Notification";
-import MessagingService from "../services/Messaging";
+import NotificationService from "../services/NotificationService";
+import MessagingService from "../services/MessagingService";
 import UserAvatar from "./UserAvatar";
-import SearchService from "../services/Search";
+import SearchService from "../services/SearchService";
 import EmptyView from "./EmptyView";
 
 export default Vue.extend({
@@ -364,6 +391,7 @@ export default Vue.extend({
 		setSearchFocus() {
 			setTimeout(() => {
 				this.$refs.searchInput.focus();
+                this.$refs.searchInput.$el.querySelector('input').select();
 			}, 250);
 		},
 	},
@@ -384,7 +412,8 @@ export default Vue.extend({
 
 		hasSearchResults() {
 	        return this.searchResults.users.length > 0
-				|| this.searchResults.pages.length > 0;
+				|| this.searchResults.pages.length > 0
+				|| this.searchResults.components.length > 0;
 		}
 	},
 
@@ -407,6 +436,7 @@ export default Vue.extend({
             searchResults: {
 			    users: [],
 				pages: [],
+                components: [],
 			},
 		};
 	},

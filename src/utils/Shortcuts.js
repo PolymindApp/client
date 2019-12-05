@@ -11,16 +11,6 @@ $shortcuts.install = function (Vue, options) {
 		rootElement: null,
 
 		attachEvent: function(event) {
-			let inputTags = ['INPUT', 'TEXTAREA'];
-			let target = event.target;
-			let tagName = target.tagName.toUpperCase();
-
-			let isInInput = inputTags.indexOf(tagName) !== -1
-				|| target.getAttribute('contenteditable') !== null;
-
-			if (!event.altKey && isInInput) {
-				return;
-			}
 
 			let keys = [];
 			if (event.ctrlKey) {
@@ -57,7 +47,7 @@ $shortcuts.install = function (Vue, options) {
 		},
 
 		// TODO: Parameter to accept INPUT/TEXTAREA/CONTENTEDITABLE
-		add: function(name, desc, group, keys, callback = () => {}) {
+		add: function(name, desc, group, keys, callback = () => {}, includeFields = false) {
 
 			let originalKeys = keys;
 
@@ -72,7 +62,7 @@ $shortcuts.install = function (Vue, options) {
 				this.list[keysStr] = [];
 			}
 
-			this.list[keysStr].push({name, keys, desc, group, originalKeys, callback,});
+			this.list[keysStr].push({name, keys, desc, group, originalKeys, callback, includeFields});
 
 			let callbackRef = Hash.guid();
 			this.callbacks[callbackRef] = {
@@ -109,6 +99,12 @@ $shortcuts.install = function (Vue, options) {
 
 		run: function(keys, event) {
 
+			let inputTags = ['INPUT', 'TEXTAREA'];
+			let target = event.target;
+			let tagName = target.tagName.toUpperCase();
+			let isInInput = inputTags.indexOf(tagName) !== -1
+				|| target.getAttribute('contenteditable') !== null;
+
 			let keyStr = this.keysToString(keys);
 
 			if (!this.list[keyStr]) {
@@ -116,6 +112,11 @@ $shortcuts.install = function (Vue, options) {
 			}
 
 			this.list[keyStr].forEach(shortcut => {
+
+				if (!shortcut.includeFields && !event.altKey && isInInput) {
+					return;
+				}
+
 				shortcut.callback(event);
 			});
 

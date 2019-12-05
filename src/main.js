@@ -9,12 +9,7 @@ import Restricted, { routes as restrictedRoutes } from './routes/Restricted.vue'
 import VueI18n from 'vue-i18n';
 import VueRouter from 'vue-router';
 import messages from './locales';
-import Modal from './utils/Modal';
-import Help from './utils/Help';
-import Shortcuts from './utils/Shortcuts';
-import Thumbnails from './utils/Thumbnails';
-import Crop from './utils/Crop';
-import Error from './utils/Error';
+import loader from './loader';
 import VueCookies from 'vue-cookies';
 import VueAnalytics from 'vue-analytics';
 import VueCordova from 'vue-cordova';
@@ -39,12 +34,6 @@ Vue.config.productionTip = false;
 Vue.use(VueRouter);
 Vue.use(VueI18n);
 Vue.use(VueCookies);
-Vue.use(Modal);
-Vue.use(Crop);
-Vue.use(Help);
-Vue.use(Error);
-Vue.use(Shortcuts);
-Vue.use(Thumbnails);
 Vue.use(VueCordova);
 Vue.use(VueGoogleMaps, {
 	load: {
@@ -63,14 +52,6 @@ const i18n = new VueI18n({
 
 	let component = Restricted;
 	let routes = restrictedRoutes;
-
-	// let url = new URL(window.location.href);
-	// let jwt = url.searchParams.get('jwt');
-	// if (jwt) {
-	// 	localStorage.setItem('jwt', jwt);
-	// 	window.location.href = window.location.pathname;
-	// 	return;
-	// }
 
 	if (server.loggedIn) {
 		component = App;

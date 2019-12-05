@@ -53,6 +53,11 @@ const literals = {
 		filteredNoResults: 'Aucun résultat...',
 		filteredNoResultsDesc: 'Vos critères de recherches n\'ont retournés aucun résultat',
 	},
+	notification: {
+		types: {
+			NEW_COMMENT_component: 'A commenté votre composante <strong>{name}</strong>',
+		}
+	},
 	about: {
 		general: {
 			title: 'Générale'
@@ -67,6 +72,27 @@ const literals = {
 			title: 'Contact'
 		},
 	},
+	revision: {
+		btnTitle: 'Révision',
+	},
+	comment: {
+		btnTitle: 'Commentaires',
+		newMessagePlaceholder: 'Écrivez votre commentaire ici...',
+		totalTitle: '{amount} commentaire(s)',
+		sortBy: 'Ordonner par',
+		viewCompleteMsg: 'Lire plus...',
+		unviewCompleteMsg: 'Réduire...',
+		emptyTitle: 'Aucun commentaire',
+		emptyDesc: 'Poster un nouveau commentaire en utilisant le champs ci-dessous',
+		thumbUpTooltip: 'J\'aime',
+		thumbDownTooltip: 'Je n\'aime pas',
+		deleteTooltip: 'Effacer',
+		editTooltip: 'Modifier',
+		replyBtn: 'Répondre',
+		deleteTitle: 'Effacer un commentaire',
+		deleteDesc: 'Êtes-vous certain de vouloir effacer ce commentaire ?',
+		commentDeleted: 'Commentaire effacé par l\'utilisateur',
+	},
 	mediaBrowser: {
 		filterPlaceholder: 'Filtrer les étiquettes...',
 		types: {
@@ -77,16 +103,34 @@ const literals = {
 			tags: 'Étiquettes',
 		},
 	},
+	sortBy: {
+		mostRecent: 'Plus récent',
+		oldest: 'Plus ancien',
+		thumbsUp: 'Plus de j\'aime',
+		thumbsDown: 'Plus de j\'aime pas',
+	},
 	account: {
 		messages: 'Derniers messages',
 		recentActivities: 'Récentes activités',
 		activities: {
 			messagesEmpty: 'Aucun message pour le moment',
 			historyEmpty: 'Aucune historique pour le moment',
+			history: {
+				createPage: 'A écrit une nouvelle page <strong>{title}</strong>',
+				createComponent: 'A développé une nouvelle composante <strong>{name}</strong>',
+				createDocumentation: 'A documenté une nouvelle section <strong>{title}</strong>',
+			},
+			view: 'Voir',
+			publicItems: 'Éléments publiques',
+			publicItemsEmpty: 'Aucun élément n\'a été publié par cet utilisateur.',
+			postOnWallPlaceholder: 'À quoi songez-vous ?',
 		},
 		changeWallpaper: 'Changer le fond d\'écran',
+		elements: {
+			title: 'Éléments',
+		},
 		wall: {
-			title: 'Activités'
+			title: 'Activités',
 		},
 		information: {
 			title: 'Information',
@@ -108,7 +152,17 @@ const literals = {
 		},
 		notifications: {
 			title: 'Notifications',
-		}
+			emptyTitle: 'Aucune notification',
+			emptyDesc: 'Vous êtes à jour !',
+		},
+		settings: {
+			title: 'Paramètres',
+			language: 'Langue',
+			generalSectionTitle: 'Générale',
+			notificationSectionTitle: 'Notifications',
+			newNotificationSoundLabel: 'Son de nouvelle notification',
+			newMessageSoundLabel: 'Son de nouveau message',
+		},
 	},
 	app: {
 		menuGroup: {
@@ -149,7 +203,10 @@ const literals = {
 			isInvisibleLabel: 'Sans aspect visuel',
 			namePlaceholder: 'Nom de la composante',
 			descPlaceholder: 'Description',
+			instructionsPlaceholder: 'Instructions',
 			iconPlaceholder: 'Icône',
+			categoryPlaceholder: 'Catégorie',
+			colorPlaceholder: 'Couleur',
 			explanations: 'Une composante est un élément visuel ou un groupe de méthode avec paramètres et évènements programmable, héritable et réutilisable que vous pouvez personnaliser et imbriquer dans des stratégies afin de conceptualiser des stratégies d\'apprentissage sur-mesure.',
 			readDoc: 'Explorer la documentation',
 		},
@@ -188,6 +245,12 @@ const literals = {
 			add: 'Ajouter',
 			empty: 'Il n\'y a aucun élément pour le moment',
 			remove: 'Supprimer cet élément',
+		},
+
+		categories: {
+			general: 'Général',
+			language: 'Langue',
+			functions: 'Fonctions',
 		}
 	},
 	dataset: {
@@ -319,6 +382,9 @@ const literals = {
 		search: {
 			users: 'Utilisateurs',
 			pages: 'Pages',
+			components: 'Composantes',
+			datasets: 'Bases de données',
+			strategies: 'Stratégies',
 			noResults: 'Aucun résultat trouvé',
 		},
 		tooltip: {
@@ -350,7 +416,6 @@ const literals = {
 		noSelectDesc: 'Veuillez sélectionner un élément du menu contextuel',
 		filterPlaceholder: 'Filtrer/rechercher...',
 		noItems: 'Aucun élément d\'aide n\'a été ajouté pour le moment.',
-		general: 'Générale',
 	},
 	diff: {
 		quote: 'A changé sa citation pour <strong>{value}</strong>',
@@ -369,6 +434,7 @@ const literals = {
 		default: 'Erreur',
 		goBack: 'Revenir en arrière',
 
+		codeX: 'Erreur {code}',
 		code400: 'Mauvaise Requête',
 		code401: 'Non autorisé',
 		code403: 'Interdit',
@@ -462,51 +528,8 @@ const literals = {
 		deleted: 'Effacé avec succès !',
 	},
 	deck: {
-		edit: {
-			isArchivedWarning: 'Ce paquet a été archivé et ne peut être modifié que si réactivé.',
-			isArchivedReactivate: 'Réactiver',
-		},
-		view: {
-			title: 'Lecture',
-			position: '{current} de {total}',
-		},
-		removeModal: {
-			title: 'Effacer le paquet',
-			desc: 'Êtes-vous certain de vouloir effacer ce paquet de carte ? Vous perdrez toutes les données, paramètres et informations secondaires y étant associés. Peux-être préfériez-vous archivez le paquet à la place ?',
-		},
-		details: {
-			title: 'Informations',
-			name: 'Nom',
-			icon: 'Icône',
-			defaultLangFront: 'Langue par défaut (front)',
-			defaultLangBack: 'Langue par défaut (derrière)',
-			presentation: 'Présentation',
-		},
-		data: {
-			title: 'Cartes',
-			noDataText: 'Il n\'y a aucune carte pour le moment.',
-			noResultText: 'Votre recherche n\'a retourné aucun résultat.',
-			itemsPerPageAllText: 'Tous',
-			itemsPerPageText: 'Éléments par page',
-			order: 'Ordre',
-			front: 'Devant',
-			back: 'Derrière',
-			action: 'Action',
-			search: 'Rechercher dans cette liste...',
-			loading: 'Chargement en cours...',
-			bulkActions: 'Actions',
-			bulkAction: {
-				delete: 'Enlever de la liste',
-				restore: 'Restaurer',
-			},
-		},
-		theme: {
-			title: 'Thème',
-			isEnabled: 'Outrepasser le thème par défaut',
-		},
-		stats: {
-			title: 'Statistiques',
-		},
+		view: 'Voir',
+		edit: 'Modifier',
 	},
 	preferences: {
 		tab: {
@@ -666,11 +689,29 @@ const literals = {
 		main: {
 			escape: {
 				title: 'Sortir',
-				desc: 'Sortir d\'un context (fenêtre, couverture, etc)',
+				desc: 'Sort d\'un context (fenêtre, couverture, etc)',
 			},
 			help: {
 				title: 'Aide',
-				desc: 'Basculer la fenêtre du manuel d\'aide',
+				desc: 'Bascule la fenêtre du manuel d\'aide',
+			},
+			search: {
+				title: 'Rechercher',
+				desc: 'Ouvre le menu de recherche globale',
+			},
+			sidebar: {
+				title: 'Barre latérale',
+				desc: 'Ouvre la barre de menu latérale et met le focus dans le champs de recherche',
+			},
+		},
+		navigation: {
+			dashboard: {
+				title: 'Tableau de bord',
+				desc: 'Retourne au tableau de bord',
+			},
+			profile: {
+				title: 'Profil',
+				desc: 'Va au profil utilisateur',
 			},
 		},
 		datasetData: {
@@ -681,6 +722,7 @@ const literals = {
 		},
 		groupTitles: {
 			main: 'Généraux',
+			navigation: 'Navigation rapide',
 			datasetData: 'Gestion de données',
 		},
 	}

@@ -16,6 +16,10 @@
 						<v-icon left>mdi-card-bulleted-outline</v-icon>
 						{{$t('account.information.title')}}
 					</v-tab>
+					<v-tab :to="'/account/' + id + '/elements'">
+						<v-icon left>mdi-star-box</v-icon>
+						{{$t('account.elements.title')}}
+					</v-tab>
 					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/messaging'">
 						<v-icon left>mdi-email</v-icon>
 						{{$t('account.messaging.title')}}
@@ -23,6 +27,10 @@
 					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/notifications'">
 						<v-icon left>mdi-bell</v-icon>
 						{{$t('account.notifications.title')}}
+					</v-tab>
+					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/settings'">
+						<v-icon left>mdi-settings-outline</v-icon>
+						{{$t('account.settings.title')}}
 					</v-tab>
 				</v-tabs>
 			</v-container>
@@ -37,11 +45,17 @@
 				<v-tab-item color="transparent" :value="'/account/' + id + '/information'" class="pa-4">
 					<Information @update="updateValue($event)" :user="user" :is-different="isDifferent" />
 				</v-tab-item>
+				<v-tab-item color="transparent" :value="'/account/' + id + '/elements'" class="pa-4">
+					<Elements :user="user" />
+				</v-tab-item>
 				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/messaging'" class="pa-4">
 					<Messaging :user="user" />
 				</v-tab-item>
 				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/notifications'" class="pa-4">
 					<Notifications :user="user" />
+				</v-tab-item>
+				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/settings'" class="pa-4">
+					<Settings @update="updateValue($event)" :user="user" :is-different="isDifferent" />
 				</v-tab-item>
 			</v-tabs-items>
 		</v-container>
@@ -50,16 +64,18 @@
 
 <script>
 import Vue from 'vue';
-import UserService from '../../services/User';
+import UserService from '../../services/UserService';
 import Activities from './Account/Activities.vue';
 import Information from "./Account/Information";
 import Header from "./Account/Header";
 import User from "../../models/User";
 import Messaging from "./Account/Messaging";
+import Settings from "./Account/Settings";
 import Notifications from "./Account/Notifications";
+import Elements from "./Account/Elements";
 
 export default Vue.extend({
-	components: { Activities, Information, Header, Messaging, Notifications },
+	components: { Elements, Activities, Information, Header, Messaging, Notifications, Settings },
 
 	mounted() {
 	    this.load();
@@ -68,8 +84,9 @@ export default Vue.extend({
 	methods: {
 
 	    updateValue(user) {
-	        this.user = new User(user);
-	        this.originalUser = {...this.user};
+	        this.user = new User(this.$deepClone(user));
+	        this.originalUser = new User(this.$deepClone(user));
+	        this.$root.user = new User(this.$deepClone(user));
 	        this.updateContext();
 		},
 
@@ -95,7 +112,7 @@ export default Vue.extend({
 			UserService.get.bind(this)(this.id)
 				.then(response => {
 					this.user = new User(response.data);
-					this.originalUser = {...this.user};
+					this.originalUser = this.$deepClone(this.user);
 					this.updateContext();
 				})
 				.catch(error => this.$handleError(this, error))
@@ -129,8 +146,8 @@ export default Vue.extend({
 	        deep: true,
 	        handler: function(user) {
 	            if (user.id === this.user.id) {
-                	this.user = user;
-                	this.originalUser = {...user};
+                	this.user = new User(this.$deepClone(user));
+                	this.originalUser = new User(this.$deepClone(user));
 				}
 			},
 		},

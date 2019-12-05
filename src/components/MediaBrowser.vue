@@ -115,7 +115,7 @@
 <script>
     import Vue from 'vue';
     import File from '../utils/File';
-    import FileService from "../services/File";
+    import FileService from "../services/FileService";
 
     export default Vue.extend({
 

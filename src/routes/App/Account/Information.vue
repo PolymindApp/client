@@ -47,7 +47,9 @@
 						<v-text-field :error-messages="formErrors.actual" v-model="actual" :rules="[rules.required, rules.min]" :label="$t('restricted.actualPassPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showActualPassword ? 'text' : 'password'" :append-icon="showActualPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showActualPassword = !showActualPassword"></v-text-field>
 						<v-text-field :error-messages="formErrors.password" v-model="password" loading :rules="[rules.required, rules.min]" :label="$t('restricted.newPassPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword">
 							<template v-slot:progress>
-								<v-progress-linear :value="progress" :color="color" absolute height="7"></v-progress-linear>
+								<v-slide-y-transition>
+									<v-progress-linear :value="progress" :color="color" absolute height="7"></v-progress-linear>
+								</v-slide-y-transition>
 							</template>
 						</v-text-field>
 						<v-text-field :error-messages="formErrors.confirmation" v-model="confirmation" :rules="[rules.required, rules.min, rules.identical]" :label="$t('restricted.newConfirmationPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showConfirmPassword ? 'text' : 'password'" :append-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showConfirmPassword = !showConfirmPassword"></v-text-field>
@@ -65,9 +67,9 @@
 
 <script>
 import Vue from 'vue';
-import UserService from '../../../services/User';
+import UserService from '../../../services/UserService';
 import Rules from "../../../utils/Rules";
-import LanguageService from "../../../services/Language";
+import LanguageService from "../../../services/LanguageService";
 import HTMLEditorField from "../../../components/HTMLEditorField";
 import DirectUsSelect from "../../../components/DirectUsSelect";
 
@@ -110,7 +112,6 @@ export default Vue.extend({
 				.then(response => {
 					this.$root.isSaved = true;
 					this.$emit('update', response.data);
-                    this.$root.user = {...response.data};
 				})
 				.catch(error => this.$handleError(this, error))
 				.finally(() => this.$root.isLoading = false);
@@ -124,7 +125,12 @@ export default Vue.extend({
 			this.$refs.passwordForm.resetValidation();
 			this.$root.isLoading = true;
 			UserService.setPassword.bind(this)(this.user.email, this.actual, this.password, this.confirmation)
-				.then(response => this.$root.isSaved = true)
+				.then(response => {
+				    this.$root.isSaved = true;
+				    this.$refs.passwordForm.resetValidation();
+				    this.$refs.passwordForm.reset();
+                    // TODO: Password field not cleared.. bug in Vuetify
+                })
 				.catch(error => this.$handleError(this, error))
 				.finally(() => this.$root.isLoading = false);
 		},
@@ -137,6 +143,11 @@ export default Vue.extend({
 		},
 
 		color() {
+
+		    if (!this.password) {
+		        return 'grey darken-2';
+			}
+
 			return ['error', 'warning', 'success'][Math.floor(this.progress / 40)]
 		},
 

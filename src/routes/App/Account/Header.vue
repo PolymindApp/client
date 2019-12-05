@@ -5,9 +5,9 @@
 			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
 		</v-overlay>
 
-		<v-container class="d-flex pa-4 wallpaper-container">
+		<v-container class="d-flex pa-4 wallpaper-container fill-height">
 
-			<v-row>
+			<v-row class="fill-height">
 				<v-col order="last" order-sm="first" cols="12" sm="6" md="8" class="py-0 d-flex align-end">
 
 					<!-- PICTURE / NAME -->
@@ -48,8 +48,8 @@
 import Vue from 'vue';
 import File from "../../../utils/File";
 import UserAvatar from "../../../components/UserAvatar";
-import FileService from "../../../services/File";
-import UserService from "../../../services/User";
+import FileService from "../../../services/FileService";
+import UserService from "../../../services/UserService";
 
 export default Vue.extend({
 

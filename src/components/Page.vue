@@ -26,7 +26,7 @@
 
 <script>
 import Vue from 'vue';
-import PageService from '../services/Page';
+import PageService from '../services/PageService';
 
 export default Vue.extend({
 	name: 'Page',

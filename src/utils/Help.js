@@ -4,30 +4,54 @@ $help.install = function (Vue) {
 
 	Vue.prototype.$help = {
 
+		$vue: null,
 		items: [],
 
-		add: function(key, title, type, component, parent) {
+		setVueRef(ref) {
+			this.$vue = ref;
+		},
 
-			let newItem = { key, name: title, type, component };
+		setCompRef(ref) {
+			this.$comp = ref;
+		},
 
-			if (type === 'cat') {
-				newItem.children = [];
+		open(slug) {
+			this.$vue.$root.help.visible = true;
+			this.$comp.open(slug);
+		},
+
+		inject(group, item, list = this.items) {
+
+			if (group.substring(0, 1) === '/') {
+				group = group.substring(1);
 			}
 
-			if (parent) {
-				const parents = parent.split('.');
-				const lastItems = this.items;
-				for (let i = 0; i < parents.length; i++) {
-					const curParent = parents[i];
-					lastItems.filter(item => {
-						if (item.key === curParent && i === parents.length - 1) {
-							item.children.push(newItem);
-						}
-					});
-				}
-			} else {
-				this.items.push(newItem);
+			const splitGroup = group.split('/');
+			const section = splitGroup[0];
+			if (group === '') {
+				return list.push(item);
 			}
+
+			let found = list.find(item => item.group === section);
+			if (!found) {
+				list.push({
+					key: section,
+					group: section,
+					name: section,
+					type: 'cat',
+					children: [],
+				});
+
+				found = list.find(item => item.group === section);
+			}
+
+			return this.inject(group.substring(section.length + 1, group.length), item, found.children);
+		},
+
+		add: function(group, slug, title, content, type = 'doc') {
+
+			const item = { key: slug, slug, name: title, type, content };
+			this.inject(group, item);
 		}
 	}
 };

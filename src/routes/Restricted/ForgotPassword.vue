@@ -31,7 +31,7 @@
 import Vue from 'vue';
 import ErrorDialog from '../../components/ErrorDialog.vue';
 import Rules from "../../utils/Rules";
-import UserService from "../../services/User";
+import UserService from "../../services/UserService";
 import Form from "../../utils/Form";
 
 export default Vue.extend({

@@ -54,7 +54,7 @@
 import Vue from 'vue';
 import Data from "./Dataset/Data";
 import Settings from "./Dataset/Settings";
-import DatasetService from "../../services/Dataset";
+import DatasetService from "../../services/DatasetService";
 import DeleteDialog from "../../components/DeleteDialog";
 import Dataset from "../../models/Dataset";
 import {VSkeletonLoader} from "vuetify";
@@ -105,7 +105,7 @@ export default Vue.extend({
 		},
 
 		updateOriginalData() {
-			this.originalDataset = JSON.parse(JSON.stringify(this.dataset));
+			this.originalDataset = this.$deepClone(this.dataset);
 		},
 
 		load() {
@@ -151,7 +151,7 @@ export default Vue.extend({
 		},
 
 		reset() {
-			this.dataset = JSON.parse(JSON.stringify(this.originalDataset));
+			this.dataset = this.$deepClone(this.originalDataset);
 			this.$emit('cancel');
 		},
 

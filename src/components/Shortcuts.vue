@@ -18,7 +18,7 @@
 										<v-col cols="6" md="5" class="d-flex align-center justify-center">
 											<template v-for="(key, keyIdx) in shortcut.keys">
 												<v-chip :key="keyIdx" label>
-													<span>{{ key.toUpperCase() }}</span>
+													<span>{{ key | shortcutKey }}</span>
 												</v-chip>
 												<v-icon :key="keyIdx + '_plus'" v-if="keyIdx < shortcut.keys.length - 1" class="mx-2">mdi-plus</v-icon>
 											</template>

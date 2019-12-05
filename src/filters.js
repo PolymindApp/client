@@ -17,6 +17,13 @@ Vue.filter('userScreenName', (user) => {
 	return user.screen_name || (user.first_name + ' ' + user.last_name).trim();
 });
 
+Vue.filter('shortcutKey', (key) => {
+	return key.replace('Key', '')
+	    .replace('ControlLeft', 'Ctrl')
+	    .replace('AltLeft', 'Alt')
+		.toUpperCase();
+});
+
 Vue.filter('plainExcerpt', (value, limit = 250) => {
 
 	let tmp = document.createElement('div');

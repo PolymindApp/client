@@ -6,7 +6,7 @@
 			<div class="d-flex flex-column flex-md-row align-start align-md-center">
 				<div style="flex: 1" v-text="$t('dataset.settings.explanations')"></div>
 				<div style="flex: 0">
-					<v-btn class="ml-0 ml-md-8 mt-4 mt-md-0" to="/help/dataset">
+					<v-btn class="ml-0 ml-md-8 mt-4 mt-md-0" @click="$help.open('dataset-general')">
 						<v-icon left>mdi-book-search</v-icon>
 						<span class="text-break" v-text="$t('dataset.settings.readDoc')"></span>
 					</v-btn>

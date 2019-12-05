@@ -82,7 +82,7 @@ export default Vue.extend({
     methods: {
 
         add() {
-            const deepClone = JSON.parse(JSON.stringify(this.emptyItem));
+            const deepClone = this.$deepClone(this.emptyItem);
 			this.list.push(deepClone);
 			this.$emit('input', this.list);
 		},

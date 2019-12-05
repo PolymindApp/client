@@ -28,7 +28,7 @@
 <script>
 import Vue from 'vue';
 import moment from 'moment';
-import LanguageService from "../services/Language";
+import LanguageService from "../services/LanguageService";
 
 export default Vue.extend({
 	name: 'LanguageSwitcher',

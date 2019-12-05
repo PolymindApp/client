@@ -91,7 +91,7 @@
 <script>
 import Vue from 'vue';
 import Rules from "../../utils/Rules";
-import UserService from "../../services/User";
+import UserService from "../../services/UserService";
 import Form from "../../utils/Form";
 import ServerError from "../../utils/ServerError";
 

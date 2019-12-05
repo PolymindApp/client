@@ -34,7 +34,7 @@
 
 <script>
 import Vue from 'vue';
-import FormService from "../services/Form";
+import FormService from "../services/FormService";
 import Rules from "../utils/Rules";
 
 export default Vue.extend({
@@ -58,7 +58,7 @@ export default Vue.extend({
 				this.$root.isLoading = true;
 				this.disabled = true;
 
-				let data = {...this.data};
+				let data = this.$deepClone(this.data);
 				if (data.subject === 'other') {
 				    data.subject = data.otherSubject;
 				}

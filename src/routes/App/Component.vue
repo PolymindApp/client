@@ -20,6 +20,14 @@
 <!--				<v-icon left>mdi-flash-outline</v-icon>-->
 <!--				{{$t('component.events.title')}}-->
 <!--			</v-tab>-->
+
+			<v-spacer></v-spacer>
+
+			<v-btn @click="$comments.open(id, 'component')" class="ma-3" text small>
+				<v-icon left>mdi-comment</v-icon>
+				{{$t('comment.btnTitle')}}
+				<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
+			</v-btn>
 		</v-tabs>
 
 		<div v-if="isDeleted">
@@ -49,10 +57,28 @@
 			<v-btn :disabled="!dataHasChanged" @click="reset()" text>
 				{{$t('modal.cancel')}}
 			</v-btn>
+
 			<v-btn :disabled="isNew" @click="remove()" class="float-right" text color="error">
 				<v-icon :left="$vuetify.breakpoint.mdAndUp">mdi-delete</v-icon>
 				<span v-if="$vuetify.breakpoint.mdAndUp">{{$t('modal.delete')}}</span>
 			</v-btn>
+
+			<v-menu max-height="450" offset-y>
+				<template v-slot:activator="{ on }">
+					<v-btn :disabled="revisions.length === 0" class="float-right mr-4" v-on="on" text>
+						<v-icon :left="$vuetify.breakpoint.mdAndUp">mdi-history</v-icon>
+						<span v-if="$vuetify.breakpoint.mdAndUp">{{$t('revision.btnTitle')}}</span>
+						<v-icon right>mdi-chevron-up</v-icon>
+					</v-btn>
+				</template>
+				<v-list>
+					<v-list-item-group v-model="revisionOffset" color="primary">
+						<v-list-item v-for="(revision, index) in revisions" :key="index" @click="loadRevision(index)">
+							<v-list-item-title>{{ revision.data.modified_on }}</v-list-item-title>
+						</v-list-item>
+					</v-list-item-group>
+				</v-list>
+			</v-menu>
 		</v-card>
 	</v-sheet>
 </template>
@@ -61,20 +87,21 @@
 import Vue from 'vue';
 import Source from "./Component/Source";
 import Settings from "./Component/Settings";
-import Events from "./Component/Events";
-import Params from "./Component/Params";
-import ComponentService from "../../services/Component";
+import ComponentService from "../../services/ComponentService";
 import ComponentModel from "../../models/Component";
 import DeleteDialog from "../../components/DeleteDialog";
+import CommentService from "../../services/CommentService";
 
 export default Vue.extend({
 
-	components: { Source, Settings, Params, Events, DeleteDialog },
+	components: { Source, Settings, DeleteDialog },
 
 	mounted() {
 		this.initializeValues();
 		this.load();
+		this.loadRevisions();
 		this.updateTab();
+		this.loadCommentCount();
 	},
 
 	methods: {
@@ -102,33 +129,67 @@ export default Vue.extend({
 		},
 
 		updateOriginalData() {
-			this.originalComponent = JSON.parse(JSON.stringify(this.component));
+			this.originalComponent = this.$deepClone(this.component);
 		},
 
-		load() {
+        loadCommentCount() {
+
+            CommentService.count.bind(this)('component', this.id)
+                .then(response => {
+                    this.commentCount = response.meta.filter_count;
+                })
+                .catch(error => this.$handleError(this, error))
+                .finally(() => this.$root.isLoading = false);
+		},
+
+        loadRevision(offset) {
+
+            this.load(offset);
+		},
+
+		loadRevisions() {
+
+            ComponentService.getRevisions.bind(this)(this.id)
+                .then(response => {
+                    this.revisions = response.data;
+                    this.revisionOffset = response.data.length - 1;
+				})
+                .catch(error => this.$handleError(this, error))
+                .finally(() => this.$root.isLoading = false);
+		},
+
+		load(revisionOffset) {
 
 			this.formErrors = [];
 
 			if (!this.isNew) {
+
 				this.$root.isLoading = true;
-				ComponentService.get.bind(this)(this.id)
+				ComponentService.get.bind(this)(this.id, revisionOffset)
 					.then(response => {
-						this.id = response.data.id;
-						this.isNew = false;
-						this.component = response.data;
+
+					    if (revisionOffset !== undefined) {
+                            this.id = response.data.data.id;
+                            this.component = response.data.data;
+						} else {
+                            this.id = response.data.id;
+                            this.component = response.data;
+						}
+
+					    this.isNew = false;
 						this.updateOriginalData();
 						this.updateTab();
 					})
 					.catch(error => {
-						if (error.response.status === 404) {
-							this.$router.push('/404')
+						if (error.code === 203) {
+							return this.$router.push('/404')
 						}
 						this.$handleError(this, error);
 					})
 					.finally(() => this.$root.isLoading = false);
 			} else {
 				this.$root.isLoading = true;
-				ComponentService.get.bind(this)(3)
+				ComponentService.get.bind(this)(1)
 					.then(response => {
 						this.initializeValues();
 						this.component.html = response.data.html;
@@ -137,18 +198,13 @@ export default Vue.extend({
 						this.updateOriginalData();
 						this.updateTab();
 					})
-					.catch(error => {
-						if (error.response.status === 404) {
-							this.$router.push('/404')
-						}
-						this.$handleError(this, error);
-					})
+					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
 			}
 		},
 
 		reset() {
-			this.component = JSON.parse(JSON.stringify(this.originalComponent));
+			this.component = this.$deepClone(this.originalComponent);
 		},
 
 		initializeValues() {
@@ -161,11 +217,14 @@ export default Vue.extend({
 			this.$root.isLoading = true;
 			ComponentService.save.bind(this)(this.id !== 'new' ? this.id : null, this.component)
 				.then(response => {
-					    this.id = response.data.id;
-					    this.isNew = false;
+					this.id = response.data.id;
+					this.isNew = false;
 					this.updateOriginalData();
-					    this.$root.isSaved = true;
+					this.loadRevisions();
 					this.updateTab();
+					this.$root.isSaved = true;
+					this.revisionOffset = 0;
+                    this.$root.$emit('COMPONENT_UPDATE');
 				})
 				.catch(error => this.$handleError(this, error))
 				.finally(() => this.$root.isLoading = false);
@@ -200,9 +259,12 @@ export default Vue.extend({
 			isNew: this.$route.params.id === 'new',
 			isDeleted: false,
 			formErrors: [],
+            revisions: [],
+            revisionOffset: 0,
 			tab: '/component/new/edit',
 			originalComponent: {},
 			component: {},
+            commentCount: 0,
 		}
 	},
 
@@ -211,6 +273,7 @@ export default Vue.extend({
 			this.initializeValues();
 			this.updateTab();
 			this.load();
+			this.loadRevisions();
 		}
 	}
 });

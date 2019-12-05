@@ -18,34 +18,38 @@
 						{{$t('help.noItems')}}
 					</v-alert>
 
-					<v-treeview
-						v-model="tree"
-						:active.sync="active"
-						:open.sync="open"
-						:search="filter"
-						:items="items"
-						item-key="key"
-						class="mt-4"
-						rounded
-						open-all
-						activatable
-						open-on-click
-						return-object
-					>
-						<template v-slot:prepend="{ item, open }">
-							<v-icon v-if="item.type === 'cat'">
-								{{ open ? 'mdi-folder-open' : 'mdi-folder' }}
-							</v-icon>
-							<v-icon v-else>
-								{{ item.icon || types[item.type] }}
-							</v-icon>
-						</template>
-					</v-treeview>
+					<v-slide-y-transition>
+						<v-treeview
+							v-if="itemsLoaded"
+							v-model="tree"
+							:active.sync="active"
+							:open.sync="opened"
+							:search="filter"
+							:items="items"
+							item-key="key"
+							class="mt-4"
+							rounded
+							open-all
+							activatable
+							open-on-click
+							return-object
+						>
+							<template v-slot:prepend="{ item, open }">
+								<v-icon v-if="item.type === 'cat'">
+									{{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+								</v-icon>
+								<v-icon v-else>
+									{{ item.icon || types[item.type] }}
+								</v-icon>
+							</template>
+						</v-treeview>
+					</v-slide-y-transition>
 				</v-col>
 				<v-col cols="6" md="9" class="white d-flex">
 					<v-scroll-y-transition mode="out-in">
 						<v-card v-if="active.length > 0" :key="active[0].key" color="transparent" tile flat class="pa-8 align-self-start">
-							<component :is="active[0].component"></component>
+							<h1 v-html="active[0].name" class="display-1 mb-8 primary--text"></h1>
+							<div v-html="active[0].content"></div>
 						</v-card>
 						<EmptyView v-else :title="$t('help.noSelectTitle')" :desc="$t('help.noSelectDesc')" />
 					</v-scroll-y-transition>
@@ -58,6 +62,7 @@
 <script>
     import Vue from 'vue';
     import EmptyView from "./EmptyView";
+    import HelpService from "../services/HelpService";
 
     export default Vue.extend({
 
@@ -69,6 +74,7 @@
 
         mounted() {
 
+            this.load();
         },
 
         destroyed() {
@@ -77,6 +83,35 @@
 
         methods: {
 
+            open(slug) {
+
+                this.active = [];
+                const search = items => items.forEach(item => {
+                    if (item.children) {
+                        return search(item.children);
+					} else if(item.slug === slug) {
+                        this.active = [item];
+					}
+				});
+
+                search(this.items);
+                this.$forceUpdate();
+			},
+
+            load() {
+
+                this.$root.isLoading = true;
+                HelpService.getAll.bind(this)()
+					.then(response => {
+						this.$help.items.splice(0, this.$help.items.length);
+						response.data.forEach(documentation => {
+                        	this.$help.add(documentation.group, documentation.slug, documentation.title, documentation.content);
+						});
+						this.itemsLoaded = true;
+					})
+                    .catch(error => this.$handleError(this, error))
+                    .finally(() => this.$root.isLoading = false);
+			}
 		},
 
         computed: {
@@ -94,7 +129,7 @@
             //         let items = [];
             //         entries.forEach(entry => {
 			//
-            //             let item = {...entry};
+            //             let item = this.$deepClone(entry);
             //             if (!item.children) {
             //                 item.children = [];
 			// 			}
@@ -122,9 +157,10 @@
 
         data() {
             return {
+                itemsLoaded: false,
                 showModal: false,
                 filter: '',
-                open: ['Components'],
+                opened: [],
                 tree: [],
                 active: [],
                 types: {
@@ -141,7 +177,7 @@
                 this.showModal = visible;
 
                 if (visible) {
-                    this.$nextTick(() => {
+                    setTimeout(() => {
                     	this.$refs.search.focus();
 					});
 				}

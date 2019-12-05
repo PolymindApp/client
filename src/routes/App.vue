@@ -15,7 +15,10 @@
 		<Shortcuts :visible="$root.shortcuts.visible" />
 
 		<!-- SHORTCUTS -->
-		<Help :visible="$root.help.visible" />
+		<Help ref="help" :visible="$root.help.visible" />
+
+		<!-- COMMENTS -->
+		<Comments ref="comments" />
 
 		<!-- IS DELETE -->
 		<v-snackbar color="success" v-model="$root.isDeleted">
@@ -27,7 +30,7 @@
 		</v-snackbar>
 
 		<!-- IS LOADING -->
-		<v-overlay :absolute="false" :value="$root.isLoading">
+		<v-overlay :absolute="false" :value="$root.isLoading" z-index="100">
 			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
 		</v-overlay>
 
@@ -60,14 +63,14 @@ import Toolbar from '../components/Toolbar.vue';
 import Sidebar from '../components/Sidebar.vue';
 import Shortcuts from '../components/Shortcuts.vue';
 import Help from '../components/Help.vue';
-import UserService from "../services/User";
+import UserService from "../services/UserService";
 import ErrorDialog from '../components/ErrorDialog.vue';
 import About from './App/About.vue';
-import HelpGeneral from './App/Help/General.vue';
 import Component from "./App/Component";
 import Strategy from "./App/Strategy";
 import Dataset from "./App/Dataset";
 import User from "../models/User";
+import Comments from "../components/Comments";
 
 export const routes = [
 	{path: '/', component: Dashboard, name: 'dashboard'},
@@ -93,7 +96,7 @@ export default Vue.extend({
 	name: 'App',
 
 	components: {
-		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help,
+		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help, Comments
 	},
 
 	created() {
@@ -114,11 +117,15 @@ export default Vue.extend({
 		});
 
         this.$shortcuts.add(this.$t('shortcuts.main.escape.title'), this.$t('shortcuts.main.escape.desc'), 'main', 'Escape', this.shortcutEscape);
-        this.$shortcuts.add(this.$t('shortcuts.main.help.title'), this.$t('shortcuts.main.help.desc'), 'main', 'F1', this.shortcutHelp);
-        this.$shortcuts.add(this.$t('shortcuts.main.search.title'), this.$t('shortcuts.main.search.desc'), 'main', ['ControlLeft', 'KeyF'], this.shortcutSearch);
+        this.$shortcuts.add(this.$t('shortcuts.main.help.title'), this.$t('shortcuts.main.help.desc'), 'main', 'F1', this.shortcutHelp, true);
+        this.$shortcuts.add(this.$t('shortcuts.main.search.title'), this.$t('shortcuts.main.search.desc'), 'main', ['ControlLeft', 'KeyF'], this.shortcutSearch, true);
+        this.$shortcuts.add(this.$t('shortcuts.main.sidebar.title'), this.$t('shortcuts.main.sidebar.desc'), 'main', ['AltLeft', 'KeyS'], this.shortcutSidebar, true);
+        this.$shortcuts.add(this.$t('shortcuts.navigation.dashboard.title'), this.$t('shortcuts.navigation.dashboard.desc'), 'navigation', ['AltLeft', 'KeyD'], this.shortcutDashboard, true);
+        this.$shortcuts.add(this.$t('shortcuts.navigation.profile.title'), this.$t('shortcuts.navigation.profile.desc'), 'navigation', ['AltLeft', 'KeyP'], this.shortcutProfile, true);
 
-        this.$help.items.slice(0, this.$help.length);
-        this.$help.add('general', this.$t('help.general'), 'doc', HelpGeneral);
+        this.$help.setVueRef(this);
+        this.$help.setCompRef(this.$refs.help);
+        this.$comments.setRef(this.$refs.comments);
 	},
 
 	destroyed() {
@@ -126,6 +133,9 @@ export default Vue.extend({
 		this.$shortcuts.remove(this.shortcutEscape);
 		this.$shortcuts.remove(this.shortcutHelp);
 		this.$shortcuts.remove(this.shortcutSearch);
+		this.$shortcuts.remove(this.shortcutSidebar);
+		this.$shortcuts.remove(this.shortcutDashboard);
+		this.$shortcuts.remove(this.shortcutProfile);
 	},
 
 	methods: {
@@ -133,17 +143,34 @@ export default Vue.extend({
 	    shortcutEscape() {
 			this.$root.help.visible = false;
 			this.$root.shortcuts.visible = false;
+            this.$refs.sidebar.closeSidebar();
         },
 
 	    shortcutHelp() {
             this.$root.help.visible = !this.$root.help.visible;
         },
 
+	    shortcutDashboard() {
+            this.$router.push('/');
+        },
+
+	    shortcutProfile() {
+            this.$router.push('/account/' + this.$root.user.id);
+        },
+
         shortcutSearch() {
 
 	        if (this.$refs.toolbar) {
-				this.$refs.toolbar.searchMenuOpened = !this.$refs.toolbar.searchMenuOpened;
+				this.$refs.toolbar.searchMenuOpened = true;
 				this.$refs.toolbar.setSearchFocus();
+			}
+        },
+
+        shortcutSidebar() {
+
+	        if (this.$refs.sidebar) {
+				this.$refs.sidebar.openSidebar();
+				this.$refs.sidebar.focusSearch();
 			}
         },
 	},

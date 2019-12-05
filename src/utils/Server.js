@@ -43,63 +43,19 @@ export default class Server {
 
 	static prepare(method, url, params, data) {
 
-		// const jwt = localStorage.getItem('jwt');
-		// const headers = new Headers();
+		return this.$server.request(method, url, params, data)
+			.catch(error => {
 
-		// if (jwt) {
-		// 	headers.append('Authorization', jwt);
-		// }
+				switch (error.code) {
+					case 3:
+					case 401:
+						if (!this.$server.loggedIn) {
+							this.$router.go(0);
+						}
+						break;
+				}
 
-		// let params = {
-		// 	method: method,
-		// 	headers: headers,
-		// };
-		//
-		// if (data instanceof FormData) {
-		// 	params.body = data;
-		// } else if (data) {
-		// 	headers.append('Content-Type', 'application/json');
-		// 	params.body = JSON.stringify(data);
-		// }
-
-		//request(method, endpoint, params = {}, data = {}, noProject = false, headers = {})
-		return this.$server.request(method, url, params, data);
-
-
-		// return fetch(process.env.VUE_APP_API_URL + url, params).then(response => {
-		// 	let clonedRes = response.clone();
-		// 	return clonedRes.json().catch(error => {
-		// 		return response.text().then(data => {
-		// 			return Promise.reject(new RestError(clonedRes, data));
-		// 		});
-		// 	}).then(data => {
-		// 		if (response.status >= 200 && response.status < 300) {
-		// 			return data;
-		// 		}
-		//
-		// 		return Promise.reject(new RestError(response, data));
-		// 	});
-		// })
-		// 	.catch(error => {
-		//
-		// 		if (typeof error === 'string') {
-		// 			return Promise.reject(error);
-		// 		}
-		//
-		// 		if (error.data && error.message) {
-		// 			switch (error.message) {
-		// 			case 'SESSION_TOKEN_EXPIRED':
-		// 				localStorage.removeItem('jwt');
-		// 				this.$router.go(0);
-		// 				break;
-		// 			}
-		// 		}
-		//
-		// 		if (process.env.NODE_ENV === 'development') {
-		// 			console.error(error);
-		// 		}
-		//
-		// 		return Promise.reject(error);
-		// 	});
+				return Promise.reject(error);
+			});
 	}
 }

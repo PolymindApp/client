@@ -61,7 +61,7 @@ import Source from "./Strategy/Interface";
 import Settings from "./Strategy/Settings";
 import Events from "./Strategy/Components";
 import Params from "./Strategy/Workflow";
-import StrategyService from "../../services/Strategy";
+import StrategyService from "../../services/StrategyService";
 import DeleteDialog from "../../components/DeleteDialog";
 
 export default Vue.extend({
@@ -92,7 +92,7 @@ export default Vue.extend({
 		},
 
 		updateOriginalData() {
-			this.originalStrategy = JSON.parse(JSON.stringify(this.strategy));
+			this.originalStrategy = this.$deepClone(this.strategy);
 		},
 
 		load() {
@@ -123,7 +123,7 @@ export default Vue.extend({
 		},
 
 		reset() {
-			this.strategy = JSON.parse(JSON.stringify(this.originalStrategy));
+			this.strategy = this.$deepClone(this.originalStrategy);
 		},
 
 		initializeValues() {

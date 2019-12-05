@@ -28,7 +28,7 @@
 						</v-flex>
 					</v-layout>
 					<v-list-item class="mt-5">
-						<v-text-field v-model="filter" @keyup="handleKeyDown($event)" clearable solo-inverted dark :label="$t('sidebar.filterPlaceholder')" prepend-inner-icon="mdi-magnify" hide-details />
+						<v-text-field ref="search" v-model="filter" @keyup="handleKeyDown($event)" clearable solo-inverted dark :label="$t('sidebar.filterPlaceholder')" prepend-inner-icon="mdi-magnify" hide-details />
 					</v-list-item>
 
 					<v-tooltip bottom>
@@ -56,7 +56,10 @@
 
 				<v-sheet tile :key="group.title" v-if="group.canAdd || group.getItems().length > 0" v-for="group in filteredMenuItems">
 					<v-subheader v-if="group.name">
-						<span style="flex: 1">{{ $t('app.menuGroup.' + group.name) }}</span>
+						<span style="flex: 1">
+							{{ $t('app.menuGroup.' + group.name) }}
+							<span class="font-weight-bold primary--text" v-if="group.canAdd && group.getItems().length > 0">({{group.getItems().length}})</span>
+						</span>
 
 						<v-tooltip v-if="group.canAdd" bottom>
 							<template v-slot:activator="{ on }">
@@ -82,7 +85,7 @@
 					</v-subheader>
 
 					<v-expand-transition>
-						<template v-if="!group.canAdd || $root.user.settings.sidebar[group.name]">
+						<template v-if="!group.canAdd || ($root.user.settings.sidebar[group.name] || filter)">
 							<div>
 								<v-alert v-if="group.canAdd && group.getItems().length === 0" text tile type="warning" class="ma-0">
 									{{$t('sidebar.' + group.name + 'Empty')}}
@@ -124,11 +127,10 @@
 import Vue from 'vue';
 import UserAvatar from '../components/UserAvatar.vue';
 import draggable from "vuedraggable";
-import ComponentService from "../services/Component";
-import StrategyService from "../services/Strategy";
-import DatasetService from "../services/Dataset";
-import UserService from "../services/User";
-// import DeckService from "../services/Deck";
+import ComponentService from "../services/ComponentService";
+import StrategyService from "../services/StrategyService";
+import DatasetService from "../services/DatasetService";
+import UserService from "../services/UserService";
 
 export default Vue.extend({
 	name: 'Sidebar',
@@ -142,21 +144,30 @@ export default Vue.extend({
 	originalSidebar: null,
 
 	mounted() {
-	    // this.loadDecks();
 		this.loadComponents();
 		this.loadStrategies();
 		this.loadDatasets();
 
-	    // this.$root.$on('DECK_UPDATE', this.deckUpdateEvent);
+	    this.$root.$on('COMPONENT_UPDATE', this.loadComponents);
+	    this.$root.$on('STRATEGY_UPDATE', this.loadStrategies);
+	    this.$root.$on('DATASET_UPDATE', this.loadDatasets);
 	    this.$root.$on('FULLSCREEN', this.fullScreenEvent);
 	},
 
 	destroyed() {
-	    // this.$root.$off('DECK_UPDATE', this.deckUpdateEvent);
+
+        this.$root.$off('COMPONENT_UPDATE', this.loadComponents);
+        this.$root.$off('STRATEGY_UPDATE', this.loadStrategies);
+        this.$root.$off('DATASET_UPDATE', this.loadDatasets);
 	    this.$root.$off('FULLSCREEN', this.fullScreenEvent);
 	},
 
 	methods: {
+
+	    focusSearch() {
+	        this.$refs.search.$el.querySelector('input').focus();
+	        this.$refs.search.$el.querySelector('input').select();
+		},
 
 	    toggleSection(name) {
 
@@ -165,6 +176,14 @@ export default Vue.extend({
                 settings: this.$root.user.settings
             })
                 .catch(error => this.$handleError(this, error));
+		},
+
+		openSidebar() {
+			this.sidebar.opened = true;
+		},
+
+		closeSidebar() {
+			this.sidebar.opened = false;
 		},
 
 	    toggleSidebar() {
@@ -179,7 +198,7 @@ export default Vue.extend({
 
 		fullScreenEvent(active) {
 			if (active) {
-				this.originalSidebar = {...this.sidebar};
+				this.originalSidebar = this.$deepClone(this.sidebar);
 				this.sidebar.hideOverlay = true;
 				this.sidebar.permanent = !active;
 				this.sidebar.opened = !active;
@@ -190,10 +209,6 @@ export default Vue.extend({
 				this.originalSidebar = null;
 			}
 		},
-
-		// deckUpdateEvent()  {
-		//     this.loadDecks();
-		// },
 
 		loadStrategies() {
 			StrategyService.getAll.bind(this)().then(response => {
@@ -219,18 +234,11 @@ export default Vue.extend({
 			// .finally(() => this.$root.isLoading = false);
 		},
 
-	    // loadDecks() {
-	    //     DeckService.getAll.bind(this)().then(decks => {
-		// 		this.decks = decks;
-		// 	});
-		// },
-
 		signOut() {
 		    UserService.logout.bind(this)()
 				.then(() => {
                     this.$router.go(0);
 				});
-			// localStorage.removeItem('jwt');
 		},
 
 		handleKeyDown(event) {
@@ -274,7 +282,7 @@ export default Vue.extend({
 
 			let groups = [];
 			this.menuItems.forEach(item => {
-				let group = {...item};
+				let group = this.$deepClone(item);
 				group.items = [];
 				group.getItems().forEach(child => {
 					const title = (child.title || (child.name && this.$t('title.' + child.name))).toLowerCase();
@@ -297,16 +305,13 @@ export default Vue.extend({
 
 	data() {
 		return {
-			// cdnPrefix: process.env.VUE_APP_API_URL,
 			filter: '',
 			user: false,
 			isLoading: false,
 			version: process.env.VERSION,
-			// decks: [],
 			strategies: [],
 			components: [],
 			datasets: [],
-			// data: [],
 			newItem: '',
 			menuItems: [
 				{
@@ -317,69 +322,6 @@ export default Vue.extend({
 						// {name: 'stats', icon: 'mdi-chart-bar', link: '/stats', disabled: true },
 					],
 				},
-				// {
-				// 	name: 'decks', canAdd: true, addTo: '/deck/new/edit', getItems: () => {
-				//         let items = [];
-				//         this.decks.forEach(deck => {
-				//             if (deck.isArchived) {
-				//                 return;
-				// 			}
-				//             items.push({
-				//                 title: deck.name,
-				//                 icon: deck.icon || 'mdi-cards-outline',
-				//                 link: '/deck/' + deck.id,
-				// 				badge: deck.totalCards,
-				// 				badgeColor: 'transparent',
-				// 				color: deck.setting.colorFrom,
-				// 				dark: deck.setting.dark,
-				//             });
-				//         });
-				//         return items;
-				//     }, sortable: {
-				// 	    onEnd: () => {
-				//             // this.$root.isLoading = true;
-				//             // DeckService.saveOrder.bind(this)(this.decks).then(decks => {
-				//             //     // this.decks = decks;
-				//             // }).finally(() => {
-				//             //     this.$root.isLoading = false;
-				//             // });
-				// 		}
-				// 	},
-				// },
-				// {
-				//     name: 'data', canAdd: true, addTo: '/data/new/edit', getItems: () => {
-				//         let items = [];
-				//         this.data.forEach(data => {
-				//             if (data.isArchived) {
-				//                 return;
-				//             }
-				//             items.push({
-				//                 title: data.name,
-				//                 icon: 'mdi-database',
-				//                 link: '/data/' + data.id,
-				//                 badge: data.totalItems,
-				//                 badgeColor: 'transparent',
-				//             });
-				//         });
-				//         return items;
-				//     }
-				// },
-				// {
-				// 	name: 'shared', canAdd: false, getItems: () => [
-				//
-				// 	],
-				// },
-				// {
-				// 	name: 'personal', canAdd: false, getItems: () => [
-				//
-				// 	],
-				// },
-				// {
-				// 	name: 'advanced', canAdd: false, getItems: () => [
-				// 		{name: 'preferences', icon: 'mdi-settings', link: '/preferences' },
-				// 		// {name: 'customize', icon: 'mdi-tools', link: '/customize', disabled: true },
-				// 	],
-				// },
 				{
                 	name: 'strategies', canAdd: true, addTo: '/strategy/new', getItems: () => {
 						let items = [];
@@ -432,17 +374,8 @@ export default Vue.extend({
 						return items;
 					},
 				},
-				// {
-				//     name: 'admin', canAdd: false, getItems: () => [
-				//         {name: 'admin.users', icon: 'mdi-account-details', link: '/admin/users'},
-				//         {name: 'admin.roles', icon: 'mdi-security', link: '/admin/roles'},
-				//         {name: 'admin.groups', icon: 'mdi-account-group', link: '/admin/groups'},
-				//         {name: 'admin.permissions', icon: 'mdi-account-check', link: '/admin/permissions'},
-				//     ],
-				// },
 				{
 					name: 'others', canAdd: false, getItems: () => [
-						// {name: 'account', icon: 'mdi-account', link: '/account/' + this.$root.user.id },
 						{name: 'about', icon: 'mdi-information', link: '/about' },
 						{name: 'signOut', icon: 'mdi-logout-variant', signOut: true},
 					],

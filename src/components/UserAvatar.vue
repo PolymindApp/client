@@ -17,8 +17,8 @@
 <script>
 import Vue from 'vue';
 import File from '../utils/File';
-import FileService from "../services/File";
-import UserService from "../services/User";
+import FileService from "../services/FileService";
+import UserService from "../services/UserService";
 
 export default Vue.extend({
 	props: {

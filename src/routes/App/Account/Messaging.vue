@@ -42,7 +42,7 @@
 					</div>
 					<v-scroll-y-transition mode="out-in">
 						<v-form v-if="userId" @submit="send(userId, $event)" style="flex: 0">
-							<v-text-field v-model="newMessage.text" :disabled="!userId || isSending" :placeholder="$t('account.messaging.newMessagePlaceholder')" append-icon="mdi-send" class="pa-4" outlined hide-details></v-text-field>
+							<v-text-field v-model="newMessage.text" :disabled="!userId || isSending" :placeholder="$t('account.messaging.newMessagePlaceholder')" append-icon="mdi-send" class="pa-4" outlined hide-details @click:append="send(userId, $event)"></v-text-field>
 						</v-form>
 					</v-scroll-y-transition>
 				</div>
@@ -54,7 +54,7 @@
 <script>
     import Vue from 'vue';
     import UserAvatar from "../../../components/UserAvatar";
-    import MessagingService from "../../../services/Messaging";
+    import MessagingService from "../../../services/MessagingService";
 
     export default Vue.extend({
 
@@ -114,7 +114,11 @@
                 MessagingService.sendMessage.bind(this)(userId, this.newMessage.text.trim())
                     .then(response => {
                         this.messages[userId].push(response.data);
-                        this.newMessage.text = null;
+                        this.newMessage.text = '';
+
+                        if (this.$root.user.settings.newMessageSound) {
+                            this.$playSound('send');
+                        }
                     })
                     .catch(error => this.$handleError(this, error))
                     .finally(() => this.isSending = false);
@@ -131,7 +135,7 @@
                 messages: [],
                 isSending: false,
                 newMessage: {
-                    text: null,
+                    text: '',
 				},
 				userId: parseInt(this.$route.params.key) || null,
 			};

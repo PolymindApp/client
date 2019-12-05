@@ -3,11 +3,11 @@
 		<v-card color="error" class="white--text">
 			<v-card-title class="headline">
 				<v-icon slot="icon" color="white" size="36" left>mdi-alert</v-icon>
-				{{$t('modalDelete.title')}}
+				{{ title || $t('modalDelete.title') }}
 			</v-card-title>
 
 			<v-card-text class="my-5 white--text">
-				{{$t('modalDelete.desc')}}
+				{{ desc || $t('modalDelete.desc') }}
 			</v-card-text>
 
 			<v-card-actions>
@@ -31,8 +31,8 @@ import RestError from "../utils/RestError";
 import ServerError from "../utils/ServerError";
 
 export default Vue.extend({
-	name: 'ErrorDialog',
-	props: ['response'],
+	name: 'DeleteDialog',
+	props: ['title', 'desc'],
 
 	methods: {
 

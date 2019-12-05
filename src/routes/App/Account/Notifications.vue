@@ -1,9 +1,9 @@
 <template>
 	<v-expand-transition>
-		<v-alert v-if="loaded && notifications.length === 0" type="info" class="mb-6" transition="scale-transition" border="left" colored-border light elevation="2">
-			{{$t('account.activities.historyEmpty')}}
-		</v-alert>
-    	<v-card v-else>
+    	<v-card>
+
+			<EmptyView :title="$t('account.notifications.emptyTitle')" :desc="$t('account.notifications.emptyDesc')" class="py-12" />
+
 			<v-list tile flat color="transparent" three-line>
 				<template v-for="(notification, index) in notifications">
 					<v-list-item :to="'/account/' + $root.user.id + '/messaging/' + notification.created_by.id" :key="index + '_item'" :class="(!notification.aknowledged_on ? 'v-list-item--active primary--text' : '') + ' align-center'">
@@ -11,8 +11,20 @@
 							<UserAvatar :size="48" :user="notification.created_by" />
 						</v-col>
 						<v-col>
-							<v-list-item-title>{{notification.created_by | userScreenName}}</v-list-item-title>
-							<v-list-item-subtitle>test</v-list-item-subtitle>
+							<v-list-item-title>
+								<span class="font-weight-medium">{{notification.created_by | userScreenName }}</span>
+								<span class="font-weight-light ml-4">{{notification.activity.action_on | timeAgo}}</span>
+							</v-list-item-title>
+							<v-list-item-subtitle v-html="$t('notification.types.' + notification.type + '_' + notification.collection, {
+								name: notification.relation.data.name
+							})"></v-list-item-subtitle>
+						</v-col>
+						<v-col v-if="notification.activity.action === 'comment'">
+							<v-icon>mdi-format-quote-open</v-icon>
+							<span class="title font-italic font-weight-light mx-4">
+								{{ notification.activity.comment | plainExcerpt(100) }}
+							</span>
+							<v-icon>mdi-format-quote-close</v-icon>
 						</v-col>
 						<v-list-item-icon v-if="!notification.aknowledged_on">
 							<v-icon color="primary" xSmall>
@@ -29,8 +41,9 @@
 
 <script>
     import Vue from 'vue';
-    import NotificationService from "../../../services/Notification";
+    import NotificationService from "../../../services/NotificationService";
     import UserAvatar from "../../../components/UserAvatar";
+    import EmptyView from "../../../components/EmptyView";
 
     export default Vue.extend({
 
@@ -38,7 +51,7 @@
 
         props: [],
 
-        components: { NotificationService, UserAvatar },
+        components: { NotificationService, UserAvatar, EmptyView },
 
         mounted() {
 
