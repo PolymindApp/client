@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import objectAssignDeep from 'object-assign-deep';
 import Modal from './utils/Modal';
 import Help from './utils/Help';
 import Shortcuts from './utils/Shortcuts';
@@ -8,6 +7,7 @@ import Crop from './utils/Crop';
 import Error from './utils/Error';
 import Comments from './utils/Comments';
 import sendSound from './assets/sounds/send.mp3';
+import notificationSound from './assets/sounds/notification.mp3';
 
 Vue.use(Modal);
 Vue.use(Crop);
@@ -25,5 +25,6 @@ Vue.prototype.$playSound = function(name) {
 
 	switch(name) {
 		case 'send': new Audio(sendSound).play(); break;
+		case 'notification': new Audio(notificationSound).play(); break;
 	}
 };

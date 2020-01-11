@@ -111,28 +111,26 @@ export default Vue.extend({
 						this.$router.go(0);
 					})
 					.catch(error => {
-						if (error.message) {
-							switch (error.message) {
-								case 'NOT_CONFIRMED':
-									return this.$root.error = new ServerError(this, error, {
-										buttons: [
-											{ text: this.$t('restricted.resendActivation'), callback: (modal) => {
-												this.$root.isLoading = true;
-												UserService.resendActivationLost.bind(this)(this.email).then(response => {
-													this.activationResent = true;
-                                                	modal.close();
-												})
-													.catch(error => this.$handleError(this, error))
-                                                	.finally(() => this.$root.isLoading = false);
-											} },
-											{ text: this.$t('modal.close') },
-										],
-									});
-								    break;
-							}
+                        this.$root.isLoading = false;
+						switch (error.code) {
+							case 103:
+								return this.$root.error = new ServerError(this, error, {
+									buttons: [
+										{ text: this.$t('restricted.resendActivation'), callback: (modal) => {
+											this.$root.isLoading = true;
+											UserService.resendActivationLost.bind(this)(this.email).then(response => {
+												this.activationResent = true;
+												modal.close();
+											})
+												.catch(error => this.$handleError(this, error))
+												.finally(() => this.$root.isLoading = false);
+										} },
+										{ text: this.$t('modal.close') },
+									],
+								});
+								break;
 						}
 						this.$handleError(this, error);
-                        this.$root.isLoading = false;
 					});
 			} else {
 				this.$refs.email.focus();

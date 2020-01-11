@@ -93,6 +93,43 @@ const literals = {
 		deleteDesc: 'Êtes-vous certain de vouloir effacer ce commentaire ?',
 		commentDeleted: 'Commentaire effacé par l\'utilisateur',
 	},
+	commitGraph: {
+		noContribution: '<strong>Aucune contribution</strong> le {date}',
+		contributions: '<strong>{total} contributions</strong> le {date}',
+		noCommitsThisDay: '<strong>Aucune contribution</strong> le {date}',
+		contributionsDay: 'Les <strong>{total} contributions</strong> du {date} :',
+		view: 'Voir',
+	},
+	activity: {
+		comment: {
+			component: {
+				title: 'A commenté la composante <strong>{name}</strong>',
+				desc: 'A écrit : <em>{comment}</em>',
+			},
+		},
+		create: {
+			dataset: {
+				title: 'A créé une nouvelle base de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			component: {
+				title: 'A créé une nouvelle composante <strong>{name}</strong>',
+				desc: '',
+			},
+		},
+		delete: {
+			component: {
+				title: 'A effacé la composante <strong>{name}</strong>',
+				desc: '',
+			},
+		},
+		update: {
+			component: {
+				title: 'Mise à jour de la composante <strong>{name}</strong>',
+				desc: '',
+			},
+		},
+	},
 	mediaBrowser: {
 		filterPlaceholder: 'Filtrer les étiquettes...',
 		types: {
@@ -110,8 +147,22 @@ const literals = {
 		thumbsDown: 'Plus de j\'aime pas',
 	},
 	account: {
+		contributionLastYear: '{total} contributions depuis un an',
 		messages: 'Derniers messages',
 		recentActivities: 'Récentes activités',
+		header: {
+			writeMsg: 'Écrire un message',
+			follow: 'Suivre',
+			unfollow: 'Ne plus suivre',
+			followers: 'Abonnées',
+			following: 'Abonnements',
+			newMsg: 'Nouveau message',
+			msgSent: 'Message envoyé !',
+			followingModalTitle: 'Abonnement(s)',
+			followersModalTitle: 'Abonné(es)',
+			noFollowings: 'Aucun abonnement pour le moment',
+			noFollowers: 'Aucun abonné pour le moment',
+		},
 		activities: {
 			messagesEmpty: 'Aucun message pour le moment',
 			historyEmpty: 'Aucune historique pour le moment',
@@ -149,11 +200,16 @@ const literals = {
 			newMessagePlaceholder: 'Écrivez votre message...',
 			empty: 'Aucun message',
 			selectUserFirst: 'Veuillez sélectionner un fil de discussion',
+			emptyTitle: 'Aucun message',
+			emptyDesc: 'Si quelqu\'un vous écrit, vous verrez son message ici',
 		},
 		notifications: {
 			title: 'Notifications',
-			emptyTitle: 'Aucune notification',
+			emptyTitle: 'Aucune notification pour le moment',
 			emptyDesc: 'Vous êtes à jour !',
+			myTitle: 'Mes notifications ({total})',
+			followingTitle: 'Mes abonnements ({total})',
+			emptyFollowing: 'Aucun abonnement pour le moment',
 		},
 		settings: {
 			title: 'Paramètres',
@@ -162,6 +218,21 @@ const literals = {
 			notificationSectionTitle: 'Notifications',
 			newNotificationSoundLabel: 'Son de nouvelle notification',
 			newMessageSoundLabel: 'Son de nouveau message',
+			ideSectionTitle: 'Développement',
+			theme: {
+				title: 'Thème',
+				dark: 'Foncé',
+				light: 'Clair',
+			},
+			fontSize: 'Taille de police',
+			tabSize: 'Taille de la tabulation',
+			showLines: 'Afficher les lignes',
+			externalMsg: 'Messagerie',
+			externalMsgPublic: 'Publique',
+			externalMsgFriends: 'Ami(e)s',
+			externalMsgNobody: 'Désactivé',
+			yes: 'Oui',
+			no: 'Non',
 		},
 	},
 	app: {
@@ -213,8 +284,13 @@ const literals = {
 		source: {
 			title: 'Source',
 			viewTooltip: 'Basculer le mode de vue',
+			settingsTooltip: 'Paramétrage',
 			consoleTooltip: 'Afficher la console',
 			codeIssue: 'Il y a un problème avec votre code',
+
+			settingsModal: {
+				title: 'Paramètres',
+			}
 		},
 		params: {
 			title: 'Paramètres',
@@ -386,7 +462,10 @@ const literals = {
 			datasets: 'Bases de données',
 			strategies: 'Stratégies',
 			noResults: 'Aucun résultat trouvé',
+			latestTerms: 'Dernières requêtes :',
 		},
+		newNotification: 'Vous avez reçu une notification',
+		newMessage: 'Vous a envoyé un nouveau message',
 		tooltip: {
 			search: 'Rechercher',
 			options: 'Options',
@@ -518,6 +597,7 @@ const literals = {
 		move: 'Déplacer',
 		import: 'Importer',
 		post: 'Poster',
+		send: 'Envoyer',
 	},
 	modalDelete: {
 		title: 'Effacer cette entité',
@@ -530,6 +610,8 @@ const literals = {
 	deck: {
 		view: 'Voir',
 		edit: 'Modifier',
+		createdBy: 'Créé par {name}',
+		createdByYou: 'Créé par vous',
 	},
 	preferences: {
 		tab: {

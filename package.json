@@ -1,6 +1,6 @@
 {
 	"name": "@polymind/client",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"private": true,
 	"author": "Danny Coulombe <contact@dannycoulombe.com>",
 	"engines": {
@@ -29,6 +29,7 @@
 	},
 	"dependencies": {
 		"@directus/sdk-js": "^5.3.4",
+		"autobahn": "^19.12.1",
 		"cordova": "^8.1.2",
 		"cordova-android": "^8.0.0",
 		"core-js": "^2.6.5",

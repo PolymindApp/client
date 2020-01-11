@@ -99,5 +99,6 @@ export default Vue.extend({
 		padding: 2rem;
 		border-radius: 0.25rem;
 		background-color: rgba(0, 0, 0, 0.05);
+		white-space: pre-wrap;
 	}
 </style>

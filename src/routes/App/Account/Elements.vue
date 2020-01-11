@@ -4,11 +4,11 @@
 		<v-alert v-if="components.data.length === 0" type="info" class="mb-6" transition="scale-transition" border="left" colored-border light elevation="2">
 			{{$t('account.activities.publicItemsEmpty')}}
 		</v-alert>
-		<v-row>
+		<v-slide-y-transition group tag="div" class="row">
 			<v-col cols="12" md="4" :key="index" v-for="(component, index) in components.data">
 				<Deck :model="component" />
 			</v-col>
-		</v-row>
+		</v-slide-y-transition>
 	</div>
 </template>
 
@@ -33,7 +33,7 @@ export default Vue.extend({
 
             this.$root.isLoading = true;
 	        Promise.all([
-                ComponentService.getAll.bind(this)(this.$route.params.id),
+                ComponentService.getByUser.bind(this)(this.$route.params.id),
 			])
                 .then(([components]) => {
                     this.components = components;

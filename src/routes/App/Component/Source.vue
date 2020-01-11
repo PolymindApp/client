@@ -1,14 +1,51 @@
 <template>
-	<v-card :class="{ 'flex-column': tabDirection === 'horizontal', 'd-flex fill-height source': true }" tile flat>
+	<v-card :class="{ 'flex-column': tabDirection === 'horizontal', 'd-flex fill-height source': true, 'dark-theme': dark }" tile flat>
 
 		<v-navigation-drawer temporary right absolute v-model="console.opened" width="300">
 			<Console v-model="logs" />
 		</v-navigation-drawer>
 
+		<!-- MODAL: SETTINGS -->
+		<v-dialog v-model="settingsModal.visible" scrollable persistent max-width="500px">
+			<v-card>
+				<v-card-title>
+					<v-icon color="primary" slot="icon" size="36" left>mdi-settings-outline</v-icon>
+					{{$t('component.source.settingsModal.title')}}
+				</v-card-title>
+
+				<v-card-text>
+					<SettingsDevelopment :user="user" />
+				</v-card-text>
+
+				<v-card-actions>
+					<v-spacer></v-spacer>
+
+					<v-btn color="primary" @click="applySettings()" :disabled="!settingsIsDifferent">
+						<v-icon left>mdi-content-save</v-icon>
+						{{$t('modal.apply')}}
+					</v-btn>
+
+					<v-btn @click="settingsModal.visible = false">
+						{{$t('modal.cancel')}}
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
 		<v-row v-if="!component.is_invisible" class="preview blueprint-grid" no-gutters :style="{ flex: tabDirection === 'vertical' ? 1 : 1 }">
 
 			<div class="options">
+
 				<v-tooltip bottom>
+					<template v-slot:activator="{ on }">
+						<v-btn v-on="on" dark @click="openSettings()" text>
+							<v-icon>mdi-settings-outline</v-icon>
+						</v-btn>
+					</template>
+					<span>{{$t('component.source.settingsTooltip')}}</span>
+				</v-tooltip>
+
+				<v-tooltip class="ml-4" bottom>
 					<template v-slot:activator="{ on }">
 						<v-btn v-on="on" v-if="$vuetify.breakpoint.mdAndUp && !component.is_invisible" dark @click="switchView()" text>
 							<v-icon v-if="tabDirection === 'horizontal'">mdi-view-sequential</v-icon>
@@ -41,7 +78,7 @@
 		<div class="d-flex flex-column" :style="{ flex: tabDirection === 'vertical' ? 1 : 2 }">
 			<v-row v-if="showTabs" no-gutters style="flex: 0">
 				<v-col cols="12">
-					<v-tabs dark show-arrows v-model="tab" grow>
+					<v-tabs :dark="dark" show-arrows v-model="tab" grow>
 						<v-tab v-if="!component.is_invisible">HTML</v-tab>
 						<v-tab>JS</v-tab>
 						<v-tab v-if="!component.is_invisible">CSS</v-tab>
@@ -76,6 +113,9 @@ import VIcon from "vuetify/lib/components/VIcon/VIcon";
 import VSheet from "vuetify/lib/components/VSheet/VSheet";
 import VCard from "vuetify/lib/components/VCard/VCard";
 import VProgressCircular from "vuetify/lib/components/VProgressCircular/VProgressCircular";
+import SettingsDevelopment from "../Account/SettingsDevelopment";
+import UserService from "../../../services/UserService";
+import User from "../../../models/User";
 
 let originalConsoleLog = console.log;
 
@@ -84,7 +124,7 @@ export default Vue.extend({
 	name: 'ComponentSource',
 	props: ['component', 'formErrors'],
 
-	components: { CodeEditorField, Console },
+	components: { CodeEditorField, Console, SettingsDevelopment },
 
 	mounted() {
 		const vm = this;
@@ -140,6 +180,26 @@ export default Vue.extend({
             this.dynamicComponent = this.getDynamicComponent();
 		},
 
+		openSettings() {
+            this.user = this.$deepClone(this.$root.user);
+            this.settingsModal.visible = true;
+		},
+
+		applySettings() {
+
+            this.$root.isLoading = true;
+            UserService.update.bind(this)(this.$root.user.id, {
+                settings: this.user.settings,
+            })
+                .then(response => {
+                    this.$root.isSaved = true;
+                    this.$root.user.settings = new User(this.$deepClone(this.user.settings));
+                    this.settingsModal.visible = false;
+                })
+                .catch(error => this.$handleError(this, error))
+                .finally(() => this.$root.isLoading = false);
+		},
+
 		switchView() {
 			this.view = this.view === 'horizontal' ? 'vertical' : 'horizontal';
 		},
@@ -192,6 +252,10 @@ export default Vue.extend({
 
 	computed: {
 
+	    settingsIsDifferent() {
+	        return JSON.stringify(this.$root.user.settings.development) !== JSON.stringify(this.user.settings.development);
+		},
+
 		tabDirection() {
 			return this.$vuetify.breakpoint.mdAndUp && this.view === 'vertical'
 				? 'vertical'
@@ -216,6 +280,11 @@ export default Vue.extend({
         };
 
 		return {
+            settingsModal: {
+                visible: false,
+			},
+			user: this.$deepClone(this.$root.user),
+		    dark: this.$root.user.settings.development.theme === 'dark',
 			logs: [],
 			tab: 0,
 			view: 'horizontal',
@@ -256,12 +325,21 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+
+
 	.code-title {
 		text-align: center;
-		background-color: black;
-		color: white;
-		background-image: linear-gradient(#444, #111);
+		background-image: linear-gradient(#fff, #ddd);
 	}
+
+	.dark-theme {
+		.code-title {
+			background-color: black;
+			color: white;
+			background-image: linear-gradient(#444, #111);
+		}
+	}
+
 	.source {
 		overflow: hidden;
 	}

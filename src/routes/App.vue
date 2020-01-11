@@ -35,10 +35,10 @@
 		</v-overlay>
 
 		<v-scroll-x-transition>
-			<Sidebar ref="sidebar" v-show="$root.user.id" v-model="sidebar"></Sidebar>
+			<Sidebar ref="sidebar" v-if="$root.user.id" v-model="sidebar"></Sidebar>
 		</v-scroll-x-transition>
 		<v-scroll-y-transition>
-			<Toolbar ref="toolbar" v-show="$root.user.id" :sidebar="sidebar"></Toolbar>
+			<Toolbar ref="toolbar" v-if="$root.user.id" :sidebar="sidebar"></Toolbar>
 		</v-scroll-y-transition>
 
 		<v-scroll-y-transition>

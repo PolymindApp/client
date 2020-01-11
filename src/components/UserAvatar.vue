@@ -5,11 +5,25 @@
 			<v-progress-circular :size="size / 2" color="primary" indeterminate></v-progress-circular>
 		</v-overlay>
 
-		<div class="overlay-edit d-flex align-center justify-center" v-if="!isUploading && $root.user.id === user.id" @click="modify('picture_id')">
+		<div v-if="user.id && $root.user.id !== user.id" :class="{
+			connection: true,
+			grey: !user.isOnline,
+			green: user.isOnline,
+		}" :style="{
+			bottom: ((size / 96) + 'rem'),
+			right: ((size / 96) + 'rem'),
+			width: ((size / 128) + 'rem'),
+			height: ((size / 128) + 'rem')
+		}">
+
+		</div>
+
+		<div class="overlay-edit d-flex align-center justify-center" v-if="editable && !isUploading && $root.user.id === user.id" @click="modify('picture_id')">
 			<v-icon :style="{ fontSize: (size / 42) + 'rem' }">mdi-upload</v-icon>
 		</div>
 
-		<img v-if="user.avatar" :src="$thumbnails(user.avatar.filename, 256, 256)" alt="avatar" />
+		<img v-if="user.avatar" :src="avatar" alt="avatar" />
+		<img v-else-if="$root.user.id === user.id && $root.user.avatar" :src="avatar" alt="avatar" />
 		<span :class="(size >= 96 ? 'display-3' : 'display-1') + ' white--text'" v-else>{{$options.filters.userScreenName(user).substring(0, 1).toUpperCase()}}</span>
 	</v-avatar>
 </template>
@@ -21,6 +35,7 @@ import FileService from "../services/FileService";
 import UserService from "../services/UserService";
 
 export default Vue.extend({
+
 	props: {
 	    user: {
 	        type: Object
@@ -28,6 +43,17 @@ export default Vue.extend({
 		size: {
 	        type: Number,
 			default: 96
+		},
+		editable: {
+	        type: Boolean,
+			default: false,
+		}
+	},
+
+	mounted() {
+
+	    if (this.user.avatar) {
+            this.avatar = this.$thumbnails(this.user.avatar.filename, 256, 256);
 		}
 	},
 
@@ -63,13 +89,31 @@ export default Vue.extend({
 
 	data() {
 		return {
+		    avatar: null,
 			isUploading: false,
 		};
 	},
+
+	watch: {
+	    'user.avatar.filename'(filename) {
+	        this.avatar = this.$thumbnails(filename, 256, 256);
+		},
+	    '$root.user.avatar.filename'(filename) {
+
+	        if (this.user.id === this.$root.user.id) {
+            	this.avatar = this.$thumbnails(filename, 256, 256);
+			}
+		}
+	}
 });
 </script>
 
 <style lang="scss" scoped>
+
+	.connection {
+		position: absolute;
+		border-radius: 100%;
+	}
 
 	.v-avatar {
 		position: relative;

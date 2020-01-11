@@ -6,6 +6,10 @@ export default class StrategyService {
 		return Server.get.bind(this)('/items/strategy');
 	}
 
+	static getAllMine() {
+		return Server.get.bind(this)('/items/strategy?filter[created_by]=' + this.$root.user.id);
+	}
+
 	static get(id) {
 		return Server.get.bind(this)('/items/strategy/' + id);
 	}

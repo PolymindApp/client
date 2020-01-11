@@ -10,7 +10,7 @@
 
 					<v-layout class="px-5" align-center>
 						<v-flex>
-							<UserAvatar :user="$root.user" :size="64" />
+							<UserAvatar :user="$root.user" :size="64" :editable="true" />
 						</v-flex>
 						<v-flex>
 							<v-layout align-end fill-height>
@@ -211,7 +211,7 @@ export default Vue.extend({
 		},
 
 		loadStrategies() {
-			StrategyService.getAll.bind(this)().then(response => {
+			StrategyService.getAllMine.bind(this)().then(response => {
 				this.strategies = response.data;
 			})
 				.catch(error => this.$handleError(this, error))
@@ -219,7 +219,7 @@ export default Vue.extend({
 		},
 
 		loadComponents() {
-			ComponentService.getAll.bind(this)().then(response => {
+			ComponentService.getAllMine.bind(this)().then(response => {
 				this.components = response.data;
 			})
 				.catch(error => this.$handleError(this, error))
@@ -227,7 +227,7 @@ export default Vue.extend({
 		},
 
 		loadDatasets() {
-			DatasetService.getAll.bind(this)().then(response => {
+			DatasetService.getAllMine.bind(this)().then(response => {
 				this.datasets = response.data;
 			})
 				.catch(error => this.$handleError(this, error))
@@ -283,8 +283,9 @@ export default Vue.extend({
 			let groups = [];
 			this.menuItems.forEach(item => {
 				let group = this.$deepClone(item);
+				let items = item.getItems();
 				group.items = [];
-				group.getItems().forEach(child => {
+				items.forEach(child => {
 					const title = (child.title || (child.name && this.$t('title.' + child.name))).toLowerCase();
 					const filter = this.filter.trim().toLowerCase();
 					if (title.indexOf(filter) !== -1) {

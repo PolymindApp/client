@@ -22,17 +22,17 @@ return {
     })
 };`,
 			icon: '',
-			datasetColumn: [
-				new DatasetColumn({ name: 'Front' }),
-				new DatasetColumn({ name: 'Back' }),
-			],
-			datasetRow: [
-				// [Hash.guid(), 'To talk', 'Parler', true, new Date()],
-				// [Hash.guid(), 'To think', 'Penser', true, new Date()],
-				// [Hash.guid(), 'To do', 'Faire', true, new Date()],
-			],
-			deletedColumns: [],
-			deletedRows: [],
+			// datasetColumn: [
+			// 	new DatasetColumn({ name: 'Front' }),
+			// 	new DatasetColumn({ name: 'Back' }),
+			// ],
+			// datasetRow: [
+			// 	// [Hash.guid(), 'To talk', 'Parler', true, new Date()],
+			// 	// [Hash.guid(), 'To think', 'Penser', true, new Date()],
+			// 	// [Hash.guid(), 'To do', 'Faire', true, new Date()],
+			// ],
+			// deletedColumns: [],
+			// deletedRows: [],
 		});
 	}
 }

@@ -60,7 +60,7 @@
 											<div class="float-left">
 												<v-tooltip bottom>
 													<template v-slot:activator="{ on }">
-														<v-btn :disabled="comment.comment_deleted_on !== null" v-on="on" small icon>
+														<v-btn @click="toggleLike(comment.id)" :disabled="comment.comment_deleted_on !== null" v-on="on" small icon>
 															<v-icon small>mdi-thumb-up-outline</v-icon>
 														</v-btn>
 													</template>
@@ -69,7 +69,7 @@
 												<span v-if="(comment.comment_thumb_up - comment.comment_thumb_down) > 0" class="mx-1" v-text="(comment.comment_thumb_up - comment.comment_thumb_down)"></span>
 												<v-tooltip bottom>
 													<template v-slot:activator="{ on }">
-														<v-btn :disabled="comment.comment_deleted_on !== null" class="ml-2" v-on="on" small icon>
+														<v-btn @click="toggleLike(comment.id, false)" :disabled="comment.comment_deleted_on !== null" class="ml-2" v-on="on" small icon>
 															<v-icon small>mdi-thumb-down-outline</v-icon>
 														</v-btn>
 													</template>
@@ -126,6 +126,7 @@
     import EmptyView from "./EmptyView";
     import UserAvatar from "./UserAvatar";
     import DeleteDialog from "./DeleteDialog";
+    import LikeService from "../services/LikeService";
 
     export default Vue.extend({
 
@@ -240,6 +241,17 @@
                         .catch(error => this.$handleError(this, error))
                         .finally(() => this.isLoading = false);
 				}
+			},
+
+			toggleLike(activityId, isPositive = true) {
+
+                LikeService.toggle.bind(this)(activityId, isPositive)
+                    .then(response => {
+                        console.log(response);
+                        debugger;
+                    })
+                    .catch(error => this.$handleError(this, error))
+                    .finally(() => this.isLoading = false);
 			}
 		},
 

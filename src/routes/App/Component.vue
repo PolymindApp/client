@@ -49,7 +49,7 @@
 <!--			</v-tab-item>-->
 		</v-tabs-items>
 
-		<v-card :dark="tab === '/component/' + id + '/source'" flat class="pa-4" style="flex: 0; border-radius: 0">
+		<v-card :dark="sourceDark" flat class="pa-4" style="flex: 0; border-radius: 0">
 			<v-btn :disabled="!dataHasChanged" @click="save()" color="primary" class="mr-1">
 				<v-icon left>mdi-content-save</v-icon>
 				{{$t('modal.save')}}
@@ -151,8 +151,10 @@ export default Vue.extend({
 
             ComponentService.getRevisions.bind(this)(this.id)
                 .then(response => {
-                    this.revisions = response.data;
-                    this.revisionOffset = response.data.length - 1;
+                    // this.revisions = response.data;
+                    // this.revisionOffset = response.data.length - 1;
+                    this.revisions = response.data.reverse();
+                    this.revisionOffset = 0;
 				})
                 .catch(error => this.$handleError(this, error))
                 .finally(() => this.$root.isLoading = false);
@@ -248,9 +250,15 @@ export default Vue.extend({
 	},
 
 	computed: {
+
 		dataHasChanged() {
 			return JSON.stringify(this.component) !== JSON.stringify(this.originalComponent);
 		},
+
+		sourceDark() {
+            return (this.tab === '/component/' + this.id + '/source')
+				&& this.$root.user.settings.development.theme === 'dark';
+		}
 	},
 
 	data() {
@@ -274,6 +282,7 @@ export default Vue.extend({
 			this.updateTab();
 			this.load();
 			this.loadRevisions();
+			this.loadCommentCount();
 		}
 	}
 });

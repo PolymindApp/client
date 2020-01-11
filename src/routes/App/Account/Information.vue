@@ -5,31 +5,31 @@
 				<h1 class="display-1">{{ $t('account.information.generalTitle') }}</h1>
 
 				<v-form ref="generalForm" @submit="apply" lazy-validation v-model="form.general">
-					<div class="my-4">
-						<v-text-field :error-messages="formErrors.screen_name" v-model="user.screen_name" :label="$t('account.information.screenNameLabel')" class="mt-2" type="text"></v-text-field>
+					<div class="mt-4">
+						<v-text-field :disabled="!isOwner" :error-messages="formErrors.screen_name" v-model="user.screen_name" :label="$t('account.information.screenNameLabel')" class="mt-2" type="text"></v-text-field>
 						<v-row>
 							<v-col class="py-0">
-								<v-text-field :error-messages="formErrors.first_name" v-model="user.first_name" :label="$t('account.information.firstNameLabel')" class="mt-2" type="text"></v-text-field>
+								<v-text-field :disabled="!isOwner" :error-messages="formErrors.first_name" v-model="user.first_name" :label="$t('account.information.firstNameLabel')" class="mt-2" type="text"></v-text-field>
 							</v-col>
 							<v-col class="py-0">
-								<v-text-field :error-messages="formErrors.last_name" v-model="user.last_name" :label="$t('account.information.lastNameLabel')" class="mt-2" type="text"></v-text-field>
+								<v-text-field :disabled="!isOwner" :error-messages="formErrors.last_name" v-model="user.last_name" :label="$t('account.information.lastNameLabel')" class="mt-2" type="text"></v-text-field>
 							</v-col>
 						</v-row>
 						<v-row>
 							<v-col class="py-0">
-								<v-select :error-messages="formErrors.gender" v-model="user.gender" :items="genders" :label="$t('account.information.genderLabel')" class="mt-2"></v-select>
+								<v-select :disabled="!isOwner" :error-messages="formErrors.gender" v-model="user.gender" :items="genders" :label="$t('account.information.genderLabel')" class="mt-2"></v-select>
 							</v-col>
 							<v-col class="py-0">
-								<DirectUsSelect @mapped="results => m2m.language = results" :error-messages="formErrors.language" v-model="user.language" root-key="language_id" return-object item-text="english_title" item-value="id" multiple :items="languages" :label="$t('account.information.languagesLabel')" class="mt-2" />
+								<DirectUsSelect :disabled="!isOwner" @mapped="results => m2m.language = results" :error-messages="formErrors.language" v-model="user.language" root-key="language_id" return-object item-text="english_title" item-value="id" multiple :items="languages" :label="$t('account.information.languagesLabel')" class="mt-2" />
 							</v-col>
 						</v-row>
 
-						<v-text-field :error-messages="formErrors.quote" max v-model="user.quote" :label="$t('account.information.quoteLabel')" class="mt-2" type="text"></v-text-field>
+						<v-text-field :disabled="!isOwner" :error-messages="formErrors.quote" max v-model="user.quote" :label="$t('account.information.quoteLabel')" class="mt-2" type="text"></v-text-field>
 
-						<HTMLEditorField :error-messages="formErrors.biography" :label="$t('account.information.biographyLabel')" class="mt-2" v-model="user.biography" />
+						<HTMLEditorField :disabled="!isOwner" :error-messages="formErrors.biography" :label="$t('account.information.biographyLabel')" class="mt-2" v-model="user.biography" />
 					</div>
 
-					<v-btn type="submit" color="primary" :disabled="!isDifferent" large>
+					<v-btn v-if="isOwner" class="mt-4" type="submit" color="primary" :disabled="!isDifferent" large>
 						<v-icon left>mdi-content-save</v-icon>
 						{{ $t("account.information.applyChanges") }}
 					</v-btn>
@@ -37,13 +37,13 @@
 
 			</v-card>
 		</v-col>
-		<v-col cols="12" md="5" lg="4">
+		<v-col v-if="isOwner" cols="12" md="5" lg="4">
 			<v-card class="pa-8">
 				<h1 class="display-1">{{$t('restricted.resetPasswordTitle')}}</h1>
 				<p>{{$t('restricted.resetPasswordDesc')}}</p>
 
 				<v-form ref="passwordForm" @submit="resetPassword" lazy-validation v-model="form.password">
-					<div class="my-4">
+					<div class="mt-4">
 						<v-text-field :error-messages="formErrors.actual" v-model="actual" :rules="[rules.required, rules.min]" :label="$t('restricted.actualPassPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showActualPassword ? 'text' : 'password'" :append-icon="showActualPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showActualPassword = !showActualPassword"></v-text-field>
 						<v-text-field :error-messages="formErrors.password" v-model="password" loading :rules="[rules.required, rules.min]" :label="$t('restricted.newPassPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword">
 							<template v-slot:progress>
@@ -55,7 +55,7 @@
 						<v-text-field :error-messages="formErrors.confirmation" v-model="confirmation" :rules="[rules.required, rules.min, rules.identical]" :label="$t('restricted.newConfirmationPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showConfirmPassword ? 'text' : 'password'" :append-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showConfirmPassword = !showConfirmPassword"></v-text-field>
 					</div>
 
-					<v-btn type="submit" color="primary" style="width: 100%" :disabled="!isPasswordSectionDifferent" large>
+					<v-btn type="submit" class="mt-4" color="primary" style="width: 100%" :disabled="!isPasswordSectionDifferent" large>
 						{{ $t("restricted.resetPasswordBtn") }}
 						<v-icon style="align-self: flex-end" right>mdi-lock-reset</v-icon>
 					</v-btn>
@@ -137,6 +137,10 @@ export default Vue.extend({
 	},
 
 	computed: {
+
+	    isOwner() {
+	        return this.$root.user.id === this.user.id;
+		},
 
 		progress() {
 			return Math.min(100, this.password.length * 10)

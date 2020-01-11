@@ -16,6 +16,28 @@
 							<LanguageSwitcher v-model="user.locale" />
 						</v-col>
 					</v-row>
+
+					<v-row>
+						<v-col cols="4" class="d-flex align-center">
+							<label v-text="$t('account.settings.externalMsg')"></label>
+						</v-col>
+						<v-col>
+							<v-radio-group mandatory hide-details row class="mt-0" v-model="user.settings.externalMsg">
+								<v-radio value="public" color="primary" :label="$t('account.settings.externalMsgPublic')" />
+<!--								<v-radio value="friends" color="primary" :label="$t('account.settings.externalMsgFriends')" />-->
+								<v-radio value="nobody" color="primary" :label="$t('account.settings.externalMsgNobody')" />
+							</v-radio-group>
+						</v-col>
+					</v-row>
+
+				</v-card>
+
+				<h2 class="mb-4 mt-4">
+					<v-icon left>mdi-coffee</v-icon>
+					<span v-text="$t('account.settings.ideSectionTitle')"></span>
+				</h2>
+				<v-card class="py-4 px-8">
+					<SettingsDevelopment :user="user" />
 				</v-card>
 			</v-col>
 			<v-col cols="12" md="6">
@@ -43,6 +65,8 @@
     import Vue from 'vue';
     import UserService from "../../../services/UserService";
     import LanguageSwitcher from "../../../components/LanguageSwitcher";
+    import CodeEditorField from "../../../components/CodeEditorField";
+    import SettingsDevelopment from "./SettingsDevelopment";
 
     export default Vue.extend({
 
@@ -50,7 +74,7 @@
 
         props: ['user', 'isDifferent'],
 
-        components: { LanguageSwitcher },
+        components: { LanguageSwitcher, CodeEditorField, SettingsDevelopment },
 
         mounted() {
 

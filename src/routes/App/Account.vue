@@ -17,8 +17,11 @@
 						{{$t('account.information.title')}}
 					</v-tab>
 					<v-tab :to="'/account/' + id + '/elements'">
-						<v-icon left>mdi-star-box</v-icon>
+						<v-icon left>mdi-group</v-icon>
 						{{$t('account.elements.title')}}
+						<v-chip x-small :color="elementCount > 0 ? 'primary' : ''" class="ml-2">
+							{{ elementCount }}
+						</v-chip>
 					</v-tab>
 					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/messaging'">
 						<v-icon left>mdi-email</v-icon>
@@ -73,6 +76,7 @@ import Messaging from "./Account/Messaging";
 import Settings from "./Account/Settings";
 import Notifications from "./Account/Notifications";
 import Elements from "./Account/Elements";
+import ComponentService from "../../services/ComponentService";
 
 export default Vue.extend({
 	components: { Elements, Activities, Information, Header, Messaging, Notifications, Settings },
@@ -109,12 +113,15 @@ export default Vue.extend({
 	    load() {
 
 			this.$root.isLoading = true;
-			UserService.get.bind(this)(this.id)
-				.then(response => {
-					this.user = new User(response.data);
-					this.originalUser = this.$deepClone(this.user);
-					this.updateContext();
-				})
+			Promise.all([
+                UserService.get.bind(this)(this.id),
+				ComponentService.countByUser.bind(this)(this.id)
+			]).then(([user, component]) => {
+                this.user = new User(user.data);
+                this.originalUser = this.$deepClone(this.user);
+                this.elementCount = component.meta.filter_count;
+                this.updateContext();
+			})
 				.catch(error => this.$handleError(this, error))
 				.finally(() => this.$root.isLoading = false);
 		},
@@ -138,6 +145,7 @@ export default Vue.extend({
 			id: parseInt(this.$route.params.id),
 			user: new User(),
             originalUser: new User(),
+            elementCount: 0,
 		}
 	},
 

@@ -12,6 +12,7 @@ export default class User {
 			role: {
 				name: ''
 			},
+			isOnline: false,
 		}, props);
 	}
 }

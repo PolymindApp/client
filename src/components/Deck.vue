@@ -21,8 +21,8 @@
 
 				<v-card-title class="d-flex justify-space-between pt-0" style="opacity: 0.75">
 					<span class="body-1">
-						By {{ model.created_by | userScreenName }}
-<!--							<span class="overline"><br />Managed by {{ model.created_by.first_name }} {{ model.created_by.last_name }}</span>-->
+						<span v-if="$root.user.id !== model.created_by.id" v-text="$t('deck.createdBy', { name: $options.filters.userScreenName(model.created_by) })"></span>
+						<span v-else v-text="$t('deck.createdByYou')"></span>
 					</span>
 					<span>
 						{{ $t('component.categories.' + model.category) }}
