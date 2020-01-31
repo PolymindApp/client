@@ -50,7 +50,7 @@ export default class Server {
 					case 3:
 					case 401:
 						if (!this.$server.loggedIn) {
-							this.$router.go(0);
+							return this.$router.go(0); // Return necessary to avoid popups
 						}
 						break;
 				}

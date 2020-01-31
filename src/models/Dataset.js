@@ -1,17 +1,12 @@
 import DatasetColumn from "./DatasetColumn";
+import DatasetRow from "./DatasetRow";
+import DatasetCell from "./DatasetCell";
 
 export default class Dataset {
 
-	constructor() {
+	constructor(props) {
 
-		Object.assign(this, {
-			name: '',
-			description: '<p></p>',
-			is_private: true,
-			is_remote: false,
-			remote_uri: 'https://jsonplaceholder.typicode.com/users',
-			is_applying_mapper: false,
-			mapper: `/**
+		const mapper = `/**
  * Transform the response variable into a valid Polymind dataset
  * structure.
  */
@@ -20,19 +15,41 @@ return {
     rows: response.map(entry => {
         return [entry.name, entry.email, entry.phone];
     })
-};`,
+};`;
+
+		Object.assign(this, {
+			name: '',
+			description: '<p></p>',
+			is_private: true,
+			is_remote: false,
+			remote_uri: 'https://jsonplaceholder.typicode.com/users',
+			is_applying_mapper: false,
+			mapper: mapper,
 			icon: '',
-			// datasetColumn: [
-			// 	new DatasetColumn({ name: 'Front' }),
-			// 	new DatasetColumn({ name: 'Back' }),
-			// ],
-			// datasetRow: [
-			// 	// [Hash.guid(), 'To talk', 'Parler', true, new Date()],
-			// 	// [Hash.guid(), 'To think', 'Penser', true, new Date()],
-			// 	// [Hash.guid(), 'To do', 'Faire', true, new Date()],
-			// ],
-			// deletedColumns: [],
-			// deletedRows: [],
-		});
+			columns: [
+				new DatasetColumn({ name: 'Front' }),
+				new DatasetColumn({ name: 'Back' }),
+			],
+			rows: [
+				new DatasetRow({
+					cells: [
+						new DatasetCell({ text: 'Hablar' }),
+						new DatasetCell({ text: 'To speak' }),
+					]
+				}),
+				new DatasetRow({
+					cells: [
+						new DatasetCell({ text: 'Tocar' }),
+						new DatasetCell({ text: 'To touch' }),
+					]
+				}),
+				new DatasetRow({
+					cells: [
+						new DatasetCell({ text: 'Conocer' }),
+						new DatasetCell({ text: 'To know' }),
+					]
+				}),
+			],
+		}, props);
 	}
 }

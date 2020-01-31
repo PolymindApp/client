@@ -95,7 +95,7 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-	.v-card >>> pre {
+	.v-card::v-deep pre {
 		padding: 2rem;
 		border-radius: 0.25rem;
 		background-color: rgba(0, 0, 0, 0.05);

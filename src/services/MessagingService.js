@@ -1,14 +1,14 @@
 import Server from "../utils/Server";
 
-const defaultFields = 'id,content,is_read,created_by.id,created_by.screen_name,created_by.first_name,created_by.last_name,created_on';
+const defaultFields = 'id,content,is_read,created_by.id,created_by.screen_name,created_by.first_name,created_by.last_name,created_on,created_by.last_access_on';
 
 export default class MessagingService {
 
 	static getMessages(fromUserId) {
 
 		return Promise.all([
-			Server.get.bind(this)('/items/messaging?fields=' + defaultFields + ',created_by.avatar.filename&filter[created_by][eq]=' + this.$root.user.id + '&filter[to_user][logical]=and&filter[to_user][eq]=' + fromUserId),
-			Server.get.bind(this)('/items/messaging?fields=' + defaultFields + ',created_by.avatar.filename&filter[created_by][eq]=' + fromUserId + '&filter[to_user][logical]=and&filter[to_user][eq]=' + this.$root.user.id),
+			Server.get.bind(this)('/items/messaging?fields=' + defaultFields + ',created_by.avatar.filename&filter[created_by][eq]=' + this.$root.user.id + '&filter[to_user][logical]=and&filter[to_user][eq]=' + fromUserId + '&sort=-id'),
+			Server.get.bind(this)('/items/messaging?fields=' + defaultFields + ',created_by.avatar.filename&filter[created_by][eq]=' + fromUserId + '&filter[to_user][logical]=and&filter[to_user][eq]=' + this.$root.user.id + '&sort=-id'),
 			Server.post.bind(this)('/custom/messaging/acknowledge/' + fromUserId)
 		]).then(results => {
 			return {
@@ -18,7 +18,7 @@ export default class MessagingService {
 	}
 
 	static get(id) {
-		return Server.get.bind(this)('/items/messaging?fields=*,created_by.*,created_by.avatar.filename&filter[to_user]=' + this.$root.user.id + '&filter[id]=' + id);
+		return Server.get.bind(this)('/items/messaging?fields=*,created_by.*,created_by.avatar.filename&filter[to_user]=' + this.$root.user.id + '&filter[id]=' + id + '&single=1');
 	}
 
 	static getUsers() {

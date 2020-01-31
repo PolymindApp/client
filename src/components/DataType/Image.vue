@@ -139,7 +139,7 @@
 		height: 100%;
 		width: 100%;
 	}
-	.v-image >>> .v-responsive__content {
+	.v-image::v-deep .v-responsive__content {
 		height: 100%;
 	}
 </style>

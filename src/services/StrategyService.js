@@ -1,5 +1,7 @@
 import Server from '../utils/Server';
 
+const defaultFields = '*,created_by.*,created_by.avatar.filename';
+
 export default class StrategyService {
 
 	static getAll() {
@@ -7,7 +9,7 @@ export default class StrategyService {
 	}
 
 	static getAllMine() {
-		return Server.get.bind(this)('/items/strategy?filter[created_by]=' + this.$root.user.id);
+		return Server.get.bind(this)('/items/strategy?filter[created_by]=' + this.$root.user.id + '&fields=' + defaultFields);
 	}
 
 	static get(id) {

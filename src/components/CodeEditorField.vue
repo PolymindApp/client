@@ -133,17 +133,17 @@ export default Vue.extend({
 <style lang="scss" scoped>
 	.v-input {
 
-		& >>> .v-input__control,
-		& >>> .v-input__slot {
+		&::v-deep .v-input__control,
+		&::v-deep .v-input__slot {
 			height: 100%;
 		}
 
-		& >>> .ace_editor {
+		&::v-deep .ace_editor {
 			width: 100%;
 			height: 100% !important;
 		}
 
-		&[disabled] >>> .ace_editor {
+		&[disabled]::v-deep .ace_editor {
 			opacity: 0.5 !important;
 		}
 

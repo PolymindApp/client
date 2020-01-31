@@ -1,8 +1,7 @@
 <template>
 	<div>
 		<v-chip v-if="!canEdit && currentValue === null" class="text-center" x-small>NULL</v-chip>
-		<span v-if="!canEdit" v-text="currentValue"></span>
-		<v-text-field v-else ref="input" type="text" v-model="currentValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
+		<v-switch v-else ref="input" v-model="currentValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="my-0 py-0 ml-1 mr-n3" color="primary" inset hide-details />
 	</div>
 </template>
 
@@ -41,6 +40,7 @@
 
 			blur() {
                 this.isEditing = false;
+                this.$emit('input', this.currentValue);
 			},
 
 			focus() {
@@ -58,24 +58,15 @@
 			},
 
 			clear() {
-                this.currentValue = null;
+                this.$emit('input', null);
 			},
 
 			reset() {
-				this.currentValue = this.originalValue;
+                this.$emit('input', this.originalValue);
 			},
 		},
 
         computed: {
-
-			currentValue: {
-				get() {
-					return this.value;
-				},
-				set(val) {
-					this.$emit('input', val)
-				}
-			},
 
             canEdit() {
                 return !this.readonly && this.isEditing;
@@ -89,9 +80,16 @@
         data() {
             return {
                 isEditing: false,
+                currentValue: this.value,
                 originalValue: this.value,
 			};
         },
+
+        watch: {
+            value(value) {
+                this.currentValue = value;
+            }
+        }
     });
 </script>
 

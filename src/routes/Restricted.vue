@@ -131,7 +131,7 @@ export default Vue.extend({
 		position: relative;
 		z-index: 1;
 	}
-	.main-content >>> a {
+	.main-content::v-deep a {
 		color: white;
 	}
 	.top-right {

@@ -17,6 +17,7 @@ import "./styles/index.scss";
 import './filters';
 import DirectusSDK from "@directus/sdk-js";
 import ab from 'autobahn';
+import Server from "./utils/Server";
 
 let directusConfig = {
 	url: process.env.VUE_APP_API_URL,
@@ -134,33 +135,16 @@ const i18n = new VueI18n({
 
 		const conn = new ab.Connection({
 			url: process.env.VUE_APP_WS_URI,
-			realm: 'polymind'
+			realm: 'polymind',
 		});
 		conn.onopen = (session) => {
-
-			callback();
-
-			// // 1) subscribe to a topic
-			// function onevent(args) {
-			// 	console.log("Event:", args[0]);
-			// }
-			// session.subscribe('com.myapp.hello', onevent);
-			//
-			// // 2) publish an event
-			// session.publish('com.myapp.hello', ['Hello, world!']);
-			//
-			// // 3) register a procedure for remoting
-			// function add2(args) {
-			// 	return args[0] + args[1];
-			// }
-			// session.register('com.myapp.add2', add2);
-			//
-			// // 4) call a remote procedure
-			// session.call('com.myapp.add2', [2, 3]).then(
-			// 	function (res) {
-			// 		console.log("Result:", res);
-			// 	}
-			// );
+			server.request('POST', '/custom/user/update-ws-token', undefined, {
+				sessionId: session.id
+			})
+				.then(() => {
+					callback()
+				})
+				.catch(error => this.$handleError(this, error));
 		};
 		conn.open();
 		Object.defineProperties(Vue.prototype, {

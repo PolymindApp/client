@@ -21,6 +21,7 @@ Vue.filter('activityColor', (value) => {
 		case 'create': return 'green'; break;
 		case 'update': return 'orange'; break;
 		case 'delete': return 'red'; break;
+		case 'soft-delete': return 'red'; break;
 	}
 });
 
@@ -30,6 +31,7 @@ Vue.filter('activityIcon', (value) => {
 		case 'create': return 'mdi-plus-circle-outline'; break;
 		case 'update': return 'mdi-update'; break;
 		case 'delete': return 'mdi-window-close'; break;
+		case 'soft-delete': return 'mdi-window-close'; break;
 	}
 });
 

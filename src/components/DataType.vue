@@ -1,77 +1,24 @@
 <template>
-	<div :class="{ 'datatype fill-height d-flex align-center inner-flex-full': true, hovered: hovered }" @mouseenter="hovered = true" @mouseleave="hovered = false">
-
-		<!-- MODAL: COMMENT DATA -->
-		<v-dialog v-model="modalCommentData.visible" scrollable persistent max-width="500px">
-			<v-card>
-				<v-card-title class="headline">
-					<v-icon color="primary" slot="icon" size="36" left>mdi-comment-plus-outline</v-icon>
-					{{$t('dataset.data.modal.comment.title')}}
-				</v-card-title>
-
-				<v-card-text class="mt-4 pt-1">
-					<v-textarea ref="comment" v-model="modalCommentData.comment" :label="$t('dataset.data.modal.comment.commentLabel')" outlined hide-details></v-textarea>
-				</v-card-text>
-
-				<v-card-actions>
-					<v-spacer></v-spacer>
-
-					<v-btn color="primary" @click="postComment()" :disabled="!modalCommentData.comment">
-						<v-icon left>mdi-comment-plus-outline</v-icon>
-						{{$t('modal.post')}}
-					</v-btn>
-
-					<v-btn @click="modalCommentData.visible = false">
-						{{$t('modal.cancel')}}
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+	<div :class="{ 'datatype fill-height d-flex align-center ': true, hovered: hovered }" @mouseenter="hovered = true" @mouseleave="hovered = false">
 
 		<!-- INPUTS -->
 		<DataText ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-if="type === 'text'" />
+		<DataBoolean ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'boolean'" />
 		<DataNumber ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'number'" />
 		<DataDate ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'date'" />
+		<DataList ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'list'" />
 		<DataImage ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'image'" />
 		<DataAudio ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'audio'" />
 		<DataRecording ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'recording'" />
 		<DataFile ref="input" v-model="currentValue" :readonly="readonly" v-bind="$attrs" v-on="$listeners" v-else-if="type === 'file'" />
 
-		<!-- COMMENTS -->
-		<div v-if="comments.length > 0" class="comments" style="flex: 0">
-			<v-menu auto>
-				<template v-slot:activator="{ on: menu }">
-					<v-tooltip bottom>
-						<template v-slot:activator="{ on: tooltip }">
-							<v-btn class="ml-2" v-on="{ ...tooltip, ...menu }" icon>
-								<v-badge>
-									<template v-slot:badge>{{comments.length}}</template>
-									<v-icon>mdi-comment-processing-outline</v-icon>
-								</v-badge>
-							</v-btn>
-						</template>
-						<span v-text="$t('dataType.commentsTooltip')"></span>
-					</v-tooltip>
-				</template>
-
-				<v-list dense>
-					<v-list-item v-for="(comment, index) in comments" :key="index" @click="comment.callback()" :disabled="comment.disabled && comment.disabled()">
-						<v-list-item-icon>
-							<v-icon v-text="comment.icon" :disabled="comment.disabled && comment.disabled()"></v-icon>
-						</v-list-item-icon>
-						<v-list-item-title v-text="comment.title"></v-list-item-title>
-					</v-list-item>
-				</v-list>
-			</v-menu>
-		</div>
-
 		<!-- OPTIONS -->
-		<div class="options" style="flex: 0">
-			<v-menu auto>
+		<div v-if="false && options && (hovered || menu)" class="options">
+			<v-menu v-model="menu" auto>
 				<template v-slot:activator="{ on: menu }">
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on: tooltip }">
-							<v-btn class="ml-2" v-on="{ ...tooltip, ...menu }" icon>
+							<v-btn class="ml-2" v-on="{ ...tooltip, ...menu }" x-small icon>
 								<v-icon>mdi-dots-vertical</v-icon>
 							</v-btn>
 						</template>
@@ -80,7 +27,7 @@
 				</template>
 
 				<v-list dense>
-					<v-list-item v-for="(option, index) in options" :key="index" @click="option.callback()" :disabled="option.disabled && option.disabled()">
+					<v-list-item v-for="(option, index) in optionsList" :key="index" @click="option.callback()" :disabled="option.disabled && option.disabled()">
 						<v-list-item-icon>
 							<v-icon v-text="option.icon" :disabled="option.disabled && option.disabled()"></v-icon>
 						</v-list-item-icon>
@@ -95,8 +42,10 @@
 <script>
     import Vue from 'vue';
     import DataText from './DataType/Text';
+    import DataBoolean from './DataType/Boolean';
     import DataNumber from './DataType/Number';
     import DataDate from './DataType/Date';
+    import DataList from './DataType/List';
     import DataImage from './DataType/Image';
     import DataAudio from './DataType/Audio';
     import DataRecording from './DataType/Recording';
@@ -107,6 +56,14 @@
         name: 'DataType',
 
         props: {
+            id: {
+				type: Number,
+                default: null,
+			},
+            collection: {
+				type: String,
+                default: null,
+			},
             value: {
                 default: null,
 			},
@@ -114,13 +71,17 @@
                 type: String,
 				default: 'text',
 			},
+            options: {
+                type: Boolean,
+				default: false,
+			},
             readonly: {
                 type: Boolean,
 				default: false,
 			},
 		},
 
-        components: { DataText, DataNumber, DataDate, DataImage, DataAudio, DataRecording, DataFile },
+        components: { DataText, DataBoolean, DataNumber, DataDate, DataList, DataImage, DataAudio, DataRecording, DataFile },
 
         mounted() {
 
@@ -148,22 +109,6 @@
                 this.$refs.input.reset();
 			},
 
-			openComment() {
-                this.modalCommentData.visible = true;
-                setTimeout(() => {
-                    this.$refs.comment.focus();
-				});
-			},
-
-            postComment() {
-
-                this.comments.push({ comment: this.modalCommentData.comment });
-
-                this.$emit('comment', this.modalCommentData.comment);
-                this.modalCommentData.comment = null;
-                this.modalCommentData.visible = false;
-			},
-
             canReset() {
 
                 if (!this.$refs.input) {
@@ -175,6 +120,15 @@
 		},
 
         computed: {
+
+			currentValue: {
+				get() {
+					return this.value;
+				},
+				set(val) {
+					this.$emit('input', val)
+				}
+			},
 
             canEdit() {
 
@@ -193,20 +147,20 @@
 					this.$refs.input.edit();
 				} },
 				{ icon: 'mdi-comment-plus-outline', title: this.$t('dataType.options.comment'), callback: () => {
-				    this.openComment();
+					this.$comments.open(this.id, this.collection);
 				} },
 				{ icon: 'mdi-refresh mdi-flip-h', title: this.$t('dataType.options.reset'), callback: () => {
 					this.$refs.input.reset();
 				}, disabled: () => { return !this.canReset(); } },
 				{ icon: 'mdi-file-remove-outline', title: this.$t('dataType.options.clean'), callback: () => {
 					this.$refs.input.clear();
-				}, disabled: () => { return this.value === null; } }
+				}, disabled: () => { return this.currentValue === null; } }
 			];
 
             return {
-                currentValue: this.value,
+            	menu: false,
                 defaultOptions: defaultOptions,
-                options: [...defaultOptions],
+				optionsList: [...defaultOptions],
                 comments: [],
                 hovered: false,
                 modalCommentData: {
@@ -215,26 +169,20 @@
                 },
 			};
         },
-
-        watch: {
-            value(value) {
-                this.currentValue = value;
-            }
-        }
     });
 </script>
 
 <style lang="scss" scoped>
-	.inner-flex-full > * {
-		flex: 1;
+	.datatype {
+		position: relative;
 	}
-	.comments,
 	.options {
 		opacity: 0;
 		transition: opacity 300ms ease;
+		position: absolute;
+		right: 0;
 	}
 	.hovered {
-		.comments,
 		.options {
 			opacity: 1;
 		}

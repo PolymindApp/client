@@ -1,1023 +1,569 @@
 <template>
-	<v-card flat class="fill-height">
+	<div class="d-flex fill-height flex-column" @click.stop="!$event.ctrlKey && !$event.shiftKey && resetSelection()">
+		{{menu.rowIdx}}-{{menu.columnIdx}}-{{menu.cellIdx}}
+		{{transactions}}
 
-		<!-- MODAL: COPY ROWS -->
-		<v-dialog v-model="modalCopyRows.visible" scrollable persistent max-width="500px">
-			<v-card>
-				<v-card-title class="headline">
-					<v-icon color="primary" slot="icon" size="36" left>mdi-database-plus</v-icon>
-					{{$t('dataset.data.modal.copy.title')}}
-				</v-card-title>
+		<v-menu v-model="menu.visible" :position-x="menu.x" :position-y="menu.y" :close-on-content-click="false" absolute offset-y>
+			<v-list dense>
+				<template v-for="(item, index) in menu.items">
+					<v-list-item v-if="item.text" :disabled="item.disabled()" :key="index" v-on="item.click ? { click: item.click } : {}">
+						<v-list-item-icon class="mr-2">
+							<v-icon v-text="item.icon" small></v-icon>
+						</v-list-item-icon>
+						<v-list-item-title>{{ item.text }}</v-list-item-title>
+					</v-list-item>
+					<v-divider v-else :key="index"></v-divider>
+				</template>
+			</v-list>
+		</v-menu>
+		<v-menu v-model="columnMenu.visible" :position-x="columnMenu.x" :position-y="columnMenu.y" :close-on-content-click="false" absolute offset-y>
+			<v-list dense>
+				<div class="pa-2" v-if="columnMenu.columnIdx !== null">
+					<v-text-field v-model="dataset.columns[columnMenu.columnIdx].name" label="Title" outlined dense hide-details />
+				</div>
+<!--				<v-divider></v-divider>-->
+				<template v-for="(item, index) in columnMenu.items">
+					<v-list-item v-if="item.text" :disabled="item.disabled()" :key="index" v-on="item.click ? { click: item.click } : {}" @mouseenter="" @mouseleave="">
+						<v-list-item-icon class="mr-2">
+							<v-icon v-text="item.icon" small></v-icon>
+						</v-list-item-icon>
+						<v-list-item-title>{{ item.text }}</v-list-item-title>
+						<v-list-item-icon v-if="item.childs && item.childs.length > 0">
+							<v-icon small>mdi-chevron-right</v-icon>
+						</v-list-item-icon>
+					</v-list-item>
+					<v-divider v-else :key="index"></v-divider>
+				</template>
+<!--				<v-divider class="mb-2"></v-divider>-->
+<!--				<div class="pa-2" v-if="columnMenu.columnIdx !== null">-->
+<!--					TBD-->
+<!--				</div>-->
+			</v-list>
+		</v-menu>
 
-				<v-card-text class="my-5">
-					<div>{{$t('dataset.data.modal.copy.selectDb')}}</div>
-
-					<div class="mt-8">
-						<v-select v-model="modalCopyRows.selectedDb" :items="dbs" :label="$t('dataset.data.modal.copy.databaseLabel')"></v-select>
-						<v-text-field class="mt-4" v-if="modalCopyRows.selectedDb === 'new'" v-model="modalCopyRows.newDb" :label="$t('dataset.data.modal.copy.newDbNameLabel')"></v-text-field>
-					</div>
-				</v-card-text>
-
-				<v-card-actions>
-					<v-spacer></v-spacer>
-
-					<v-btn color="primary" @click="copyRows()" :disabled="!modalCopyRows.selectedDb || (modalCopyRows.selectedDb === 'new' && !modalCopyRows.newDb)">
-						<v-icon left>mdi-database-plus</v-icon>
-						{{$t('modal.copy')}}
+		<table class="table w-100">
+			<thead>
+			<tr>
+				<th class="shrink text-no-wrap default"></th>
+<!--				<th class="shrink text-no-wrap default">-->
+<!--					<v-icon x-small left>mdi-key-variant</v-icon>-->
+<!--					<span>ID</span>-->
+<!--				</th>-->
+				<th class="shrink text-no-wrap default">
+					<v-icon x-small left>mdi-state-machine</v-icon>
+					<span>Status</span>
+				</th>
+				<th @contextmenu.prevent="openMenu($event, 'column', null, headerIdx, header.id)" @click.stop="toggleColumn(headerIdx, $event)" :class="{ 'grow': true, highlighted: selectedColumns.indexOf(headerIdx) !== -1 }" v-for="(header, headerIdx) in dataset.columns">
+					<span v-text="header.name"></span>
+					<v-btn @click.stop="openColumnMenu($event, headerIdx)" class="float-right ml-2" icon x-small>
+						<v-icon>mdi-chevron-down</v-icon>
 					</v-btn>
-
-					<v-btn @click="modalCopyRows.visible = false">
-						{{$t('modal.cancel')}}
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-
-		<!-- MODAL: MOVE ROWS -->
-		<v-dialog v-model="modalMoveRows.visible" scrollable persistent max-width="500px">
-			<v-card>
-				<v-card-title class="headline">
-					<v-icon color="primary" slot="icon" size="36" left>mdi-database-export</v-icon>
-					{{$t('dataset.data.modal.move.title')}}
-				</v-card-title>
-
-				<v-card-text class="my-5">
-					<div>{{$t('dataset.data.modal.move.selectDb')}}</div>
-
-					<div class="mt-8">
-						<v-select v-model="modalMoveRows.selectedDb" :items="dbs" :label="$t('dataset.data.modal.move.databaseLabel')"></v-select>
-						<v-text-field class="mt-4" v-if="modalMoveRows.selectedDb === 'new'" v-model="modalMoveRows.newDb" :label="$t('dataset.data.modal.move.newDbNameLabel')"></v-text-field>
-					</div>
-				</v-card-text>
-
-				<v-card-actions>
-					<v-spacer></v-spacer>
-
-					<v-btn color="primary" @click="moveRows()" :disabled="!modalMoveRows.selectedDb || (modalMoveRows.selectedDb === 'new' && !modalMoveRows.newDb)">
-						<v-icon left>mdi-database-export</v-icon>
-						{{$t('modal.move')}}
-					</v-btn>
-
-					<v-btn @click="modalMoveRows.visible = false">
-						{{$t('modal.cancel')}}
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-
-		<!-- MODAL: IMPORT CSV -->
-		<v-dialog v-model="modalImportCSV.visible" scrollable persistent max-width="750px">
-			<v-card>
-				<v-card-title class="headline">
-					<v-icon color="primary" slot="icon" size="36" left>mdi-database-import</v-icon>
-					{{$t('dataset.data.modal.importCSV.title')}}
-				</v-card-title>
-
-				<v-card-text class="mt-5">
-					<div>{{$t('dataset.data.modal.importCSV.desc')}}</div>
-
-					<div class="pa-4">
-						<v-row v-for="(header, index) in editableHeaders">
-							<v-col cols="5" class="d-flex align-center">
-								{{ header.text }}
-							</v-col>
-							<v-col cols="2" class="d-flex align-center">
-								<v-icon>mdi-arrow-left-right</v-icon>
-							</v-col>
-							<v-col cols="5">
-								<v-select class="mt-0 pt-0" v-model="modalImportCSV.union[index]" :placeholder="$t('dataset.data.modal.importCSV.selectColumnPlaceholder')" :items="parsedCsvHeaders" hide-details clearable></v-select>
-							</v-col>
-						</v-row>
-					</div>
-
-					<div>{{$t('dataset.data.modal.importCSV.example')}}</div>
-
-					<div class="mt-4">
-						<v-simple-table dark>
-							<template v-slot:default>
-								<thead>
-									<tr>
-										<th v-for="header in editableHeaders" v-text="header.text"></th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr v-for="(row, rowIdx) in importCsvPreview.slice(0, 3)" :key="rowIdx">
-										<td v-for="cell in row" v-text="cell"></td>
-									</tr>
-								</tbody>
-								<tfoot v-if="importCsvPreview.length === 0">
-									<tr>
-										<td :colspan="editableHeaders.length" class="text-center" v-text="$t('dataset.data.modal.importCSV.noPreview')"></td>
-									</tr>
-								</tfoot>
-							</template>
-						</v-simple-table>
-					</div>
-				</v-card-text>
-
-				<v-card-actions>
-					<v-checkbox v-model="modalImportCSV.skipDuplicate" :label="$t('dataset.data.modal.importCSV.skipDuplicate')" color="primary" hide-details class="mt-0 pt-0 ml-2"></v-checkbox>
-
-					<v-spacer></v-spacer>
-
-					<v-btn color="primary" @click="importCSV()" :disabled="Object.keys(importCsvPreview).length === 0">
-						<v-icon left>mdi-database-plus</v-icon>
-						{{$t('modal.import')}}
-					</v-btn>
-
-					<v-btn @click="modalImportCSV.visible = false">
-						{{$t('modal.cancel')}}
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-
-		<!-- MODAL: MANAGE COLUMNS -->
-		<v-dialog v-model="modalManageColumn.visible" scrollable persistent max-width="750px">
-			<v-card>
-				<v-card-title class="headline">
-					<v-icon color="primary" slot="icon" size="36" left>mdi-table-settings</v-icon>
-					{{$t('dataset.data.modal.manageColumn.title')}}
-
-					<v-alert class="mt-4 w-100" type="warning" border="left" outlined>{{$t('dataset.data.modal.manageColumn.warning')}}</v-alert>
-				</v-card-title>
-
-				<v-card-text>
-					<SimpleListBuilder v-model="modalManageColumn.columns" :empty-item="modalManageColumn.emptyColumn" sortable>
-						<template v-slot:item="{ item }">
-							<v-row>
-								<v-col cols="5" class="py-0">
-									<v-text-field v-model="item.name" :label="$t('dataset.data.modal.manageColumn.columnName')"></v-text-field>
-								</v-col>
-								<v-col cols="4" class="py-0">
-									<v-select v-model="item.type" :items="modalManageColumn.types" :label="$t('dataset.data.modal.manageColumn.columnType')"></v-select>
-								</v-col>
-								<v-col cols="3" class="py-0">
-									<v-checkbox v-model="item.is_required" color="primary" :label="$t('dataset.data.modal.manageColumn.required')"></v-checkbox>
-								</v-col>
-							</v-row>
-						</template>
-					</SimpleListBuilder>
-				</v-card-text>
-
-				<v-card-actions>
-
-					<v-checkbox v-model="modalManageColumn.riskUnderstood" :label="$t('dataset.data.modal.manageColumn.riskUnderstood')" color="primary" hide-details class="mt-0 pt-0 ml-2"></v-checkbox>
-
-					<v-spacer></v-spacer>
-
-					<v-btn color="warning" @click="applyManageColumns()" :disabled="!modalManageColumn.riskUnderstood || modalManageColumn.columns.length === 0">
-						<v-icon left>mdi-database-plus</v-icon>
-						{{$t('modal.apply')}}
-					</v-btn>
-
-					<v-btn @click="modalManageColumn.visible = false">
-						{{$t('modal.cancel')}}
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-
-		<!-- MODAL: EDIT/NEW DATA -->
-		<v-dialog v-model="modalEditData.visible" scrollable persistent max-width="500px">
-			<v-form @submit="applyData($event, modalEditData.data)">
-				<v-card>
-					<v-card-title class="headline">
-						<v-icon color="primary" slot="icon" size="36" left>{{modalEditData.multiple ? 'mdi-pencil' : 'mdi-plus'}}</v-icon>
-						{{$t('dataset.data.modal.editData.' + (modalEditData.multiple ? 'multipleTitle' : 'addTitle'), {
-							amount: selected.length
-						}) }}
-					</v-card-title>
-
-					<v-card-text class="mt-5">
-						<div class="mb-4">{{$t('dataset.data.modal.editData.' + (modalEditData.multiple ? 'multipleDesc' : 'desc'))}}</div>
-						<v-row :key="index" v-for="(header, index) in editableHeaders">
-							<v-col class="shrink py-0 d-flex align-center" v-if="modalEditData.multiple">
-								<v-icon color="success" v-if="modalEditData.data[index]">mdi-checkbox-intermediate</v-icon>
-								<v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-							</v-col>
-							<v-col class="grow py-0">
-								<DataType :type="header.type"  :ref="'editData_' + index" v-model="modalEditData.data[index]" :label="header.text" clearable />
-							</v-col>
-						</v-row>
-					</v-card-text>
-
-					<v-card-actions>
-						<v-checkbox v-model="modalEditData.data[modalEditData.data.length - 1]" :label="$t('dataset.data.modal.editData.isActive')" :indeterminate="modalEditData.multiple" indeterminate-icon="mdi-checkbox-intermediate" color="primary" hide-details class="mt-0 pt-0 ml-2"></v-checkbox>
-
-						<v-spacer></v-spacer>
-
-						<v-btn color="primary" type="submit">
-							<v-icon left>{{modalEditData.multiple ? 'mdi-content-save-edit' : 'mdi-plus'}}</v-icon>
-							{{$t('modal.' + (modalEditData.multiple ? 'apply' : 'add'))}}
-						</v-btn>
-
-						<v-btn @click="modalEditData.visible = false">
-							{{$t('modal.close')}}
-						</v-btn>
-					</v-card-actions>
-				</v-card>
-			</v-form>
-		</v-dialog>
-
-		<!-- SNACKBAR: IMPORTED DATA -->
-		<v-snackbar :color="modalImportCSV.totalImported > 0 ? 'success' : 'error'" v-model="modalImportCSV.showTotalImported">
-			<span v-if="modalImportCSV.totalImported > 0">
-				<v-icon dark left>mdi-check</v-icon>
-				<span v-text="$t('dataset.data.modal.importCSV.totalImported', { total: modalImportCSV.totalImported })"></span>
-			</span>
-			<span v-else>
-				<v-icon dark left>mdi-alert</v-icon>
-				<span v-text="$t('dataset.data.modal.importCSV.noDataImported')"></span>
-			</span>
-		</v-snackbar>
-
-		<!-- SNACKBAR: EDIT/NEW DATA ADDED -->
-		<v-snackbar color="success" v-model="modalEditData.hasAdded">
-			<span>
-				<v-icon dark left>mdi-check</v-icon>
-				<span v-text="$t('dataset.data.modal.editData.hasAdded')"></span>
-			</span>
-		</v-snackbar>
-
-		<!-- SNACKBAR: EDIT/NEW DATA ADDED -->
-		<v-snackbar color="success" v-model="modalEditData.hasModified">
-			<span>
-				<v-icon dark left>mdi-check</v-icon>
-				<span v-text="$t('dataset.data.modal.editData.totalModified')"></span>
-			</span>
-		</v-snackbar>
-
-		<!-- SNACKBAR: EDIT/NEW DATA TOTAL MODIFIED -->
-		<v-snackbar color="success" v-model="modalEditData.hasModifiedMultiple">
-			<span>
-				<v-icon dark left>mdi-check</v-icon>
-				<span v-text="$t('dataset.data.modal.editData.totalModified', { total: modalEditData.totalModified })"></span>
-			</span>
-		</v-snackbar>
-
-		<!-- DATA TABLE -->
-		<v-data-table
-			:headers="headers"
-			:items="items"
-			sort-by="created_at"
-			:sort-desc="true"
-			:search="filters.search"
-			item-key="guid"
-			v-model="selected"
-			show-select hide-default-footer fixed-header
-			@page-count="pageCount = $event"
-			:no-results-text="$t('dataset.data.noResults')"
-			:no-data-text="$t('dataset.data.noData')"
-			:loading-text="$t('dataset.data.isLoading')"
-			:items-per-page="itemsPerPage"
-			:page.sync="page"
-			:dense="dense"
-			class="elevation-1 fill-height d-flex flex-column">
-
-			<!-- ROWS DATA -->
-			<template v-slot:item="props">
-				<tr v-bind:class="{ deleted: dataset.deletedRows.indexOf(props.item.index) !== -1 }">
-					<td class="select shrink" @click="toggleSelect(props)">
-						<v-checkbox v-model="props.isSelected" color="secondary" hide-details class="ma-0 pa-0"></v-checkbox>
-					</td>
-					<td :style="{ width: header.type === 'text' ? ((100 / editableHeaders.length) + '%') : null }" @dblclick="editCell(headerIdx, props.item.index)" v-for="(header, headerIdx) in editableHeaders">
-						<DataType :ref="'editedField_' + props.item.index + '_' + headerIdx" v-model="getItem(props.item.index, header)[valueTypes[header.type]]" :type="header.type" @keydown="handleKeyDown" @blur="editingCell = false" hide-details />
-					</td>
-					<td class="shrink">
-						<v-switch v-model="dataset.datasetRow[props.item.index].is_active" color="success" hide-details class="ma-0 pa-0"></v-switch>
-					</td>
-					<td class="shrink">
-						<span class="text-no-wrap">
-							<template v-if="dataset.datasetRow[props.item.index].created_at">
-								{{dataset.datasetRow[props.item.index].created_at | date}}
-							</template>
-							<v-chip v-else x-small>NULL</v-chip>
-						</span>
-					</td>
-					<td class="actions shrink">
-
-						<v-tooltip left>
-							<template v-slot:activator="{ on }">
-								<v-btn v-on="on" @click="editData(false, props.item)" icon>
-									<v-icon>mdi-pencil</v-icon>
-								</v-btn>
-							</template>
-							<span v-text="$t('dataset.data.tooltip.edit')"></span>
-						</v-tooltip>
-
-						<v-tooltip v-if="dataset.deletedRows.indexOf(props.item.index) === -1" left>
-							<template v-slot:activator="{ on }">
-								<v-btn v-on="on" @click="removeItems([props.item])" icon>
-									<v-icon>mdi-delete</v-icon>
-								</v-btn>
-							</template>
-							<span v-text="$t('dataset.data.tooltip.delete')"></span>
-						</v-tooltip>
-
-						<v-tooltip v-if="dataset.deletedRows.indexOf(props.item.index) !== -1" left>
-							<template v-slot:activator="{ on }">
-								<v-btn v-on="on" @click="restoreItems([props.item])" icon>
-									<v-icon>mdi-delete-restore</v-icon>
-								</v-btn>
-							</template>
-							<span v-text="$t('dataset.data.tooltip.restore')"></span>
-						</v-tooltip>
-					</td>
-				</tr>
-			</template>
-
-			< !-- TABLE HEADER -->
-			<template v-slot:top>
-				<v-toolbar flat color="white">
-
-					<!-- BULK ACTION -->
-					<v-menu offset-y>
-						<template v-slot:activator="{ on }">
-							<v-btn :disabled="selected.length === 0" v-on="on" class="mr-4">
-								{{ $t('dataset.data.bulkActions') }}
-								<v-icon right>mdi-chevron-down</v-icon>
-							</v-btn>
-						</template>
-						<v-list dense>
-							<template v-for="(action, index) in bulkActions">
-								<v-list-item v-if="!action.separator" :key="index" @click="action.callback()">
-									<v-list-item-icon>
-										<v-icon>{{ action.icon }}</v-icon>
-									</v-list-item-icon>
-									<v-list-item-title>{{ action.name }}</v-list-item-title>
-								</v-list-item>
-								<v-divider v-else class="my-1"></v-divider>
-							</template>
-						</v-list>
-					</v-menu>
-
-					<v-divider class="mx-4" inset vertical></v-divider>
-
-					<v-tooltip bottom>
-						<template v-slot:activator="{ on }">
-							<v-btn color="primary" @click="editData()" dark v-on="on" icon>
-								<v-icon>mdi-plus</v-icon>
-							</v-btn>
-						</template>
-						<span v-text="$t('dataset.data.tooltip.add')"></span>
-					</v-tooltip>
-
-					<v-tooltip bottom>
-						<template v-slot:activator="{ on }">
-							<v-btn @click="manageColumns()" class="ml-4" icon v-on="on">
-								<v-icon>mdi-table-settings</v-icon>
-								<!--								<span v-text="$t('dataset.data.manageColumn')"></span>-->
-							</v-btn>
-						</template>
-						<span v-text="$t('dataset.data.tooltip.manageColumn')"></span>
-					</v-tooltip>
-
-					<v-tooltip bottom>
-						<template v-slot:activator="{ on }">
-							<v-btn v-on="on" class="ml-4" @click="handleImportCSV()" icon>
-								<v-icon>mdi-import</v-icon>
-							</v-btn>
-						</template>
-						<span v-text="$t('dataset.data.tooltip.import')"></span>
-					</v-tooltip>
-
-					<v-tooltip bottom>
-						<template v-slot:activator="{ on }">
-							<v-btn v-on="on" class="ml-4" @click="exportCSV()" icon>
-								<v-icon>mdi-export</v-icon>
-							</v-btn>
-						</template>
-						<span v-text="$t('dataset.data.tooltip.export')"></span>
-					</v-tooltip>
-
-					<v-divider class="mx-4" inset vertical></v-divider>
-
-					<v-text-field
-						v-model="filters.search"
-						prepend-inner-icon="mdi-database-search"
-						:label="$t('dataset.data.searchLabel')"
-						single-line
-						hide-details
-					></v-text-field>
-
-					<div class="flex-grow-1"></div>
-
-					<div class="mr-4" v-text="$t('dataset.data.pagination', {
-						offset: pageOffset,
-						limit: pageLimit,
-						total: items.length,
-					})">
-					</div>
-
+				</th>
+				<th class="shrink text-no-wrap default">
+					<v-icon x-small left>mdi-account</v-icon>
+					<span>Created By</span>
+				</th>
+				<th class="shrink text-no-wrap default">
+					<v-icon x-small left>mdi-calendar-month</v-icon>
+					<span @click.stop="sort($event, 'status')">Created On</span>
+					<v-icon class="ml-2" small>mdi-sort-descending</v-icon>
+				</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr :class="{ highlighted: selectedRows.indexOf(rowIdx) !== -1 }" v-for="(row, rowIdx) in dataset.rows">
+				<th @contextmenu.prevent="openMenu($event, 'row', rowIdx, null, row.id)" @click.stop="toggleRow(rowIdx, $event)" class="default shrink text-center">
+					{{ rowIdx + 1 }}
+				</th>
+<!--				<td @contextmenu.prevent="openMenu($event, 'row', rowIdx, null, null)" @click="toggleRow(rowIdx, $event)" class="shrink text-center">-->
+<!--					{{ row.id }}-->
+<!--				</td>-->
+				<td class="shrink default">
+					<DataType type="list" :items="statuses" v-model="row.status" @input="$emit('update:dataset', dataset)" />
+				</td>
+				<td @click.stop="toggleCell(rowIdx, columnIdx, $event)" @contextmenu.prevent="openMenu($event, 'cell', rowIdx, columnIdx, row.cells[columnIdx].id)" :class="{ 'grow': true, highlighted: selectedCells.indexOf(rowIdx + '_' + columnIdx) !== -1 || selectedColumns.indexOf(columnIdx) !== -1 }" :style="{ width: (100 / dataset.columns.length) + '%' }" v-for="(column, columnIdx) in dataset.columns">
+					<DataType :type="column.type" v-model="row.cells[columnIdx][column.type]" :options="true" :id="row.cells[columnIdx].id" collection="dataset_cell" @input="$emit('update:dataset', dataset)" />
+				</td>
+				<td class="default shrink text-no-wrap">
 					<div class="d-flex align-center">
-						<v-pagination v-model="page" :length="pageCount" total-visible></v-pagination>
-						<!--						<v-text-field :value="itemsPerPage" label="Items per page" type="number" min="-1" max="5" @input="itemsPerPage = parseInt($event, 5)"></v-text-field>-->
+						<UserAvatar :user="row.created_by" :size="24" />
+						<div class="text-truncate ml-1" v-text="$options.filters.userScreenName(row.created_by)"></div>
 					</div>
-
-					<v-divider class="mx-4" inset vertical></v-divider>
-
-					<v-tooltip bottom>
-						<template v-slot:activator="{ on }">
-							<v-btn @click="dense = !dense" icon v-on="on">
-								<v-icon v-if="!dense">mdi-view-stream</v-icon>
-								<v-icon v-else>mdi-view-headline</v-icon>
-							</v-btn>
-						</template>
-						<span v-text="$t('dataset.data.tooltip.dense')"></span>
-					</v-tooltip>
-
-				</v-toolbar>
-			</template>
-		</v-data-table>
-	</v-card>
+				</td>
+				<td class="default shrink text-no-wrap">
+					<DataType type="date" v-model="row.created_on" @input="$emit('update:dataset', dataset)" />
+				</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
 </template>
 
 <script>
 import Vue from 'vue';
-import Hash from "../../../utils/Hash";
-import File from "../../../utils/File";
-import DatasetRow from "../../../models/DatasetRow";
-import DatasetColumn from "../../../models/DatasetColumn";
-import DatasetEntry from "../../../models/DatasetEntry";
-import Papa from "papaparse";
-import SimpleListBuilder from "../../../components/SimpleListBuilder";
 import DataType from "../../../components/DataType";
+import UserAvatar from "../../../components/UserAvatar";
+import DatasetColumn from "../../../models/DatasetColumn";
+import DatasetRow from "../../../models/DatasetRow";
+import DatasetCell from "../../../models/DatasetCell";
+import Transaction from "../../../models/Transaction";
 
 export default Vue.extend({
 
-	props: ['dataset', 'formErrors'],
+	props: ['dataset', 'formErrors', 'transactions'],
 
-	components: { SimpleListBuilder, DataType },
+	components: { DataType, UserAvatar },
 
 	mounted() {
-	    this.headers = this.getHeaders();
-	    this.items = this.getItems();
 
-	    this.$root.$on('cancel', () => {
-	        this.selected = [];
-		});
-
-        this.$shortcuts.add(this.$t('shortcuts.datasetData.add.title'), this.$t('shortcuts.datasetData.add.desc'), 'datasetData', ['AltLeft', 'KeyA'], this.shortcutAdd);
 	},
 
 	destroyed() {
-        this.$shortcuts.remove(this.shortcutAdd);
+
 	},
 
 	methods: {
 
-        shortcutAdd() {
-            this.modalEditData.visible = true;
-        },
+		sort(event, name) {
 
-		getItem(rowIdx, currentHeader) {
-            const header = this.headers.find(header => header.value === currentHeader.value);
-            const cell = this.dataset.datasetRow[rowIdx].datasetEntry.find(entry => entry.dataset_column_id === header.id);
-
-            return cell || {};
 		},
 
-        getHeaders() {
-            let items = [];
-            this.dataset.datasetColumn.forEach(column => {
-                items.push({
-                    id: column.id,
-                    order: column.order,
-                    text: column.name,
-                    type: column.type,
-                    class: column.type !== 'text' ? 'shrink' : null,
-                    editable: true,
-                    value: Hash.guid(),
-                });
-            });
+		openMenu (event, type, rowIdx, columnIdx, id) {
+			event.preventDefault();
 
-            items.sort((a, b) => (a.order > b.order) ? 1 : -1);
-
-            items.push(
-                { text: this.$t('dataset.data.columnIsActive'), value: 'active', class: 'shrink', editable: false, },
-                { text: this.$t('dataset.data.columnCreatedAt'), value: 'created_at', class: 'shrink', editable: false, },
-                { text: '', value: 'actions', class: 'shrink', editable: false, sortable: false, },
-            );
-            return items;
-        },
-
-		getItems() {
-			let items = [];
-			this.dataset.datasetRow.forEach((row, index) => {
-				let item = {
-					index,
-					guid: row.id || Hash.guid(),
-				};
-				row.datasetEntry.forEach((cell, cellIndex) => {
-				    const header = this.headers.find(header => header.id === cell.dataset_column_id);
-				    if (header) {
-
-				        switch(header.type) {
-							case 'relation':
-                                item[header.value] = cell; // TODO: Not functioning
-							default:
-                                item[header.value] = cell['value_' + header.type];
-						}
-					}
-				});
-				items.push(item);
+			Object.assign(this.menu, {
+				x: event.clientX,
+				y: event.clientY,
+				type, rowIdx, columnIdx, id,
 			});
-			return items;
+			this.$nextTick(() => {
+				this.menu.visible = true;
+			});
+
+			switch (type) {
+				case 'row': this.toggleRow(rowIdx, event, true); break;
+				case 'column': this.toggleColumn(columnIdx, event, true); break;
+				case 'cell': this.toggleCell(rowIdx, columnIdx, event, true); break;
+			}
 		},
 
-	    handleImportCSV() {
-            File.promptFileDialog(files => {
-                this.$root.isLoading = true;
-                Papa.parse(files[0], {
-                    skipEmptyLines: true,
-                    complete: results => {
-                        this.modalImportCSV.union = {};
-                        this.modalImportCSV.parsedCsv = results.data;
-                        this.modalImportCSV.visible = true;
-                        this.modalImportCSV.skipDuplicate = true;
-                        this.$root.isLoading = false;
-					}
+		openColumnMenu (event, columnIdx) {
+			event.preventDefault();
+
+			Object.assign(this.columnMenu, {
+				x: event.clientX,
+				y: event.clientY,
+				columnIdx,
+			});
+			this.$nextTick(() => {
+				this.columnMenu.visible = true;
+				setTimeout(() => { // Hack: Keep menu open if reopening from other column
+					this.columnMenu.visible = true;
 				});
-            }, '.csv');
+			});
+
+			this.toggleColumn(columnIdx, event, true);
 		},
 
-		importCSV(skipDuplicate = this.modalImportCSV.skipDuplicate) {
+		toggleCell(rowIdx, columnIdx, event, forceVal) {
 
-	        let items = [];
-			this.importCsvPreview.forEach(importEntries => {
+			const idx = rowIdx + '_' + columnIdx;
+			const pos = this.selectedCells.indexOf(idx);
 
-			    if (skipDuplicate) {
-                    const found = this.dataset.datasetRow.find(row => {
-                        for (let i = 0; i < importEntries.length; i++) {
-                            if (row[i] !== importEntries[i]) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    });
-                    if (found) {
-                        return;
-                    }
+			this.resetRowsSelection();
+			this.resetColumnsSelection();
+
+			if (forceVal === true && pos !== -1
+			|| forceVal === false && pos === -1) {
+				return;
+			}
+
+			if (event.shiftKey) { // Select all from original indexes
+
+				const orderedRows = [this.menu.originalRowIdx, rowIdx].sort();
+				const firstRow = orderedRows[0];
+				const lastRow = orderedRows[1];
+
+				const orderedColumns = [this.menu.originalColumnIdx, columnIdx].sort();
+				const firstColumn = orderedColumns[0];
+				const lastColumn = orderedColumns[1];
+
+				this.selectedCells = [];
+				for (let rowIdx = firstRow; rowIdx <= lastRow; rowIdx++) {
+					for (let columnIdx = firstColumn; columnIdx <= lastColumn; columnIdx++) {
+						this.selectedCells.push(rowIdx + '_' + columnIdx);
+					}
 				}
+				return;
+			} else if (!event.ctrlKey) {
+				this.resetCellsSelection();
 
-                let item = [...importEntries, true, new Date()];
-			    items.push(item);
-			});
-
-            this.dataset.datasetRow = this.dataset.datasetRow.concat(items);
-            Object.assign(this.modalImportCSV, {
-                showTotalImported: true,
-                totalImported: items.length,
-                union: {},
-                parsedCsv: [],
-                visible: false,
-                skipDuplicate: false,
-            });
-		},
-
-		async exportCSV() {
-
-			this.$root.isLoading = true;
-			let items = [];
-			this.items.forEach(item => {
-				let newItem = {};
-				this.headers.forEach(header => {
-					if (['active', 'actions'].indexOf(header.value) === -1) {
-						newItem[header.text] = item[header.value];
-					}
+				// Keep track of original indexes if shift key is enabled
+				Object.assign(this.menu, {
+					originalColumnIdx: this.menu.columnIdx === null ? columnIdx : this.menu.columnIdx,
+					originalRowIdx: this.menu.rowIdx === null ? rowIdx : this.menu.rowIdx,
 				});
-				items.push(newItem);
-			});
-			const csv = Papa.unparse(items);
-			File.downloadAs('text/csv', this.dataset.name + '.csv', csv);
-			this.$root.isLoading = false;
-		},
+			}
 
-        copyRows() {
-	        this.selected = [];
-			this.modalCopyRows.visible = false;
-		},
-
-		moveRows() {
-            this.selected = [];
-            this.modalMoveRows.visible = false;
-		},
-
-		resetEditData(multiple = false) {
-            this.modalEditData.data = [];
-            this.editableHeaders.forEach((header, index) => {
-                this.modalEditData.data[index] = null;
-            });
-            this.modalEditData.data.push(multiple === false ? true : null); // Active
-		},
-
-		editData(multiple = false, data) {
-
-			this.resetEditData(multiple);
-	        this.modalEditData.visible = true;
-            this.modalEditData.multiple = false;
-            this.modalEditData.data = data || [];
-
-	        this.$nextTick(() => {
-                this.$refs.editData_0[0].focus();
-                this.modalEditData.multiple = multiple;  // To force re-rendering on re-opening
-			});
-		},
-
-        applyData(event) {
-
-	        event.preventDefault();
-
-	        if (this.modalEditData.multiple) {
-                this.modalEditData.totalModified = this.selected.length;
-	            this.selected.forEach(item => {
-                    this.modalEditData.data.forEach((data, index) => {
-                        if (data !== '' && data !== null) {
-                            this.dataset.datasetRow[item.index][index + 1] = typeof data === 'string' ? data.trim() : data;
-						}
-					});
-				});
-                this.modalEditData.hasModifiedMultiple = true;
+			if (pos === -1) {
+				this.selectedCells.push(idx);
 			} else {
-	            let row = new DatasetRow();
-	            this.editableHeaders.forEach((header, index) => {
-					let values = {
-                        dataset_column_id: header.id,
-					};
-                    values['value_' + this.valueTypes[header.type]] = this.modalEditData.data[index];
-                    row.datasetEntry.push(new DatasetEntry(values));
+				this.selectedCells.splice(pos, 1);
+			}
+		},
+
+		toggleColumn(idx, event, forceVal) {
+
+			const pos = this.selectedColumns.indexOf(idx);
+
+			this.resetRowsSelection();
+			this.resetCellsSelection();
+
+			if (forceVal === true && pos !== -1
+			|| forceVal === false && pos === -1) {
+				return;
+			}
+
+			if (event.shiftKey) { // Select all from original indexes
+				const ordered = [this.menu.originalColumnIdx, idx].sort();
+				const first = ordered[0];
+				const last = ordered[1];
+				this.selectedColumns = [];
+				for (let i = first; i <= last; i++) {
+					this.selectedColumns.push(i);
+				}
+				return;
+			} else if (!event.ctrlKey) {
+
+				this.resetColumnsSelection();
+
+				// Keep track of original indexes if shift key is enabled
+				Object.assign(this.menu, {
+					originalColumnIdx: this.menu.columnIdx === null ? idx : this.menu.columnIdx,
 				});
-                this.dataset.datasetRow.push(row);
-                this.modalEditData.hasAdded = true;
 			}
 
-            this.resetEditData();
-            this.$nextTick(() => {
-                this.$refs.editData_0[0].focus();
-            });
-
-            this.$emit('update', this.dataset);
-
-            if (this.modalEditData.multiple) {
-                this.modalEditData.visible = false;
-			}
-		},
-
-        editCell(headerIdx, rowIdx) {
-		    this.editingCell = headerIdx + ':' + rowIdx;
-		    this.$nextTick().then(() => {
-		        this.$refs['editedField_' + rowIdx + '_' + headerIdx][0].edit();
-			});
-		},
-
-        manageColumns() {
-            this.modalManageColumn.riskUnderstood = false;
-            this.modalManageColumn.columns = [...this.dataset.datasetColumn];
-            this.modalManageColumn.visible = true;
-		},
-
-        applyManageColumns() {
-
-            // Map old to new columns
-            const toMove = [], toAdd = [];
-            this.modalManageColumn.columns.forEach((newColumn, newIdx) => {
-                const oldColumnIdx = this.dataset.datasetColumn.findIndex(oldColumn => oldColumn.guid === newColumn.guid);
-                if (oldColumnIdx === -1) {
-                    toAdd.push(newIdx + 1); // +1 (Skip GUID)
-				} else if (oldColumnIdx !== newIdx) {
-                    toMove.push([oldColumnIdx + 1, newIdx + 1]); // +1 (Skip GUID)
-				}
-			});
-
-            if (toMove.length > 0 || toAdd.length > 0) {
-                const originalRows = [...this.dataset.datasetRow];
-                const modifiedRows = [...this.dataset.datasetRow];
-
-                if (toAdd.length > 0) {
-                    originalRows.forEach((row, currIdx) => {
-						const clonedRow = [...row];
-						toAdd.forEach(idx => {
-							clonedRow.splice(idx, 0, null);
-						});
-                        modifiedRows[currIdx] = [...clonedRow];
-					});
-                    this.dataset.datasetRow = [...modifiedRows];
-				}
-
-                if (toMove.length > 0) {
-                    this.dataset.datasetRow.forEach((row, currIdx) => {
-                        const clonedRow = [...row];
-                        toMove.forEach(([oldIdx, newIdx]) => {
-                            const oldValue = originalRows[currIdx][oldIdx];
-                            clonedRow[newIdx] = oldValue;
-                        });
-                        this.dataset.datasetRow[currIdx] = [...clonedRow];
-                    });
-                }
-            }
-
-            this.dataset.datasetColumn = [...this.modalManageColumn.columns];
-
-            this.modalManageColumn.visible = false;
-            this.$emit('update', this.dataset);
-		},
-
-        handleKeyDown(event) {
-		    switch (event.code) {
-				case 'Enter': this.editingCell = false; break;
-				case 'Tab':
-				    event.preventDefault();
-				    const splittedCellVal = this.editingCell.split(':');
-				    let headerIdx = parseInt(splittedCellVal[0]);
-				    let rowIdx = parseInt(splittedCellVal[1]);
-				    if ((!event.shiftKey && headerIdx === this.editableHeaders.length - 1)
-						|| (event.shiftKey && headerIdx === 0)) {
-
-				        headerIdx = event.shiftKey ? this.editableHeaders.length - 1 : 0;
-                        if ((!event.shiftKey && rowIdx === this.items.length - 1)
-                            || (event.shiftKey && rowIdx === 0)) {
-                            rowIdx = event.shiftKey ? this.items.length - 1 : 0;
-						} else {
-				            event.shiftKey ? rowIdx-- : rowIdx++;
-						}
-					} else {
-                        event.shiftKey ? headerIdx-- : headerIdx++;
-					}
-
-					this.editingCell = headerIdx + ':' + rowIdx;
-                    this.$nextTick().then(() => {
-                        this.editCell(headerIdx, rowIdx);
-                    });
-				    break;
-			}
-		},
-
-        toggleSelect(props) {
-            props.select(props.isSelected);
-        },
-
-        removeItems(items) {
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                const selectedIndex = this.selected.indexOf(item);
-
-                // if (selectedIndex !== -1) {
-                //     this.selected.splice(selectedIndex, 1);
-                //     i--;
-                // }
-
-                if (this.dataset.deletedRows.indexOf(item.index) === -1) {
-                    this.dataset.deletedRows.push(item.index);
-				}
-            }
-        },
-
-        resetItems(items) {
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-
-                this.editableHeaders.forEach((header, headerIdx) => {
-                    this.$refs['editedField_' + item.index + '_' + headerIdx][0].reset();
-				});
-            }
-        },
-
-		restoreItems(items) {
-			for (let i = 0; i < items.length; i++) {
-				const item = items[i];
-				const selectedIndex = this.selected.indexOf(item);
-
-				// if (selectedIndex !== -1) {
-				// 	this.selected.splice(selectedIndex, 1);
-				// 	i--;
-				// }
-
-				const deletedIndex = this.dataset.deletedRows.indexOf(item.index);
-                if (deletedIndex !== -1) {
-                    this.dataset.deletedRows.splice(deletedIndex, 1);
-                }
-			}
-		},
-
-		editItem (item) {
-			this.editedIndex = this.dataset.datasetRow.indexOf(item);
-			this.editedItem = Object.assign({}, item);
-			this.dialog = true;
-		},
-
-		close () {
-			this.dialog = false;
-			setTimeout(() => {
-				this.editedItem = Object.assign({}, this.defaultItem);
-				this.editedIndex = -1;
-			}, 300);
-		},
-
-		save () {
-			if (this.editedIndex > -1) {
-				Object.assign(this.dataset.datasetRow[this.editedIndex], this.editedItem);
+			if (pos === -1) {
+				this.selectedColumns.push(idx);
 			} else {
-				this.dataset.datasetRow.push(this.editedItem);
+				this.selectedColumns.splice(pos, 1);
 			}
-			this.close();
 		},
+
+		toggleRow(idx, event, forceVal) {
+
+			const pos = this.selectedRows.indexOf(idx);
+
+			this.resetColumnsSelection();
+			this.resetCellsSelection();
+
+			if (forceVal === true && pos !== -1
+			|| forceVal === false && pos === -1) {
+				return;
+			}
+
+			if (event.shiftKey) { // Select all from original indexes
+				const ordered = [this.menu.originalRowIdx, idx].sort();
+				const first = ordered[0];
+				const last = ordered[1];
+				this.selectedRows = [];
+				for (let i = first; i <= last; i++) {
+					this.selectedRows.push(i);
+				}
+				return;
+			} else if (!event.ctrlKey) {
+				this.resetRowsSelection();
+
+				// Keep track of original indexes if shift key is enabled
+				Object.assign(this.menu, {
+					originalRowIdx: this.menu.rowIdx === null ? idx : this.menu.rowIdx,
+				});
+			}
+
+			if (pos === -1) {
+				this.selectedRows.push(idx);
+			} else {
+				this.selectedRows.splice(pos, 1);
+			}
+		},
+
+		resetColumnsSelection(resetState = false) {
+
+			this.selectedColumns = [];
+			if (resetState) {
+				Object.assign(this.menu, {
+					// originalColumnIdx: null,
+					columnIdx: null,
+				});
+			}
+		},
+
+		resetRowsSelection(resetState = false) {
+
+			this.selectedRows = [];
+			if (resetState) {
+				Object.assign(this.menu, {
+					// originalRowIdx: null,
+					rowIdx: null,
+				});
+			}
+		},
+
+		resetCellsSelection(resetState = false) {
+
+			this.selectedCells = [];
+			if (resetState) {
+				Object.assign(this.menu, {
+					// originalCellIdx: null,
+					cellIdx: null,
+				});
+			}
+		},
+
+		resetSelection() {
+			this.resetColumnsSelection(true);
+			this.resetRowsSelection(true);
+			this.resetCellsSelection(true);
+		},
+
+		insertColumn(columnIdx, column = null) {
+			let newColumn = column ? column : new DatasetColumn();
+
+			this.dataset.columns.splice(columnIdx, 0, newColumn);
+
+			this.transactions.push(new Transaction({
+				action: 'insert',
+				collection: 'dataset_column',
+				data: newColumn,
+			}));
+
+			this.dataset.rows.forEach((row, rowIdx) => {
+				this.insertCell(rowIdx, columnIdx, newColumn);
+			});
+		},
+
+		removeColumn(columnIdx) {
+
+			this.cleanTransactions(['insert', 'update'], 'dataset_column', this.dataset.columns[columnIdx].guid);
+
+			this.dataset.columns.splice(index, 1);
+			this.dataset.rows.forEach((row, rowIdx) => {
+				this.removeCell(rowIdx, columnIdx);
+			});
+
+			if (this.dataset.columns.length === 0) {
+				this.insertColumn(0);
+			}
+		},
+
+		clearColumn(columnIdx) {
+			this.dataset.rows.forEach((row, rowIdx) => {
+				this.clearCell(rowIdx, columnIdx);
+			});
+			this.$forceUpdate(); // TODO: Should automatically digest
+		},
+
+		insertRow(rowIdx, row = null) {
+			let newRow = row ? row : new DatasetRow({ created_by: this.$root.user });
+
+			this.dataset.rows.splice(rowIdx, 0, newRow);
+
+			this.transactions.push(new Transaction({
+				action: 'insert',
+				collection: 'dataset_row',
+				data: newRow,
+			}));
+
+			this.dataset.columns.forEach((column, columnIdx) => {
+				this.insertCell(rowIdx, columnIdx, new DatasetCell());
+			});
+		},
+
+		removeRow(rowIdx) {
+
+			this.cleanTransactions(['insert', 'update'], 'dataset_row', this.dataset.rows[rowIdx].guid);
+
+			this.dataset.rows.splice(rowIdx, 1);
+
+			if (this.dataset.rows.length === 0) {
+				this.insertRow(0);
+			}
+		},
+
+		insertCell(rowIdx, columnIdx, cell = null) {
+			let newCell = cell ? cell : new DatasetCell({ created_by: this.$root.user });
+			this.dataset.rows[rowIdx].splice(columnIdx, 0, newCell);
+
+			this.transactions.push(new Transaction({
+				action: 'insert',
+				collection: 'dataset_cell',
+				data: newCell,
+			}));
+		},
+
+		removeCell(rowIdx, columnIdx) {
+			this.dataset.rows[rowIdx].cells.splice(columnIdx, 1);
+
+			if (this.dataset.rows[rowIdx].length === 0) {
+				this.insertCell(rowIdx, columnIdx);
+			}
+
+			this.cleanTransactions(['insert', 'update'],'dataset_cell', this.dataset.rows[rowIdx].cells[columnIdx].guid);
+		},
+
+		clearCell(rowIdx, columnIdx) {
+			this.dataset.rows[rowIdx].cells[columnIdx] = new DatasetCell();
+		},
+
+		cleanTransactions(type, collection, guid) {
+
+			const types = typeof type === 'string' ? [type] : type;
+			this.transactions = this.transactions.filter(transaction => {
+				return types.indexOf(transaction.action) !== -1
+						&& transaction.collection === collection
+						&& transaction.data.guid !== guid;
+			});
+		}
 	},
 
 	computed: {
 
-		pageOffset() {
-
-            let offset = (this.page - 1) * this.itemsPerPage + 1;
-		    if (offset > this.items.length) {
-                return this.items.length;
-			}
-		    return offset;
-		},
-
-		pageLimit() {
-
-            let limit = this.page * this.itemsPerPage;
-            if (limit > this.items.length) {
-                return this.items.length;
-            }
-            return limit;
-		},
-
-        editableHeaders() {
-		    return this.headers.filter(header => header.editable === true);
-		},
-
-        parsedCsvHeaders() {
-		    return this.modalImportCSV.parsedCsv[0];
-		},
-
-        importCsvPreview() {
-		    let items = [];
-            const unionKeys = Object.keys(this.modalImportCSV.union).filter(union => this.modalImportCSV.union[union] !== undefined);
-            if(unionKeys.length > 0) {
-				const csvHeader = this.modalImportCSV.parsedCsv[0];
-                for (let i = 1; i < this.modalImportCSV.parsedCsv.length; i++) {
-                    let item = [];
-                    const line = this.modalImportCSV.parsedCsv[i];
-                    this.editableHeaders.forEach((header, headerIdx) => {
-                        const importHeader = this.modalImportCSV.union[headerIdx];
-                        const importHeaderIdx = csvHeader.indexOf(importHeader);
-                        let value = importHeader ? line[importHeaderIdx] : null;
-                        item.push(value);
-                    });
-                    items.push(item);
-                }
-            }
-            return items;
-		},
 	},
 
 	data() {
 		return {
-            headers: [],
-            items: [],
-            valueTypes: {
-                text: 'value_text',
-                number: 'value_text',
-                date: 'value_text',
-                image: 'file',
-                recording: 'file',
-                audio: 'file',
+			statuses: [
+				{ text: 'Draft', value: 'draft' },
+				{ text: 'Published', value: 'published' },
+				{ text: 'Deleted', value: 'deleted' },
+			],
+			selectedColumns: [],
+			selectedRows: [],
+			selectedCells: [],
+			menu: {
+				visible: false,
+				x: 0, y: 0,
+				items: [
+					{ text: 'Insert row above', icon: 'mdi-table-row-plus-before', disabled: () => this.menu.type === 'column', click: (event) => this.insertRow(this.menu.rowIdx) },
+					{ text: 'Insert row below', icon: 'mdi-table-row-plus-after', disabled: () => this.menu.type === 'column', click: (event) => this.insertRow(this.menu.rowIdx + 1) },
+					{},
+					{ text: 'Insert column left', icon: 'mdi-table-column-plus-before', disabled: () => this.menu.type === 'row', click: (event) => this.insertColumn(this.menu.columnIdx) },
+					{ text: 'Insert column right', icon: 'mdi-table-column-plus-after', disabled: () => this.menu.type === 'row', click: (event) => this.insertColumn(this.menu.columnIdx + 1) },
+					{},
+					{ text: 'Remove row', icon: 'mdi-table-row-remove', disabled: () => this.menu.type === 'column', click: (event) => this.removeRow(this.menu.rowIdx) },
+					{ text: 'Remove column', icon: 'mdi-table-column-remove', disabled: () => this.menu.type === 'row', click: (event) => this.removeColumn(this.menu.columnIdx) },
+					{},
+					{ text: 'Comment', icon: 'mdi-comment-plus-outline', disabled: () => false, click: (event) => this.$comments.open(this.menu.id, 'dataset_' + this.menu.type) },
+				],
+				type: null,
+				id: null,
+				rowIdx: null,
+				columnIdx: null,
+				originalId: null,
+				originalRowIdx: null,
+				originalColumnIdx: null,
 			},
-			filters: {
-                search: '',
-			},
-		    dbs: [{ text: '+ ' + this.$t('dataset.data.modal.copy.newDbLabel'), value: 'new' }],
-			dense: false,
-            editingCell: false,
-			page: 1,
-			pageCount: 0,
-			itemsPerPage: 100,
-			selected: [],
-			deleted: [],
-			dialog: false,
-			editedIndex: -1,
-			editedItem: {},
-			defaultItem: {},
-            modalCopyRows: {
-			    visible: false,
-                selectedDb: null,
-                newDb: null,
-			},
-            modalMoveRows: {
-			    visible: false,
-                selectedDb: null,
-                newDb: null,
-			},
-            modalImportCSV: {
-			    visible: false,
-				parsedCsv: {},
-				union: {},
-                skipDuplicate: true,
-				showTotalImported: false,
-                totalImported: 0,
-			},
-            modalEditData: {
-			    visible: false,
-                multiple: false,
-				data: [],
-                hasAdded: false,
-                hasModified: false,
-                hasModifiedMultiple: false,
-                totalModified: 0,
-			},
-            modalManageColumn: {
-			    visible: false,
-                columns: [],
-                riskUnderstood: false,
-				emptyColumn: { text: '', type: 'text', is_required: true },
-                types: [
-					{ text: this.$t('dataset.data.modal.manageColumn.types.text'), value: 'text' },
-					{ text: this.$t('dataset.data.modal.manageColumn.types.number'), value: 'number' },
-					{ text: this.$t('dataset.data.modal.manageColumn.types.boolean'), value: 'boolean' },
-					{ text: this.$t('dataset.data.modal.manageColumn.types.date'), value: 'date' },
-					{ text: this.$t('dataset.data.modal.manageColumn.types.oneChoice'), value: 'select' },
-					{ text: this.$t('dataset.data.modal.manageColumn.types.multipleChoice'), value: 'multiple' },
-					{ text: this.$t('dataset.data.modal.manageColumn.types.image'), value: 'image' },
-					{ text: this.$t('dataset.data.modal.manageColumn.types.audio'), value: 'audio' },
-					{ text: this.$t('dataset.data.modal.manageColumn.types.recording'), value: 'recording' },
-					{ text: this.$t('dataset.data.modal.manageColumn.types.file'), value: 'file' },
-					{ text: this.$t('dataset.data.modal.manageColumn.types.relation'), value: 'relation' },
+			columnMenu: {
+				visible: false,
+				columnIdx: null,
+				originalColumnIdx: null,
+				items: [
+					{ text: 'Type', icon: 'mdi-widgets', disabled: () => this.columnMenu.type !== 'row', childs: [
+						{ text: 'Text', icon: 'mdi-cursor-text', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+						{ text: 'Number', icon: 'mdi-numeric-1-box-outline', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+						{ text: 'Date', icon: 'mdi-calendar-month', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+						{ text: 'Boolean', icon: 'mdi-toggle-switch', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+						{ text: 'List', icon: 'mdi-format-list-bulleted', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+						{ text: 'Recording', icon: 'mdi-record-rec', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+						{ text: 'Audio', icon: 'mdi-file-music-outline', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+						{ text: 'File', icon: 'mdi-file-outline', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+						{ text: 'Image', icon: 'mdi-file-image-outline', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+					] },
+					{},
+					// { text: 'Insert column left', icon: 'mdi-table-column-plus-before', disabled: () => this.columnMenu.type === 'row', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+					// { text: 'Insert column right', icon: 'mdi-table-column-plus-after', disabled: () => this.columnMenu.type === 'row', click: (event) => this.insertColumn(this.columnMenu.columnIdx + 1) },
+					// {},
+					{ text: 'Clear column', icon: 'mdi-close', disabled: () => this.columnMenu.type === 'row', click: (event) => this.clearColumn(this.columnMenu.columnIdx) },
+					{ text: 'Remove column', icon: 'mdi-table-column-remove', disabled: () => this.columnMenu.type === 'row', click: (event) => this.removeColumn(this.columnMenu.columnIdx) },
+					// {},
+					// { text: 'Alignment', icon: 'mdi-format-align-left', disabled: () => this.columnMenu.type === 'row', childs: [
+					// 	{ text: 'Left', icon: 'mdi-format-align-left', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+					// 	{ text: 'Center', icon: 'mdi-format-align-center', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+					// 	{ text: 'Right', icon: 'mdi-format-align-right', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+					// 	{ text: 'Justify', icon: 'mdi-format-align-justify', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+					// 	{},
+					// 	{ text: 'Top', icon: 'mdi-format-align-top', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+					// 	{ text: 'Middle', icon: 'mdi-format-align-middle', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+					// 	{ text: 'Bottom', icon: 'mdi-format-align-bottom', disabled: () => this.columnMenu.type === 'column', click: (event) => this.insertColumn(this.columnMenu.columnIdx) },
+					// ] },
 				],
 			},
-			bulkActions: [
-				{ name: this.$t('dataset.data.bulkAction.modifyValue'), icon: 'mdi-pencil', callback: () => {
-					this.editData(true);
-				}},
-                { name: this.$t('dataset.data.bulkAction.reset'), icon: 'mdi-refresh mdi-flip-h', callback: () => {
-                        this.resetItems(this.selected);
-                    }},
-                { separator: true },
-				{ name: this.$t('dataset.data.bulkAction.copyTo'), icon: 'mdi-database-plus', callback: () => {
-				    this.modalCopyRows.selectedDb = null;
-				    this.modalCopyRows.newDb = null;
-					this.modalCopyRows.visible = true;
-				}},
-				{ name: this.$t('dataset.data.bulkAction.moveTo'), icon: 'mdi-database-export', callback: () => {
-					this.modalMoveRows.selectedDb = null;
-					this.modalMoveRows.newDb = null;
-					this.modalMoveRows.visible = true;
-				}},
-				{ separator: true },
-				{ name: this.$t('dataset.data.bulkAction.delete'), icon: 'mdi-delete', callback: () => {
-					this.removeItems(this.selected);
-				}},
-				{ name: this.$t('dataset.data.bulkAction.restore'), icon: 'mdi-delete-restore', callback: () => {
-					this.restoreItems(this.selected);
-				}},
-			]
 		}
-	},
-
-	watch: {
-	    'dataset.datasetColumn'(columns) {
-	        this.headers = this.getHeaders();
-            this.items = this.getItems();
-		},
-	    'dataset.datasetRow'(rows) {
-	        this.items = this.getItems();
-		},
-		dialog (val) {
-			val || this.close();
-		},
 	},
 });
 </script>
 
 <style lang="scss" scoped>
-	.v-data-table {
-		& >>> header {flex: 0;}
-		& >>> .v-data-table__wrapper {flex: 1;}
-		& >>> .v-data-footer {flex: 0;}
+	.scrollable {
+		overflow: auto;
+	}
+	.table	{
+		border-collapse: collapse;
+		font-size: 0.8rem;
+		user-select: none;
 
-		& >>> tr.deleted td {
+		.shrink {
+			width: 1px;
+		}
 
-			&:not(.actions):not(.select) {
-				text-decoration: line-through;
-				color: red;
-				opacity: 0.5;
-				pointer-events: none;
+		tr:not(.highlighted) {
+			th {
+				&:not(.default):not(.highlighted):hover {
+					background-color: #ddd;
+				}
+
+				&.default {
+					color: rgba(0, 0, 0, 0.5);
+					background-color: #ddd;
+				}
+			}
+			td {
+				&.default {
+					/*color: rgba(0, 0, 0, 0.75);*/
+					background-color: #eee;
+				}
 			}
 		}
 
-		& >>> .shrink {
-			width: 1%;
-			white-space: nowrap;
+		th {
+			padding: 0 0.25rem;
 		}
 
-		& >>> .datatype .v-input {
-			margin-top: 0;
-			padding-top: 0;
+		td, th {
+			text-align: left;
+			border: #ccc solid 1px;
+			height: 2.25rem;
+			min-width: 2rem;
+			padding: 0.25rem;
 		}
-	}
 
-	.import-csv-preview-container {
-		background-color: gray;
+		tr:not(.highlighted) {
+			td:not(.default):not(.highlighted):hover {
+				background-color: #f6f6f6;
+			}
+		}
+
+		th {
+			background-color: #eee;
+		}
+
+		tr.highlighted th,
+		tr > th.highlighted {
+			background-color: rgba(142, 176, 231, 0.66);
+		}
+		tr.highlighted td,
+		tr > td.highlighted {
+			background-color: rgba(142, 176, 231, 0.33);
+		}
 	}
 </style>

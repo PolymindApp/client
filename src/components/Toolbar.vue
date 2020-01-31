@@ -21,7 +21,6 @@
 
 		<v-app-bar dark src="https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background.jpg" app :class="collapse ? 'fullscreen' : null" :flat="collapse" :color="collapse ? 'transparent' : null" :collapse="collapse" :clipped-right="sidebar.permanent">
 
-
 			<template v-slot:img="{ props }">
 				<v-img v-bind="props" gradient="to bottom, rgba(86, 190, 187, 0.75), rgba(27, 142, 138, 0.75)"></v-img>
 			</template>
@@ -43,7 +42,7 @@
 			</v-scale-transition>
 
 			<!-- TITLE -->
-			<v-toolbar-title class="headline text-uppercase">
+			<v-toolbar-title class="headline text-uppercase auto-select">
 				<span v-if="$root.breadcrumbs.length === 0" class="font-weight-light">{{ $router.currentRoute.name && $t('title.' + $router.currentRoute.name) }}</span>
 
 				<template v-for="(breadcrumb, index) in $root.breadcrumbs">
@@ -71,6 +70,16 @@
 					<v-divider v-if="!collapse" inset vertical class="ml-8"></v-divider>
 				</template>
 
+				<!-- SHORTCUTS -->
+				<v-tooltip v-if="!collapse" bottom>
+					<template v-slot:activator="{ on }">
+						<v-btn :class="$vuetify.breakpoint.smAndUp ? 'ml-4' : null" @click="toggleShortcut()" v-on="on" icon>
+							<v-icon>mdi-keyboard</v-icon>
+						</v-btn>
+					</template>
+					<span>{{$t('toolbar.tooltip.shortcuts')}}</span>
+				</v-tooltip>
+
 				<!-- HELP -->
 				<v-tooltip v-if="!collapse" bottom>
 					<template v-slot:activator="{ on }">
@@ -82,15 +91,7 @@
 					<span>{{$t('toolbar.tooltip.help')}}</span>
 				</v-tooltip>
 
-				<!-- SHORTCUTS -->
-				<v-tooltip v-if="!collapse" bottom>
-					<template v-slot:activator="{ on }">
-						<v-btn :class="$vuetify.breakpoint.smAndUp ? 'ml-4' : null" @click="toggleShortcut()" v-on="on" icon>
-							<v-icon>mdi-keyboard</v-icon>
-						</v-btn>
-					</template>
-					<span>{{$t('toolbar.tooltip.shortcuts')}}</span>
-				</v-tooltip>
+				<v-divider class="mx-4" vertical inset></v-divider>
 
 				<!-- SEARCH -->
 				<v-menu v-model="searchMenuOpened" transition="scroll-x-reverse-transition" max-width="450" min-width="450" :close-on-content-click="false" :nudge-width="300" offset-x>
@@ -113,7 +114,7 @@
 							<div class="px-2" v-if="latestSearchTerms.data.length > 0">
 								<div class="mr-2 caption" v-text="$t('toolbar.search.latestTerms')"></div>
 								<v-chip-group column active-class="primary--text">
-									<v-chip @click="search(term.query, false)" v-for="(term, index) in latestSearchTerms.data" :key="term" x-small>
+									<v-chip @click="search(term.query, false)" v-for="(term, index) in latestSearchTerms.data" :key="index" x-small>
 										{{ term.query }}
 									</v-chip>
 								</v-chip-group>
@@ -402,39 +403,35 @@ export default Vue.extend({
 				})
 				.catch(error => this.$handleError(this, error));
 
-            this.wsSubscription = this.$ws.session.subscribe('activity', data => {
-				console.log('ACTIVITY', data[0]);
+            this.$ws.session.subscribe('activity', data => {
+				switch(data[0].collection) {
+					case 'messaging':
+						MessagingService.get.bind(this)(data[0].item.data.id)
+								.then(response => {
+									response.data.acknowledged_on = null;
+									this.messages.unshift(response.data);
+									if (this.$root.user.settings.newMessageSound) {
+										this.$playSound('notification');
+									}
+									this.newMessage = true;
+								})
+								.catch(error => this.$handleError(this, error));
+						break;
 
-                if (data[0].action_by !== this.$root.user.id) {
-
-					if (data[0].collection === 'messaging') {
-
-						MessagingService.get.bind(this)(data[0].item)
-							.then(response => {
-								response.data.acknowledged_on = null;
-								this.messages.unshift(response.data);
-								if (this.$root.user.settings.newMessageSound) {
-									this.$playSound('notification');
-								}
-								this.newMessage = true;
-							})
-							.catch(error => this.$handleError(this, error));
-
-					} else {
-
-						NotificationService.get.bind(this)(data[0].item)
-							.then(response => {
-								response.data.acknowledged_on = null;
-								this.notifications.unshift(response.data);
-								if (this.$root.user.settings.newMessageSound) {
-									this.$playSound('notification');
-								}
-								this.newNotification = true;
-							})
-							.catch(error => this.$handleError(this, error));
-					}
+					case 'directus_activity':
+						NotificationService.get.bind(this)(data[0].item.id)
+								.then(response => {
+									response.data.acknowledged_on = null;
+									this.notifications.unshift(response.data);
+									if (this.$root.user.settings.newMessageSound) {
+										this.$playSound('notification');
+									}
+									this.newNotification = true;
+								})
+								.catch(error => this.$handleError(this, error));
+						break;
 				}
-            });
+            }).then(sub => this.wsSubscription = sub);
 		},
 
 		acknowledgeNotifications() {

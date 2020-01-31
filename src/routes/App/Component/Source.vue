@@ -343,7 +343,7 @@ export default Vue.extend({
 	.source {
 		overflow: hidden;
 	}
-	.v-navigation-drawer .console >>> fieldset {
+	.v-navigation-drawer .console::v-deep fieldset {
 		border-top: 0;
 		border-right: 0;
 		border-bottom: 0;
@@ -364,15 +364,15 @@ export default Vue.extend({
 		padding: 1rem;
 		background-position: -1px -1px;
 	}
-	.input-html >>> fieldset {
+	.input-html::v-deep fieldset {
 		border-radius: 0;
 		border: 0;
 	}
-	.input-js >>> fieldset {
+	.input-js::v-deep fieldset {
 		border-radius: 0;
 		border: 0;
 	}
-	.input-scss >>> fieldset {
+	.input-scss::v-deep fieldset {
 		border: 0;
 		border-radius: 0;
 	}

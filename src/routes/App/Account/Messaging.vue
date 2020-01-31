@@ -28,14 +28,14 @@
 				</v-col>
 				<v-col cols="8" md="8">
 					<div class="d-flex flex-column fill-height" style="height: 80vh">
-						<div ref="messageArea" style="flex: 1; overflow: auto" class="pa-4 py-0 d-flex align-center ">
+						<div ref="messageArea" style="flex: 1; overflow: auto" class="pa-4 py-0 pb-2 d-flex align-center">
 							<v-scroll-y-transition mode="out-in">
-								<div v-if="userId" class="align-self-start w-100 d-flex flex-column">
+								<div key="notEmpty" v-if="userId" class="align-self-start w-100 d-flex flex-column">
 									<v-card :class="{ 'py-2 px-4 mt-4 d-block-inline': true, 'align-self-start grey lighten-3': userId === message.created_by.id, 'align-self-end primary white--text': $root.user.id === message.created_by.id }" :key="index" v-for="(message, index) in messages[userId]" style="max-width: 75%">
 										{{ message.content }}
 									</v-card>
 								</div>
-								<v-card key="empty" color="transparent" tile flat class="pa-8 d-flex align-center justify-center flex-column align-self-center text-center w-100">
+								<v-card key="empty" v-else color="transparent" tile flat class="pa-8 d-flex align-center justify-center flex-column align-self-center text-center w-100">
 									<img src="../../../assets/images/polymind.svg" height="128" />
 									<div class="limited-content mt-2">
 										<h2 class="display-1" v-text="$t('account.messaging.empty')"></h2>
@@ -61,6 +61,7 @@
     import UserAvatar from "../../../components/UserAvatar";
     import MessagingService from "../../../services/MessagingService";
     import EmptyView from "../../../components/EmptyView";
+	import NotificationService from "../../../services/NotificationService";
 
     export default Vue.extend({
 
@@ -76,7 +77,9 @@
         },
 
         destroyed() {
-
+			if (this.wsSubscription) {
+				this.$ws.session.unsubscribe(this.wsSubscription);
+			}
         },
 
         methods: {
@@ -95,6 +98,19 @@
                 if (this.userId) {
                     this.getMessages(this.userId);
 				}
+
+				this.$ws.session.subscribe('activity', data => {
+					switch(data[0].collection) {
+						case 'messaging':
+							MessagingService.get.bind(this)(data[0].item.data.id)
+									.then(response => {
+										response.data.acknowledged_on = new Date();
+										this.messages[this.userId].unshift(response.data);
+									})
+									.catch(error => this.$handleError(this, error));
+							break;
+					}
+				}).then(sub => this.wsSubscription = sub);
 			},
 
 			getMessages(userId) {
@@ -119,11 +135,11 @@
                 event.preventDefault();
 
                 if (!this.newMessage.text.trim()) {
-                    return;
-				}
+					return;
+					this.isSending = true;
 
-                this.isSending = true;
-                MessagingService.sendMessage.bind(this)(userId, this.newMessage.text.trim())
+				}
+				MessagingService.sendMessage.bind(this)(userId, this.newMessage.text.trim())
                     .then(response => {
                         this.messages[userId].push(response.data);
                         this.newMessage.text = '';
@@ -151,6 +167,7 @@
                 messages: [],
                 isSending: false,
                 hasLoaded: false,
+				wsSubscription: null,
                 newMessage: {
                     text: '',
 				},

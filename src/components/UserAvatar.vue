@@ -7,8 +7,8 @@
 
 		<div v-if="user.id && $root.user.id !== user.id" :class="{
 			connection: true,
-			grey: !user.isOnline,
-			green: user.isOnline,
+			grey: !isOnline,
+			green: isOnline,
 		}" :style="{
 			bottom: ((size / 96) + 'rem'),
 			right: ((size / 96) + 'rem'),
@@ -33,6 +33,7 @@ import Vue from 'vue';
 import File from '../utils/File';
 import FileService from "../services/FileService";
 import UserService from "../services/UserService";
+import moment from "moment";
 
 export default Vue.extend({
 
@@ -84,6 +85,13 @@ export default Vue.extend({
 						});
 				});
 			}, 'image/png, image/jpeg, image/gif');
+		}
+	},
+
+	computed: {
+
+        isOnline() {
+            return moment(this.user.last_access_on).isAfter(moment().subtract(5, 'minutes'));
 		}
 	},
 

@@ -1,56 +1,59 @@
 <template>
-	<v-app>
-		<ErrorDialog :response="$root.error"></ErrorDialog>
+	<div @contextmenu.prevent="">
+		<v-app>
+			<ErrorDialog :response="$root.error"></ErrorDialog>
 
-		<!-- IS SAVED -->
-		<v-snackbar color="success" v-model="$root.isSaved">
-			<v-icon class="white--text" left>mdi-check</v-icon>
-			{{$t('snackbar.saved')}}
-			<v-btn text @click="$root.isSaved = false">
-				{{$t('modal.close')}}
-			</v-btn>
-		</v-snackbar>
+			<!-- IS SAVED -->
+			<v-snackbar color="success" v-model="$root.isSaved">
+				<v-icon class="white--text" left>mdi-check</v-icon>
+				{{$t('snackbar.saved')}}
+				<v-btn text @click="$root.isSaved = false">
+					{{$t('modal.close')}}
+				</v-btn>
+			</v-snackbar>
 
-		<!-- SHORTCUTS -->
-		<Shortcuts :visible="$root.shortcuts.visible" />
+			<!-- SHORTCUTS -->
+			<Shortcuts :visible="$root.shortcuts.visible" />
 
-		<!-- SHORTCUTS -->
-		<Help ref="help" :visible="$root.help.visible" />
+			<!-- SHORTCUTS -->
+			<Help ref="help" :visible="$root.help.visible" />
 
-		<!-- COMMENTS -->
-		<Comments ref="comments" />
+			<!-- COMMENTS -->
+			<Comments ref="comments" />
 
-		<!-- IS DELETE -->
-		<v-snackbar color="success" v-model="$root.isDeleted">
-			<v-icon class="white--text" left>mdi-delete-circle-outline</v-icon>
-			{{$t('snackbar.deleted')}}
-			<v-btn text @click="$root.isDeleted = false">
-				{{$t('modal.close')}}
-			</v-btn>
-		</v-snackbar>
+			<!-- IS DELETE -->
+			<v-snackbar color="success" v-model="$root.isDeleted">
+				<v-icon class="white--text" left>mdi-delete-circle-outline</v-icon>
+				{{$t('snackbar.deleted')}}
+				<v-btn text @click="$root.isDeleted = false">
+					{{$t('modal.close')}}
+				</v-btn>
+			</v-snackbar>
 
-		<!-- IS LOADING -->
-		<v-overlay :absolute="false" :value="$root.isLoading" z-index="100">
-			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
-		</v-overlay>
+			<!-- IS LOADING -->
+			<v-overlay :absolute="false" :value="$root.isLoading" z-index="100">
+				<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+			</v-overlay>
 
-		<v-scroll-x-transition>
-			<Sidebar ref="sidebar" v-if="$root.user.id" v-model="sidebar"></Sidebar>
-		</v-scroll-x-transition>
-		<v-scroll-y-transition>
-			<Toolbar ref="toolbar" v-if="$root.user.id" :sidebar="sidebar"></Toolbar>
-		</v-scroll-y-transition>
+			<v-scroll-x-transition>
+				<Sidebar ref="sidebar" v-if="$root.user.id" v-model="sidebar" class="no-select"></Sidebar>
+			</v-scroll-x-transition>
+			<v-scroll-y-transition>
+				<Toolbar ref="toolbar" v-if="$root.user.id" :sidebar="sidebar" class="no-select"></Toolbar>
+			</v-scroll-y-transition>
 
-		<v-scroll-y-transition>
-			<v-content v-if="$root.user.id" class="main-content">
-				<v-layout fill-height>
-					<v-fade-transition mode="out-in">
-						<router-view></router-view>
-					</v-fade-transition>
-				</v-layout>
-			</v-content>
-		</v-scroll-y-transition>
-	</v-app>
+			<v-scroll-y-transition>
+				<v-content v-if="$root.user.id" class="main-content">
+					<Chat />
+					<v-layout fill-height>
+						<v-fade-transition mode="out-in">
+							<router-view></router-view>
+						</v-fade-transition>
+					</v-layout>
+				</v-content>
+			</v-scroll-y-transition>
+		</v-app>
+	</div>
 </template>
 
 <script>
@@ -71,6 +74,7 @@ import Strategy from "./App/Strategy";
 import Dataset from "./App/Dataset";
 import User from "../models/User";
 import Comments from "../components/Comments";
+import Chat from "../components/Chat";
 
 export const routes = [
 	{path: '/', component: Dashboard, name: 'dashboard'},
@@ -96,7 +100,7 @@ export default Vue.extend({
 	name: 'App',
 
 	components: {
-		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help, Comments
+		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help, Comments, Chat
 	},
 
 	created() {

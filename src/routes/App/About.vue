@@ -104,14 +104,14 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-	.about >>> .v-tabs-items {
+	.about::v-deep .v-tabs-items {
 		background-color: transparent !important;
 	}
-	.about >>> .container {
+	.about::v-deep .container {
 		max-width: 800px;
 	}
 
-	.about >>> a {
+	.about::v-deep a {
 		color: white;
 	}
 

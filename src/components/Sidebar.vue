@@ -17,7 +17,7 @@
 								<v-list-item>
 									<v-list-item-content>
 										<v-list-item-title class="title white--text">{{ $root.user | userScreenName }}</v-list-item-title>
-										<v-list-item-subtitle class="white--text">
+										<v-list-item-subtitle class="white--text mt-n1">
 											<a class="my-account" :href="'/account/' + this.$root.user.id">
 												{{ $t('sidebar.myAccount') }}
 											</a>
@@ -130,6 +130,7 @@ import draggable from "vuedraggable";
 import ComponentService from "../services/ComponentService";
 import StrategyService from "../services/StrategyService";
 import DatasetService from "../services/DatasetService";
+import DocumentService from "../services/DocumentService";
 import UserService from "../services/UserService";
 
 export default Vue.extend({
@@ -147,10 +148,12 @@ export default Vue.extend({
 		this.loadComponents();
 		this.loadStrategies();
 		this.loadDatasets();
+		this.loadDocuments();
 
 	    this.$root.$on('COMPONENT_UPDATE', this.loadComponents);
 	    this.$root.$on('STRATEGY_UPDATE', this.loadStrategies);
 	    this.$root.$on('DATASET_UPDATE', this.loadDatasets);
+	    this.$root.$on('DOCUMENTS_UPDATE', this.loadDocuments);
 	    this.$root.$on('FULLSCREEN', this.fullScreenEvent);
 	},
 
@@ -159,6 +162,7 @@ export default Vue.extend({
         this.$root.$off('COMPONENT_UPDATE', this.loadComponents);
         this.$root.$off('STRATEGY_UPDATE', this.loadStrategies);
         this.$root.$off('DATASET_UPDATE', this.loadDatasets);
+        this.$root.$off('DOCUMENTS_UPDATE', this.loadDocuments);
 	    this.$root.$off('FULLSCREEN', this.fullScreenEvent);
 	},
 
@@ -229,6 +233,14 @@ export default Vue.extend({
 		loadDatasets() {
 			DatasetService.getAllMine.bind(this)().then(response => {
 				this.datasets = response.data;
+			})
+				.catch(error => this.$handleError(this, error))
+			// .finally(() => this.$root.isLoading = false);
+		},
+
+        loadDocuments() {
+			DocumentService.getAllMine.bind(this)().then(response => {
+				this.documents = response.data;
 			})
 				.catch(error => this.$handleError(this, error))
 			// .finally(() => this.$root.isLoading = false);
@@ -313,6 +325,7 @@ export default Vue.extend({
 			strategies: [],
 			components: [],
 			datasets: [],
+			documents: [],
 			newItem: '',
 			menuItems: [
 				{
@@ -352,6 +365,24 @@ export default Vue.extend({
 								title: component.name,
 								icon: component.icon,
 								link: '/component/' + component.id,
+							});
+						});
+						return items;
+					},
+				},
+				{
+                	name: 'document', canAdd: true, addTo: '/document/new', getItems: () => {
+						let items = [];
+						this.documents.forEach(document => {
+							if (document.isArchived) {
+                            	return;
+							}
+							items.push({
+								title: document.name,
+								icon: 'mdi-file-document-outline',
+								link: '/dataset/' + document.id,
+								badge: document.totalItems,
+								badgeColor: 'transparent',
 							});
 						});
 						return items;

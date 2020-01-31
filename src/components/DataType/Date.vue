@@ -1,8 +1,8 @@
 <template>
 	<div>
-		<v-chip v-if="readonly && currentValue === null" class="text-center" x-small>NULL</v-chip>
-		<span v-if="readonly" v-text="currentValue"></span>
-		<v-text-field v-else ref="input" type="date" v-model="currentValue" v-bind="$attrs" v-on="$listeners" />
+		<v-chip v-if="!canEdit && currentValue === null" class="text-center" x-small>NULL</v-chip>
+		<span v-if="!canEdit" v-text="currentValue"></span>
+		<v-text-field v-else ref="input" type="date" v-model="currentValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
 	</div>
 </template>
 
@@ -35,33 +35,54 @@
 
         methods: {
 
-            edit() {
+			edit() {
+				this.focus();
+			},
 
+			blur() {
+				this.isEditing = false;
+				this.$emit('input', this.currentValue);
 			},
 
 			focus() {
 
-				if (!this.$refs.input) {
-					return;
-				}
+				this.isEditing = true;
 
-				this.$refs.input.focus();
-				this.$refs.input.$el.querySelector('input').select();
+				this.$nextTick(() => {
+					if (!this.$refs.input) {
+						return;
+					}
+
+					this.$refs.input.focus();
+					this.$refs.input.$el.querySelector('input').select();
+				});
 			},
 
 			clear() {
+				this.$emit('input', null);
+			},
 
-                this.$emit('input', null);
+			reset() {
+				this.$emit('input', this.originalValue);
 			},
 		},
 
         computed: {
 
+			canEdit() {
+				return !this.readonly && this.isEditing;
+			},
+
+			canReset() {
+				return JSON.stringify(this.value) !== JSON.stringify(this.originalValue);
+			}
 		},
 
         data() {
             return {
-                currentValue: this.value,
+				isEditing: false,
+				currentValue: this.value,
+				originalValue: this.value,
 			};
         },
 

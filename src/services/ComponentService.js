@@ -9,7 +9,7 @@ export default class ComponentService {
 	}
 
 	static getAllMine() {
-		return Server.get.bind(this)('/items/component?filter[created_by]=' + this.$root.user.id);
+		return Server.get.bind(this)('/items/component?filter[created_by]=' + this.$root.user.id + '&fields=' + defaultFields);
 	}
 
 	static getByUser(userId) {
@@ -28,6 +28,10 @@ export default class ComponentService {
 		return Server.get.bind(this)('/items/component/' + id + '/revisions?limit=25');
 	}
 
+	static fork(revisionId) {
+		return Server.post.bind(this)('/custom/component/fork/' + revisionId);
+	}
+
 	static save(id, data) {
 
 		if (id) {
@@ -38,6 +42,14 @@ export default class ComponentService {
 	}
 
 	static remove(id) {
-		return Server.delete.bind(this)('/items/component/' + id);
+		return Server.patch.bind(this)('/items/component/' + id, {
+			status: 'deleted'
+		});
+	}
+
+	static restore(id) {
+		return Server.patch.bind(this)('/items/component/' + id, {
+			status: 'draft'
+		});
 	}
 }

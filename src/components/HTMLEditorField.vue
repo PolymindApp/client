@@ -223,12 +223,12 @@ export default {
 
 		.editor-content {
 
-			& >>> .ProseMirror {
+			&::v-deep .ProseMirror {
 				min-height: 11.15rem;
 				padding: 1rem;
 				color: black;
 			}
-			& >>> .ProseMirror:focus {
+			&::v-deep .ProseMirror:focus {
 				outline: 0;
 			}
 		}
@@ -237,7 +237,7 @@ export default {
 
 			.editor-content {
 
-				& >>> .ProseMirror {
+				&::v-deep .ProseMirror {
 					min-height: calc(11.15rem + 38px);
 				}
 			}

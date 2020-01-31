@@ -4,6 +4,12 @@
 .restricted-gradient {
 	background-image: linear-gradient(to bottom, #000000, #8e8e8e);
 }
+.no-select {
+  user-select: none;
+}
+.auto-select {
+  user-select: auto;
+}
 .gradient-overlay {
 	 position: absolute;
 	 top: 0;
@@ -44,6 +50,10 @@ body::-webkit-scrollbar,
 }
 
 @media all and (min-width: 767px) {
+
+	.ace_gutter {
+	  z-index: 3;
+	}
 
 	.ace_editor.ace-chrome {
 

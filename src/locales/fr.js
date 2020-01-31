@@ -25,7 +25,7 @@ const literals = {
 		resetPassword: 'Réinitialisation de mot de passe',
 		strategy: 'Stratégie',
 		component: 'Composante',
-		dataset: 'Base de données',
+		dataset: 'Bases de données',
 		accountMessaging: 'Messagerie',
 	},
 	error404: {
@@ -38,6 +38,17 @@ const literals = {
 		}
 	},
 	dashboard: {
+
+		strategies: 'Strategies ({total})',
+		components: 'Composantes ({total})',
+		documents: 'Documents ({total})',
+		datasets: 'Bases de données ({total})',
+
+		strategiesEmpty: 'Aucune stratégie pour le moment',
+		componentsEmpty: 'Aucune composante pour le moment',
+		documentsEmpty: 'Aucun document pour le moment',
+		datasetsEmpty: 'Aucune base de donnée pour le moment',
+
 		contextual: {
 			filters: 'Filtres',
 			archived: 'Archivé',
@@ -47,6 +58,7 @@ const literals = {
 		},
 		new: {
 			dataset: 'Base de donnée',
+			document: 'Document',
 			component: 'Composante',
 			strategy: 'Stratégie',
 		},
@@ -102,6 +114,22 @@ const literals = {
 	},
 	activity: {
 		comment: {
+			dataset: {
+				title: 'A commenté la base de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_column: {
+				title: 'A commenté la colonne de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_row: {
+				title: 'A commenté la ligne de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_cell: {
+				title: 'A commenté la donnée <strong>{name}</strong>',
+				desc: '',
+			},
 			component: {
 				title: 'A commenté la composante <strong>{name}</strong>',
 				desc: 'A écrit : <em>{comment}</em>',
@@ -112,20 +140,86 @@ const literals = {
 				title: 'A créé une nouvelle base de donnée <strong>{name}</strong>',
 				desc: '',
 			},
+			dataset_column: {
+				title: 'A créé une nouvelle colonne de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_row: {
+				title: 'A créé une nouvelle ligne de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_cell: {
+				title: 'A créé une nouvelle donnée <strong>{name}</strong>',
+				desc: '',
+			},
 			component: {
 				title: 'A créé une nouvelle composante <strong>{name}</strong>',
 				desc: '',
 			},
 		},
 		delete: {
+			dataset: {
+				title: 'A effacé la base de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_column: {
+				title: 'A effacé la colonne de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_row: {
+				title: 'A effacé la ligne de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_cell: {
+				title: 'A effacé la donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			component: {
+				title: 'A effacé la composante <strong>{name}</strong>',
+				desc: '',
+			},
+		},
+		'soft-delete': {
+			dataset: {
+				title: 'A effacé la base de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_column: {
+				title: 'A effacé la colonne de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_row: {
+				title: 'A effacé la ligne de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_cell: {
+				title: 'A effacé la donnée <strong>{name}</strong>',
+				desc: '',
+			},
 			component: {
 				title: 'A effacé la composante <strong>{name}</strong>',
 				desc: '',
 			},
 		},
 		update: {
+			dataset: {
+				title: 'A mis à jour la base de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_column: {
+				title: 'A mis à jour la colonne de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_row: {
+				title: 'A mis à jour la ligne de donnée <strong>{name}</strong>',
+				desc: '',
+			},
+			dataset_cell: {
+				title: 'A mis à jour la donnée <strong>{name}</strong>',
+				desc: '',
+			},
 			component: {
-				title: 'Mise à jour de la composante <strong>{name}</strong>',
+				title: 'A mis à jour la composante <strong>{name}</strong>',
 				desc: '',
 			},
 		},
@@ -242,7 +336,8 @@ const literals = {
 			personal: 'Personnel',
 			strategies: 'Stratégies',
 			components: 'Composantes',
-			dataset: 'Base de données',
+			document: 'Documents',
+			dataset: 'Bases de données',
 			others: 'Autres',
 			admin: 'Administration',
 		},
@@ -267,6 +362,8 @@ const literals = {
 	component: {
 
 		newTitle: 'Nouveau',
+		isDeleted: 'Cette composante a été effacé. C\'est votre dernière chance de la récupérer.',
+		restore: 'Restaurer',
 
 		settings: {
 			title: 'Réglages',
@@ -287,7 +384,13 @@ const literals = {
 			settingsTooltip: 'Paramétrage',
 			consoleTooltip: 'Afficher la console',
 			codeIssue: 'Il y a un problème avec votre code',
-
+			publishModal: {
+				title: 'Publier',
+			},
+			forkModal: {
+				title: 'Bifurquer',
+				forkDesc: 'Cette action créera une copie de la révision de la composante en cours. Êtes-vous certain de vouloir continuer ?',
+			},
 			settingsModal: {
 				title: 'Paramètres',
 			}
@@ -324,6 +427,7 @@ const literals = {
 		},
 
 		categories: {
+			undefined: 'Non-défini',
 			general: 'Général',
 			language: 'Langue',
 			functions: 'Fonctions',
@@ -439,6 +543,9 @@ const literals = {
 				},
 			}
 		},
+		view: {
+			title: 'Vues',
+		},
 	},
 	sidebar: {
 		myAccount: 'Voir mon profile',
@@ -446,6 +553,7 @@ const literals = {
 		decksEmpty: 'Vous n\'avez aucun paquet pour le moment.',
 		strategiesEmpty: 'Vous n\'avez aucune stratégie pour le moment.',
 		componentsEmpty: 'Vous n\'avez aucune composantes pour le moment.',
+		documentEmpty: 'Vous n\'avez aucun document pour le moment.',
 		datasetEmpty: 'Vous n\'avez aucune base de donnée pour le moment.',
 		searchEmpty: 'Aucun élément de menu n\'a été trouvé avec ces termes de recherche.',
 		hasFilter: 'Vos termes de recherche ont retourné les éléments de menu ci-dessus.',
@@ -477,6 +585,7 @@ const literals = {
 			notification: 'Notifications',
 			addstrategies: 'Ajouter une stratégie',
 			addcomponents: 'Ajouter une composante',
+			adddocument: 'Ajouter un document',
 			adddataset: 'Ajouter une base de données',
 			shortcuts: 'Raccourcis',
 			collapse: 'Rabaisser',
@@ -598,6 +707,8 @@ const literals = {
 		import: 'Importer',
 		post: 'Poster',
 		send: 'Envoyer',
+		publish: 'Publier',
+		fork: 'Bifurquer',
 	},
 	modalDelete: {
 		title: 'Effacer cette entité',
@@ -606,6 +717,7 @@ const literals = {
 	snackbar: {
 		saved: 'Sauvegardé avec succès !',
 		deleted: 'Effacé avec succès !',
+		forked: 'Bifurqué avec succès !',
 	},
 	deck: {
 		view: 'Voir',
@@ -796,6 +908,12 @@ const literals = {
 				desc: 'Va au profil utilisateur',
 			},
 		},
+		dataset: {
+			save: {
+				title: 'Sauvegarder',
+				desc: 'Enregistre les données sur le serveur',
+			},
+		},
 		datasetData: {
 			add: {
 				title: 'Ajouter une donnée',
@@ -805,6 +923,7 @@ const literals = {
 		groupTitles: {
 			main: 'Généraux',
 			navigation: 'Navigation rapide',
+			dataset: 'Bases de données',
 			datasetData: 'Gestion de données',
 		},
 	}

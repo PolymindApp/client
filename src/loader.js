@@ -21,10 +21,10 @@ Vue.prototype.$deepClone = function(obj) {
 	return JSON.parse(JSON.stringify(obj));
 };
 
+const sounds = {
+	send: new Audio(sendSound),
+	notification: new Audio(notificationSound),
+};
 Vue.prototype.$playSound = function(name) {
-
-	switch(name) {
-		case 'send': new Audio(sendSound).play(); break;
-		case 'notification': new Audio(notificationSound).play(); break;
-	}
+	sounds[name].play();
 };

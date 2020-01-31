@@ -3,7 +3,7 @@
 		<v-row class="mb-4">
 			<v-col cols="12" md="6">
 
-				<h2 class="mb-4">
+				<h2 class="mb-4 title">
 					<v-icon left>mdi-account-settings</v-icon>
 					<span v-text="$t('account.settings.generalSectionTitle')"></span>
 				</h2>
@@ -32,7 +32,7 @@
 
 				</v-card>
 
-				<h2 class="mb-4 mt-4">
+				<h2 class="mb-4 mt-md-8 mt-4 title">
 					<v-icon left>mdi-coffee</v-icon>
 					<span v-text="$t('account.settings.ideSectionTitle')"></span>
 				</h2>
@@ -42,7 +42,7 @@
 			</v-col>
 			<v-col cols="12" md="6">
 
-				<h2 class="mb-4">
+				<h2 class="mb-4 title">
 					<v-icon left>mdi-bell</v-icon>
 					<span v-text="$t('account.settings.notificationSectionTitle')"></span>
 				</h2>

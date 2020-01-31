@@ -10,7 +10,9 @@
 					<v-row no-gutters>
 						<v-col class="grow">
 							<span class="title">{{ model.name }}</span>
-							<br /><span class="subtitle-1 font-weight-thin">{{ model.description | plainExcerpt(200) }}</span>
+							<span v-if="$attrs.dense === undefined">
+								<br /><span class="subtitle-1 font-weight-thin">{{ model.description | plainExcerpt(200) }}</span>
+							</span>
 						</v-col>
 
 						<v-col class="shrink pl-4">
@@ -20,11 +22,11 @@
 				</div>
 
 				<v-card-title class="d-flex justify-space-between pt-0" style="opacity: 0.75">
-					<span class="body-1">
+					<span class="body-1" v-if="$attrs.dense === undefined">
 						<span v-if="$root.user.id !== model.created_by.id" v-text="$t('deck.createdBy', { name: $options.filters.userScreenName(model.created_by) })"></span>
 						<span v-else v-text="$t('deck.createdByYou')"></span>
 					</span>
-					<span>
+					<span v-if="$attrs.dense === undefined">
 						{{ $t('component.categories.' + model.category) }}
 					</span>
 				</v-card-title>

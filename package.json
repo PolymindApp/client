@@ -40,6 +40,7 @@
 		"object-assign-deep": "^0.4.0",
 		"papaparse": "^5.1.0",
 		"register-service-worker": "^1.6.2",
+		"simple-web-worker": "^1.2.0",
 		"tiptap": "^1.25.0",
 		"tiptap-extensions": "^1.27.0",
 		"vue": "^2.6.10",

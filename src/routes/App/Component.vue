@@ -3,12 +3,84 @@
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
+		<!-- IS FORKED -->
+		<v-snackbar color="success" v-model="forkModal.forked">
+			<v-icon class="white--text" left>mdi-check</v-icon>
+			{{$t('snackbar.forked')}}
+			<v-btn text @click="forkModal.forked = false">
+				{{$t('modal.close')}}
+			</v-btn>
+		</v-snackbar>
+
+		<!-- IS PUBLIED -->
+		<v-snackbar color="success" v-model="publishModal.publied">
+			<v-icon class="white--text" left>mdi-check</v-icon>
+			{{$t('snackbar.forked')}}
+			<v-btn text @click="forkModal.publied = false">
+				{{$t('modal.close')}}
+			</v-btn>
+		</v-snackbar>
+
+		<!-- MODAL: PUBLISH -->
+		<v-dialog v-model="publishModal.visible" scrollable persistent max-width="500px">
+			<v-card>
+				<v-card-title>
+					<v-icon color="primary" slot="icon" size="36" left>mdi-publish</v-icon>
+					{{$t('component.source.publishModal.title')}}
+				</v-card-title>
+
+				<v-card-text>
+					TBD
+				</v-card-text>
+
+				<v-card-actions>
+					<v-spacer></v-spacer>
+
+					<v-btn color="primary" @click="publish()">
+						<v-icon left>mdi-publish</v-icon>
+						{{$t('modal.publish')}}
+					</v-btn>
+
+					<v-btn @click="publishModal.visible = false">
+						{{$t('modal.cancel')}}
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
+		<!-- MODAL: FORK -->
+		<v-dialog v-model="forkModal.visible" scrollable persistent max-width="500px">
+			<v-card>
+				<v-card-title>
+					<v-icon color="primary" slot="icon" size="36" left>mdi-directions-fork</v-icon>
+					{{$t('component.source.forkModal.title')}}
+				</v-card-title>
+
+				<v-card-text>
+					<span v-text="$t('component.source.forkModal.forkDesc')"></span>
+				</v-card-text>
+
+				<v-card-actions>
+					<v-spacer></v-spacer>
+
+					<v-btn color="primary" @click="fork()">
+						<v-icon left>mdi-directions-fork</v-icon>
+						{{$t('modal.fork')}}
+					</v-btn>
+
+					<v-btn @click="forkModal.visible = false">
+						{{$t('modal.cancel')}}
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
 		<v-tabs show-arrows style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
-			<v-tab :to="'/component/' + id + '/settings'" exact>
+			<v-tab :disabled="isDeleted" :to="'/component/' + id + '/settings'" exact>
 				<v-icon left>mdi-pencil-box-outline</v-icon>
 				{{$t('component.settings.title')}}
 			</v-tab>
-			<v-tab :to="'/component/' + id + '/source'" exact>
+			<v-tab :disabled="isDeleted" :to="'/component/' + id + '/source'" exact>
 				<v-icon left>mdi-code-tags</v-icon>
 				{{$t('component.source.title')}}
 			</v-tab>
@@ -23,16 +95,35 @@
 
 			<v-spacer></v-spacer>
 
-			<v-btn @click="$comments.open(id, 'component')" class="ma-3" text small>
+			<v-btn :disabled="isDeleted" @click="$comments.open(id, 'component')" class="mt-3 mr-4" text small>
 				<v-icon left>mdi-comment</v-icon>
 				{{$t('comment.btnTitle')}}
 				<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
 			</v-btn>
+
+			<v-btn :disabled="isDeleted" @click="openFork()" color="secondary" class="mt-3 mr-2" small>
+				<v-icon left>mdi-directions-fork</v-icon>
+				{{$t('modal.fork')}}
+			</v-btn>
+
+			<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3" small>
+				<v-icon left>mdi-publish</v-icon>
+				{{$t('modal.publish')}}
+			</v-btn>
 		</v-tabs>
 
-		<div v-if="isDeleted">
-			IS DELETED
-		</div>
+		<v-alert v-if="isDeleted" tile prominent type="error">
+			<v-row align="center">
+				<v-col class="grow">
+					<span v-text="$t('component.isDeleted')"></span>
+				</v-col>
+				<v-col class="shrink">
+					<v-btn @click="restore()">
+						<span v-text="$t('component.restore')"></span>
+					</v-btn>
+				</v-col>
+			</v-row>
+		</v-alert>
 
 		<v-tabs-items style="flex: 1; overflow: auto;" v-model="tab">
 			<v-tab-item :value="'/component/' + id + '/settings'" class="pa-4 fill-height">
@@ -49,7 +140,7 @@
 <!--			</v-tab-item>-->
 		</v-tabs-items>
 
-		<v-card :dark="sourceDark" flat class="pa-4" style="flex: 0; border-radius: 0">
+		<v-card :disabled="isDeleted" :dark="sourceDark" flat class="pa-4" style="flex: 0; border-radius: 0">
 			<v-btn :disabled="!dataHasChanged" @click="save()" color="primary" class="mr-1">
 				<v-icon left>mdi-content-save</v-icon>
 				{{$t('modal.save')}}
@@ -91,6 +182,7 @@ import ComponentService from "../../services/ComponentService";
 import ComponentModel from "../../models/Component";
 import DeleteDialog from "../../components/DeleteDialog";
 import CommentService from "../../services/CommentService";
+import DeploymentService from "../../services/DeploymentService";
 
 export default Vue.extend({
 
@@ -209,7 +301,42 @@ export default Vue.extend({
 			this.component = this.$deepClone(this.originalComponent);
 		},
 
+        openFork() {
+            this.forkModal.visible = true;
+		},
+
+		fork() {
+
+		    const revision = this.revisions[this.revisionOffset];
+
+		    ComponentService.fork.bind(this)(revision.id)
+                .then(response => {
+                    this.forkModal.visible = false;
+                    this.$router.push('/component/' + response.data.id);
+                    this.forkModal.forked = true;
+                    this.$root.$emit('COMPONENT_UPDATE');
+                })
+                .catch(error => this.$handleError(this, error))
+                .finally(() => this.$root.isLoading = false);
+		},
+
+        openPublish() {
+            this.publishModal.visible = true;
+        },
+
+        publish(version, changelog) {
+
+            DeploymentService.fork.bind(this)('component', this.id, version, changelog)
+                .then(response => {
+                    this.publishModal.visible = false;
+                    this.publishModal.publied = true;
+                })
+                .catch(error => this.$handleError(this, error))
+                .finally(() => this.$root.isLoading = false);
+        },
+
 		initializeValues() {
+            this.isDeleted = false;
 			this.component = new ComponentModel();
 		},
 
@@ -219,14 +346,20 @@ export default Vue.extend({
 			this.$root.isLoading = true;
 			ComponentService.save.bind(this)(this.id !== 'new' ? this.id : null, this.component)
 				.then(response => {
+
+                    this.$root.$emit('COMPONENT_UPDATE');
+                    this.$root.isSaved = true;
+
+                    if (this.id !== response.data.id) {
+                        return this.$router.push('/component/' + response.data.id);
+                    }
+
 					this.id = response.data.id;
 					this.isNew = false;
 					this.updateOriginalData();
 					this.loadRevisions();
 					this.updateTab();
-					this.$root.isSaved = true;
 					this.revisionOffset = 0;
-                    this.$root.$emit('COMPONENT_UPDATE');
 				})
 				.catch(error => this.$handleError(this, error))
 				.finally(() => this.$root.isLoading = false);
@@ -240,12 +373,25 @@ export default Vue.extend({
 					.then(response => {
 						this.isDeleted = true;
 						this.$refs.deleteModal.hide();
+                        this.$root.$emit('COMPONENT_UPDATE');
 					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
 			} else {
 				this.$refs.deleteModal.show();
 			}
+		},
+
+		restore() {
+
+            this.$root.isLoading = true;
+            ComponentService.restore.bind(this)(this.id)
+                .then(response => {
+                    this.isDeleted = false;
+                    this.$root.$emit('COMPONENT_UPDATE');
+                })
+                .catch(error => this.$handleError(this, error))
+                .finally(() => this.$root.isLoading = false);
 		}
 	},
 
@@ -263,6 +409,14 @@ export default Vue.extend({
 
 	data() {
 		return {
+            forkModal: {
+                visible: false,
+                forked: false,
+            },
+            publishModal: {
+                visible: false,
+                publied: false,
+            },
 			id: this.$route.params.id,
 			isNew: this.$route.params.id === 'new',
 			isDeleted: false,
@@ -289,7 +443,7 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-	.v-tabs-items >>> .v-window__container {
+	.v-tabs-items::v-deep .v-window__container {
 		height: 100%;
 	}
 </style>

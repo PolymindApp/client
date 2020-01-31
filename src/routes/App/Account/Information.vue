@@ -2,7 +2,7 @@
 	<v-row>
 		<v-col cols="12" md="7" lg="8">
 			<v-card class="pa-8">
-				<h1 class="display-1">{{ $t('account.information.generalTitle') }}</h1>
+				<h1 class="title">{{ $t('account.information.generalTitle') }}</h1>
 
 				<v-form ref="generalForm" @submit="apply" lazy-validation v-model="form.general">
 					<div class="mt-4">
@@ -39,7 +39,7 @@
 		</v-col>
 		<v-col v-if="isOwner" cols="12" md="5" lg="4">
 			<v-card class="pa-8">
-				<h1 class="display-1">{{$t('restricted.resetPasswordTitle')}}</h1>
+				<h1 class="title">{{$t('restricted.resetPasswordTitle')}}</h1>
 				<p>{{$t('restricted.resetPasswordDesc')}}</p>
 
 				<v-form ref="passwordForm" @submit="resetPassword" lazy-validation v-model="form.password">

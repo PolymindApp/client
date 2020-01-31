@@ -122,11 +122,11 @@
 			position: absolute;
 		}
 
-		& >>> .v-overlay__scrim {
+		&::v-deep .v-overlay__scrim {
 			position: fixed;
 		}
 
-		& >>> .v-overlay__content {
+		&::v-deep .v-overlay__content {
 			width: 100%;
 			height: 100%;
 		}

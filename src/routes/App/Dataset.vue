@@ -12,6 +12,10 @@
 				<v-icon left>mdi-database-edit</v-icon>
 				{{$t('dataset.data.title')}}
 			</v-tab>
+			<v-tab :to="'/dataset/' + id + '/view'" exact>
+				<v-icon left>mdi-view-module</v-icon>
+				{{$t('dataset.view.title')}}
+			</v-tab>
 		</v-tabs>
 
 		<div v-if="isDeleted">
@@ -27,10 +31,13 @@
 
 		<v-tabs-items style="flex: 1; overflow: auto;" v-model="tab">
 			<v-tab-item :value="'/dataset/' + id + '/settings'" class="pa-4 fill-height">
-				<Settings :dataset="dataset" :form-errors="formErrors" @update="updateTab" />
+				<Settings :dataset.sync="dataset" :form-errors="formErrors" @update="updateTab" />
 			</v-tab-item>
 			<v-tab-item :value="'/dataset/' + id + '/data'" class="fill-height">
-				<Data :dataset="dataset" :form-errors="formErrors" @update="updateDataset" />
+				<Data :dataset.sync="dataset" :transactions.sync="transactions" :form-errors="formErrors" @update:dataset="compareJsonJob" />
+			</v-tab-item>
+			<v-tab-item :value="'/dataset/' + id + '/view'" class="fill-height">
+				<View :dataset.sync="dataset" :form-errors="formErrors" />
 			</v-tab-item>
 		</v-tabs-items>
 
@@ -53,26 +60,37 @@
 <script>
 import Vue from 'vue';
 import Data from "./Dataset/Data";
+import View from "./Dataset/View";
 import Settings from "./Dataset/Settings";
 import DatasetService from "../../services/DatasetService";
 import DeleteDialog from "../../components/DeleteDialog";
 import Dataset from "../../models/Dataset";
-import {VSkeletonLoader} from "vuetify";
+// import {VSkeletonLoader} from "vuetify";
+
+let jsonJobTimeout = null;
 
 export default Vue.extend({
 
-	components: { Data, Settings, DeleteDialog },
+	components: { View, Data, Settings, DeleteDialog },
 
 	mounted() {
 		this.initializeValues();
 		this.load();
 		this.updateTab();
+
+		this.$shortcuts.add(this.$t('shortcuts.dataset.save.title'), this.$t('shortcuts.dataset.save.desc'), 'dataset', ['ControlLeft', 'KeyS'], this.shortcutSave);
+	},
+
+	destroyed() {
+		this.$shortcuts.remove(this.shortcutSave);
 	},
 
 	methods: {
 
-	    updateDataset(dataset) {
-            this.dataset = dataset;
+		shortcutSave() {
+			if (this.dataHasChanged) {
+				this.save();
+			}
 		},
 
 		updateTab() {
@@ -82,8 +100,10 @@ export default Vue.extend({
 			    this.dataset.id
 					? this.dataset.name
 					: Vue.component('loading', {
-					    components: { VSkeletonLoader },
-					    template: `<v-skeleton-loader type="text"></v-skeleton-loader>`,
+					    // components: { VSkeletonLoader },
+					    components: { },
+					    // template: `<v-skeleton-loader type="text"></v-skeleton-loader>`,
+					    template: `<div></div>`,
 					})
 			);
 			const thirdTitle = this.$t('dataset.' + section + '.title');
@@ -106,6 +126,7 @@ export default Vue.extend({
 
 		updateOriginalData() {
 			this.originalDataset = this.$deepClone(this.dataset);
+			this.originalDatasetJson = JSON.stringify(this.originalDataset);
 		},
 
 		load() {
@@ -114,13 +135,14 @@ export default Vue.extend({
 
 			if (!this.isNew) {
 				this.$root.isLoading = true;
-				DatasetService.get.bind(this)(this.id)
+				DatasetService.get.bind(this)(this.id, true)
 					.then(response => {
 						this.id = response.data.id;
 						this.isNew = false;
 						this.dataset = Object.assign(new Dataset(), response.data);
 						this.updateOriginalData();
 						this.updateTab();
+						this.compareJsonJob(this.dataset, 0);
 					})
 					.catch(error => {
 						if (error.response.status === 404) {
@@ -139,6 +161,7 @@ export default Vue.extend({
 				//         // this.dataset.scss = response.data.scss;
 				//         this.updateOriginalData();
 				//         this.updateTab();
+				// this.compareJsonJob(this.dataset, 0);
 				//     })
 				//     .catch(error => {
 				//         if (error.response.status === 404) {
@@ -152,6 +175,7 @@ export default Vue.extend({
 
 		reset() {
 			this.dataset = this.$deepClone(this.originalDataset);
+			this.compareJsonJob(this.dataset, 0);
 			this.$emit('cancel');
 		},
 
@@ -163,12 +187,12 @@ export default Vue.extend({
 
 			this.formErrors = [];
 			this.$root.isLoading = true;
-			DatasetService.save.bind(this)(this.id !== 'new' ? this.id : null, this.dataset)
+			DatasetService.save.bind(this)(this.id !== 'new' ? this.id : null, this.dataset, this.transactions)
 				.then(response => {
-					    this.id = response.data.id;
-					    this.isNew = false;
+					this.id = response.data.id;
+					this.isNew = false;
 					this.updateOriginalData();
-					    this.$root.isSaved = true;
+					this.$root.isSaved = true;
 					this.updateTab();
 				})
 				.catch(error => this.$handleError(this, error))
@@ -193,24 +217,36 @@ export default Vue.extend({
 
 		restore() {
 
+		},
+
+		compareJsonJob(dataset, delay = 1000) {
+
+			clearTimeout(jsonJobTimeout);
+			jsonJobTimeout = setTimeout(() => {
+				this.datasetJson = JSON.stringify(dataset);
+			}, delay);
 		}
 	},
 
 	computed: {
 
 		dataHasChanged() {
-			return JSON.stringify(this.dataset) !== JSON.stringify(this.originalDataset);
+			return this.datasetJson !== this.originalDatasetJson;
 		},
 	},
 
 	data() {
 		return {
+			transactions: [],
+			worker: null,
 			id: this.$route.params.id,
 			isNew: this.$route.params.id === 'new',
 			isDeleted: false,
 			formErrors: [],
 			tab: '/dataset/new/edit',
 			originalDataset: {},
+			originalDatasetJson: null,
+			datasetJson: null,
 			dataset: {},
 		}
 	},
@@ -220,24 +256,24 @@ export default Vue.extend({
 			this.initializeValues();
 			this.updateTab();
 			this.load();
-		}
+		},
 	}
 });
 </script>
 
 <style lang="scss" scoped>
-	.v-tabs-items >>> .v-window__container {
+	.v-tabs-items::v-deep .v-window__container {
 		height: 100%;
 	}
 	.panel-overflow[disabled] {
 
-		& >>> td {
+		&::v-deep td {
 			pointer-events: none;
 		}
-		& >>> .v-pagination,
-		& >>> .v-btn:not(.restore-deleted),
-		& >>> .v-simple-checkbox,
-		& >>> .v-input {
+		&::v-deep .v-pagination,
+		&::v-deep .v-btn:not(.restore-deleted),
+		&::v-deep .v-simple-checkbox,
+		&::v-deep .v-input {
 			opacity: 0.5;
 			pointer-events: none;
 		}

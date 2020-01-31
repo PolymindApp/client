@@ -119,13 +119,13 @@
 				}).catch(error => this.$handleError(this, error));
 
                 this.wsSubscription = this.$ws.session.subscribe('activity', data => {
-                    console.log('ACTIVITY', data[0]);
+                    // console.log('ACTIVITY', data[0]);
+					//
+                    // if (data[0].action_by !== this.$root.user.id) {
 
-                    if (data[0].action_by !== this.$root.user.id) {
+                        if (data[0].collection === 'directus_activity')  {
 
-                        if (data[0].collection !== 'messaging')  {
-
-                            NotificationService.get.bind(this)(data[0].item)
+                            NotificationService.get.bind(this)(data[0].item.id)
                                 .then(response => {
                                     response.data.acknowledged_on = null;
                                     this.notifications.data.unshift(response.data);
@@ -135,7 +135,7 @@
                                 })
                                 .catch(error => this.$handleError(this, error));
                         }
-                    }
+                    // }
                 });
 			}
 		},
