@@ -15,7 +15,6 @@ export default class DatasetRow {
 			created_on: moment().format('YYYY-MM-DD HH:mm:ss'),
 			modified_by: null,
 			modified_on: null,
-			is_active: true,
 			dataset: null,
 			cells: [],
 		}, props);

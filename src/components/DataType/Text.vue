@@ -1,8 +1,8 @@
 <template>
-	<div>
+	<div class="w-100">
 		<v-chip v-if="!canEdit && currentValue === null" class="text-center" x-small>NULL</v-chip>
 		<span v-if="!canEdit" v-text="currentValue"></span>
-		<v-text-field v-else ref="input" type="text" v-model="currentValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
+		<v-text-field v-else ref="input" type="text" v-model="currentValue" @keyup="handleKeyUp" @keydown="handleKeyDown" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
 	</div>
 </template>
 
@@ -55,6 +55,20 @@
 					this.$refs.input.focus();
 					this.$refs.input.$el.querySelector('input').select();
 				});
+			},
+
+			handleKeyDown(event) {
+            	if (event.code === 'Tab') {
+            		setTimeout(() => { // Let time for blur event to complete
+            			this.$emit('tab', event);
+					});
+				}
+			},
+
+			handleKeyUp(event) {
+            	if (event.code === 'Enter') {
+            		this.blur();
+				}
 			},
 
 			clear() {

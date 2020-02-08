@@ -108,7 +108,8 @@ export default Vue.extend({
 				UserService.login.bind(this)(this.email, this.password)
 					.then(response => {
 						// localStorage.setItem('jwt', response.data.token);
-						this.$router.go(0);
+						// this.$router.go(0);
+						window.location.href = localStorage.getItem('redirect_uri') || '/';
 					})
 					.catch(error => {
                         this.$root.isLoading = false;

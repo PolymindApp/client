@@ -1,4 +1,7 @@
 import Server from '../utils/Server';
+import Model from "../models/Model";
+import CommentService from "./CommentService";
+import HistoryService from "./HistoryService";
 
 const defaultFields = '*,created_by.*,created_by.avatar.filename';
 
@@ -30,24 +33,22 @@ export default class DatasetService {
 		return Server.get.bind(this)('/items/dataset/' + id + suffix);
 	}
 
-	static save(id, data) {
+	static save(id, dataset, transactions = []) {
 
-		// data.columns.forEach(row => {
-		// 	row.dataset_id = data.id;
-		// });
-		//
-		// data.rows.forEach(row => {
-		// 	row.dataset_id = data.id;
-		// 	row.cells.forEach(entry => {
-		// 		entry.dataset_id = data.id;
-		// 	});
-		// });
+		const promises = [];
 
 		if (id) {
-			return Server.patch.bind(this)('/items/dataset/' + id, data);
+			const datasetClone = new Model(dataset).flat(false);
+			delete datasetClone.columns;
+			delete datasetClone.rows;
+
+			promises.push(Server.patch.bind(this)('/items/dataset/' + id, datasetClone));
+			promises.push(Server.post.bind(this)('/custom/transaction/run', transactions));
 		} else {
-			return Server.post.bind(this)('/items/dataset', data);
+			promises.push(Server.post.bind(this)('/items/dataset', dataset));
 		}
+
+		return Promise.all(promises);
 	}
 
 	static remove(id) {

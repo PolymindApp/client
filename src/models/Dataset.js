@@ -1,7 +1,3 @@
-import DatasetColumn from "./DatasetColumn";
-import DatasetRow from "./DatasetRow";
-import DatasetCell from "./DatasetCell";
-
 export default class Dataset {
 
 	constructor(props) {
@@ -26,30 +22,8 @@ return {
 			is_applying_mapper: false,
 			mapper: mapper,
 			icon: '',
-			columns: [
-				new DatasetColumn({ name: 'Front' }),
-				new DatasetColumn({ name: 'Back' }),
-			],
-			rows: [
-				new DatasetRow({
-					cells: [
-						new DatasetCell({ text: 'Hablar' }),
-						new DatasetCell({ text: 'To speak' }),
-					]
-				}),
-				new DatasetRow({
-					cells: [
-						new DatasetCell({ text: 'Tocar' }),
-						new DatasetCell({ text: 'To touch' }),
-					]
-				}),
-				new DatasetRow({
-					cells: [
-						new DatasetCell({ text: 'Conocer' }),
-						new DatasetCell({ text: 'To know' }),
-					]
-				}),
-			],
+			columns: [],
+			rows: [],
 		}, props);
 	}
 }

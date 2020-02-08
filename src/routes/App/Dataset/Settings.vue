@@ -1,5 +1,5 @@
 <template>
-	<v-card flat>
+	<v-card color="transparent" flat>
 
 		<v-alert type="info" prominent border="left" text icon="mdi-information-outline">
 

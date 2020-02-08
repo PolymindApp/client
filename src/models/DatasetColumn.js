@@ -16,7 +16,7 @@ export default class DatasetColumn {
 			dataset: null,
 			created_by: new User(),
 			created_on: moment().format('YYYY-MM-DD HH:mm:ss'),
-			modified_by: new User(),
+			modified_by: null,
 			modified_on: null,
 		}, props);
 	}

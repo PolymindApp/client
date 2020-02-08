@@ -50,21 +50,21 @@
 
         mounted() {
 
-			MessagingService.getUsers.bind(this)()
-				.then(response => {
-					response.data.forEach(user => {
-						this.boxes.push({
-							user: user.created_by,
-							acknowledged: true,
-							open: false,
-							messages: [],
-							newMessage: {
-								text: '',
-							},
-						});
-					});
-				})
-				.catch(error => this.$handleError(this, error));
+			// MessagingService.getUsers.bind(this)()
+			// 	.then(response => {
+			// 		response.data.forEach(user => {
+			// 			this.boxes.push({
+			// 				user: user.created_by,
+			// 				acknowledged: true,
+			// 				open: false,
+			// 				messages: [],
+			// 				newMessage: {
+			// 					text: '',
+			// 				},
+			// 			});
+			// 		});
+			// 	})
+			// 	.catch(error => this.$handleError(this, error));
         },
 
         destroyed() {

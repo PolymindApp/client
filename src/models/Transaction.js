@@ -1,12 +1,13 @@
 export default class Transaction {
 
-	constructor() {
+	constructor(props = {}) {
 
 		Object.assign(this, {
+			guid: null,
 			action: null,
 			collection: null,
-			id: null,
-			data: null,
-		});
+			// data
+			// id
+		}, props);
 	}
 }

@@ -58,6 +58,7 @@ const i18n = new VueI18n({
 	if (server.loggedIn) {
 		component = App;
 		routes = appRoutes;
+		localStorage.removeItem('redirect_uri');
 	}
 
 	const router = new VueRouter({

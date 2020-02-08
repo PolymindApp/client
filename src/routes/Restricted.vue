@@ -78,7 +78,10 @@ export const routes = [
 	{path: '/terms', component: Terms, name: 'terms'},
 	{path: '/policies', component: Policies, name: 'policies'},
 	{path: '/contact', component: Contact, name: 'contact'},
-	{path: '*', redirect: '/login'},
+	{path: '*', redirect: to => {
+		localStorage.setItem('redirect_uri', to.fullPath);
+		return '/login';
+	}},
 ];
 
 export default Vue.extend({

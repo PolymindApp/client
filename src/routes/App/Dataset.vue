@@ -1,9 +1,9 @@
 <template>
-	<v-sheet :disabled="isDeleted" class="panel-overflow d-flex flex-column" style="width: 100%; border-radius: 0;">
+	<v-sheet tile :disabled="isDeleted" class="panel-overflow d-flex flex-column" style="width: 100%;">
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
-		<v-tabs show-arrows style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
+		<v-tabs ref="tabs" show-arrows style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
 			<v-tab :to="'/dataset/' + id + '/settings'" exact>
 				<v-icon left>mdi-pencil-box-outline</v-icon>
 				{{$t('dataset.settings.title')}}
@@ -29,15 +29,21 @@
 			</v-alert>
 		</div>
 
-		<v-tabs-items style="flex: 1; overflow: auto;" v-model="tab">
-			<v-tab-item :value="'/dataset/' + id + '/settings'" class="pa-4 fill-height">
-				<Settings :dataset.sync="dataset" :form-errors="formErrors" @update="updateTab" />
+		<v-tabs-items ref="tabsItems" class="grey lighten-4" style="flex: 1; overflow: auto" v-model="tab">
+			<v-tab-item :value="'/dataset/' + id + '/settings'" class="white pa-4 fill-height">
+				<div style="height: 0">
+					<Settings :dataset.sync="dataset" :form-errors="formErrors" @update="updateTab" />
+				</div>
 			</v-tab-item>
 			<v-tab-item :value="'/dataset/' + id + '/data'" class="fill-height">
-				<Data :dataset.sync="dataset" :transactions.sync="transactions" :form-errors="formErrors" @update:dataset="compareJsonJob" />
+				<div style="height: 0">
+					<Data :dataset.sync="dataset" :transactions.sync="transactions" :scrolling-ref="$refs.tabsItems" :form-errors="formErrors" @update:dataset="compareJsonJob" />
+				</div>
 			</v-tab-item>
-			<v-tab-item :value="'/dataset/' + id + '/view'" class="fill-height">
-				<View :dataset.sync="dataset" :form-errors="formErrors" />
+			<v-tab-item :value="'/dataset/' + id + '/view'" class="white fill-height">
+				<div style="height: 0">
+					<Views :dataset.sync="dataset" :form-errors="formErrors" />
+				</div>
 			</v-tab-item>
 		</v-tabs-items>
 
@@ -60,7 +66,7 @@
 <script>
 import Vue from 'vue';
 import Data from "./Dataset/Data";
-import View from "./Dataset/View";
+import Views from "./Dataset/Views";
 import Settings from "./Dataset/Settings";
 import DatasetService from "../../services/DatasetService";
 import DeleteDialog from "../../components/DeleteDialog";
@@ -71,7 +77,7 @@ let jsonJobTimeout = null;
 
 export default Vue.extend({
 
-	components: { View, Data, Settings, DeleteDialog },
+	components: { Views, Data, Settings, DeleteDialog },
 
 	mounted() {
 		this.initializeValues();
@@ -175,6 +181,7 @@ export default Vue.extend({
 
 		reset() {
 			this.dataset = this.$deepClone(this.originalDataset);
+			this.transactions.splice(0, this.transactions.length);
 			this.compareJsonJob(this.dataset, 0);
 			this.$emit('cancel');
 		},
@@ -192,6 +199,7 @@ export default Vue.extend({
 					this.id = response.data.id;
 					this.isNew = false;
 					this.updateOriginalData();
+					this.transactions.splice(0, this.transactions.length);
 					this.$root.isSaved = true;
 					this.updateTab();
 				})
@@ -231,7 +239,7 @@ export default Vue.extend({
 	computed: {
 
 		dataHasChanged() {
-			return this.datasetJson !== this.originalDatasetJson;
+			return this.datasetJson !== this.originalDatasetJson || this.transactions.length > 0;
 		},
 	},
 
