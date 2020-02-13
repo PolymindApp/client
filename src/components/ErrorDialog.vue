@@ -3,7 +3,7 @@
 		<v-card :color="color">
 			<v-card-title class="headline">
 				<v-icon slot="icon" size="36" left>mdi-alert-box</v-icon>
-				{{ title.length > 64 ? $t('error.default') : title }}
+				{{ title.length > 64 ? $t('error.defaultTitle') : title }}
 			</v-card-title>
 
 			<v-card-text v-if="showMessage" class="my-5">

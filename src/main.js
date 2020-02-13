@@ -6,10 +6,10 @@ import globalVariables from './global';
 import * as VueGoogleMaps from 'vue2-google-maps';
 import App, { routes as appRoutes } from './routes/App.vue';
 import Restricted, { routes as restrictedRoutes } from './routes/Restricted.vue';
+import Issue, { routes as issueRoutes } from './routes/Issue.vue';
 import VueI18n from 'vue-i18n';
 import VueRouter from 'vue-router';
 import messages from './locales';
-import loader from './loader';
 import VueCookies from 'vue-cookies';
 import VueAnalytics from 'vue-analytics';
 import VueCordova from 'vue-cordova';
@@ -17,8 +17,8 @@ import "./styles/index.scss";
 import './filters';
 import DirectusSDK from "@directus/sdk-js";
 import ab from 'autobahn';
-import Server from "./utils/Server";
 
+let router;
 let directusConfig = {
 	url: process.env.VUE_APP_API_URL,
 	project: 'polymind',
@@ -61,36 +61,37 @@ const i18n = new VueI18n({
 		localStorage.removeItem('redirect_uri');
 	}
 
-	const router = new VueRouter({
-		mode: 'history',
-		routes,
-	});
-
-	router.beforeEach((to, from, next) => {
-
-		if (to.name) {
-			const title = i18n.t('title.' + to.name);
-			if (title) {
-				document.title = title.toString();
-			}
-		} else {
-			document.title = 'Polymind';
-		}
-
-		Array.from(document.querySelectorAll('[data-vue-router-controlled]')).map((el) => el.parentNode.removeChild(el));
-
-		next();
-	});
-
-	Vue.use(VueAnalytics, {
-		id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID,
-		checkDuplicatedScript: true,
-		router
-	});
-
 	let loadCallback = () => {
 
 		let callback = () => {
+
+			router = new VueRouter({
+				mode: 'history',
+				routes,
+			});
+
+			router.beforeEach((to, from, next) => {
+
+				if (to.name) {
+					const title = i18n.t('title.' + to.name);
+					if (title) {
+						document.title = title.toString();
+					}
+				} else {
+					document.title = 'Polymind';
+				}
+
+				Array.from(document.querySelectorAll('[data-vue-router-controlled]')).map((el) => el.parentNode.removeChild(el));
+
+				next();
+			});
+
+			Vue.use(VueAnalytics, {
+				id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID,
+				checkDuplicatedScript: true,
+				router
+			});
+
 			window.addEventListener('click', event => {
 
 				// ensure we use the link, in case the click has been received by a subelement
@@ -138,14 +139,24 @@ const i18n = new VueI18n({
 			url: process.env.VUE_APP_WS_URI,
 			realm: 'polymind',
 		});
+
 		conn.onopen = (session) => {
 			server.request('POST', '/custom/user/update-ws-token', undefined, {
 				sessionId: session.id
 			})
-				.then(() => {
-					callback()
-				})
-				.catch(error => this.$handleError(this, error));
+				.then(() => callback)
+				.catch(error => {
+					component = Issue;
+					routes = issueRoutes;
+					callback();
+					router.push('/issue/api');
+				});
+		};
+		conn.onclose = (session) => {
+			component = Issue;
+			routes = issueRoutes;
+			callback();
+			router.push('/issue/ws');
 		};
 		conn.open();
 		Object.defineProperties(Vue.prototype, {

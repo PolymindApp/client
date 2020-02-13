@@ -28,15 +28,6 @@ const literals = {
 		dataset: 'Bases de données',
 		accountMessaging: 'Messagerie',
 	},
-	error404: {
-		title: 'Oups ! Cette page ne semble pas exister.',
-		desc: 'Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée. Utilisez les boutons de navigation ci-dessous afin de retrouver votre chemin.',
-		tooltips: {
-			goBack: 'Retourner',
-			goHome: 'Page d\'accueil',
-			search: 'Rechercher',
-		}
-	},
 	dashboard: {
 
 		strategies: 'Strategies ({total})',
@@ -654,7 +645,7 @@ const literals = {
 	},
 	error: {
 
-		default: 'Erreur',
+		defaultTitle: 'Erreur',
 		goBack: 'Revenir en arrière',
 
 		codeX: 'Erreur {code}',
@@ -663,6 +654,32 @@ const literals = {
 		code403: 'Interdit',
 		code404: 'Introuvable',
 		code500: 'Erreur serveur interne',
+
+		actions: {
+			goBack: 'Retourner',
+			goHome: 'Page d\'accueil',
+			search: 'Rechercher',
+		},
+
+		404: {
+			title: 'Oups ! Cette page ne semble pas exister.',
+			desc: 'Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée. Utilisez les boutons de navigation ci-dessous afin de retrouver votre chemin.',
+		},
+
+		default: {
+			title: 'Une erreur est survenue.',
+			desc: 'Une alerte a été envoyé aux administrateurs afin que ce problème soit résolue.',
+		},
+
+		ws: {
+			title: 'Erreur de connexion',
+			desc: 'Impossible d\'établir une connexion avec le serveur de communication en temps réel.',
+		},
+
+		api: {
+			title: 'Erreur de connexion',
+			desc: 'Impossible d\'établir une connexion avec le serveur d\'interface de communication.',
+		},
 
 		fatal: {
 			title: 'Erreur fatale',
