@@ -4,7 +4,7 @@
 
 		<div class="logo" :style="{ backgroundImage: 'url(' + logo + ')' }"></div>
 
-		<div class="fill-height d-flex">
+		<div class="fill-height d-flex auto-select">
 			<router-view></router-view>
 		</div>
 	</v-app>
@@ -53,6 +53,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 	.logo {
+		pointer-events: none;
 		position: absolute;
 		width: 100%;
 		height: 100%;

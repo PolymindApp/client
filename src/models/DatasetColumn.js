@@ -11,7 +11,7 @@ export default class DatasetColumn {
 			guid: Hash.guid(),
 			name: "Name",
 			type: "text",
-			is_required: true,
+			is_required: false,
 			sort: null,
 			dataset: null,
 			created_by: new User(),

@@ -1,5 +1,5 @@
 <template>
-	<div @click="$root.shortcuts.visible = false">
+	<div>
 		<v-overlay class="shortcuts" :value="visible" opacity="0.7" z-index="10">
 			<v-container :class="{ 'fill-height': true, 'small': columnLength <= 1 }">
 

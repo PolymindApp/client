@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<v-chip v-if="!canEdit && currentValue === null" class="text-center" x-small>NULL</v-chip>
-		<span v-if="!canEdit" v-text="currentValue"></span>
+		<span v-if="!canEdit" v-text="selectedValue.text"></span>
 		<v-select v-else ref="input" :items="items" type="text" v-model="currentValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
 	</div>
 </template>
@@ -79,6 +79,10 @@
 
 			canReset() {
 				return JSON.stringify(this.value) !== JSON.stringify(this.originalValue);
+			},
+
+			selectedValue() {
+            	return this.items.find(item => item.value === this.currentValue);
 			}
 		},
 

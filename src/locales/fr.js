@@ -428,6 +428,14 @@ const literals = {
 
 		newTitle: 'Nouveau',
 
+		publishModal: {
+			title: 'Publier',
+		},
+		forkModal: {
+			title: 'Bifurquer',
+			forkDesc: 'Cette action créera une copie de la révision de la base de donnée en cours. Êtes-vous certain de vouloir continuer ?',
+		},
+
 		settings: {
 			title: 'Réglages',
 			isPrivateLabel: 'Privé',
@@ -473,24 +481,27 @@ const literals = {
 			},
 			status: 'Statut',
 			created_by: 'Créé par',
-			createdOn: 'Créé le',
+			created_on: 'Créé le',
 			statuses: {
 				published: 'Publié',
 				draft: 'Brouillon',
 				deleted: 'Effacé',
 			},
-			defaultMenu: {
+			rowMenu: {
 				insertRowAbove: 'Insérer une ligne au dessus',
 				insertRowBelow: 'Insérer une ligne en dessous',
-				insertColumnLeft: 'Insérer une colonne à gauche',
-				insertColumnRight: 'Insérer une colonne à droite',
 				removeRow: 'Enlever la ligne',
-				removeColumn: 'Enlever la colonne',
+				removeRows: 'Enlever les lignes ({total})',
 				comment: 'Commenter',
 			},
 			columnMenu: {
-				title: 'Titre',
+				insertColumnLeft: 'Insérer une colonne à gauche',
+				insertColumnRight: 'Insérer une colonne à droite',
+				removeColumn: 'Enlever la colonne',
+				removeColumns: 'Enlever les colonnes ({total})',
+				comment: 'Commenter',
 				isRequired: 'Champs requis',
+				isRequiredPlural: 'Champs requis ({total})',
 				type: 'Type',
 				types: {
 					text: 'Texte',
@@ -504,7 +515,12 @@ const literals = {
 					image: 'Image',
 				},
 				clearColumn: 'Nettoyer la colonne',
-				removeColumn: 'Enlever la colonne',
+				clearColumns: 'Nettoyer les colonnes ({total})',
+			},
+			cellMenu: {
+				comment: 'Commenter',
+				clearCell: 'Nettoyer la cellule',
+				clearCells: 'Nettoyer les cellules ({total})',
 			},
 			modal: {
 				copy: {
@@ -567,7 +583,7 @@ const literals = {
 						relation: 'Relation',
 					}
 				},
-			}
+			},
 		},
 		view: {
 			title: 'Vues',

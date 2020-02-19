@@ -23,14 +23,22 @@ export default class DatasetService {
 		return Server.get.bind(this)('/items/dataset?filter[created_by]=' + this.$root.user.id + '&fields=' + defaultFields);
 	}
 
-	static get(id, includeData = false) {
+	static get(id, includeData = false, revisionOffset) {
 
 		let suffix = '';
 		if (includeData) {
 			suffix += '?fields=*,rows.*,columns.*,rows.cells.*,rows.created_by.*,rows.created_by.avatar.filename';
 		}
 
-		return Server.get.bind(this)('/items/dataset/' + id + suffix);
+		return Server.get.bind(this)('/items/dataset/' + id + (revisionOffset !== undefined ? '/revisions/' + revisionOffset : '') + suffix);
+	}
+
+	static getRevisions(id) {
+		return Server.get.bind(this)('/items/dataset/' + id + '/revisions?limit=25');
+	}
+
+	static fork(revisionId) {
+		return Server.post.bind(this)('/custom/dataset/fork/' + revisionId);
 	}
 
 	static save(id, dataset, transactions = []) {

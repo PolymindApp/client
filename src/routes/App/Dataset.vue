@@ -3,6 +3,78 @@
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
+		<!-- IS FORKED -->
+		<v-snackbar color="success" v-model="forkModal.forked">
+			<v-icon class="white--text" left>mdi-check</v-icon>
+			{{$t('snackbar.forked')}}
+			<v-btn text @click="forkModal.forked = false">
+				{{$t('modal.close')}}
+			</v-btn>
+		</v-snackbar>
+
+		<!-- IS PUBLIED -->
+		<v-snackbar color="success" v-model="publishModal.publied">
+			<v-icon class="white--text" left>mdi-check</v-icon>
+			{{$t('snackbar.forked')}}
+			<v-btn text @click="forkModal.publied = false">
+				{{$t('modal.close')}}
+			</v-btn>
+		</v-snackbar>
+
+		<!-- MODAL: PUBLISH -->
+		<v-dialog v-model="publishModal.visible" scrollable persistent max-width="500px">
+			<v-card>
+				<v-card-title>
+					<v-icon color="primary" slot="icon" size="36" left>mdi-publish</v-icon>
+					{{$t('dataset.source.publishModal.title')}}
+				</v-card-title>
+
+				<v-card-text>
+					TBD
+				</v-card-text>
+
+				<v-card-actions>
+					<v-spacer></v-spacer>
+
+					<v-btn color="primary" @click="publish()">
+						<v-icon left>mdi-publish</v-icon>
+						{{$t('modal.publish')}}
+					</v-btn>
+
+					<v-btn @click="publishModal.visible = false">
+						{{$t('modal.cancel')}}
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
+		<!-- MODAL: FORK -->
+		<v-dialog v-model="forkModal.visible" scrollable persistent max-width="500px">
+			<v-card>
+				<v-card-title>
+					<v-icon color="primary" slot="icon" size="36" left>mdi-directions-fork</v-icon>
+					{{$t('dataset.forkModal.title')}}
+				</v-card-title>
+
+				<v-card-text>
+					<span v-text="$t('dataset.forkModal.forkDesc')"></span>
+				</v-card-text>
+
+				<v-card-actions>
+					<v-spacer></v-spacer>
+
+					<v-btn color="primary" @click="fork()">
+						<v-icon left>mdi-directions-fork</v-icon>
+						{{$t('modal.fork')}}
+					</v-btn>
+
+					<v-btn @click="forkModal.visible = false">
+						{{$t('modal.cancel')}}
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
 		<v-tabs ref="tabs" show-arrows style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
 			<v-tab :to="'/dataset/' + id + '/settings'" exact>
 				<v-icon left>mdi-pencil-box-outline</v-icon>
@@ -16,6 +88,24 @@
 				<v-icon left>mdi-view-module</v-icon>
 				{{$t('dataset.view.title')}}
 			</v-tab>
+
+			<v-spacer></v-spacer>
+
+			<v-btn :disabled="isDeleted" @click="$comments.open(id, 'dataset')" class="mt-3 mr-4" text small>
+				<v-icon left>mdi-comment</v-icon>
+				{{$t('comment.btnTitle')}}
+				<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
+			</v-btn>
+
+			<v-btn :disabled="isDeleted" @click="openFork()" color="secondary" class="mt-3 mr-2" small>
+				<v-icon left>mdi-directions-fork</v-icon>
+				{{$t('modal.fork')}}
+			</v-btn>
+
+			<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3" small>
+				<v-icon left>mdi-publish</v-icon>
+				{{$t('modal.publish')}}
+			</v-btn>
 		</v-tabs>
 
 		<div v-if="isDeleted">
@@ -55,10 +145,28 @@
 			<v-btn :disabled="!dataHasChanged" @click="reset()" text>
 				{{$t('modal.cancel')}}
 			</v-btn>
+
 			<v-btn :disabled="isNew || isDeleted" @click="remove()" class="float-right" text color="error">
 				<v-icon :left="$vuetify.breakpoint.mdAndUp">mdi-delete</v-icon>
 				<span v-if="$vuetify.breakpoint.mdAndUp">{{$t('modal.delete')}}</span>
 			</v-btn>
+
+			<v-menu max-height="450" offset-y>
+				<template v-slot:activator="{ on }">
+					<v-btn :disabled="revisions.length === 0" class="float-right mr-4" v-on="on" text>
+						<v-icon :left="$vuetify.breakpoint.mdAndUp">mdi-history</v-icon>
+						<span v-if="$vuetify.breakpoint.mdAndUp">{{$t('revision.btnTitle')}}</span>
+						<v-icon right>mdi-chevron-up</v-icon>
+					</v-btn>
+				</template>
+				<v-list>
+					<v-list-item-group v-model="revisionOffset" color="primary">
+						<v-list-item v-for="(revision, index) in revisions" :key="index" @click="loadRevision(index)">
+							<v-list-item-title>{{ revision.data.modified_on }}</v-list-item-title>
+						</v-list-item>
+					</v-list-item-group>
+				</v-list>
+			</v-menu>
 		</v-card>
 	</v-sheet>
 </template>
@@ -71,6 +179,7 @@ import Settings from "./Dataset/Settings";
 import DatasetService from "../../services/DatasetService";
 import DeleteDialog from "../../components/DeleteDialog";
 import Dataset from "../../models/Dataset";
+import DeploymentService from "../../services/DeploymentService";
 // import {VSkeletonLoader} from "vuetify";
 
 let jsonJobTimeout = null;
@@ -82,6 +191,7 @@ export default Vue.extend({
 	mounted() {
 		this.initializeValues();
 		this.load();
+		this.loadRevisions();
 		this.updateTab();
 
 		this.$shortcuts.add(this.$t('shortcuts.dataset.save.title'), this.$t('shortcuts.dataset.save.desc'), 'dataset', ['ControlLeft', 'KeyS'], this.shortcutSave);
@@ -135,17 +245,33 @@ export default Vue.extend({
 			this.originalDatasetJson = JSON.stringify(this.originalDataset);
 		},
 
-		load() {
+		loadRevision(offset) {
+
+			this.load(offset);
+		},
+
+		loadRevisions() {
+
+			DatasetService.getRevisions.bind(this)(this.id)
+					.then(response => {
+						this.revisions = response.data.reverse();
+						this.revisionOffset = 0;
+					})
+					.catch(error => this.$handleError(this, error))
+					.finally(() => this.$root.isLoading = false);
+		},
+
+		load(revisionOffset) {
 
 			this.formErrors = [];
 
 			if (!this.isNew) {
 				this.$root.isLoading = true;
-				DatasetService.get.bind(this)(this.id, true)
+				DatasetService.get.bind(this)(this.id, true, revisionOffset)
 					.then(response => {
 						this.id = response.data.id;
 						this.isNew = false;
-						this.dataset = Object.assign(new Dataset(), response.data);
+						this.dataset = new Dataset(response.data);
 						this.updateOriginalData();
 						this.updateTab();
 						this.compareJsonJob(this.dataset, 0);
@@ -186,6 +312,40 @@ export default Vue.extend({
 			this.$emit('cancel');
 		},
 
+		openFork() {
+			this.forkModal.visible = true;
+		},
+
+		fork() {
+
+			const revision = this.revisions[this.revisionOffset];
+
+			DatasetService.fork.bind(this)(revision.id)
+					.then(response => {
+						this.forkModal.visible = false;
+						this.$router.push('/dataset/' + response.data.id);
+						this.forkModal.forked = true;
+						this.$root.$emit('DATASET_UPDATE');
+					})
+					.catch(error => this.$handleError(this, error))
+					.finally(() => this.$root.isLoading = false);
+		},
+
+		openPublish() {
+			this.publishModal.visible = true;
+		},
+
+		publish(version, changelog) {
+
+			DeploymentService.fork.bind(this)('dataset', this.id, version, changelog)
+					.then(response => {
+						this.publishModal.visible = false;
+						this.publishModal.publied = true;
+					})
+					.catch(error => this.$handleError(this, error))
+					.finally(() => this.$root.isLoading = false);
+		},
+
 		initializeValues() {
 			this.dataset = new Dataset();
 		},
@@ -201,6 +361,7 @@ export default Vue.extend({
 					this.updateOriginalData();
 					this.transactions.splice(0, this.transactions.length);
 					this.$root.isSaved = true;
+					this.loadRevisions();
 					this.updateTab();
 				})
 				.catch(error => this.$handleError(this, error))
@@ -245,6 +406,17 @@ export default Vue.extend({
 
 	data() {
 		return {
+			forkModal: {
+				visible: false,
+				forked: false,
+			},
+			publishModal: {
+				visible: false,
+				publied: false,
+			},
+			revisions: [],
+			revisionOffset: 0,
+			commentCount: 0,
 			transactions: [],
 			worker: null,
 			id: this.$route.params.id,

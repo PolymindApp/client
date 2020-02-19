@@ -134,9 +134,7 @@
 										<template v-slot:activator>
 											<v-list-item-title v-text="$t('toolbar.search.components')"></v-list-item-title>
 											<v-list-item-action>
-												<v-badge color="primary">
-													{{searchResults.components.length}}
-												</v-badge>
+												<v-badge color="primary" inline :content="searchResults.components.length"></v-badge>
 											</v-list-item-action>
 										</template>
 
@@ -161,9 +159,7 @@
 										<template v-slot:activator>
 											<v-list-item-title v-text="$t('toolbar.search.users')"></v-list-item-title>
 											<v-list-item-action>
-												<v-badge color="primary">
-													{{searchResults.users.length}}
-												</v-badge>
+												<v-badge color="primary" inline :content="searchResults.users.length"></v-badge>
 											</v-list-item-action>
 										</template>
 
@@ -188,9 +184,7 @@
 										<template v-slot:activator>
 											<v-list-item-title v-text="$t('toolbar.search.pages')"></v-list-item-title>
 											<v-list-item-action>
-												<v-badge dark color="primary">
-													{{ searchResults.pages.length }}
-												</v-badge>
+												<v-badge color="primary" inline :content="searchResults.pages.length"></v-badge>
 											</v-list-item-action>
 										</template>
 

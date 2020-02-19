@@ -1,3 +1,5 @@
+import DatasetCell from "./DatasetCell";
+
 export default class Dataset {
 
 	constructor(props) {
@@ -25,5 +27,22 @@ return {
 			columns: [],
 			rows: [],
 		}, props);
+
+		this.prebuild();
+	}
+
+	/**
+	 * Make sure all cells are existing
+	 */
+	prebuild() {
+
+		this.rows.forEach(row => {
+			const columnDiff = this.columns.length - row.cells.length;
+			if (columnDiff !== 0) {
+				for (let i = 0; i < columnDiff; i++) {
+					row.cells.push(new DatasetCell());
+				}
+			}
+		});
 	}
 }

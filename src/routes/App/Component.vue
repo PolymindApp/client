@@ -243,8 +243,6 @@ export default Vue.extend({
 
             ComponentService.getRevisions.bind(this)(this.id)
                 .then(response => {
-                    // this.revisions = response.data;
-                    // this.revisionOffset = response.data.length - 1;
                     this.revisions = response.data.reverse();
                     this.revisionOffset = 0;
 				})

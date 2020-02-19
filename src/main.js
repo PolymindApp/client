@@ -15,6 +15,7 @@ import VueAnalytics from 'vue-analytics';
 import VueCordova from 'vue-cordova';
 import "./styles/index.scss";
 import './filters';
+import './loader';
 import DirectusSDK from "@directus/sdk-js";
 import ab from 'autobahn';
 
@@ -144,7 +145,7 @@ const i18n = new VueI18n({
 			server.request('POST', '/custom/user/update-ws-token', undefined, {
 				sessionId: session.id
 			})
-				.then(() => callback)
+				.then(() => {callback()})
 				.catch(error => {
 					component = Issue;
 					routes = issueRoutes;
@@ -159,6 +160,7 @@ const i18n = new VueI18n({
 			router.push('/issue/ws');
 		};
 		conn.open();
+
 		Object.defineProperties(Vue.prototype, {
 			$ws: { value: conn }
 		});
