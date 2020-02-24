@@ -4,7 +4,7 @@
 			<v-chip v-if="currentValue === null" class="text-center pe-none" x-small>NULL</v-chip>
 			<span v-else v-text="currentValue"></span>
 		</slot>
-		<v-text-field v-else ref="input" type="date" v-model="editingValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
+		<v-text-field v-else ref="input" type="text" v-model="editingValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
 	</div>
 </template>
 
@@ -13,7 +13,7 @@
 
     export default Vue.extend({
 
-        name: 'DataDate',
+        name: 'DataText',
 
         props: {
             value: {
@@ -37,12 +37,12 @@
 
         methods: {
 
-			edit() {
+            edit() {
 				this.focus();
 			},
 
 			blur() {
-				this.isEditing = false;
+                this.isEditing = false;
 				this.$emit('update', this.editingValue);
 				this.editingValue = null;
 			},
@@ -62,8 +62,33 @@
 				});
 			},
 
+			handleKeyDown(event) {
+            	switch (event.code) {
+            		case 'ArrowUp':
+            		case 'ArrowRight':
+            		case 'ArrowBottom':
+            		case 'ArrowLeft':
+            			event.stopPropagation();
+            			break;
+            		case 'Tab':
+						this.blur();
+						this.$emit('tab', event);
+						event.stopPropagation();
+            			break;
+				}
+			},
+
+			handleKeyUp(event) {
+				switch (event.code) {
+					case 'Enter':
+					case 'Escape':
+						this.blur();
+						break;
+				}
+			},
+
 			clear() {
-				this.currentValue = null;
+                this.currentValue = null;
 			},
 
 			reset() {
@@ -82,8 +107,8 @@
 				}
 			},
 
-			canEdit() {
-				return !this.readonly && this.isEditing;
+            canEdit() {
+                return !this.readonly && this.isEditing;
 			},
 
 			canReset() {
@@ -94,8 +119,8 @@
         data() {
             return {
 				editingValue: null,
-				isEditing: false,
-				originalValue: this.value,
+                isEditing: false,
+                originalValue: this.value,
 			};
         },
     });

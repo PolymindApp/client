@@ -10,6 +10,9 @@
 .auto-select {
   user-select: auto;
 }
+.pe-none {
+  pointer-events: none;
+}
 .gradient-overlay {
 	 position: absolute;
 	 top: 0;

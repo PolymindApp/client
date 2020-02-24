@@ -29,6 +29,7 @@
 	},
 	"dependencies": {
 		"@directus/sdk-js": "^5.3.4",
+		"@mdi/font": "^4.9.95",
 		"autobahn": "^19.12.1",
 		"cordova": "^8.1.2",
 		"cordova-android": "^8.0.0",
@@ -40,6 +41,7 @@
 		"object-assign-deep": "^0.4.0",
 		"papaparse": "^5.1.0",
 		"register-service-worker": "^1.6.2",
+		"roboto-fontface": "^0.10.0",
 		"simple-web-worker": "^1.2.0",
 		"tiptap": "^1.25.0",
 		"tiptap-extensions": "^1.27.0",

@@ -1,8 +1,10 @@
 <template>
-	<div>
-		<v-chip v-if="!canEdit && currentValue === null" class="text-center" x-small>NULL</v-chip>
-		<span v-if="!canEdit" v-text="selectedValue.text"></span>
-		<v-select v-else ref="input" :items="items" type="text" v-model="currentValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
+	<div class="w-100">
+		<slot name="read" v-if="!canEdit">
+			<v-chip v-if="currentValue === null" class="text-center pe-none" x-small>NULL</v-chip>
+			<span v-else v-text="formattedValue"></span>
+		</slot>
+		<v-select v-else ref="input" :items="items" v-model="currentValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 my-n1 pa-0" dense hide-details />
 	</div>
 </template>
 
@@ -19,7 +21,7 @@
             },
             items: {
             	type: Array,
-                default: [],
+                default: () => [],
             },
             readonly: {
                 type: Boolean,
@@ -45,7 +47,7 @@
 
 			blur() {
                 this.isEditing = false;
-                this.$emit('input', this.currentValue);
+				this.$emit('update', this.currentValue);
 			},
 
 			focus() {
@@ -57,8 +59,8 @@
 						return;
 					}
 
+					this.$refs.input.activateMenu();
 					this.$refs.input.focus();
-					this.$refs.input.$el.querySelector('input').select();
 				});
 			},
 
@@ -83,7 +85,19 @@
 
 			selectedValue() {
             	return this.items.find(item => item.value === this.currentValue);
-			}
+			},
+
+			formattedValue() {
+            	if (this.items.length > 0) {
+            		if (typeof this.items[0] !== 'string') {
+            			return this.selectedValue.text;
+					}
+
+					return this.items.find(item => item === this.currentValue);
+				}
+
+            	return this.currentValue;
+			},
 		},
 
         data() {

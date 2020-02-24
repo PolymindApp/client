@@ -13,6 +13,8 @@ import messages from './locales';
 import VueCookies from 'vue-cookies';
 import VueAnalytics from 'vue-analytics';
 import VueCordova from 'vue-cordova';
+import 'roboto-fontface/css/roboto/sass/roboto-fontface.scss';
+import '@mdi/font/scss/materialdesignicons.scss';
 import "./styles/index.scss";
 import './filters';
 import './loader';
@@ -30,6 +32,9 @@ const server = new DirectusSDK(directusConfig);
 
 Object.defineProperties(Vue.prototype, {
 	$server: { value: server }
+});
+Object.defineProperties(Vue.prototype, {
+	$bus: { value: new Vue() }
 });
 
 Vue.config.productionTip = false;

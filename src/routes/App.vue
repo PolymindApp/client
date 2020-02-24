@@ -3,6 +3,15 @@
 		<v-app>
 			<ErrorDialog :response="$root.error"></ErrorDialog>
 
+			<!-- COPIED TO CLIPBOARD -->
+			<v-snackbar v-model="$root.copiedToClipboard">
+				<v-icon class="white--text" left>mdi-check</v-icon>
+				{{$t('snackbar.copiedToClipboard')}}
+				<v-btn text @click="$root.copiedToClipboard = false">
+					{{$t('modal.close')}}
+				</v-btn>
+			</v-snackbar>
+
 			<!-- IS SAVED -->
 			<v-snackbar color="success" v-model="$root.isSaved">
 				<v-icon class="white--text" left>mdi-check</v-icon>

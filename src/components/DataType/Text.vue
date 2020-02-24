@@ -1,8 +1,10 @@
 <template>
 	<div class="w-100">
-		<v-chip v-if="!canEdit && currentValue === null" class="text-center" x-small>NULL</v-chip>
-		<span v-if="!canEdit" v-text="currentValue"></span>
-		<v-text-field v-else ref="input" type="text" v-model="currentValue" @keyup="handleKeyUp" @keydown="handleKeyDown" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
+		<slot name="read" v-if="!canEdit">
+			<v-chip v-if="currentValue === null" class="text-center pe-none" x-small>NULL</v-chip>
+			<span v-else v-text="currentValue"></span>
+		</slot>
+		<v-text-field v-else ref="input" type="text" v-model="editingValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
 	</div>
 </template>
 
@@ -41,11 +43,14 @@
 
 			blur() {
                 this.isEditing = false;
+				this.$emit('update', this.editingValue);
+				this.editingValue = null;
 			},
 
 			focus() {
 
 				this.isEditing = true;
+				this.editingValue = this.value;
 
 				this.$nextTick(() => {
 					if (!this.$refs.input) {
@@ -55,20 +60,6 @@
 					this.$refs.input.focus();
 					this.$refs.input.$el.querySelector('input').select();
 				});
-			},
-
-			handleKeyDown(event) {
-            	if (event.code === 'Tab') {
-            		setTimeout(() => { // Let time for blur event to complete
-            			this.$emit('tab', event);
-					});
-				}
-			},
-
-			handleKeyUp(event) {
-            	if (event.code === 'Enter') {
-            		this.blur();
-				}
 			},
 
 			clear() {
@@ -87,7 +78,7 @@
 					return this.value;
 				},
 				set(val) {
-					this.$emit('input', val)
+					// this.$emit('input', val);
 				}
 			},
 
@@ -102,6 +93,7 @@
 
         data() {
             return {
+				editingValue: null,
                 isEditing: false,
                 originalValue: this.value,
 			};

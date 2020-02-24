@@ -478,6 +478,7 @@ const literals = {
 				delete: 'Effacer la donnée',
 				restore: 'Restorer la donnée',
 				edit: 'Modifier la donnée',
+				selectAll: 'Tout sélectionner',
 			},
 			status: 'Statut',
 			created_by: 'Créé par',
@@ -513,6 +514,7 @@ const literals = {
 					audio: 'Audio',
 					file: 'Fichier',
 					image: 'Image',
+					wysiwyg: 'WYSIWYG',
 				},
 				clearColumn: 'Nettoyer la colonne',
 				clearColumns: 'Nettoyer les colonnes ({total})',
@@ -521,6 +523,9 @@ const literals = {
 				comment: 'Commenter',
 				clearCell: 'Nettoyer la cellule',
 				clearCells: 'Nettoyer les cellules ({total})',
+				copy: 'Copier',
+				cut: 'Couper',
+				paste: 'Coller',
 			},
 			modal: {
 				copy: {
@@ -783,9 +788,11 @@ const literals = {
 		desc: 'Êtes-vous certain de vouloir procéder ?',
 	},
 	snackbar: {
+		copiedToClipboard: 'Copier dans le presse-papier !',
 		saved: 'Sauvegardé avec succès !',
 		deleted: 'Effacé avec succès !',
 		forked: 'Bifurqué avec succès !',
+		allSelected: 'Tout sélectioné !',
 	},
 	deck: {
 		view: 'Voir',
@@ -946,6 +953,8 @@ const literals = {
 		},
 		playAudioTooltip: 'Reproduire',
 		stopAudioTooltip: 'Intérrompre',
+		playRecordingTooltip: 'Enregistrer',
+		stopRecordingTooltip: 'Intérrompre',
 	},
 	shortcuts: {
 		main: {

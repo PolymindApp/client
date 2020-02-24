@@ -26,7 +26,7 @@
 			<v-card>
 				<v-card-title>
 					<v-icon color="primary" slot="icon" size="36" left>mdi-publish</v-icon>
-					{{$t('dataset.source.publishModal.title')}}
+					{{$t('dataset.publishModal.title')}}
 				</v-card-title>
 
 				<v-card-text>
@@ -127,7 +127,7 @@
 			</v-tab-item>
 			<v-tab-item :value="'/dataset/' + id + '/data'" class="fill-height">
 				<div style="height: 0">
-					<Data :dataset.sync="dataset" :transactions.sync="transactions" :scrolling-ref="$refs.tabsItems" :form-errors="formErrors" @update:dataset="compareJsonJob" />
+					<Data ref="data" :dataset.sync="dataset" :original-dataset.sync="originalDataset" :scrolling-ref="$refs.tabsItems" :form-errors="formErrors" @update:dataset="compareJsonJob" />
 				</div>
 			</v-tab-item>
 			<v-tab-item :value="'/dataset/' + id + '/view'" class="white fill-height">
@@ -307,7 +307,7 @@ export default Vue.extend({
 
 		reset() {
 			this.dataset = this.$deepClone(this.originalDataset);
-			this.transactions.splice(0, this.transactions.length);
+			// this.transactions.splice(0, this.transactions.length);
 			this.compareJsonJob(this.dataset, 0);
 			this.$emit('cancel');
 		},
@@ -352,14 +352,16 @@ export default Vue.extend({
 
 		save() {
 
+			const transactions = this.$refs.data.calculateTransactions();
+
 			this.formErrors = [];
 			this.$root.isLoading = true;
-			DatasetService.save.bind(this)(this.id !== 'new' ? this.id : null, this.dataset, this.transactions)
-				.then(response => {
-					this.id = response.data.id;
+			DatasetService.save.bind(this)(this.id !== 'new' ? this.id : null, this.dataset, transactions)
+				.then(([dataset, transactions] = response) => {
+					this.id = dataset.data.id;
 					this.isNew = false;
 					this.updateOriginalData();
-					this.transactions.splice(0, this.transactions.length);
+					// this.transactions.splice(0, this.transactions.length);
 					this.$root.isSaved = true;
 					this.loadRevisions();
 					this.updateTab();
@@ -400,7 +402,7 @@ export default Vue.extend({
 	computed: {
 
 		dataHasChanged() {
-			return this.datasetJson !== this.originalDatasetJson || this.transactions.length > 0;
+			return this.datasetJson !== this.originalDatasetJson;// || this.transactions.length > 0;
 		},
 	},
 
@@ -417,7 +419,6 @@ export default Vue.extend({
 			revisions: [],
 			revisionOffset: 0,
 			commentCount: 0,
-			transactions: [],
 			worker: null,
 			id: this.$route.params.id,
 			isNew: this.$route.params.id === 'new',
