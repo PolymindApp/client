@@ -4,25 +4,32 @@
 		<ContextualMenu :items="menuGroups[menu.group].items" :visible.sync="menu.visible" :position-x="menu.x" :position-y="menu.y" absolute offset-y />
 
 		<input ref="pasteInput" type="text" class="paste-input" @paste="handlePaste" />
-<!--		<div ref="dynamicStyle"></div>-->
+		<div ref="dynamicStyle"></div>
 
-<!--		<div v-if="false" class="optimisationDebug">-->
-<!--			<div class="row":style="{-->
-<!--			width: `calc(${dataset.rows[0].cells.length} * 5rem)`,-->
-<!--			height: `calc(2rem)`,-->
-<!--		}" :key="rowIdx" v-for="(row, rowIdx) in dataset.rows">-->
-<!--				<div class="cell" :key="columnIdx" v-for="(column, columnIdx) in dataset.columns" :style="{-->
-<!--				top: `calc(${rowIdx} * 2rem)`,-->
-<!--				left: `calc(${columnIdx} * 5rem)`,-->
-<!--			 }" :class="{-->
-<!--				cell: true,-->
-<!--				grow: true,-->
-<!--			}" @contextmenu.stop.prevent="openMenu($event, 'cell', 'cell', rowIdx, columnIdx)" @dblclick.stop="editCell(rowIdx, columnIdx)" @mousedown="handleMouseDown($event, 'cell', rowIdx, columnIdx)" @mouseenter="handleMouseEnter($event, 'cell', rowIdx, columnIdx)" @mouseup="handleMouseUp($event, 'cell', rowIdx, columnIdx)" :ref="'td_' + rowIdx + '_' + columnIdx">-->
-<!--					test-->
-<!--					&lt;!&ndash;				<DataType :ref="'cell_' + rowIdx + '_' + columnIdx " :type="column.type" :items="dataset.columns[columnIdx].list_items" :value="row.cells[columnIdx][column.type]" :id="row.cells[columnIdx].id" collection="dataset_cell" @update="handleDataUpdate($event, (value) => { row.cells[columnIdx][column.type] = value })" @blur="handleBlurDataType" @tab="tabCell" />&ndash;&gt;-->
-<!--				</div>-->
-<!--			</div>-->
-<!--		</div>-->
+		<div v-if="false" class="optimisationDebug w-100 no-select">
+			<div class="row d-flex no-gutters" :key="rowIdx" v-for="(row, rowIdx) in dataset.rows">
+				<div class="cell grow" :key="columnIdx" v-for="(column, columnIdx) in dataset.columns"
+					 :ref="'td_' + rowIdx + '_' + columnIdx"
+					 @contextmenu.stop.prevent="openMenu($event, 'cell', 'cell', rowIdx, columnIdx)"
+					 @dblclick.stop="editCell(rowIdx, columnIdx)"
+					 @mousedown="handleMouseDown($event, 'cell', rowIdx, columnIdx)"
+					 @mouseenter="handleMouseEnter($event, 'cell', rowIdx, columnIdx)"
+					 @mouseup="handleMouseUp($event, 'cell', rowIdx, columnIdx)"
+				>
+<!--					<div v-if="highlightedCells[rowIdx + '_' + columnIdx]" :class="{-->
+<!--							'highlight-selector': true,-->
+<!--							'top': highlightedCells[rowIdx + '_' + columnIdx].top,-->
+<!--							'right': highlightedCells[rowIdx + '_' + columnIdx].right,-->
+<!--							'bottom': highlightedCells[rowIdx + '_' + columnIdx].bottom,-->
+<!--							'left': highlightedCells[rowIdx + '_' + columnIdx].left,-->
+<!--						}">-->
+<!--						<div class="highlight-extender" @mousedown.stop="handleMouseDown($event, 'cell', rowIdx, columnIdx, true)" v-if="lastSelected.rowIdx === rowIdx && lastSelected.columnIdx === columnIdx"></div>-->
+<!--					</div>-->
+
+					<DataType :ref="'cell_' + rowIdx + '_' + columnIdx " :type="column.type" :items="dataset.columns[columnIdx].list_items" :value="row.cells[columnIdx][column.type]" :id="row.cells[columnIdx].id" collection="dataset_cell" @update="handleDataUpdate($event, (value) => { row.cells[columnIdx][column.type] = value })" @blur="handleBlurDataType" @tab="tabCell" />
+				</div>
+			</div>
+		</div>
 
 
 		<!-- ALL SELECTED -->
@@ -34,12 +41,24 @@
 			</v-btn>
 		</v-snackbar>
 
-		<div v-if="true" class="table-container" ref="container">
+		<div v-if="true" class="table-container white" ref="container">
 			<div class="move-handler" ref="moveHandler" v-show="dragState.enabled"></div>
 
+			<!-- HIGHLIGHTED -->
+			<div class="highlight-container">
+				<div :key="item.key" v-for="item in highlighted" :class="item.classes" :style="item.style">
+					<div class="extender" @mousedown.stop="handleMouseDown($event, item.type, item.rowIdx, item.columnIdx, true)" v-if="item.isLast" />
+					<div class="outline" v-if="item.isLast" />
+				</div>
+			</div>
+			<div class="highlight-container-background">
+				<div :key="item.key" v-for="item in highlighted" :style="item.style"></div>
+			</div>
+
 			<table ref="table" :class="{
-				'table w-100 white': true,
+				'table w-100': true,
 				'dragging': dragState.enabled,
+				'highlighting': isHighlighting,
 				'animate': animate.swap || animate.move
 			}">
 				<thead ref="thead" :style="{
@@ -65,21 +84,11 @@
 						<v-icon v-else class="mx-2" small>mdi-blank</v-icon>
 					</th>
 					<th :ref="'column_' + columnIdx" @dblclick="editColumn(columnIdx)" @contextmenu.stop.prevent="openMenu($event, 'column', 'column', null, columnIdx)" @mousedown="handleMouseDown($event, 'column', undefined, columnIdx)" @mouseenter="handleMouseEnter($event, 'column', firstSelected.rowIdx, columnIdx)" @mouseup="handleMouseUp($event, 'column', firstSelected.rowIdx, columnIdx)" :class="{
-						grow: true,
-						highlighted: selectedColumns.indexOf(columnIdx) !== -1,
-						'last-highlighted': lastSelected.type === 'column' && lastSelected.columnIdx === columnIdx && selectedColumns.length !== 1,
 						'has-cell': selectedCellsColumns.indexOf(columnIdx) !== -1,
 						droppable: dragState.dropIndex === columnIdx && dragState.type === 'column',
 					}" :style="{
 						width: 'calc(28rem - ' + (100 / dataset.columns.length) + '%)',
 					}" :key="columnIdx" v-for="(column, columnIdx) in dataset.columns">
-
-						<div v-if="highlightedColumns[columnIdx]" :class="{
-							'highlight-selector top': true,
-							left: highlightedColumns[columnIdx].left,
-							right: highlightedColumns[columnIdx].right,
-						}"></div>
-
 						<div class="d-flex align-center">
 							<div class="d-flex align-center" style="flex: 1">
 								<DataType :class="{ 'w-100': editingColumnName === columnIdx }" :ref="'column_input_' + columnIdx" type="text" :value="column.name" @blur="handleBlurDataType" @tab="tabColumn" @update="handleDataUpdate($event, (value) => { column.name = value; })">
@@ -120,19 +129,12 @@
 				</thead>
 				<tbody ref="tbody">
 				<tr :ref="'row_' + rowIdx" :class="{
-					highlighted: selectedRows.indexOf(rowIdx) !== -1,
-					'last-highlighted': lastSelected.type === 'row' && lastSelected.rowIdx === rowIdx && selectedRows.length !== 1,
 					droppable: dragState.dropIndex === rowIdx && dragState.type === 'row',
 				}" :key="rowIdx" v-for="(row, rowIdx) in dataset.rows">
 					<th @contextmenu.stop.prevent="openMenu($event, 'row', 'row', rowIdx, null)" @mousedown="handleMouseDown($event, 'row', rowIdx)" @mouseenter="handleMouseEnter($event, 'row', rowIdx, firstSelected.columnIdx)" @mouseup="handleMouseUp($event, 'row', rowIdx, firstSelected.columnIdx)" :class="{
 						'default shrink text-center': true,
 						'has-cell': selectedCellsRows.indexOf(rowIdx) !== -1,
 					}">
-						<div v-if="highlightedRows[rowIdx]" :class="{
-							'highlight-selector left': true,
-							'top': highlightedRows[rowIdx].top,
-							'bottom': highlightedRows[rowIdx].bottom,
-						}"></div>
 						<span v-if="!isRowValid(rowIdx)">
 							<v-icon color="warning" small>mdi-alert</v-icon>
 						</span>
@@ -142,56 +144,87 @@
 						</span>
 					</th>
 					<td @contextmenu.stop.prevent="openMenu($event, 'row', 'row', rowIdx, null)" class="shrink default" @dblclick.stop="editStatus(rowIdx)" @mousedown="handleMouseDown($event, 'row', rowIdx)" @mouseenter="handleMouseEnter($event, 'row', rowIdx)" @mouseup="handleMouseUp($event, 'row', rowIdx)">
-						<div v-if="highlightedRows[rowIdx]" :class="{
-							'highlight-selector': true,
-							'top': highlightedRows[rowIdx].top,
-							'bottom': highlightedRows[rowIdx].bottom,
-						}"></div>
 						<DataType :ref="'row_status_' + rowIdx" type="list" :items="statuses" :value="row.status" @update="row.status = $event" />
 					</td>
 					<td @contextmenu.stop.prevent="openMenu($event, 'cell', 'cell', rowIdx, columnIdx)" @dblclick.stop="editCell(rowIdx, columnIdx)" @mousedown="handleMouseDown($event, 'cell', rowIdx, columnIdx)" @mouseenter="handleMouseEnter($event, 'cell', rowIdx, columnIdx)" @mouseup="handleMouseUp($event, 'cell', rowIdx, columnIdx)" :ref="'td_' + rowIdx + '_' + columnIdx" :class="{
-						grow: true,
 						droppable: dragState.dropIndex === columnIdx && dragState.type === 'column',
-						'last-highlighted': lastSelected.type === 'cell' && (lastSelected.rowIdx === rowIdx && lastSelected.columnIdx === columnIdx && selectedCells.length !== 1),
 						invalid: !isCellValid(rowIdx, columnIdx),
-						highlighted: selectedCells.indexOf(rowIdx + '_' + columnIdx) !== -1 || selectedColumns.indexOf(columnIdx) !== -1
 					}" :key="columnIdx" v-for="(column, columnIdx) in dataset.columns">
-						<div v-if="highlightedCells[rowIdx + '_' + columnIdx]" :class="{
-							'highlight-selector': true,
-							'top': highlightedCells[rowIdx + '_' + columnIdx].top,
-							'right': highlightedCells[rowIdx + '_' + columnIdx].right,
-							'bottom': highlightedCells[rowIdx + '_' + columnIdx].bottom,
-							'left': highlightedCells[rowIdx + '_' + columnIdx].left,
-						}">
-							<div class="highlight-extender" @mousedown.stop="handleMouseDown($event, 'cell', rowIdx, columnIdx, true)" v-if="lastSelected.rowIdx === rowIdx && lastSelected.columnIdx === columnIdx"></div>
-						</div>
 						<DataType :ref="'cell_' + rowIdx + '_' + columnIdx " :type="column.type" :items="dataset.columns[columnIdx].list_items" :value="row.cells[columnIdx][column.type]" :id="row.cells[columnIdx].id" collection="dataset_cell" @update="handleDataUpdate($event, (value) => { row.cells[columnIdx][column.type] = value })" @blur="handleBlurDataType" @tab="tabCell" />
 					</td>
 					<td @contextmenu.stop.prevent="openMenu($event, 'row', 'row', rowIdx, null)" class="default shrink text-no-wrap" @mousedown="handleMouseDown($event, 'row', rowIdx)" @mouseenter="handleMouseEnter($event, 'row', rowIdx)" @mouseup="handleMouseUp($event, 'row', rowIdx)">
-						<div v-if="highlightedRows[rowIdx]" :class="{
-							'highlight-selector': true,
-							'top': highlightedRows[rowIdx].top,
-							'bottom': highlightedRows[rowIdx].bottom,
-						}"></div>
 						<div class="d-flex align-center">
 							<UserAvatar :user="row.created_by" :size="24" />
 							<div class="text-truncate ml-1" v-text="$options.filters.userScreenName(row.created_by)"></div>
 						</div>
 					</td>
 					<td @contextmenu.stop.prevent="openMenu($event, 'row', 'row', rowIdx, null)" class="default shrink text-no-wrap" @mousedown="handleMouseDown($event, 'row', rowIdx)" @mouseenter="handleMouseEnter($event, 'row', rowIdx)" @mouseup="handleMouseUp($event, 'row', rowIdx)">
-						<div v-if="highlightedRows[rowIdx]" :class="{
-							'highlight-selector right': true,
-							'top': highlightedRows[rowIdx].top,
-							'bottom': highlightedRows[rowIdx].bottom,
-						}">
-							<div class="highlight-extender" @mousedown.stop="handleMouseDown($event, 'row', rowIdx, undefined, true)" v-if="selected.row.last === rowIdx"></div>
-						</div>
 						<DataType type="date" v-model="row.created_on" @input="$emit('update:dataset', dataset)" />
 					</td>
 				</tr>
 				</tbody>
 			</table>
 		</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+		<div v-if="false" class="table-container" ref="container">
+			<div class="move-handler" ref="moveHandler" v-if="dragState.enabled"></div>
+
+			<table ref="table" class="table w-100 white">
+				<tbody ref="tbody">
+					<tr :ref="'row_' + rowIdx" :key="rowIdx" v-for="(row, rowIdx) in dataset.rows">
+						<th>
+							<span v-if="!isRowValid(rowIdx)">
+								<v-icon color="warning" small>mdi-alert</v-icon>
+							</span>
+							<span v-else-if="row.id" v-text="rowIdx + 1"></span>
+							<span v-else>
+								<v-icon color="primary" small>mdi-plus-circle</v-icon>
+							</span>
+						</th>
+						<td>
+
+						</td>
+						<td @mousedown="handleMouseDown($event, 'cell', rowIdx, columnIdx)"
+							@mouseenter="handleMouseEnter($event, 'cell', rowIdx, columnIdx)"
+							@mouseup="handleMouseUp($event, 'cell', rowIdx, columnIdx)"
+								:key="columnIdx" v-for="(column, columnIdx) in dataset.columns">
+	test
+						</td>
+						<td>
+
+						</td>
+						<td>
+
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		<div class="pa-2">
 			<v-row no-gutters>
@@ -213,6 +246,7 @@
 					<ul>
 						<li>ESC => close comment panel</li>
 						<li>search</li>
+						<li>multiple type column applyer</li>
 						<li>import/export file</li>
 						<li>multiselect typing</li>
 						<li>copy-paste</li>
@@ -247,7 +281,7 @@
 				<v-col cols="3">
 					<strong>Debug:</strong>
 					<ul>
-						<li v-if="dataset.rows[0]">
+						<li>
 							<strong>Cells:</strong>
 							{{ dataset.rows.length * (dataset.rows[0].cells.length + 3) }} total
 							/ {{ dataset.rows.length * (dataset.rows[0].cells.length) }} editables
@@ -275,7 +309,6 @@
 	import Vue from 'vue';
 	import DataType from "../../../components/DataType";
 	import UserAvatar from "../../../components/UserAvatar";
-	import Dataset from "../../../models/Dataset";
 	import DatasetColumn from "../../../models/DatasetColumn";
 	import DatasetRow from "../../../models/DatasetRow";
 	import DatasetCell from "../../../models/DatasetCell";
@@ -287,23 +320,7 @@
 
 	export default Vue.extend({
 
-		props: {
-			dataset: {
-				type: Object,
-				default: new Dataset(),
-			},
-			originalDataset: {
-				type: Object,
-				default: new Dataset(),
-			},
-			formErrors: {
-				type: Array,
-				default: (() => []),
-			},
-			scrollingRef: {
-
-			},
-		},
+		props: ['dataset', 'originalDataset', 'formErrors', 'scrollingRef'],
 
 		components: { DataType, UserAvatar, ContextualMenu },
 
@@ -461,14 +478,7 @@
 			},
 
 			handleDragMove(event) {
-
-				if(this.dragState.lastAnimationFrame) {
-					cancelAnimationFrame(this.dragState.lastAnimationFrame);
-				}
-
-				this.dragState.lastAnimationFrame = window.requestAnimationFrame(() => {
-					this.applyDragState(event);
-				});
+				this.applyDragState(event);
 			},
 
 			handleDrop(event) {
@@ -496,7 +506,7 @@
 
 				Object.assign(this.dragState, {
 					enabled: false, dropIndex: null, type: null,
-					rowIdx: null, columnIdx: null, lastAnimationFrame: null,
+					rowIdx: null, columnIdx: null,
 				});
 				this.applyDragState(event);
 
@@ -571,6 +581,8 @@
 					this.handleDragStart(event, type, rowIdx, columnIdx);
 				} else {
 
+					this.isHighlighting = true;
+
 					event.stopImmediatePropagation();
 
 					if (!event.shiftKey && !extend) {
@@ -595,18 +607,11 @@
 				}
 
 				if (this.firstSelected.type === type) {
-
-					if(this.dragState.lastAnimationFrame) {
-						cancelAnimationFrame(this.dragState.lastAnimationFrame);
-					}
-
-					this.dragState.lastAnimationFrame = window.requestAnimationFrame(() => {
-						Object.assign(this.lastSelected, {
-							type, rowIdx, columnIdx,
-						});
-
-						this.syncSelection(event, this.lastSelected);
+					Object.assign(this.lastSelected, {
+						type, rowIdx, columnIdx,
 					});
+					//
+					this.syncSelection(event, this.lastSelected);
 				}
 			},
 
@@ -619,6 +624,8 @@
 				if (!this.dragState.enabled) {
 					event.stopImmediatePropagation();
 				}
+
+				this.isHighlighting = false;
 
 				if (this.firstSelected.type === type) {
 					Object.assign(this.lastSelected, {
@@ -1107,53 +1114,78 @@
 
 			syncHighlighter() {
 
-				this.highlightedCells = {};
+				this.highlighted = {};
+
 				this.selectedCells.forEach(cell => {
 					const splitted = cell.split('_');
 					const rowIdx = parseInt(splitted[0]);
 					const columnIdx = parseInt(splitted[1]);
-					this.highlightedCells[cell] = {
-						top: this.selectedCells.indexOf((rowIdx - 1) + '_' + columnIdx) === -1,
-						right: this.selectedCells.indexOf(rowIdx + '_' + (columnIdx + 1)) === -1,
-						bottom: this.selectedCells.indexOf((rowIdx + 1) + '_' + columnIdx) === -1,
-						left: this.selectedCells.indexOf(rowIdx + '_' + (columnIdx - 1)) === -1,
+					const ref = this.$refs['td_' + cell][0];
+
+					this.highlighted['cell_' + cell] = {
+						key: cell,
+						type: 'cell',
+						rowIdx,
+						columnIdx,
+						isLast: this.lastSelected.rowIdx === rowIdx && this.lastSelected.columnIdx === columnIdx,
+						classes: {
+							top: this.selectedCells.indexOf((rowIdx - 1) + '_' + columnIdx) === -1,
+							right: this.selectedCells.indexOf(rowIdx + '_' + (columnIdx + 1)) === -1,
+							bottom: this.selectedCells.indexOf((rowIdx + 1) + '_' + columnIdx) === -1,
+							left: this.selectedCells.indexOf(rowIdx + '_' + (columnIdx - 1)) === -1,
+						},
+						style: {
+							width: ref.offsetWidth + 'px',
+							height: ref.offsetHeight + 'px',
+							top: ref.offsetTop + 'px',
+							left: ref.offsetLeft + 'px',
+						}
 					};
 				});
 
-				this.highlightedColumns = {};
 				this.selectedColumns.forEach(columnIdx => {
-					this.highlightedColumns[columnIdx] = {
-						left: this.selectedColumns.indexOf(columnIdx - 1) === -1,
-						right: this.selectedColumns.indexOf(columnIdx + 1) === -1,
-					};
-
-					// Highlight all cells for that particular column
-					this.dataset.rows.forEach((row, rowIdx) => {
-						this.highlightedCells[rowIdx + '_' + columnIdx] = {
-							top: false,
-							right: this.selectedColumns.indexOf(columnIdx + 1) === -1,
-							bottom: rowIdx === this.dataset.rows.length - 1,
+					const ref = this.$refs['column_' + columnIdx][0];
+					const table = this.$refs.table;
+					this.highlighted['column_' + columnIdx] = {
+						key: columnIdx,
+						type: 'column',
+						columnIdx,
+						isLast: this.lastSelected.columnIdx === columnIdx,
+						classes: {
+							top: true,
 							left: this.selectedColumns.indexOf(columnIdx - 1) === -1,
-						};
-					});
+							bottom: true,
+							right: this.selectedColumns.indexOf(columnIdx + 1) === -1,
+						},
+						style: {
+							width: ref.offsetWidth + 'px',
+							height: table.offsetHeight + 'px',
+							top: ref.offsetTop + 'px',
+							left: ref.offsetLeft + 'px',
+						}
+					};
 				});
 
-				this.highlightedRows = {};
 				this.selectedRows.forEach(rowIdx => {
-					this.highlightedRows[rowIdx] = {
-						top: this.selectedRows.indexOf(rowIdx - 1) === -1,
-						bottom: this.selectedRows.indexOf(rowIdx + 1) === -1,
-					};
-
-					// Highlight all cells for that particular row
-					this.dataset.columns.forEach((column, columnIdx) => {
-						this.highlightedCells[rowIdx + '_' + columnIdx] = {
+					const ref = this.$refs['row_' + rowIdx][0];
+					this.highlighted['row_' + rowIdx] = {
+						key: rowIdx,
+						type: 'row',
+						rowIdx,
+						isLast: this.lastSelected.rowIdx === rowIdx,
+						classes: {
 							top: this.selectedRows.indexOf(rowIdx - 1) === -1,
-							right: false,
+							left: true,
 							bottom: this.selectedRows.indexOf(rowIdx + 1) === -1,
-							left: false,
-						};
-					});
+							right: true,
+						},
+						style: {
+							width: ref.offsetWidth + 'px',
+							height: ref.offsetHeight + 'px',
+							top: ref.offsetTop + 'px',
+							left: ref.offsetLeft + 'px',
+						}
+					};
 				});
 
 				const rowIndexes = this.selectedCells.map(selectedCell => { return parseInt(selectedCell.split('_')[0]); });
@@ -1638,7 +1670,12 @@
 				this.selectedCells = [rowIdx + '_' + columnIdx];
 			},
 
+			setSelectedColumnType(type = 'text') {
+				this.selectedColumns.forEach(columnIdx => this.setColumnType(columnIdx, type));
+			},
+
 			setColumnType(columnIdx, type = 'text') {
+
 				this.dataset.columns[columnIdx].type = type;
 
 				this.updateDataset();
@@ -1966,15 +2003,15 @@
 									});
 								} },
 							{ text: this.$t('dataset.data.columnMenu.type'), icon: 'mdi-widgets', disabled: () => this.menu.type !== 'column', childs: [
-									{ text: this.$t('dataset.data.columnMenu.types.text'), icon: 'mdi-cursor-text', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'text'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'text') },
-									{ text: this.$t('dataset.data.columnMenu.types.number'), icon: 'mdi-numeric-1-box-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'number'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'number') },
-									{ text: this.$t('dataset.data.columnMenu.types.date'), icon: 'mdi-calendar-month', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'date'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'date') },
-									{ text: this.$t('dataset.data.columnMenu.types.boolean'), icon: 'mdi-toggle-switch', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'boolean'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'boolean') },
-									{ text: this.$t('dataset.data.columnMenu.types.list'), icon: 'mdi-format-list-bulleted', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'list'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'list') },
-									{ text: this.$t('dataset.data.columnMenu.types.audio'), icon: 'mdi-file-music-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'audio'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'audio') },
-									{ text: this.$t('dataset.data.columnMenu.types.file'), icon: 'mdi-file-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'file'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'file') },
-									{ text: this.$t('dataset.data.columnMenu.types.image'), icon: 'mdi-file-image-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'image'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'image') },
-									{ text: this.$t('dataset.data.columnMenu.types.wysiwyg'), icon: 'mdi-format-textbox', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'wysiwyg'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'wysiwyg') },
+									{ text: this.$t('dataset.data.columnMenu.types.text'), icon: 'mdi-cursor-text', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'text'), disabled: () => this.menu.type !== 'column', click: (event) => this.setSelectedColumnType('text') },
+									{ text: this.$t('dataset.data.columnMenu.types.number'), icon: 'mdi-numeric-1-box-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'number'), disabled: () => this.menu.type !== 'column', click: (event) => this.setSelectedColumnType('number') },
+									{ text: this.$t('dataset.data.columnMenu.types.date'), icon: 'mdi-calendar-month', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'date'), disabled: () => this.menu.type !== 'column', click: (event) => this.setSelectedColumnType('date') },
+									{ text: this.$t('dataset.data.columnMenu.types.boolean'), icon: 'mdi-toggle-switch', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'boolean'), disabled: () => this.menu.type !== 'column', click: (event) => this.setSelectedColumnType('boolean') },
+									{ text: this.$t('dataset.data.columnMenu.types.list'), icon: 'mdi-format-list-bulleted', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'list'), disabled: () => this.menu.type !== 'column', click: (event) => this.setSelectedColumnType('list') },
+									{ text: this.$t('dataset.data.columnMenu.types.audio'), icon: 'mdi-file-music-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'audio'), disabled: () => this.menu.type !== 'column', click: (event) => this.setSelectedColumnType('audio') },
+									{ text: this.$t('dataset.data.columnMenu.types.file'), icon: 'mdi-file-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'file'), disabled: () => this.menu.type !== 'column', click: (event) => this.setSelectedColumnType('file') },
+									{ text: this.$t('dataset.data.columnMenu.types.image'), icon: 'mdi-file-image-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'image'), disabled: () => this.menu.type !== 'column', click: (event) => this.setSelectedColumnType('image') },
+									{ text: this.$t('dataset.data.columnMenu.types.wysiwyg'), icon: 'mdi-format-textbox', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'wysiwyg'), disabled: () => this.menu.type !== 'column', click: (event) => this.setSelectedColumnType('wysiwyg') },
 								] },
 							{},
 							{ text: this.$t('dataset.data.columnMenu.insertColumnLeft'), icon: 'mdi-table-column-plus-before', disabled: () => this.menu.type === 'row', click: (event) => this.insertColumn(this.lastSelected.columnIdx) },
@@ -2005,6 +2042,7 @@
 			return {
 				updateDatasetTimeout: null,
 				wasEnablingSelection: null,
+				isHighlighting: false,
 				isAllSelected: false,
 				isAllSelectedSnack: false,
 				sorting: {
@@ -2036,16 +2074,13 @@
 				selectedCells: [],
 				selectedCellsRows: [],
 				selectedCellsColumns: [],
-				highlightedRows: {},
-				highlightedColumns: {},
-				highlightedCells: {},
+				highlighted: {},
 				dragState: {
 					enabled: false,
 					dropIndex: null,
 					type: null,
 					rowIdx: null,
 					columnIdx: null,
-					lastAnimationFrame: null,
 				},
 				menu: {
 					visible: false,
@@ -2059,22 +2094,14 @@
 
 		watch: {
 
-			'dataset.rows': function(rows) {
+			'dataset.rows': function() {
 				this.doIsAllSelected();
 				this.updateRowSort();
-
-				if (rows.length === 0) {
-					this.insertRow(0);
-				}
 			},
 
-			'dataset.columns': function(columns) {
+			'dataset.columns': function() {
 				this.doIsAllSelected();
 				this.updateColumnSort();
-
-				if (columns.length === 0) {
-					this.insertColumn(0);
-				}
 			},
 
 			selectedRows: function(value) {
@@ -2103,8 +2130,9 @@
 	}
 
 	.optimisationDebug {
-		.row {
-			display: flex;
+
+		.cell {
+			position: relative;
 		}
 	}
 
@@ -2129,11 +2157,72 @@
 		}
 	}
 
+	.highlight-container-background {
+		position: absolute;
+		z-index: 0;
+
+		& > div {
+			background-color: rgba(181, 203, 239, 1);
+			position: absolute;
+		}
+	}
+
+	.highlight-container {
+
+		position: absolute;
+		z-index: 2;
+		pointer-events: none;
+
+		&  > div {
+			position: absolute;
+			top: -1px;
+			left: -1px;
+			width: calc(100% + 2px);
+			height: calc(100% + 2px);
+
+			&.top {
+				border-top: rgba(142, 176, 231, 1) solid 2px;
+			}
+			&.right {
+				border-right: rgba(142, 176, 231, 1) solid 2px;
+			}
+			&.bottom {
+				border-bottom: rgba(142, 176, 231, 1) solid 2px;
+			}
+			&.left {
+				border-left: rgba(142, 176, 231, 1) solid 2px;
+			}
+
+			.extender {
+				position: absolute;
+				bottom: -2px;
+				right: -2px;
+				width: 0.5rem;
+				height: 0.5rem;
+				background-color: rgba(142, 176, 231, 1);
+				pointer-events: auto;
+				cursor: nwse-resize;
+			}
+
+			.outline {
+				position: absolute;
+				outline: rgba(0, 0, 0, 0.5) dotted 3px;
+				z-index: 2;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+			}
+		}
+	}
+
 	.table {
 		table-layout: fixed;
 		border-collapse: collapse;
 		font-size: 0.8rem;
 		user-select: none;
+		position: relative;
+		z-index: 1;
 
 		&.animate {
 			tr, td, th {
@@ -2146,7 +2235,13 @@
 				cursor: grab;
 			}
 			td > * {
-				pointer-events: none;
+				pointer-events: none ;
+			}
+		}
+		&.highlighting {
+			th > *,
+			td > * {
+				pointer-events: none ;
 			}
 		}
 
@@ -2207,38 +2302,6 @@
 			position: relative;
 			z-index: 2;
 		}
-		.highlight-selector {
-			position: absolute;
-			z-index: 2;
-			top: -1px;
-			left: -1px;
-			width: calc(100% + 2px);
-			height: calc(100% + 2px);
-			pointer-events: none;
-
-			&.top {
-				border-top: rgba(142, 176, 231, 1) solid 2px;
-			}
-			&.right {
-				border-right: rgba(142, 176, 231, 1) solid 2px;
-			}
-			&.bottom {
-				border-bottom: rgba(142, 176, 231, 1) solid 2px;
-			}
-			&.left {
-				border-left: rgba(142, 176, 231, 1) solid 2px;
-			}
-			.highlight-extender {
-				position: absolute;
-				bottom: -2px;
-				right: -2px;
-				width: 0.5rem;
-				height: 0.5rem;
-				background-color: rgba(142, 176, 231, 1);
-				pointer-events: auto;
-				cursor: nwse-resize;
-			}
-		}
 
 		thead {
 
@@ -2248,26 +2311,7 @@
 			}
 		}
 
-		thead th.last-highlighted,
-		tbody tr.last-highlighted th,
-		td.last-highlighted {
-			position: relative;
-
-			&::after {
-				content: "";
-				pointer-events: none;
-				position: absolute;
-				outline: rgba(0, 0, 0, 0.5) dotted 3px;
-				outline-offset: -2px;
-				width: 100%;
-				height: 100% !important;
-				top: 0;
-				left: 0;
-				z-index: 2;
-			}
-		}
-
-		tr:not(.highlighted) {
+		tr {
 			th {
 				&:not(.default):not(.highlighted):hover {
 					background-color: #ddd;

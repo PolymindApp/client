@@ -84,10 +84,10 @@
 				<v-icon left>mdi-database-edit</v-icon>
 				{{$t('dataset.data.title')}}
 			</v-tab>
-			<v-tab :to="'/dataset/' + id + '/view'" exact>
-				<v-icon left>mdi-view-module</v-icon>
-				{{$t('dataset.view.title')}}
-			</v-tab>
+<!--			<v-tab :to="'/dataset/' + id + '/view'" exact>-->
+<!--				<v-icon left>mdi-view-module</v-icon>-->
+<!--				{{$t('dataset.view.title')}}-->
+<!--			</v-tab>-->
 
 			<v-spacer></v-spacer>
 
@@ -97,7 +97,7 @@
 				<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
 			</v-btn>
 
-			<v-btn :disabled="isDeleted" @click="openFork()" color="secondary" class="mt-3 mr-2" small>
+			<v-btn :disabled="isDeleted" @click="openFork()" color="grey darken-2 white--text" class="mt-3 mr-2" small>
 				<v-icon left>mdi-directions-fork</v-icon>
 				{{$t('modal.fork')}}
 			</v-btn>
@@ -120,9 +120,9 @@
 		</div>
 
 		<v-tabs-items ref="tabsItems" class="grey lighten-4" style="flex: 1; overflow: auto" v-model="tab">
-			<v-tab-item :value="'/dataset/' + id + '/settings'" class="white pa-4 fill-height">
+			<v-tab-item :value="'/dataset/' + id + '/settings'" class="fill-height">
 				<div style="height: 0">
-					<Settings :dataset.sync="dataset" :form-errors="formErrors" @update="updateTab" />
+					<Settings :dataset.sync="dataset" :form-errors="formErrors" @update:dataset="compareJsonJob($event, 0)" @update="updateTab" />
 				</div>
 			</v-tab-item>
 			<v-tab-item :value="'/dataset/' + id + '/data'" class="fill-height">
@@ -180,6 +180,9 @@ import DatasetService from "../../services/DatasetService";
 import DeleteDialog from "../../components/DeleteDialog";
 import Dataset from "../../models/Dataset";
 import DeploymentService from "../../services/DeploymentService";
+import DatasetColumn from "../../models/DatasetColumn";
+import DatasetRow from "../../models/DatasetRow";
+import DatasetCell from "../../models/DatasetCell";
 // import {VSkeletonLoader} from "vuetify";
 
 let jsonJobTimeout = null;
@@ -241,7 +244,7 @@ export default Vue.extend({
 		},
 
 		updateOriginalData() {
-			this.originalDataset = this.$deepClone(this.dataset);
+			this.originalDataset = new Dataset(this.$deepClone(this.dataset));
 			this.originalDatasetJson = JSON.stringify(this.originalDataset);
 		},
 
@@ -306,7 +309,7 @@ export default Vue.extend({
 		},
 
 		reset() {
-			this.dataset = this.$deepClone(this.originalDataset);
+			this.dataset = new Dataset(this.$deepClone(this.originalDataset));
 			// this.transactions.splice(0, this.transactions.length);
 			this.compareJsonJob(this.dataset, 0);
 			this.$emit('cancel');
@@ -347,7 +350,12 @@ export default Vue.extend({
 		},
 
 		initializeValues() {
-			this.dataset = new Dataset();
+			this.dataset = new Dataset({
+				columns: [ new DatasetColumn() ],
+				rows: [ new DatasetRow({
+					cells: [ new DatasetCell() ],
+				}) ],
+			});
 		},
 
 		save() {
@@ -425,10 +433,20 @@ export default Vue.extend({
 			isDeleted: false,
 			formErrors: [],
 			tab: '/dataset/new/edit',
-			originalDataset: {},
+			originalDataset: new Dataset({
+				columns: [ new DatasetColumn() ],
+				rows: [ new DatasetRow({
+					cells: [ new DatasetCell() ],
+				}) ],
+			}),
 			originalDatasetJson: null,
 			datasetJson: null,
-			dataset: {},
+			dataset: new Dataset({
+				columns: [ new DatasetColumn() ],
+				rows: [ new DatasetRow({
+					cells: [ new DatasetCell() ],
+				}) ],
+			}),
 		}
 	},
 

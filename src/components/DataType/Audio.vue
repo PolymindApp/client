@@ -1,5 +1,5 @@
 <template>
-	<div @mousedown.stop style="position: relative">
+	<div style="position: relative">
 		<template v-if="!canEdit">
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on }">

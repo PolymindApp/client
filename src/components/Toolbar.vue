@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="no-select">
 
 		<!-- NEW NOTIFICATION -->
 		<v-snackbar color="success"  v-model="newNotification">
@@ -69,141 +69,6 @@
 					<component :is="contextualComponent.component"></component>
 					<v-divider v-if="!collapse" inset vertical class="ml-8"></v-divider>
 				</template>
-
-				<!-- SHORTCUTS -->
-				<v-tooltip v-if="!collapse" bottom>
-					<template v-slot:activator="{ on }">
-						<v-btn :class="$vuetify.breakpoint.smAndUp ? 'ml-4' : null" @click="toggleShortcut()" v-on="on" icon>
-							<v-icon>mdi-keyboard</v-icon>
-						</v-btn>
-					</template>
-					<span>{{$t('toolbar.tooltip.shortcuts')}}</span>
-				</v-tooltip>
-
-				<!-- HELP -->
-				<v-tooltip v-if="!collapse" bottom>
-					<template v-slot:activator="{ on }">
-						<v-btn class="ml-4" v-on="on" text @click="toggleHelp()">
-							<v-icon :left="$vuetify.breakpoint.smAndUp">mdi-help-circle-outline</v-icon>
-							<span v-if="$vuetify.breakpoint.smAndUp">{{$t('toolbar.help')}}</span>
-						</v-btn>
-					</template>
-					<span>{{$t('toolbar.tooltip.help')}}</span>
-				</v-tooltip>
-
-				<v-divider class="mx-4" vertical inset></v-divider>
-
-				<!-- SEARCH -->
-				<v-menu v-model="searchMenuOpened" transition="scroll-x-reverse-transition" max-width="450" min-width="450" :close-on-content-click="false" :nudge-width="300" offset-x>
-					<template v-slot:activator="{ on: menu }">
-						<v-tooltip bottom>
-							<template v-slot:activator="{ on: tooltip }">
-								<v-btn icon :class="$vuetify.breakpoint.smAndUp ? 'ml-4 mr-0' : null" v-on="{ ...tooltip, ...menu }" @click="setSearchFocus()">
-									<v-icon>mdi-magnify</v-icon>
-								</v-btn>
-							</template>
-							<span>{{$t('toolbar.tooltip.search')}}</span>
-						</v-tooltip>
-					</template>
-					<v-card>
-						<div class="pa-2">
-							<v-text-field ref="searchInput" :loading="searchIsLoading" @change="search(searchQuery)" v-model="searchQuery" outlined :placeholder="$t('toolbar.searchPlaceholder')" append-icon="mdi-magnify" hide-details />
-						</div>
-
-						<v-slide-y-transition>
-							<div class="px-2" v-if="latestSearchTerms.data.length > 0">
-								<div class="mr-2 caption" v-text="$t('toolbar.search.latestTerms')"></div>
-								<v-chip-group column active-class="primary--text">
-									<v-chip @click="search(term.query, false)" v-for="(term, index) in latestSearchTerms.data" :key="index" x-small>
-										{{ term.query }}
-									</v-chip>
-								</v-chip-group>
-							</div>
-						</v-slide-y-transition>
-
-						<v-divider v-if="searchHasCompleted"></v-divider>
-
-						<v-scroll-y-transition leave-absolute>
-							<EmptyView class="mt-3" v-if="searchHasCompleted && !hasSearchResults" :image="false" :desc="$t('toolbar.search.noResults')" />
-						</v-scroll-y-transition>
-
-						<v-expand-transition>
-							<v-list v-if="!searchIsLoading && hasSearchResults" max-height="400" style="overflow: auto">
-								<v-scroll-y-transition>
-									<v-list-group value="true" v-if="searchResults.components.length > 0" prepend-icon="mdi-cube-outline">
-										<template v-slot:activator>
-											<v-list-item-title v-text="$t('toolbar.search.components')"></v-list-item-title>
-											<v-list-item-action>
-												<v-badge color="primary" inline :content="searchResults.components.length"></v-badge>
-											</v-list-item-action>
-										</template>
-
-										<template v-for="(component, index) in searchResults.components">
-											<v-list-item :key="index + '-item'" :to="'/component/' + component.id">
-												<v-list-item-avatar>
-													<v-icon v-text="component.icon"></v-icon>
-												</v-list-item-avatar>
-
-												<v-list-item-content>
-													<v-list-item-title>{{ component.name }}</v-list-item-title>
-													<v-list-item-subtitle v-html="$options.filters.plainExcerpt(component.description)"></v-list-item-subtitle>
-												</v-list-item-content>
-											</v-list-item>
-
-											<v-divider v-if="(index + 1) < searchResults.components.length" :key="index + '-sep'"></v-divider>
-										</template>
-									</v-list-group>
-								</v-scroll-y-transition>
-								<v-scroll-y-transition>
-									<v-list-group value="true" v-if="searchResults.users.length > 0" prepend-icon="mdi-account-circle">
-										<template v-slot:activator>
-											<v-list-item-title v-text="$t('toolbar.search.users')"></v-list-item-title>
-											<v-list-item-action>
-												<v-badge color="primary" inline :content="searchResults.users.length"></v-badge>
-											</v-list-item-action>
-										</template>
-
-										<template v-for="(user, index) in searchResults.users">
-											<v-list-item :key="index + '-item'" :to="'/account/' + user.id">
-												<v-list-item-avatar>
-													<UserAvatar :user="user" :size="48" />
-												</v-list-item-avatar>
-
-												<v-list-item-content>
-													<v-list-item-title>{{ user | userScreenName }}</v-list-item-title>
-													<v-list-item-subtitle>{{ $t('role.' + user.role.name.toLowerCase()) }}</v-list-item-subtitle>
-												</v-list-item-content>
-											</v-list-item>
-
-											<v-divider v-if="(index + 1) < searchResults.users.length" :key="index + '-sep'"></v-divider>
-										</template>
-									</v-list-group>
-								</v-scroll-y-transition>
-								<v-scroll-y-transition>
-									<v-list-group value="true" v-if="searchResults.pages.length > 0" prepend-icon="mdi-file-multiple-outline">
-										<template v-slot:activator>
-											<v-list-item-title v-text="$t('toolbar.search.pages')"></v-list-item-title>
-											<v-list-item-action>
-												<v-badge color="primary" inline :content="searchResults.pages.length"></v-badge>
-											</v-list-item-action>
-										</template>
-
-										<template v-for="(page, index) in searchResults.pages">
-											<v-list-item :key="index + '-item'" :to="'/' + page.slug">
-												<v-list-item-content class="text-truncate">
-													<v-list-item-title v-html="page.title"></v-list-item-title>
-													<v-list-item-subtitle v-html="$options.filters.plainExcerpt(page.content)"></v-list-item-subtitle>
-												</v-list-item-content>
-											</v-list-item>
-
-											<v-divider v-if="(index + 1) < searchResults.pages.length" :key="index + '-sep'"></v-divider>
-										</template>
-									</v-list-group>
-								</v-scroll-y-transition>
-							</v-list>
-						</v-expand-transition>
-					</v-card>
-				</v-menu>
 
 				<!-- MESSAGING -->
 				<v-menu v-model="messagingMenu" v-if="!collapse" transition="slide-y-transition" max-width="450" min-width="450">
@@ -314,6 +179,142 @@
 						</v-list>
 					</v-card>
 				</v-menu>
+
+				<v-divider class="mx-4" vertical inset></v-divider>
+
+				<!-- SEARCH -->
+				<v-menu v-model="searchMenuOpened" transition="scroll-x-reverse-transition" max-width="450" min-width="450" :close-on-content-click="false" :nudge-width="300" offset-x>
+					<template v-slot:activator="{ on: menu }">
+						<v-tooltip bottom>
+							<template v-slot:activator="{ on: tooltip }">
+								<v-btn icon :class="$vuetify.breakpoint.smAndUp ? 'mr-0' : null" v-on="{ ...tooltip, ...menu }" @click="setSearchFocus()">
+									<v-icon>mdi-magnify</v-icon>
+								</v-btn>
+							</template>
+							<span>{{$t('toolbar.tooltip.search')}}</span>
+						</v-tooltip>
+					</template>
+					<v-card>
+						<div class="pa-2">
+							<v-text-field ref="searchInput" :loading="searchIsLoading" @change="search(searchQuery)" v-model="searchQuery" outlined :placeholder="$t('toolbar.searchPlaceholder')" append-icon="mdi-magnify" hide-details />
+						</div>
+
+						<v-slide-y-transition>
+							<div class="px-2" v-if="latestSearchTerms.data.length > 0">
+								<div class="mr-2 caption" v-text="$t('toolbar.search.latestTerms')"></div>
+								<v-chip-group column active-class="primary--text">
+									<v-chip @click="search(term.query, false)" v-for="(term, index) in latestSearchTerms.data" :key="index" x-small>
+										{{ term.query }}
+									</v-chip>
+								</v-chip-group>
+							</div>
+						</v-slide-y-transition>
+
+						<v-divider v-if="searchHasCompleted"></v-divider>
+
+						<v-scroll-y-transition leave-absolute>
+							<EmptyView class="mt-3" v-if="searchHasCompleted && !hasSearchResults" :image="false" :desc="$t('toolbar.search.noResults')" />
+						</v-scroll-y-transition>
+
+						<v-expand-transition>
+							<v-list v-if="!searchIsLoading && hasSearchResults" max-height="400" style="overflow: auto">
+								<v-scroll-y-transition>
+									<v-list-group value="true" v-if="searchResults.components.length > 0" prepend-icon="mdi-cube-outline">
+										<template v-slot:activator>
+											<v-list-item-title v-text="$t('toolbar.search.components')"></v-list-item-title>
+											<v-list-item-action>
+												<v-badge color="primary" inline :content="searchResults.components.length"></v-badge>
+											</v-list-item-action>
+										</template>
+
+										<template v-for="(component, index) in searchResults.components">
+											<v-list-item :key="index + '-item'" :to="'/component/' + component.id">
+												<v-list-item-avatar>
+													<v-icon v-text="component.icon"></v-icon>
+												</v-list-item-avatar>
+
+												<v-list-item-content>
+													<v-list-item-title>{{ component.name }}</v-list-item-title>
+													<v-list-item-subtitle v-html="$options.filters.plainExcerpt(component.description)"></v-list-item-subtitle>
+												</v-list-item-content>
+											</v-list-item>
+
+											<v-divider v-if="(index + 1) < searchResults.components.length" :key="index + '-sep'"></v-divider>
+										</template>
+									</v-list-group>
+								</v-scroll-y-transition>
+								<v-scroll-y-transition>
+									<v-list-group value="true" v-if="searchResults.users.length > 0" prepend-icon="mdi-account-circle">
+										<template v-slot:activator>
+											<v-list-item-title v-text="$t('toolbar.search.users')"></v-list-item-title>
+											<v-list-item-action>
+												<v-badge color="primary" inline :content="searchResults.users.length"></v-badge>
+											</v-list-item-action>
+										</template>
+
+										<template v-for="(user, index) in searchResults.users">
+											<v-list-item :key="index + '-item'" :to="'/account/' + user.id">
+												<v-list-item-avatar>
+													<UserAvatar :user="user" :size="48" />
+												</v-list-item-avatar>
+
+												<v-list-item-content>
+													<v-list-item-title>{{ user | userScreenName }}</v-list-item-title>
+													<v-list-item-subtitle>{{ $t('role.' + user.role.name.toLowerCase()) }}</v-list-item-subtitle>
+												</v-list-item-content>
+											</v-list-item>
+
+											<v-divider v-if="(index + 1) < searchResults.users.length" :key="index + '-sep'"></v-divider>
+										</template>
+									</v-list-group>
+								</v-scroll-y-transition>
+								<v-scroll-y-transition>
+									<v-list-group value="true" v-if="searchResults.pages.length > 0" prepend-icon="mdi-file-multiple-outline">
+										<template v-slot:activator>
+											<v-list-item-title v-text="$t('toolbar.search.pages')"></v-list-item-title>
+											<v-list-item-action>
+												<v-badge color="primary" inline :content="searchResults.pages.length"></v-badge>
+											</v-list-item-action>
+										</template>
+
+										<template v-for="(page, index) in searchResults.pages">
+											<v-list-item :key="index + '-item'" :to="'/' + page.slug">
+												<v-list-item-content class="text-truncate">
+													<v-list-item-title v-html="page.title"></v-list-item-title>
+													<v-list-item-subtitle v-html="$options.filters.plainExcerpt(page.content)"></v-list-item-subtitle>
+												</v-list-item-content>
+											</v-list-item>
+
+											<v-divider v-if="(index + 1) < searchResults.pages.length" :key="index + '-sep'"></v-divider>
+										</template>
+									</v-list-group>
+								</v-scroll-y-transition>
+							</v-list>
+						</v-expand-transition>
+					</v-card>
+				</v-menu>
+
+				<!-- HELP -->
+				<v-tooltip v-if="!collapse" bottom>
+					<template v-slot:activator="{ on }">
+						<v-btn class="ml-4" v-on="on" icon @click="toggleHelp()">
+							<v-icon>mdi-help-circle-outline</v-icon>
+							<!--							<v-icon :left="$vuetify.breakpoint.smAndUp">mdi-help-circle-outline</v-icon>-->
+							<!--							<span v-if="$vuetify.breakpoint.smAndUp">{{$t('toolbar.help')}}</span>-->
+						</v-btn>
+					</template>
+					<span>{{$t('toolbar.tooltip.help')}}</span>
+				</v-tooltip>
+
+				<!-- SHORTCUTS -->
+				<v-tooltip v-if="!collapse" bottom>
+					<template v-slot:activator="{ on }">
+						<v-btn :class="$vuetify.breakpoint.smAndUp ? 'ml-4 mr-0' : null" @click="toggleShortcut()" v-on="on" icon>
+							<v-icon>mdi-keyboard</v-icon>
+						</v-btn>
+					</template>
+					<span>{{$t('toolbar.tooltip.shortcuts')}}</span>
+				</v-tooltip>
 			</template>
 
 			<!-- CONTEXTUAL OPTIONS -->

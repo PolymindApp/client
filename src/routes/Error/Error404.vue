@@ -1,5 +1,5 @@
 <template>
-	<v-card tile flat color="secondary" dark class="d-flex flex-column align-center justify-center w-100">
+	<v-card tile flat color="grey" dark class="d-flex flex-column align-center justify-center w-100">
 		<div class="limited-content text-center">
 			<h1 class="display-2 font-weight-thin">
 				{{$t('error.404.title')}}

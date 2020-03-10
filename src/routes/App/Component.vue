@@ -1,5 +1,5 @@
 <template>
-	<v-sheet class="panel-overflow d-flex flex-column" style="width: 100%; border-radius: 0;">
+	<v-sheet class="panel-overflow d-flex flex-column w-100" style="border-radius: 0;">
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
@@ -75,69 +75,59 @@
 			</v-card>
 		</v-dialog>
 
-		<v-tabs show-arrows style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
-			<v-tab :disabled="isDeleted" :to="'/component/' + id + '/settings'" exact>
-				<v-icon left>mdi-pencil-box-outline</v-icon>
-				{{$t('component.settings.title')}}
-			</v-tab>
-			<v-tab :disabled="isDeleted" :to="'/component/' + id + '/source'" exact>
-				<v-icon left>mdi-code-tags</v-icon>
-				{{$t('component.source.title')}}
-			</v-tab>
-<!--			<v-tab :to="'/component/' + id + '/params'" exact>-->
-<!--				<v-icon left>mdi-card-bulleted-settings</v-icon>-->
-<!--				{{$t('component.params.title')}}-->
-<!--			</v-tab>-->
-<!--			<v-tab :to="'/component/' + id + '/events'" exact>-->
-<!--				<v-icon left>mdi-flash-outline</v-icon>-->
-<!--				{{$t('component.events.title')}}-->
-<!--			</v-tab>-->
+		<div ref="header">
+			<v-tabs show-arrows style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
+				<v-tab :disabled="isDeleted" :to="'/component/' + id + '/settings'" exact>
+					<v-icon left>mdi-pencil-box-outline</v-icon>
+					{{$t('component.settings.title')}}
+				</v-tab>
+				<v-tab :disabled="isDeleted" :to="'/component/' + id + '/source'" exact>
+					<v-icon left>mdi-code-tags</v-icon>
+					{{$t('component.source.title')}}
+				</v-tab>
 
-			<v-spacer></v-spacer>
+				<v-spacer></v-spacer>
 
-			<v-btn :disabled="isDeleted" @click="$comments.open(id, 'component')" class="mt-3 mr-4" text small>
-				<v-icon left>mdi-comment</v-icon>
-				{{$t('comment.btnTitle')}}
-				<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
-			</v-btn>
+				<v-btn :disabled="isDeleted" @click="$comments.open(id, 'component')" class="mt-3 mr-4" text small>
+					<v-icon left>mdi-comment</v-icon>
+					{{$t('comment.btnTitle')}}
+					<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
+				</v-btn>
 
-			<v-btn :disabled="isDeleted" @click="openFork()" color="secondary" class="mt-3 mr-2" small>
-				<v-icon left>mdi-directions-fork</v-icon>
-				{{$t('modal.fork')}}
-			</v-btn>
+				<v-btn :disabled="isDeleted" @click="openFork()" color="grey darken-2 white--text" class="mt-3 mr-2" small>
+					<v-icon left>mdi-directions-fork</v-icon>
+					{{$t('modal.fork')}}
+				</v-btn>
 
-			<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3" small>
-				<v-icon left>mdi-publish</v-icon>
-				{{$t('modal.publish')}}
-			</v-btn>
-		</v-tabs>
+				<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3" small>
+					<v-icon left>mdi-publish</v-icon>
+					{{$t('modal.publish')}}
+				</v-btn>
+			</v-tabs>
 
-		<v-alert v-if="isDeleted" tile prominent type="error">
-			<v-row align="center">
-				<v-col class="grow">
-					<span v-text="$t('component.isDeleted')"></span>
-				</v-col>
-				<v-col class="shrink">
-					<v-btn @click="restore()">
-						<span v-text="$t('component.restore')"></span>
-					</v-btn>
-				</v-col>
-			</v-row>
-		</v-alert>
+			<v-alert v-if="isDeleted" tile prominent type="error">
+				<v-row align="center">
+					<v-col class="grow">
+						<span v-text="$t('component.isDeleted')"></span>
+					</v-col>
+					<v-col class="shrink">
+						<v-btn @click="restore()">
+							<span v-text="$t('component.restore')"></span>
+						</v-btn>
+					</v-col>
+				</v-row>
+			</v-alert>
+		</div>
 
-		<v-tabs-items style="flex: 1; overflow: auto;" v-model="tab">
+		<v-tabs-items :style="{ flex: 1, overflow: (tab !== '/component/' + id + '/source') ? 'auto' : null }" v-model="tab">
 			<v-tab-item :value="'/component/' + id + '/settings'" class="pa-4 fill-height">
-				<Settings @update="updateTab()" :component="component" :form-errors="formErrors" />
+				<div style="height: 0">
+					<Settings @update="updateTab()" :component="component" :form-errors="formErrors" />
+				</div>
 			</v-tab-item>
 			<v-tab-item :value="'/component/' + id + '/source'" class="fill-height">
 				<Source :component="component" :form-errors="formErrors" />
 			</v-tab-item>
-<!--			<v-tab-item :value="'/component/' + id + '/params'" class="pa-4 fill-height">-->
-<!--				<Params :component="component" :form-errors="formErrors" />-->
-<!--			</v-tab-item>-->
-<!--			<v-tab-item :value="'/component/' + id + '/events'" class="pa-4 fill-height">-->
-<!--				<Events :component="component" :form-errors="formErrors" />-->
-<!--			</v-tab-item>-->
 		</v-tabs-items>
 
 		<v-card :disabled="isDeleted" :dark="sourceDark" flat class="pa-4" style="flex: 0; border-radius: 0">
@@ -194,9 +184,19 @@ export default Vue.extend({
 		this.loadRevisions();
 		this.updateTab();
 		this.loadCommentCount();
+
+		this.$shortcuts.add(this.$t('shortcuts.component.save.title'), this.$t('shortcuts.component.save.desc'), 'component', ['ControlLeft', 'KeyS'], this.shortcutSave);
+	},
+
+	destroyed() {
+		this.$shortcuts.remove(this.shortcutSave);
 	},
 
 	methods: {
+
+		shortcutSave() {
+			this.save();
+		},
 
 		updateTab() {
 
@@ -211,7 +211,7 @@ export default Vue.extend({
 			];
 			document.title = sectionTitle + ' | ' + this.$t('title.component');
 
-			this.id = this.$route.params.id;
+			this.id = parseInt(this.$route.params.id);
 			this.isNew = this.$route.params.id === 'new';
 
 			setTimeout(() => {
@@ -262,10 +262,10 @@ export default Vue.extend({
 
 					    if (revisionOffset !== undefined) {
                             this.id = response.data.data.id;
-                            this.component = response.data.data;
+                            this.component = new ComponentModel(response.data.data);
 						} else {
                             this.id = response.data.id;
-                            this.component = response.data;
+                            this.component = new ComponentModel(response.data);
 						}
 
 					    this.isNew = false;
@@ -296,7 +296,7 @@ export default Vue.extend({
 		},
 
 		reset() {
-			this.component = this.$deepClone(this.originalComponent);
+			this.component = new ComponentModel(this.$deepClone(this.originalComponent));
 		},
 
         openFork() {
@@ -339,6 +339,10 @@ export default Vue.extend({
 		},
 
 		save() {
+
+			if (!this.dataHasChanged) {
+				return;
+			}
 
 			this.formErrors = [];
 			this.$root.isLoading = true;

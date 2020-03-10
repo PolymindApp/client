@@ -1,11 +1,11 @@
 <template>
-	<div class="w-100">
-		<slot name="read" v-if="!canEdit">
+	<div class="datatype fill-height d-flex align-center" v-if="!canEdit">
+		<slot name="read">
 			<v-chip v-if="currentValue === null" class="text-center pe-none" x-small>NULL</v-chip>
 			<span v-else v-text="currentValue"></span>
 		</slot>
-		<v-text-field v-else ref="input" type="text" v-model="editingValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
 	</div>
+	<v-text-field v-else ref="input" type="text" v-model="editingValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0 w-100" dense hide-details />
 </template>
 
 <script>
@@ -86,9 +86,9 @@
                 return !this.readonly && this.isEditing;
 			},
 
-			canReset() {
-				return JSON.stringify(this.value) !== JSON.stringify(this.originalValue);
-			}
+			// canReset() {
+			// 	return JSON.stringify(this.value) !== JSON.stringify(this.originalValue);
+			// }
 		},
 
         data() {

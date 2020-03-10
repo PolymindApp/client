@@ -1,10 +1,12 @@
-import objectAssignDeep from 'object-assign-deep';
+import Model from "./Model";
 
-export default class User {
+export default class User extends Model {
 
 	constructor(props) {
 
-		objectAssignDeep(this, {
+		super(props);
+
+		this.setDefaultValues({
 			first_name: '',
 			last_name: '',
 			avatar: null,

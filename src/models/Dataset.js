@@ -1,8 +1,11 @@
 import DatasetCell from "./DatasetCell";
+import Model from "./Model";
 
-export default class Dataset {
+export default class Dataset extends Model {
 
 	constructor(props) {
+
+		super(props);
 
 		const mapper = `/**
  * Transform the response variable into a valid Polymind dataset
@@ -15,7 +18,7 @@ return {
     })
 };`;
 
-		Object.assign(this, {
+		this.setDefaultValues({
 			name: '',
 			description: '<p></p>',
 			is_private: true,
@@ -28,13 +31,13 @@ return {
 			rows: [],
 		}, props);
 
-		this.prebuild();
+		this.validate();
 	}
 
 	/**
 	 * Make sure all cells are existing
 	 */
-	prebuild() {
+	validate() {
 
 		this.rows.forEach(row => {
 			const columnDiff = this.columns.length - row.cells.length;

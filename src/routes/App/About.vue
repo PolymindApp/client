@@ -84,12 +84,12 @@ export default Vue.extend({
 				},
 				terms: {
 					dark: true,
-					backgroundColor: this.$vuetify.theme.themes.light.secondary,
+					backgroundColor: 'grey',
 					color: '',
 				},
 				privacy: {
 					dark: true,
-					backgroundColor: this.$vuetify.theme.themes.light.secondary,
+					backgroundColor: 'grey',
 					color: '',
 				},
 				contact: {

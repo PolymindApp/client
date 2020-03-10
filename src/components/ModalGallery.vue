@@ -1,6 +1,6 @@
 <template>
 	<v-dialog v-model="visible" fullscreen hide-overlay transition="dialog-bottom-transition">
-		<v-sheet class="loading-panel" height="100%" color="secondary" flat tile>
+		<v-sheet class="loading-panel" height="100%" color="grey" flat tile>
 			<v-row no-gutters class="fill-height" align="center" justify="center">
 				<v-progress-circular :size="50" color="white" indeterminate></v-progress-circular>
 			</v-row>

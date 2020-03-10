@@ -1,8 +1,14 @@
 .default-gradient {
-	background-image: linear-gradient(to bottom, #56BEBB, #1B8E8A);
+	background-image: linear-gradient(to bottom, #56BEBB, #4e8e8a);
 }
 .restricted-gradient {
 	background-image: linear-gradient(to bottom, #000000, #8e8e8e);
+}
+.perspective {
+  perspective: 60rem;
+}
+.relative {
+  position: relative;
 }
 .no-select {
   user-select: none;
@@ -13,6 +19,26 @@
 .pe-none {
   pointer-events: none;
 }
+.scrollable {
+  overflow: auto;
+  min-height: 0;
+}
+.scrollable-y {
+  overflow-y: auto;
+  min-height: 0;
+}
+.scrollable-x {
+  overflow-x: auto;
+}
+.not-scrollable {
+  overflow: auto;
+}
+.not-scrollable-y {
+  overflow-y: hidden;
+}
+.not-scrollable-x {
+  overflow-x: hidden;
+}
 .gradient-overlay {
 	 position: absolute;
 	 top: 0;
@@ -22,12 +48,22 @@
 	 background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33));
  }
 .blueprint-grid {
-	background-color: #0F629F;
+  	background-color: rgb(109, 139, 196);
 	background-size: 1rem 1rem;
 	background-repeat: repeat;
 	background-image:
 		linear-gradient(to right, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
 		linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+}
+.grid {
+  background-size: 1rem 1rem;
+  background-repeat: repeat;
+  background-image:
+	  linear-gradient(to right, rgba(0, 0, 0, 0.15) 1px, transparent 1px),
+	  linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+}
+.theme--dark .blueprint-grid {
+  background-color: rgb(0, 0, 32);
 }
 .limited-content {
 	max-width: 30rem;
@@ -97,6 +133,7 @@ body::-webkit-scrollbar,
 		}
 	}
 
+  	.dark-scrollbar,
 	.ace_editor.ace-twilight {
 
 		/* Sizing */

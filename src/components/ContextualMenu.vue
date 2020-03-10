@@ -1,9 +1,10 @@
 <template>
-	<v-menu v-model="show" v-bind="$attrs" v-on="$listeners">
+	<v-menu v-model="show" v-bind="$attrs">
 		<v-list dense>
+
 			<template v-for="(item, index) in items">
 
-				<ContextualMenu v-if="show && item.childState" :items="item.childs" :visible="item.childState.visible" :position-x="item.childState.x" :position-y="item.childState.y" absolute offset-y />
+				<ContextualMenu v-if="show && item.childState" :items="item.childs" :visible="item.childState.visible" :position-x="item.childState.x" :position-y="item.childState.y" :deepnest="deepnest + 1" absolute offset-y />
 
 				<v-list-item v-if="item.text" :class="{ 'v-list-item--active primary--text': item.isActive && item.isActive() }" :disabled="item.disabled()" :key="index" v-on="getEvents(item)">
 					<v-list-item-icon class="mr-2">
@@ -17,7 +18,6 @@
 				</v-list-item>
 
 				<v-divider class="my-2" v-else :key="index"></v-divider>
-
 			</template>
 		</v-list>
 	</v-menu>
@@ -25,12 +25,26 @@
 
 <script>
     import Vue from 'vue';
+	import Hash from "../utils/Hash";
 
     export default Vue.extend({
 
         name: 'ContextualMenu',
 
-        props: ['items', 'visible'],
+        props: {
+        	items: {
+        		type: Array,
+				default: () => [],
+			},
+        	visible: {
+        		type: Boolean,
+				default: false,
+			},
+        	deepnest: {
+        		type: Number,
+				default: 0,
+			},
+		},
 
         components: {},
 
@@ -45,15 +59,33 @@
         methods: {
 
         	getEvents(item) {
-        		const events = {};
-        		if (item.click) {
-        			events.click = item.click;
+
+        		if (!item.guid) {
+					item.guid = Hash.guid();
 				}
+
+        		const group = {
+        			click: [],
+        			mouseenter: [],
+        			mousedown: [],
+        			mouseup: [],
+        			mouseleave: [],
+				};
+        		if (item.click) {
+					group.click.push(item.click);
+				}
+				group.mouseenter.push(event => {
+        			this.items.forEach(otherItem => {
+        				if (otherItem.guid === item.guid) {
+        					return;
+						}
+        				if (otherItem.hideMenu) {
+        					otherItem.hideMenu(0);
+						}
+					});
+				});
         		if (item.childs) {
-        			events.mouseleave = event => {
-        				// item.hideMenu();
-					};
-        			events.mouseenter = event => {
+					group.mouseenter.push(event => {
 
         				if (!item.childState) {
 							item.childState = {};
@@ -69,6 +101,7 @@
 								}, timeout);
 							};
 							item.showMenu = event => {
+								item.cancelHideMenu();
 								const target = event.currentTarget;
 								const boundingBox = target.getBoundingClientRect();
 								Object.assign(item.childState, {
@@ -78,16 +111,20 @@
 								});
 								this.$forceUpdate();
 							};
-							item.showMenu(event);
 						}
 
-						item.cancelHideMenu();
-					};
-					events.click = event => {
 						item.showMenu(event);
-						event.stopPropagation();
-					};
+					});
 				}
+
+				const events = {
+					click: event => group.click.map(click => click(event)),
+					mouseenter: event => group.mouseenter.map(mouseenter => mouseenter(event)),
+					mousedown: event => group.mousedown.map(mousedown => mousedown(event)),
+					mouseup: event => group.mouseup.map(mouseup => mouseup(event)),
+					mouseleave: event => group.mouseleave.map(mouseleave => mouseleave(event)),
+				};
+
         		return events;
 			},
 		},

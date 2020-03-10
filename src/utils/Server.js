@@ -1,4 +1,5 @@
 import RestError from './RestError';
+import Model from "../models/Model";
 
 export default class Server {
 
@@ -9,17 +10,23 @@ export default class Server {
 
 	static post(url, data) {
 
-		return Server.prepare.bind(this)('POST', url, undefined, data);
+		const model = new Model(data).flat(false);
+
+		return Server.prepare.bind(this)('POST', url, undefined, model);
 	}
 
 	static put(url, data) {
 
-		return Server.prepare.bind(this)('PUT', url, undefined, data);
+		const model = new Model(data).flat(false);
+
+		return Server.prepare.bind(this)('PUT', url, undefined, model);
 	}
 
 	static patch(url, data) {
 
-		return Server.prepare.bind(this)('PATCH', url, undefined, data);
+		const model = new Model(data).flat(false);
+
+		return Server.prepare.bind(this)('PATCH', url, undefined, model);
 	}
 
 	static delete(url, params) {

@@ -1,4 +1,5 @@
 import Server from '../utils/Server';
+import Model from "../models/Model";
 
 const defaultFields = '*,created_by.*,created_by.avatar.filename';
 

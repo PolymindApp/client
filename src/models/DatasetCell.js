@@ -1,12 +1,15 @@
 import User from "./User";
 import moment from "moment";
 import Hash from "../utils/Hash";
+import Model from "./Model";
 
-export default class DatasetCell {
+export default class DatasetCell extends Model {
 
 	constructor(props = {}) {
 
-		Object.assign(this, {
+		super(props);
+
+		this.setDefaultValues({
 			id: null,
 			guid: Hash.guid(),
 			dataset_column: null,

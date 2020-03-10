@@ -1,6 +1,6 @@
 <template>
 <!--	<div :class="{ 'datatype fill-height d-flex align-center': true, hovered: hovered }" @mouseenter="hovered = true" @mouseleave="hovered = false">-->
-	<div class="datatype fill-height d-flex align-center">
+<!--	<div>-->
 
 		<!-- INPUTS -->
 		<DataText ref="input" :value="currentValue" :readonly="readonly" @keyup="handleKeyUp" @keydown="handleKeyDown" v-bind="$attrs" v-on="$listeners" v-if="type === 'text'">
@@ -100,7 +100,7 @@
 <!--				</v-list>-->
 <!--			</v-menu>-->
 <!--		</div>-->
-	</div>
+<!--	</div>-->
 </template>
 
 <script>
@@ -276,9 +276,9 @@
 </script>
 
 <style lang="scss" scoped>
-	.datatype {
-		position: relative;
-	}
+	/*.datatype {*/
+	/*	position: relative;*/
+	/*}*/
 	/*.options {*/
 	/*	opacity: 0;*/
 	/*	transition: opacity 300ms ease;*/

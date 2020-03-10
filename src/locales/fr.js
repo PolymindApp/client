@@ -334,21 +334,81 @@ const literals = {
 		},
 	},
 	strategy: {
+
+		isDeleted: 'Cette stratégie a été effacé. C\'est votre dernière chance de la récupérer.',
+		restore: 'Restaurer',
+
+		publishModal: {
+			title: 'Publier',
+		},
+		forkModal: {
+			title: 'Bifurquer',
+			forkDesc: 'Cette action créera une copie de la révision de la stratégie en cours. Êtes-vous certain de vouloir continuer ?',
+		},
+
 		settings: {
 			title: 'Réglages',
+			namePlaceholder: 'Nom de la stratégie',
+			isPrivateLabel: 'Privé',
+			isInvisibleLabel: 'Sans aspect visuel',
+			descPlaceholder: 'Description',
+			instructionsPlaceholder: 'Instructions',
+			iconPlaceholder: 'Icône',
+			categoryPlaceholder: 'Catégorie',
 		},
 		interface: {
 			title: 'Interfaces',
-		},
-		components: {
-			title: 'Composantes',
+			stencils: 'Pochoirs',
+			components: 'Composantes',
+			hierarchy: 'Hiérarchie',
+			addLayer: 'Ajouter',
+			orientation: 'Orientation',
+			orientations: {
+				_16_9: 'Mode paysage (16/9)',
+				_9_16: 'Mode portrait (9/16)',
+				_4_3: 'Mode paysage (4/3)',
+				_3_4: 'Mode portrait (3/4)',
+			},
+			tooltips: {
+				orientation: 'Orientation',
+				undo: 'Annuler',
+				redo: 'Refaire',
+				pointer: 'Déplacer',
+				select: 'Sélectionner',
+				draw: 'Dessiner',
+				rotate: 'Tourner',
+				fullscreenOn: 'Aller en mode plein écran',
+				fullscreenOff: 'Sortir du mode plein écran',
+				zoomIn: 'Agrandir',
+				zoomOut: 'Rétrécir',
+				horizontalAlign: 'Alignement horizontale',
+				verticalAlign: 'Alignement verticale',
+			},
 		},
 		workflow: {
 			title: 'Flux de travail',
+			components: 'Composantes',
+			datasets: 'Bases de données',
+			documents: 'Documents',
 		},
 	},
 	media: {
 		title: 'Galerie de médias',
+	},
+	components: {
+		console: {
+			runCommand: 'Exécuter une commande',
+			clear: 'Nettoyer',
+			emptyTitle: 'Aucun événement',
+			emptyDesc: 'Vous verrez les événements de console s\'afficher ici',
+			wasCleared: 'La console a été nettoyé',
+			total: {
+				log: '{total} événement(s)',
+				error: '{total} erreur(s)',
+				warning: '{total} avertissement(s)',
+				info: '{total} information(s)',
+			},
+		},
 	},
 	component: {
 
@@ -373,7 +433,14 @@ const literals = {
 			title: 'Source',
 			viewTooltip: 'Basculer le mode de vue',
 			settingsTooltip: 'Paramétrage',
-			consoleTooltip: 'Afficher la console',
+			consoleTooltip: 'Basculer l\'affichage de la console',
+			previewTooltip: 'Basculer l\'affichage de la prévisualisation',
+			codeTooltip: 'Basculer l\'affichage du code',
+			propertiesTooltip: 'Basculer l\'affichage des propriétés',
+			executeTooltip: 'Exécuter',
+			autoUpdate: 'MAJ Auto.',
+			fullscreenOn: 'Aller en mode plein écran',
+			fullscreenOff: 'Sortir du mode plein écran',
 			codeIssue: 'Il y a un problème avec votre code',
 			publishModal: {
 				title: 'Publier',
@@ -384,7 +451,58 @@ const literals = {
 			},
 			settingsModal: {
 				title: 'Paramètres',
-			}
+			},
+			injectorDelete: {
+				hookTitle: 'Effacer un crochet',
+				hookDesc: 'Cet crochet est peut-être relié à votre code interne ou utilisé par une composante externe. Désirez-vous vraiment l\'effacer ?',
+				parameterTitle: 'Effacer un paramètre',
+				parameterDesc: 'Cet paramètre est peut-être relié à votre code interne ou utilisé par une composante externe. Désirez-vous vraiment l\'effacer ?',
+				functionTitle: 'Effacer une fonction',
+				functionDesc: 'Cette fonction est peut-être relié à votre code interne ou utilisé par une composante externe. Désirez-vous vraiment l\'effacer ?',
+				testTitle: 'Effacer un test',
+				testDesc: 'Êtes-vous certain de vouloir effacer ce test ?',
+			},
+			injectorModal: {
+				hookTitle: 'Modifier un crochet',
+				hookNewTitle: 'Ajouter un crochet',
+				parameterTitle: 'Modifier un paramètre',
+				parameterNewTitle: 'Ajouter un paramètre',
+				functionTitle: 'Modifier une fonction',
+				functionNewTitle: 'Ajouter une fonction',
+				testTitle: 'Modifier un test',
+				testNewTitle: 'Ajouter un test',
+
+				labels: {
+					name: 'Nom',
+				}
+			},
+			zoomIn: 'Agrandir',
+			zoomOut: 'Rétrécir',
+			hooks: {
+				title: 'Crochets',
+				empty: 'Aucun crochet pour le moment',
+				add: 'Ajouter un crochet',
+			},
+			parameters: {
+				title: 'Paramètres',
+				empty: 'Aucun paramètre pour le moment',
+				add: 'Ajouter un paramètre',
+			},
+			functions: {
+				title: 'Fonctions',
+				empty: 'Aucune fonction pour le moment',
+				add: 'Ajouter une fonction',
+			},
+			tests: {
+				title: 'Tests',
+				empty: 'Aucun test pour le moment',
+				add: 'Ajouter un test',
+			},
+			injection: {
+				run: 'Exécuter',
+				edit: 'Modifier',
+				remove: 'Effacer',
+			},
 		},
 		params: {
 			title: 'Paramètres',
@@ -997,11 +1115,83 @@ const literals = {
 				desc: 'Ouvre le panneau d\'ajout de donnée',
 			},
 		},
+		component: {
+			save: {
+				title: 'Sauvegarder',
+				desc: 'Enregistrer les modifications',
+			},
+		},
+		componentSource: {
+			zoomReset: {
+				title: 'Réinitialiser le zoom',
+				desc: 'Réinitialiser le zoom de la fenêtre de prévisualisation',
+			},
+			zoomIn: {
+				title: 'Agrandir',
+				desc: 'Agrandir la fenêtre de prévisualisation',
+			},
+			zoomOut: {
+				title: 'Rétrécir',
+				desc: 'Rétrécir la fenêtre de prévisualisation',
+			},
+			fullscreen: {
+				title: 'Basculer plein écran',
+				desc: 'Basculer l\'écran de prévisualisation en mode normal ou plein écran',
+			},
+			switchHtml: {
+				title: 'Basculer HTML',
+				desc: 'Basculer vers l\'onglet HTML',
+			},
+			switchJs: {
+				title: 'Basculer JavaScript',
+				desc: 'Basculer vers l\'onglet JavaScript',
+			},
+			switchCss: {
+				title: 'Basculer CSS',
+				desc: 'Basculer vers l\'onglet CSS',
+			},
+			applyChanges: {
+				title: 'Appliquer les changements',
+				desc: 'Appliquer les changements afin de les prévisualiser',
+			},
+			clearConsole: {
+				title: 'Nettoyer la console',
+				desc: 'Vide le journal des événements de toutes les entrés existantes',
+			},
+		},
+		strategyInterface: {
+			undo: {
+				title: 'Annuler',
+				desc: 'Annuler le dernier changement',
+			},
+			redo: {
+				title: 'Refaire',
+				desc: 'Refaire le dernier changement',
+			},
+			zoomReset: {
+				title: 'Réinitialiser le zoom',
+				desc: 'Réinitialiser le zoom de la fenêtre de prévisualisation',
+			},
+			zoomIn: {
+				title: 'Agrandir',
+				desc: 'Agrandir la fenêtre de prévisualisation',
+			},
+			zoomOut: {
+				title: 'Rétrécir',
+				desc: 'Rétrécir la fenêtre de prévisualisation',
+			},
+			fullscreen: {
+				title: 'Basculer plein écran',
+				desc: 'Basculer l\'écran de prévisualisation en mode normal ou plein écran',
+			},
+		},
 		groupTitles: {
 			main: 'Généraux',
 			navigation: 'Navigation rapide',
 			dataset: 'Bases de données',
-			datasetData: 'Gestion de données',
+			datasetData: 'Bases de données > Données',
+			component: 'Composante',
+			componentSource: 'Composante > Source',
 		},
 	}
 };

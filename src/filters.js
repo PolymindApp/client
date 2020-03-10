@@ -51,9 +51,17 @@ Vue.filter('userScreenName', (user) => {
 	return user.screen_name || (user.first_name + ' ' + user.last_name).trim();
 });
 
+Vue.filter('humanNumber', (number, separator = ',') => {
+	const parts = number.toString().split(".");
+	parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+	return parts.join(".");
+});
+
 Vue.filter('shortcutKey', (key) => {
 	return key.replace('Key', '')
+	    .replace('Digit', '')
 	    .replace('ControlLeft', 'Ctrl')
+	    .replace('ControlRight', 'Ctrl')
 	    .replace('AltLeft', 'Alt')
 		.toUpperCase();
 });

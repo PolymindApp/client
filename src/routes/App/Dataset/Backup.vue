@@ -279,7 +279,7 @@
 			<template v-slot:item="props">
 				<tr v-bind:class="{ deleted: dataset.deletedRows.indexOf(props.item.index) !== -1 }">
 					<td class="select shrink" @click="toggleSelect(props)">
-						<v-checkbox v-model="props.isSelected" color="secondary" hide-details class="ma-0 pa-0"></v-checkbox>
+						<v-checkbox v-model="props.isSelected" color="grey" hide-details class="ma-0 pa-0"></v-checkbox>
 					</td>
 					<td :style="{ width: header.type === 'text' ? ((100 / editableHeaders.length) + '%') : null }" @dblclick="editCell(headerIdx, props.item.index)" v-for="(header, headerIdx) in editableHeaders">
 						<DataType :ref="'editedField_' + props.item.index + '_' + headerIdx" v-model="getItem(props.item.index, header)[valueTypes[header.type]]" :type="header.type" @keydown="handleKeyDown" @blur="editingCell = false" hide-details />

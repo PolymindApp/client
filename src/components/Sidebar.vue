@@ -198,6 +198,10 @@ export default Vue.extend({
 	            settings: this.$root.user.settings
 			})
 				.catch(error => this.$handleError(this, error));
+
+	        setTimeout(() => {
+				window.dispatchEvent(new Event('resize'));
+			}, 300);
 		},
 
 		fullScreenEvent(active) {
@@ -345,8 +349,8 @@ export default Vue.extend({
 							}
 							items.push({
 								title: strategy.name,
-								icon: 'mdi-database',
-								link: '/component/' + strategy.id,
+								icon: 'mdi-strategy',
+								link: '/strategy/' + strategy.id,
 								badge: strategy.totalItems,
 								badgeColor: 'transparent',
 							});

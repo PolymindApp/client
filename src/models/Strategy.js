@@ -1,6 +1,6 @@
 import Model from "./Model";
 
-export default class Component extends Model {
+export default class Strategy extends Model {
 
 	constructor(props) {
 
@@ -13,13 +13,8 @@ export default class Component extends Model {
 			is_invisible: false,
 			is_private: false,
 			icon: '',
-			html: '',
-			js: '',
-			scss: '',
-			hooks: [],
-			parameters: [],
-			functions: [],
-			tests: [],
+			interface: {},
+			workflow: {},
 		}, props);
 	}
 }
