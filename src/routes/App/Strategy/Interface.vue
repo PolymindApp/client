@@ -9,7 +9,7 @@
 				<v-btn-toggle v-model="selectedToolIdx" mandatory tile color="primary" group>
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on }">
-							<v-btn class="double-icon" v-on="on" icon>
+							<v-btn class="double-icon" v-on="on" :disabled="!toolsEnabled" icon>
 								<v-icon>mdi-cursor-default-outline</v-icon>
 								<v-icon>mdi-arrow-all</v-icon>
 							</v-btn>
@@ -18,7 +18,7 @@
 					</v-tooltip>
 <!--					<v-tooltip bottom>-->
 <!--						<template v-slot:activator="{ on }">-->
-<!--							<v-btn v-on="on" icon>-->
+<!--							<v-btn v-on="on" :disabled="!toolsEnabled" icon>-->
 <!--								<v-icon>mdi-selection</v-icon>-->
 <!--							</v-btn>-->
 <!--						</template>-->
@@ -26,7 +26,7 @@
 <!--					</v-tooltip>-->
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on }">
-							<v-btn v-on="on" icon>
+							<v-btn v-on="on" :disabled="!toolsEnabled" icon>
 								<v-icon>mdi-plus-thick</v-icon>
 							</v-btn>
 						</template>
@@ -34,7 +34,7 @@
 					</v-tooltip>
 <!--					<v-tooltip bottom>-->
 <!--						<template v-slot:activator="{ on }">-->
-<!--							<v-btn v-on="on" icon>-->
+<!--							<v-btn v-on="on" :disabled="!toolsEnabled" icon>-->
 <!--								<v-icon>mdi-format-rotate-90</v-icon>-->
 <!--							</v-btn>-->
 <!--						</template>-->
@@ -51,7 +51,7 @@
 
 				<v-tooltip bottom>
 					<template v-slot:activator="{ on }">
-						<v-btn v-on="on" icon>
+						<v-btn v-on="on" :disabled="!toolsEnabled" icon>
 							<v-icon>mdi-format-horizontal-align-center</v-icon>
 						</v-btn>
 					</template>
@@ -60,7 +60,7 @@
 
 				<v-tooltip bottom>
 					<template v-slot:activator="{ on }">
-						<v-btn v-on="on" icon>
+						<v-btn v-on="on" :disabled="!toolsEnabled" icon>
 							<v-icon>mdi-format-vertical-align-center</v-icon>
 						</v-btn>
 					</template>
@@ -128,11 +128,11 @@
 				</v-tooltip>
 			</v-toolbar>
 
-			<div @wheel="handleWheel" @mousedown="handleMouseDown" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave" class="grid-container perspective no-select scrollable d-flex" :style="viewportStyle">
+			<div v-on="getViewportEvents()" :class="viewportClasses" :style="viewportStyle">
 				<div class="grid-padding relative">
 					<div :ref="'grid_' + gridIdx" :key="gridIdx" v-for="(grid, gridIdx) in layers.data" v-on="getGridEvents(grid, gridIdx)" :class="getGridClasses(grid, gridIdx)" :style="getGridStyle(grid, gridIdx)">
 						<v-fade-transition group>
-							<div class="item" :key="itemIdx" v-on="getItemEvents(item, itemIdx)" :class="getItemClasses(item, itemIdx)" :style="getItemStyle(item, itemIdx)" v-for="(item, itemIdx) in items">
+							<div class="item" :key="itemIdx" v-on="getItemEvents(item, itemIdx)" :class="getItemClasses(item, itemIdx)" :style="getItemStyle(item, itemIdx)" v-for="(item, itemIdx) in layeredItems[gridIdx]">
 
 							</div>
 						</v-fade-transition>
@@ -590,42 +590,6 @@ export default Vue.extend({
 			return newPos;
 		},
 
-		getItemClasses(item, itemIdx) {
-
-			return {
-				selected: this.selectedItemIdx === itemIdx
-			};
-		},
-
-		getItemStyle(item, itemIdx) {
-			const itemOrientation = item.orientation[this.orientation.key];
-			if (!itemOrientation) {
-				return {};
-			}
-			const pos = itemOrientation.pos;
-			return {
-				outlineColor: this.selectedItemIdx === itemIdx ? this.$vuetify.theme.themes.light.secondary : this.$vuetify.theme.themes.light.primary,
-				backgroundColor: this.selectedItemIdx === itemIdx ? 'rgba(255, 115, 131, 0.1)' : 'rgba(27, 142, 138, 0.1)',
-				left: (pos.startX * this.canvas.zoom) + 'px',
-				top: (pos.startY * this.canvas.zoom) + 'px',
-				width: ((pos.endX - pos.startX) * this.canvas.zoom) + 'px',
-				height: ((pos.endY - pos.startY) * this.canvas.zoom) + 'px',
-			};
-		},
-
-		getItemEvents(item, itemIdx) {
-			const events = {};
-
-			switch (this.selectedTool) {
-				case 'move':
-					events.mousedown = event => this.handleItemMouseDown(event, item, itemIdx);
-					events.click = event => this.handleItemClick(event, item, itemIdx);
-					break;
-			}
-
-			return events;
-		},
-
 		addItem(startPos, endPos) {
 
 			const orientation = {};
@@ -731,6 +695,19 @@ export default Vue.extend({
 			});
 		},
 
+		getViewportEvents() {
+			const events = {};
+
+			if (!this.layers.enabled) {
+				events.wheel = event => this.handleWheel(event);
+				events.mousedown = event => this.handleMouseDown(event);
+				events.mouseenter = event => this.handleMouseEnter(event);
+				events.mouseleave = event => this.handleMouseLeave(event);
+			}
+
+			return events;
+		},
+
 		getGridEvents(grid, gridIdx) {
 			const events = {};
 
@@ -761,9 +738,63 @@ export default Vue.extend({
 				left: this.layers.enabled ? 'calc(2.5rem * ' + gridIdx + ' * ' +  this.zoomSize + ')' : null,
 			};
 		},
+
+		getItemClasses(item, itemIdx) {
+
+			return {
+				selected: this.selectedItemIdx === itemIdx
+			};
+		},
+
+		getItemStyle(item, itemIdx) {
+			const itemOrientation = item.orientation[this.orientation.key];
+			if (!itemOrientation) {
+				return {};
+			}
+			const pos = itemOrientation.pos;
+			return {
+				outlineColor: this.selectedItemIdx === itemIdx ? this.$vuetify.theme.themes.light.secondary : this.$vuetify.theme.themes.light.primary,
+				backgroundColor: this.selectedItemIdx === itemIdx ? 'rgba(255, 115, 131, 0.1)' : 'rgba(27, 142, 138, 0.1)',
+				left: (pos.startX * this.zoomSize) + 'px',
+				top: (pos.startY * this.zoomSize) + 'px',
+				width: ((pos.endX - pos.startX) * this.zoomSize) + 'px',
+				height: ((pos.endY - pos.startY) * this.zoomSize) + 'px',
+			};
+		},
+
+		getItemEvents(item, itemIdx) {
+			const events = {};
+
+			switch (this.selectedTool) {
+				case 'move':
+					events.mousedown = event => this.handleItemMouseDown(event, item, itemIdx);
+					events.click = event => this.handleItemClick(event, item, itemIdx);
+					break;
+			}
+
+			return events;
+		},
 	},
 
 	computed: {
+
+		toolsEnabled() {
+			return !this.layers.enabled;
+		},
+
+		layeredItems() {
+			const items = [];
+			this.layers.data.forEach((layer, layerIdx) => {
+				if (!items[layerIdx]) {
+					items[layerIdx] = [];
+				}
+			});
+			this.items.forEach(item => {
+				items[item.layer].push(item);
+			});
+
+			return items;
+		},
 
 		itemLayers() {
 			const items = [];
@@ -792,6 +823,13 @@ export default Vue.extend({
 
 		selectedTool() {
 			return this.tools[this.selectedToolIdx];
+		},
+
+		viewportClasses() {
+
+			return {
+				'grid-container perspective no-select scrollable d-flex': true,
+			};
 		},
 
 		viewportStyle() {
@@ -959,6 +997,10 @@ export default Vue.extend({
 			.grid {
 				background: none;
 				cursor: pointer;
+
+				& > * {
+					pointer-events: none;
+				}
 
 				&:not(.hovered) {
 					opacity: 0.25;
