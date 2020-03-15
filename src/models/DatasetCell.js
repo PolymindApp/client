@@ -7,7 +7,7 @@ export default class DatasetCell extends Model {
 
 	constructor(props = {}) {
 
-		super(props);
+		super({});
 
 		this.setDefaultValues({
 			id: null,

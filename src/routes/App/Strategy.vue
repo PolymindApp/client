@@ -217,8 +217,8 @@ export default Vue.extend({
 			];
 			document.title = sectionTitle + ' | ' + this.$t('title.strategy');
 
-			this.id = parseInt(this.$route.params.id);
 			this.isNew = this.$route.params.id === 'new';
+			this.id = this.isNew ? 'new' : parseInt(this.$route.params.id);
 
 			setTimeout(() => {
 				const event = new Event('resize');

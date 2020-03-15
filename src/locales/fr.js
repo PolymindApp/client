@@ -335,6 +335,7 @@ const literals = {
 	},
 	strategy: {
 
+		newTitle: 'Nouvelle',
 		isDeleted: 'Cette stratégie a été effacé. C\'est votre dernière chance de la récupérer.',
 		restore: 'Restaurer',
 

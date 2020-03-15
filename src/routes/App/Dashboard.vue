@@ -160,13 +160,13 @@ export default Vue.extend({
 
             this.$root.isLoading = true;
             Promise.all([
-                StrategyService.getAllMine.bind(this)(),
+                // StrategyService.getAllMine.bind(this)(),
                 // ComponentService.getAllMine.bind(this)(),
                 // DocumentService.getAllMine.bind(this)(),
                 // DatasetService.getAllMine.bind(this)()
             ])
                 .then(([strategies, components, documents, datasets]) => {
-                    this.strategies = strategies;
+                    // this.strategies = strategies;
                     // this.components = components;
                     // this.documents = documents;
                     // this.datasets = datasets;

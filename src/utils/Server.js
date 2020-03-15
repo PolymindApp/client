@@ -1,4 +1,3 @@
-import RestError from './RestError';
 import Model from "../models/Model";
 
 export default class Server {
@@ -8,33 +7,39 @@ export default class Server {
 		return Server.prepare.bind(this)('GET', url, params);
 	}
 
-	static post(url, data) {
+	static post(url, data, modelize = true) {
 
-		const model = new Model(data).flat(false);
+		if (modelize) {
+			data = new Model(data).flat(false);
+		}
 
-		return Server.prepare.bind(this)('POST', url, undefined, model);
+		return Server.prepare.bind(this)('POST', url, undefined, data);
 	}
 
-	static put(url, data) {
+	static put(url, data, modelize = true) {
 
-		const model = new Model(data).flat(false);
+		if (modelize) {
+			data = new Model(data).flat(false);
+		}
 
-		return Server.prepare.bind(this)('PUT', url, undefined, model);
+		return Server.prepare.bind(this)('PUT', url, undefined, data);
 	}
 
-	static patch(url, data) {
+	static patch(url, data, modelize = true) {
 
-		const model = new Model(data).flat(false);
+		if (modelize) {
+			data = new Model(data).flat(false);
+		}
 
-		return Server.prepare.bind(this)('PATCH', url, undefined, model);
+		return Server.prepare.bind(this)('PATCH', url, undefined, data);
 	}
 
-	static delete(url, params) {
+	static delete(url, params, modelize = true) {
 
 		return Server.prepare.bind(this)('DELETE', url, params);
 	}
 
-	static upload(files = [], onProgress = () => {}) {
+	static upload(files = [], onProgress = () => {}, modelize = true) {
 
 		if (!(files instanceof Array)) {
 			files = [files];

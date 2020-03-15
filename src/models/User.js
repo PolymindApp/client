@@ -4,17 +4,37 @@ export default class User extends Model {
 
 	constructor(props) {
 
-		super(props);
+		super({});
 
 		this.setDefaultValues({
+			id: null,
 			first_name: '',
 			last_name: '',
 			avatar: null,
 			wallpaper: null,
 			role: {
-				name: ''
+				name: '',
 			},
 			isOnline: false,
+			settings: {
+				sidebar: {
+					fixed: false,
+					strategies: true,
+					components: true,
+					dataset: true,
+					document: false
+				},
+				newNotificationSound: true,
+				newMessageSound: true,
+				externalMsg: "public",
+				development: {
+					theme: "dark",
+					fontSize: 16,
+					tabSize: 4,
+					showLines: true,
+					autoUpdate: false,
+				},
+			}
 		}, props);
 	}
 }

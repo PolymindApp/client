@@ -4,7 +4,7 @@ export default class Response extends Model {
 
 	constructor(props) {
 
-		super(props);
+		super({});
 
 		this.setDefaultValues({
 			data: [],

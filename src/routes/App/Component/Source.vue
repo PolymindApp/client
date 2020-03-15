@@ -5,7 +5,7 @@
 
 		<!-- MODAL: SETTINGS -->
 		<v-dialog v-model="settingsModal.visible" scrollable persistent max-width="500px">
-			<v-card>
+			<v-card :dark="dark">
 				<v-card-title>
 					<v-icon color="primary" slot="icon" size="36" left>mdi-settings-outline</v-icon>
 					{{$t('component.source.settingsModal.title')}}
@@ -32,7 +32,7 @@
 
 		<!-- MODAL: INJECTORS -->
 		<v-dialog v-model="injectorModal.visible" scrollable persistent max-width="800px">
-			<v-card>
+			<v-card :dark="dark">
 				<v-card-title>
 					<v-icon v-if="injectorModal.type === 'hook'" color="primary" slot="icon" size="36" left>mdi-flash</v-icon>
 					<v-icon v-else-if="injectorModal.type === 'parameter'" color="primary" slot="icon" size="36" left>mdi-code-parentheses-box</v-icon>
@@ -408,7 +408,7 @@
 			<div v-if="!fullscreen.active">
 				<v-expand-transition>
 					<div ref="console" v-if="console.opened" :style="{ height: preview.opened && !component.is_invisible ? '30vh' : $refs.previewContainer.offsetHeight - $refs.previewToolbar.$el.offsetHeight + 'px' }" class="d-flex console fill-height">
-						<Console class="w-100 fill-height" v-model="console.logs" :dark="dark" @clear="clearConsole()" @command="runCommand" />
+						<Console class="w-100 fill-height" :reference="pmConsole" v-model="console.logs" :dark="dark" @clear="clearConsole()" @command="runCommand" />
 					</div>
 				</v-expand-transition>
 			</div>
@@ -491,11 +491,12 @@ import ComponentTest from "../../../models/Component.Test";
 import ComponentFunction from "../../../models/Component.Function";
 import ComponentParameter from "../../../models/Component.Parameter";
 
-let originalConsoleLog = console.log;
-let originalConsoleError = console.error;
-let originalConsoleWarning = console.warn;
-let originalConsoleInfo = console.info;
-let originalConsoleClear = console.clear;
+const pmConsole = {};
+// const originalConsoleLog = console.log;
+// const originalConsoleError = console.error;
+// const originalConsoleWarn = console.warn;
+// const originalConsoleInfo = console.info;
+// const originalConsoleClear = console.clear;
 
 export default Vue.extend({
 
@@ -506,7 +507,7 @@ export default Vue.extend({
 
 	mounted() {
 		const vm = this;
-		console.log = function(...params) {
+		pmConsole.log = function(...params) {
 
 		    let log = {
 		        timestamp: new Date(),
@@ -516,9 +517,10 @@ export default Vue.extend({
 
 		    vm.console.lastCount++;
 		    vm.console.logs.push(log);
-		    originalConsoleLog(...params);
+			console.log(...params);
+		    // originalConsole.log(...params);
 		};
-		console.error = function(...params) {
+		pmConsole.error = function(...params) {
 
 		    let error = {
 		        timestamp: new Date(),
@@ -528,9 +530,10 @@ export default Vue.extend({
 
 		    vm.console.lastCount++;
 		    vm.console.logs.push(error);
-		    originalConsoleError(...params);
+			console.error(...params);
+		    // originalConsole.error(...params);
 		};
-		console.warn = function(...params) {
+		pmConsole.warn = function(...params) {
 
 		    let warning = {
 		        timestamp: new Date(),
@@ -540,9 +543,10 @@ export default Vue.extend({
 
 		    vm.console.lastCount++;
 		    vm.console.logs.push(warning);
-		    originalConsoleInfo(...params);
+			console.info(...params);
+		    // originalConsole.info(...params);
 		};
-		console.info = function(...params) {
+		pmConsole.info = function(...params) {
 
 		    let info = {
 		        timestamp: new Date(),
@@ -552,27 +556,17 @@ export default Vue.extend({
 
 		    vm.console.lastCount++;
 		    vm.console.logs.push(info);
-		    originalConsoleWarning(...params);
+			console.warn(...params);
+		    // originalConsole.warn(...params);
 		};
-		console.error = function(...params) {
-
-		    let error = {
-		        timestamp: new Date(),
-		        params: params,
-				error: true,
-		    };
-
-		    vm.console.lastCount++;
-		    vm.console.logs.push(error);
-		    originalConsoleError(...params);
-		};
-		console.clear = function(...params) {
+		pmConsole.clear = function(...params) {
 		    vm.console.lastCount = 0;
 		    vm.console.logs = [{
 				timestamp: new Date(),
 				cleared: true,
 			}];
-			originalConsoleClear(...params);
+		    console.clear(...params);
+			// originalConsole.clear(...params);
 		};
 
 		this.applyChanges();
@@ -590,11 +584,11 @@ export default Vue.extend({
 	},
 
 	destroyed() {
-		console.log = originalConsoleLog;
-		console.error = originalConsoleError;
-		console.warn = originalConsoleWarning;
-		console.info = originalConsoleInfo;
-		console.clear = originalConsoleClear;
+		// console.log = originalConsoleLog;
+		// console.error = originalConsoleError;
+		// console.warn = originalConsoleWarn;
+		// console.info = originalConsoleInfo;
+		// console.clear = originalConsoleClear;
 
 		this.$shortcuts.remove(this.shortcutZoomReset);
 		this.$shortcuts.remove(this.shortcutZoomIn);
@@ -667,7 +661,7 @@ export default Vue.extend({
             })
                 .then(response => {
                     this.$root.isSaved = true;
-                    this.$root.user.settings = new User(this.$deepClone(this.user.settings));
+                    this.$root.user.settings = this.$deepClone(this.user.settings);
                     this.settingsModal.visible = false;
                 })
                 .catch(error => this.$handleError(this, error))
@@ -701,13 +695,23 @@ export default Vue.extend({
 
 		getDynamicComponent() {
 
+			if (this.componentHadError) {
+				this.dynamicComponent = this.emptyComp;
+				return;
+			}
+
 		    if (!this.component) {
 		        this.dynamicComponent = this.defaultComponent;
 		        return;
 			}
 
 			try {
-				let js = eval(this.component.js);
+		    	const jsStr = this.component.js.replace(/console[.]/gim, 'pmConsole.');
+				let js = eval(jsStr);
+
+				if (!(js instanceof Object) || Array.isArray(js)) {
+					js = {};
+				}
 				let structure = Object.assign(js, {
 					components: { VBtn, VIcon, VSheet, VCard, VProgressCircular },
 					template: '<div class="polycomp">'
@@ -718,7 +722,7 @@ export default Vue.extend({
 				const hooks = {};
 				this.component.hooks.forEach(hook => {
 					hooks[hook.name] = () => {
-						eval('(() => {' + hook.js + '})()');
+						eval('(() => {' + hook.js.replace(/console[.]/gim, 'pmConsole.') + '})()');
 					};
 				});
 
@@ -753,43 +757,45 @@ export default Vue.extend({
 					const cmpVm = this;
 					vm.$on('__PM_TEST', test => {
 						let func = function(js) {
+							js = js.replace(/console[.]/gim, 'pmConsole.');
 							try {
 								let value = eval('(() => {' + js + '})()');
 								if (value instanceof Promise) {
-									value.catch(err => console.error);
+									value.catch(err => pmConsole.error);
 								}
 								else if (value) {
-									console.log(value);
+									pmConsole.log(value);
 								}
 							} catch (e) {
-								console.error(e);
+								pmConsole.error(e);
 							}
 						}.call(cmpVm, test.js);
 					});
 					vm.$on('__PM_COMMAND', command => {
 						let func = function(js) {
+							js = js.replace(/console[.]/gim, 'pmConsole.');
 							try {
 								let value = eval(js);
 								if (value !== undefined) {
-									console.log(value);
+									pmConsole.log(value);
 								}
 							} catch (e) {
 								let tryCommand = js.trim();
 								const tryCommandParamPos = tryCommand.indexOf('(');
 								if (tryCommandParamPos === -1 && cmpVm[tryCommand] !== undefined) {
 									try {
-										console.log(cmpVm[tryCommand]);
+										pmConsole.log(cmpVm[tryCommand]);
 									} catch(tryErr) {
-										console.error(e); // Just return the previous error.. (we were only trying in *this* context)
+										pmConsole.error(e); // Just return the previous error.. (we were only trying in *this* context)
 									}
 								} else if (tryCommandParamPos !== -1) {
 									try {
 										eval('this.' + tryCommand);
 									} catch(tryErr) {
-										console.error(e); // Just return the previous error.. (we were only trying in *this* context)
+										pmConsole.error(e); // Just return the previous error.. (we were only trying in *this* context)
 									}
 								} else {
-									console.error(e);
+									pmConsole.error(e);
 								}
 							}
 						}.call(cmpVm, command);
@@ -802,7 +808,6 @@ export default Vue.extend({
 						oldDestroyed.bind(this)();
 					}
 
-					const cmpVm = this;
 					vm.$off('__PM_TEST');
 					vm.$off('__PM_COMMAND');
 				};
@@ -818,9 +823,19 @@ export default Vue.extend({
 					style.innerHTML = this.component.is_invisible ? '' : this.component.scss;
 				}
 
+				structure.renderError = function(err, vm, info) {
+					this.componentHadError = true;
+					this.dynamicComponent = this.emptyComp;
+
+					this.$nextTick(() => {
+						pmConsole.error(vm);
+					});
+					return false;
+				};
+
 				return Vue.component('preview', structure);
 			} catch (e) {
-		    	console.error(e);
+				pmConsole.error(e);
 				return this.emptyComp;
 			}
 		},
@@ -908,6 +923,7 @@ export default Vue.extend({
 		},
 
 		applyChanges() {
+			this.componentHadError = false;
 			this.dynamicComponent = this.getDynamicComponent();
 		},
 
@@ -1022,6 +1038,7 @@ return {};
 					return {};
 				},
 			},
+			componentHadError: false,
 			console: {
 				lastCount: 0,
 				opened: true,
@@ -1042,6 +1059,7 @@ return {};
 			fullscreen: {
             	active: false,
 			},
+			pmConsole: pmConsole,
 		}
 	},
 

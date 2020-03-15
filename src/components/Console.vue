@@ -88,6 +88,10 @@ export default Vue.extend({
 		color: {
 			type: String,
 		},
+		reference: {
+			type: Object,
+			default: () => console,
+		},
 	},
 
 	components: { EmptyView, ConsoleItem },

@@ -7,7 +7,7 @@ export default class DatasetColumn extends Model {
 
 	constructor(props = {}) {
 
-		super(props);
+		super({});
 
 		this.setDefaultValues({
 			id: null,

@@ -183,6 +183,8 @@ import DeploymentService from "../../services/DeploymentService";
 import DatasetColumn from "../../models/DatasetColumn";
 import DatasetRow from "../../models/DatasetRow";
 import DatasetCell from "../../models/DatasetCell";
+import Model from "../../models/Model";
+import Transaction from "../../models/Transaction";
 // import {VSkeletonLoader} from "vuetify";
 
 let jsonJobTimeout = null;
@@ -234,8 +236,8 @@ export default Vue.extend({
 			];
 			document.title = sectionTitle + ' | ' + this.$t('title.dataset');
 
-			this.id = this.$route.params.id;
 			this.isNew = this.$route.params.id === 'new';
+			this.id = this.isNew ? 'new' : parseInt(this.$route.params.id);
 
 			setTimeout(() => {
 				const event = new Event('resize');
@@ -269,6 +271,7 @@ export default Vue.extend({
 			this.formErrors = [];
 
 			if (!this.isNew) {
+
 				this.$root.isLoading = true;
 				DatasetService.get.bind(this)(this.id, true, revisionOffset)
 					.then(response => {
@@ -286,25 +289,6 @@ export default Vue.extend({
 						this.$handleError(this, error);
 					})
 					.finally(() => this.$root.isLoading = false);
-			} else {
-				// this.$root.isLoading = true;
-				// DatasetService.get.bind(this)(1)
-				//     .then(response => {
-				//         this.initializeValues();
-				//         // this.dataset.html = response.data.html;
-				//         // this.dataset.js = response.data.js;
-				//         // this.dataset.scss = response.data.scss;
-				//         this.updateOriginalData();
-				//         this.updateTab();
-				// this.compareJsonJob(this.dataset, 0);
-				//     })
-				//     .catch(error => {
-				//         if (error.response.status === 404) {
-				//             this.$router.push('/404')
-				//         }
-				//         this.$handleError(this, error);
-				//     })
-				//     .finally(() => this.$root.isLoading = false);
 			}
 		},
 
@@ -360,13 +344,18 @@ export default Vue.extend({
 
 		save() {
 
-			const transactions = this.$refs.data.calculateTransactions();
+			const transactions = this.calculateTransactions();
 
 			this.formErrors = [];
 			this.$root.isLoading = true;
 			DatasetService.save.bind(this)(this.id !== 'new' ? this.id : null, this.dataset, transactions)
 				.then(([dataset, transactions] = response) => {
-					this.id = dataset.data.id;
+
+					if (this.id !== dataset.data.id) {
+						return this.$router.push('/dataset/' + dataset.data.id);
+					}
+
+					this.id = parseInt(dataset.data.id);
 					this.isNew = false;
 					this.updateOriginalData();
 					// this.transactions.splice(0, this.transactions.length);
@@ -404,7 +393,111 @@ export default Vue.extend({
 			jsonJobTimeout = setTimeout(() => {
 				this.datasetJson = JSON.stringify(dataset);
 			}, delay);
-		}
+		},
+
+		calculateTransactions() {
+
+			const transactions = [];
+
+			const getTransactions = (collection, list, originalList, getRelations = () => { return {}; }) => {
+
+				const transactions = [];
+				list.forEach((item, itemIdx) => {
+					const props = {};
+					if (item.id === null) {
+						props.action = 'insert';
+						props.guid = item.guid;
+						props.data = new Model(item).flat(false);
+
+						const relations = getRelations(item, itemIdx);
+						if (Object.keys(relations).length > 0) {
+							Object.assign(props, { relations });
+						}
+					} else {
+
+						const originalItem = originalList.find(originalItem => originalItem.guid === item.guid);
+						if (!originalItem) {
+
+							if (item.id) {
+								props.action = 'delete';
+								props.id = item.id;
+							}
+
+						} else {
+
+							const diff = {};
+							const itemKeys = Object.keys(item);
+							const originalKeys = Object.keys(originalItem);
+							itemKeys.forEach((itemKey, keyIdx) => {
+								if (item[itemKey] instanceof Object) {
+									return;
+								}
+								if (item[itemKey] !== originalItem[originalKeys[keyIdx]]) {
+									diff[itemKey] = item[itemKey];
+								}
+							});
+
+							if (Object.keys(diff).length > 0) {
+								props.action = 'update';
+								props.id = item.id;
+								props.data = new Model(diff).flat(true);
+							}
+						}
+					}
+
+					if (props.action) {
+						Object.assign(props, {
+							collection,
+						});
+						transactions.push(new Transaction(props));
+					}
+				});
+
+				// When verifying the new list, if an item has been removed from the original, the comparision logic
+				// doesn't take into account the opposite (if removed from original).. so we do that check here and
+				// merge the results. Transactions from newest items takes priority over those from original items.
+				originalList.forEach(originalItem => {
+					const item = list.find(item => item.guid === originalItem.guid);
+					if (!item && originalItem.id !== null) {
+						const props = {
+							action: 'delete',
+							collection,
+							id: originalItem.id,
+						};
+						transactions.push(new Transaction(props));
+					}
+				});
+
+				return transactions;
+			};
+
+			const rowTransactions = getTransactions('dataset_row', this.dataset.rows, this.originalDataset.rows);
+			if (rowTransactions.length > 0) {
+				transactions.push(...rowTransactions);
+			}
+
+			const columnTransactions = getTransactions('dataset_column', this.dataset.columns, this.originalDataset.columns);
+			if (columnTransactions.length > 0) {
+				transactions.push(...columnTransactions);
+			}
+
+			const cells = this.dataset.rows.map(row => row.cells).flat();
+			const originalCells = this.originalDataset.rows.map(row => row.cells).flat();
+			const cellTransactions = getTransactions('dataset_cell', cells, originalCells, (item, index) => {
+				const row = this.dataset.rows.find(row => row.cells.find(cell => cell.guid === item.guid));
+				const columnIdx = row.cells.findIndex(cell => cell.guid === item.guid);
+				const column = this.dataset.columns[columnIdx];
+				return {
+					dataset_row: row.id ? ['id', 'dataset_row', row.id] : ['guid', 'dataset_row', row.guid],
+					dataset_column: column.id ? ['id', 'dataset_column', column.id] : ['guid', 'dataset_column', column.guid],
+				};
+			});
+			if (cellTransactions.length > 0) {
+				transactions.push(...cellTransactions);
+			}
+
+			return transactions;
+		},
 	},
 
 	computed: {

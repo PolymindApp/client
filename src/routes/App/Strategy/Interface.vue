@@ -3,6 +3,8 @@
 
 		<!-- MAIN CONTENT -->
 		<div class="d-flex flex-column fill-height preview-container grey lighten-3" style="flex: 1">
+
+			<!-- TOOLBAR -->
 			<v-toolbar ref="previewToolbar" class="preview-toolbar no-select" :dark="dark" style="flex: 0; z-index: 1;" :max-width="this.fullscreen.active ? null : viewportStyle.width" dense>
 
 				<!-- TOOLS -->
@@ -49,6 +51,7 @@
 
 				<v-spacer></v-spacer>
 
+				<!-- HORIZONTAL ALIGN -->
 				<v-tooltip bottom>
 					<template v-slot:activator="{ on }">
 						<v-btn v-on="on" :disabled="!toolsEnabled" icon>
@@ -58,6 +61,7 @@
 					<span>{{$t('strategy.interface.tooltips.horizontalAlign')}}</span>
 				</v-tooltip>
 
+				<!-- VERTICAL ALIGN -->
 				<v-tooltip bottom>
 					<template v-slot:activator="{ on }">
 						<v-btn v-on="on" :disabled="!toolsEnabled" icon>
@@ -94,7 +98,7 @@
 				<!-- ZOOM IN -->
 				<v-tooltip bottom>
 					<template v-slot:activator="{ on }">
-						<v-btn class="ml-2" v-on="on" @click="setZoom(-1)" :disabled="canvas.zoom === zoomRange[0]" icon>
+						<v-btn class="ml-2" v-on="on" @click="setZoom(-1)" :disabled="canvas.zoom === zoomRange[0] || layers.enabled" icon>
 							<v-icon>mdi-magnify-minus-outline</v-icon>
 						</v-btn>
 					</template>
@@ -106,7 +110,7 @@
 				<!-- ZOOM OUT -->
 				<v-tooltip bottom>
 					<template v-slot:activator="{ on }">
-						<v-btn v-on="on" @click="setZoom(1)" :disabled="canvas.zoom === zoomRange[zoomRange.length - 1]" icon>
+						<v-btn v-on="on" @click="setZoom(1)" :disabled="canvas.zoom === zoomRange[zoomRange.length - 1] || layers.enabled" icon>
 							<v-icon>mdi-magnify-plus-outline</v-icon>
 						</v-btn>
 					</template>
@@ -128,12 +132,18 @@
 				</v-tooltip>
 			</v-toolbar>
 
+			<!-- VIEWPORT -->
 			<div v-on="getViewportEvents()" :class="viewportClasses" :style="viewportStyle">
-				<div class="grid-padding relative">
+				<div class="grid-padding relative" :style="gridPaddingStyle">
 					<div :ref="'grid_' + gridIdx" :key="gridIdx" v-for="(grid, gridIdx) in layers.data" v-on="getGridEvents(grid, gridIdx)" :class="getGridClasses(grid, gridIdx)" :style="getGridStyle(grid, gridIdx)">
 						<v-fade-transition group>
-							<div class="item" :key="itemIdx" v-on="getItemEvents(item, itemIdx)" :class="getItemClasses(item, itemIdx)" :style="getItemStyle(item, itemIdx)" v-for="(item, itemIdx) in layeredItems[gridIdx]">
-
+							<div class="item d-flex align-center justify-center" :key="itemIdx" v-on="getItemEvents(item, itemIdx)" :class="getItemClasses(item, itemIdx)" :style="getItemStyle(item, itemIdx)" v-for="(item, itemIdx) in visibleItems[gridIdx]">
+								{{item.name}}
+								<template v-if="item.type !== 'zone'">
+									<div class="text-center">
+										<v-icon color="primary" :size="zoomSize * (item.minSize / 1.5)" v-text="typeIcons[item.type]" :left="item.sizeX > 150"></v-icon>
+									</div>
+								</template>
 							</div>
 						</v-fade-transition>
 
@@ -168,7 +178,7 @@
 <!--						<span v-text="layer.name"></span>-->
 						<span>L{{ layerIdx }}</span>
 					</v-btn>
-					<v-btn @click.stop="removeLayer(layerIdx)" v-if="layers.data.length > 0" icon small>
+					<v-btn @click.stop="removeLayer(layerIdx)" :disabled="layers.data.length < 2" icon small>
 						<v-icon>mdi-close</v-icon>
 					</v-btn>
 				</div>
@@ -178,39 +188,39 @@
 		<!-- SIDEBAR -->
 		<v-navigation-drawer :width="sidebar.width" :style="drawerStyle" class="no-select">
 			<div class="fill-height d-flex flex-column">
+
+				<!-- TABS -->
 				<v-tabs style="flex: 0" v-model="drawer.tab" show-arrows grow>
 					<v-tab v-text="$t('strategy.interface.stencils')"></v-tab>
-<!--					<v-tab v-text="$t('strategy.interface.components')"></v-tab>-->
 					<v-tab v-text="$t('strategy.interface.hierarchy')"></v-tab>
 				</v-tabs>
+
+				<!-- TABS CONTENT -->
 				<div class="scrollable grey lighten-4 fill-height" style="flex: 1">
 					<v-tabs-items class="fill-height" style="background-color: transparent" v-model="drawer.tab">
+
+						<!-- STENCILS -->
 						<v-tab-item>
 							<v-row class="pa-2" no-gutters>
 								<v-col cols="3" class="pa-2" v-for="(stencil, stencilIdx) in stencils" :key="stencilIdx">
-									<v-card :color="stencil.active ? 'primary' : null" :dark="stencil.active" class="pa-2 text-center">
-										<v-icon x-large>{{ stencil.icon }}</v-icon>
+									<v-card @click="setStencil(stencilIdx)" :disabled="selectedTool !== 'draw'" :color="currentStencilIdx === stencilIdx ? 'primary' : null" :dark="currentStencilIdx === stencilIdx" class="pa-2 text-center">
+										<v-icon x-large>{{ typeIcons[stencil.key] }}</v-icon>
 										<div class="overline">{{ stencil.name }}</div>
 									</v-card>
 								</v-col>
 							</v-row>
 						</v-tab-item>
+
+						<!-- HIERARCHY -->
 						<v-tab-item class="fill-height">
-							<EmptyView v-if="itemLayers.length === 0" title="Aucune élément" desc="Dessiner de nouveau élément dans la grille" />
-							<v-treeview v-else :items="itemLayers"></v-treeview>
-						</v-tab-item>
-						<v-tab-item>
-							<v-row>
-								<v-col v-for="(component, componentIdx) in components" :key="componentIdx">
-									<span v-text="component.name"></span>
-								</v-col>
-							</v-row>
+							<EmptyView v-if="hierarchyItems.length === 0" title="Aucune élément" desc="Dessiner de nouveau élément dans la grille" />
+							<v-treeview v-else :items="hierarchyItems">
+								<template v-slot:prepend="{ item, open }">
+									<v-icon v-if="item.icon" v-text="item.icon"></v-icon>
+								</template>
+							</v-treeview>
 						</v-tab-item>
 					</v-tabs-items>
-
-<!--					<pre class="pa-4" v-text="drawingHandler"></pre>-->
-<!--					<pre class="pa-4" v-text="mouseEvent.startPos"></pre>-->
-<!--					<pre class="pa-4" v-text="items"></pre>-->
 				</div>
 			</div>
 		</v-navigation-drawer>
@@ -490,20 +500,22 @@ export default Vue.extend({
 
 		handleItemMouseDown(event, item, itemIdx) {
 
-			if (this.selectedItemIdx !== itemIdx) {
-				this.selectedItemIdx = itemIdx;
-			}
+			// if (this.selectedItemIdx !== itemIdx) {
+			// 	this.selectedItemIdx = itemIdx;
+			// }
 		},
 
 		handleItemClick(event, item, itemIdx) {
 
 			if (this.selectedItemIdx === itemIdx) {
 				this.selectedItemIdx = null;
+			} else {
+				this.selectedItemIdx = itemIdx;
 			}
 		},
 
 		handleGridClick(event, grid, gridIdx) {
-			this.layers.currentIdx = gridIdx;
+			this.setLayer(gridIdx);
 			this.closeLayerMode();
 		},
 
@@ -609,6 +621,7 @@ export default Vue.extend({
 					name: 'Item #' + this.items.length,
 					orientation,
 					layer: this.layers.currentIdx,
+					type: this.currentStencil.key,
 				});
 			}, () => {
 				this.items.splice(this.items.length - 1, 1);
@@ -682,10 +695,14 @@ export default Vue.extend({
 
 		setLayer(layerIdx) {
 			this.layers.currentIdx = layerIdx;
+			this.layers.hoveredIdx = layerIdx;
 		},
 
 		removeLayer(layerIdx) {
 			this.layers.data.splice(layerIdx, 1);
+			if (!this.layers.data[this.layers.currentIdx]) {
+				this.setLayer(this.layers.data.length - 1);
+			}
 		},
 
 		addLayer() {
@@ -693,6 +710,10 @@ export default Vue.extend({
 			this.layers.data.push({
 				name: 'Layer ' + (this.layers.data.length + 1)
 			});
+		},
+
+		setStencil(stencilIdx) {
+			this.currentStencilIdx = stencilIdx;
 		},
 
 		getViewportEvents() {
@@ -730,31 +751,50 @@ export default Vue.extend({
 		},
 
 		getGridStyle(grid, gridIdx) {
+
+			const width = this.orientation.snap.x * this.snapSize;
+			const height = this.orientation.snap.y * this.snapSize;
+
+			const inversedIdx = (this.layers.data.length - 1) - gridIdx;
+
+			const maxDiff = this.layers.data.length > 3 ? this.layers.data.length - 2 : 1;
+			const topDiff = (inversedIdx * (height / 4)) / maxDiff;
+			const leftDiff = (gridIdx * (width / 16));
+
+			const totalTop = (this.layers.data.length + 1) * (height / 4);
+			const totalLeft = (this.layers.data.length + 1) * (width / 8);
+
 			return {
 				backgroundSize: this.snapSize + 'px ' + this.snapSize + 'px',
-				width: this.orientation.snap.x * this.snapSize + 'px',
-				height: this.orientation.snap.y * this.snapSize + 'px',
-				top: this.layers.enabled ? 'calc(-8rem * ' + gridIdx + ' * ' +  this.zoomSize + ')' : null,
-				left: this.layers.enabled ? 'calc(2.5rem * ' + gridIdx + ' * ' +  this.zoomSize + ')' : null,
+				width: width + 'px',
+				height: height + 'px',
+				marginTop: this.layers.enabled ? topDiff - (totalTop / 2) + 'px' : null,
+				marginLeft: this.layers.enabled ? leftDiff + 'px' : null,
 			};
 		},
 
 		getItemClasses(item, itemIdx) {
 
+			const isSelected = item.layer === this.layers.currentIdx && this.selectedItemIdx === itemIdx;
+
 			return {
-				selected: this.selectedItemIdx === itemIdx
+				selected: isSelected,
 			};
 		},
 
 		getItemStyle(item, itemIdx) {
+
+			const isSelected = item.layer === this.layers.currentIdx && this.selectedItemIdx === itemIdx;
 			const itemOrientation = item.orientation[this.orientation.key];
+
 			if (!itemOrientation) {
 				return {};
 			}
+
 			const pos = itemOrientation.pos;
 			return {
-				outlineColor: this.selectedItemIdx === itemIdx ? this.$vuetify.theme.themes.light.secondary : this.$vuetify.theme.themes.light.primary,
-				backgroundColor: this.selectedItemIdx === itemIdx ? 'rgba(255, 115, 131, 0.1)' : 'rgba(27, 142, 138, 0.1)',
+				outlineColor: isSelected ? this.$vuetify.theme.themes.light.secondary : this.$vuetify.theme.themes.light.primary,
+				backgroundColor: isSelected ? 'rgba(255, 115, 131, 0.1)' : 'rgba(27, 142, 138, 0.1)',
 				left: (pos.startX * this.zoomSize) + 'px',
 				top: (pos.startY * this.zoomSize) + 'px',
 				width: ((pos.endX - pos.startX) * this.zoomSize) + 'px',
@@ -763,12 +803,15 @@ export default Vue.extend({
 		},
 
 		getItemEvents(item, itemIdx) {
+
 			const events = {};
+			const realItem = this.items.find(_item => this.visibleItems[item.layer][itemIdx].guid === _item.guid);
+			const realItemIdx = this.items.findIndex(_item => this.visibleItems[item.layer][itemIdx].guid === _item.guid);
 
 			switch (this.selectedTool) {
 				case 'move':
-					events.mousedown = event => this.handleItemMouseDown(event, item, itemIdx);
-					events.click = event => this.handleItemClick(event, item, itemIdx);
+					events.mousedown = event => this.handleItemMouseDown(event, realItem, realItemIdx);
+					events.click = event => this.handleItemClick(event, realItem, realItemIdx);
 					break;
 			}
 
@@ -782,7 +825,7 @@ export default Vue.extend({
 			return !this.layers.enabled;
 		},
 
-		layeredItems() {
+		visibleItems() {
 			const items = [];
 			this.layers.data.forEach((layer, layerIdx) => {
 				if (!items[layerIdx]) {
@@ -790,21 +833,37 @@ export default Vue.extend({
 				}
 			});
 			this.items.forEach(item => {
-				items[item.layer].push(item);
+				const itemOrientation = item.orientation[this.orientation.key];
+				if (itemOrientation && items[item.layer]) {
+					const newItem = {
+						sizeX: itemOrientation.pos.endX - itemOrientation.pos.startX,
+						sizeY: itemOrientation.pos.endY - itemOrientation.pos.startY,
+						...item
+					};
+					newItem.minSize = newItem.sizeX > newItem.sizeY ? newItem.sizeY : newItem.sizeX;
+					items[item.layer].push(newItem);
+				}
 			});
 
 			return items;
 		},
 
-		itemLayers() {
+		hierarchyItems() {
 			const items = [];
 			this.items.forEach(item => {
-				items.push({
-					id: item.guid,
-					name: item.name,
-				});
+				if (item.layer === this.layers.currentIdx) {
+					items.push({
+						id: item.guid,
+						name: item.name,
+						icon: this.typeIcons[item.type],
+					});
+				}
 			});
 			return items;
+		},
+
+		currentStencil() {
+			return this.stencils[this.currentStencilIdx];
 		},
 
 		containerClasses() {
@@ -927,14 +986,6 @@ export default Vue.extend({
 			canvas: {
 				zoom: 1,
 			},
-			layers: {
-				data: [
-					{ guid: Hash.guid(), name: 'Layer 1' },
-				],
-				currentIdx: 0,
-				hoveredIdx: 0,
-				enabled: false,
-			},
 			sidebar: {
 				width: 400,
 			},
@@ -950,16 +1001,38 @@ export default Vue.extend({
 				{ key: '4/3', name: this.$t('strategy.interface.orientations._4_3') , snap: { size: 20, x: 4 * 8, y: 3 * 8, zoom: 1 } }, // Tablet landscape
 				{ key: '3/4', name: this.$t('strategy.interface.orientations._3_4') , snap: { size: 20, x: 3 * 8, y: 4 * 8, zoom: 1 } }, // Tablet portrait
 			],
+			currentStencilIdx: 0,
 			stencils: [
-				{ active: true, icon: 'mdi-rectangle-outline', name: 'Zone', },
-				{ icon: 'mdi-text', name: 'Text', },
-				{ icon: 'mdi-image-outline', name: 'Image', },
-				{ icon: 'mdi-textbox', name: 'Input', },
-				{ icon: 'mdi-video-outline', name: 'Video', },
-				{ icon: 'mdi-view-list', name: 'List', },
+				{ key: 'zone', name: 'Zone', },
+				{ key: 'text', name: 'Text', },
+				{ key: 'image', name: 'Image', },
+				{ key: 'input', name: 'Input', },
+				{ key: 'video', name: 'Video', },
+				{ key: 'list', name: 'List', },
+				{ key: 'button', name: 'Button', },
 			],
 			components: [],
-			items: [],
+			// items: [],
+			typeIcons: {
+				zone: 'mdi-rectangle-outline',
+				text: 'mdi-text',
+				image: 'mdi-image-outline',
+				input: 'mdi-textbox',
+				video: 'mdi-video-outline',
+				list: 'mdi-view-list',
+				button: 'mdi-card',
+			},
+			layers: {
+				data: [
+					{ guid: Hash.guid(), name: 'Layer 1' },
+					{ guid: Hash.guid(), name: 'Layer 2' },
+					{ guid: Hash.guid(), name: 'Layer 3' },
+				],
+				currentIdx: 0,
+				hoveredIdx: 0,
+				enabled: false,
+			},
+			items: [ { "guid": "aceaf4af075976d1", "name": "Item #0", "orientation": { "3/4": { "pos": { "startX": 0, "startY": 0, "endX": 480, "endY": 80 } } }, "layer": 0, "type": "zone" }, { "guid": "936f94adb4fd3451", "name": "Item #1", "orientation": { "3/4": { "pos": { "startX": 0, "startY": 80, "endX": 480, "endY": 140 } } }, "layer": 0, "type": "list" }, { "guid": "565c0e7f1ccc9473", "name": "Item #2", "orientation": { "3/4": { "pos": { "startX": 0, "startY": 0, "endX": 100, "endY": 80 } } }, "layer": 0, "type": "image" }, { "guid": "eaf4bad64e6aacba", "name": "Item #3", "orientation": { "3/4": { "pos": { "startX": 100, "startY": 0, "endX": 480, "endY": 80 } } }, "layer": 0, "type": "list" }, { "guid": "1342d547799c882e", "name": "Item #4", "orientation": { "3/4": { "pos": { "startX": 0, "startY": 140, "endX": 480, "endY": 580 } } }, "layer": 0, "type": "zone" }, { "guid": "58af01ff8260b1f9", "name": "Item #5", "orientation": { "3/4": { "pos": { "startX": 0, "startY": 580, "endX": 160, "endY": 640 } } }, "layer": 0, "type": "list" }, { "guid": "159e91faf8f57877", "name": "Item #6", "orientation": { "3/4": { "pos": { "startX": 320, "startY": 580, "endX": 480, "endY": 640 } } }, "layer": 0, "type": "list" }, { "guid": "d57454915345d6c9", "name": "Item #7", "orientation": { "3/4": { "pos": { "startX": 160, "startY": 580, "endX": 320, "endY": 640 } } }, "layer": 0, "type": "list" }, { "guid": "1f2f97c80f0c6d1e", "name": "Item #8", "orientation": { "3/4": { "pos": { "startX": 20, "startY": 160, "endX": 460, "endY": 200 } } }, "layer": 0, "type": "text" }, { "guid": "1ad99e99c12c1bf6", "name": "Item #9", "orientation": { "3/4": { "pos": { "startX": 20, "startY": 220, "endX": 460, "endY": 560 } } }, "layer": 0, "type": "text" }, { "guid": "97036a25eedfd2be", "name": "Item #10", "orientation": { "3/4": { "pos": { "startX": 0, "startY": 0, "endX": 480, "endY": 640 } } }, "layer": 1, "type": "zone" }, { "guid": "a93ca27cb3719cda", "name": "Item #11", "orientation": { "3/4": { "pos": { "startX": 100, "startY": 160, "endX": 380, "endY": 420 } } }, "layer": 2, "type": "zone" }, { "guid": "f088dabc7a7ce914", "name": "Item #12", "orientation": { "3/4": { "pos": { "startX": 100, "startY": 160, "endX": 380, "endY": 220 } } }, "layer": 2, "type": "zone" }, { "guid": "bbedc37e29572654", "name": "Item #13", "orientation": { "3/4": { "pos": { "startX": 120, "startY": 180, "endX": 320, "endY": 200 } } }, "layer": 2, "type": "text" }, { "guid": "f0c801c85d1cc0d8", "name": "Item #14", "orientation": { "3/4": { "pos": { "startX": 340, "startY": 180, "endX": 360, "endY": 200 } } }, "layer": 2, "type": "zone" }, { "guid": "6deddd938031b814", "name": "Item #15", "orientation": { "3/4": { "pos": { "startX": 120, "startY": 240, "endX": 360, "endY": 260 } } }, "layer": 2, "type": "text" }, { "guid": "167aeb0ba1a931e9", "name": "Item #16", "orientation": { "3/4": { "pos": { "startX": 120, "startY": 280, "endX": 360, "endY": 360 } } }, "layer": 2, "type": "text" }, { "guid": "9a2bee17d257377a", "name": "Item #17", "orientation": { "3/4": { "pos": { "startX": 300, "startY": 380, "endX": 360, "endY": 400 } } }, "layer": 2, "type": "zone" }, { "guid": "e7ba04068eeb9e5e", "name": "Item #18", "orientation": { "3/4": { "pos": { "startX": 220, "startY": 380, "endX": 280, "endY": 400 } } }, "layer": 2, "type": "zone" } ],
 		}
 	},
 
@@ -1048,14 +1121,14 @@ export default Vue.extend({
 		.grid-padding {
 			margin: auto;
 			padding: 1rem;
-			transition: transform 300ms ease;
-			box-sizing: border-box;
+			transition: all 300ms ease;
+			box-sizing: content-box;
 			position: relative;
 		}
 
 		.grid {
 			margin-bottom: 0;
-			position: relative;
+			position: absolute;
 			border-bottom: rgba(0, 0, 0, 0.15) solid 1px !important;
 			border-right: rgba(0, 0, 0, 0.15) solid 1px !important;
 			transition: all 300ms ease;
@@ -1068,12 +1141,6 @@ export default Vue.extend({
 				.side-bottom {
 					opacity: 0;
 				}
-			}
-
-			&:not(.current) {
-				top: 1rem;
-				left: 1rem;
-				position: absolute;
 			}
 
 			.side-left {
@@ -1096,21 +1163,21 @@ export default Vue.extend({
 				transition: all 300ms ease;
 				transform: skew(10deg, 0deg);
 			}
-		}
 
-		.item {
-			position: absolute;
-			outline-offset: -1px;
-			outline-style: solid;
-			outline-width: 2px;
-			transition: all 300ms ease;
+			.item {
+				position: absolute;
+				outline-offset: -1px;
+				outline-style: solid;
+				outline-width: 2px;
+				transition: all 300ms ease;
 
-			&.selected {
-				transition: none !important;
-			}
+				/*&.selected {*/
+				/*	transition: none !important;*/
+				/*}*/
 
-			&.selected {
-				outline-width: 4px;
+				&.selected {
+					outline-width: 4px;
+				}
 			}
 		}
 	}
@@ -1161,6 +1228,10 @@ export default Vue.extend({
 		position: absolute;
 		pointer-events: none;
 		transition: opacity 300ms ease;
+	}
+
+	.preview-toolbar {
+		transition-property: transform, background-color, left, right, box-shadow, -webkit-transform, -webkit-box-shadow;
 	}
 
 	.v-tabs-items::v-deep .v-window__container {

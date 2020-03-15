@@ -30,6 +30,7 @@
 
 <script>
 import Vue from 'vue';
+import UserModel from "../models/User";
 import File from '../utils/File';
 import FileService from "../services/FileService";
 import UserService from "../services/UserService";
@@ -74,7 +75,7 @@ export default Vue.extend({
                                 avatar: filesResponse.data.id
                             })
                                 .then(response => {
-                                    Object.assign(this.$root.user, response.data);
+                                    Object.assign(this.$root.user, new UserModel(response.data));
                                 })
                                 .catch(error => this.$handleError(this, error))
                                 .finally(() => this.isUploading = false);

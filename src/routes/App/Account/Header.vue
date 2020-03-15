@@ -214,6 +214,7 @@
 import Vue from 'vue';
 import File from "../../../utils/File";
 import UserAvatar from "../../../components/UserAvatar";
+import UserModel from "../../../models/User";
 import FileService from "../../../services/FileService";
 import UserService from "../../../services/UserService";
 import FollowingService from "../../../services/FollowingService";
@@ -319,8 +320,8 @@ export default Vue.extend({
 							    wallpaper: filesResponse.data.id
 							})
 								.then(response => {
-								    this.$root.user = Object.assign(this.$root.user, response.data);
-								    this.user = Object.assign(this.user, response.data);
+								    this.$root.user = Object.assign(this.$root.user, new UserModel(response.data));
+								    this.user = Object.assign(this.user, new UserModel(response.data));
 								})
                                 .catch(error => this.$handleError(this, error))
                                 .finally(() => this.isUploading = false);

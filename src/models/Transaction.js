@@ -4,14 +4,14 @@ export default class Transaction extends Model {
 
 	constructor(props = {}) {
 
-		super(props);
+		super({});
 
 		this.setDefaultValues({
-			// guid: null,
+			guid: null,
+			id: null,
 			action: null,
 			collection: null,
-			// data
-			// id
+			data: null,
 		}, props);
 	}
 }

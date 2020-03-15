@@ -1,3 +1,5 @@
+import DatasetColumn from "./DatasetColumn";
+import DatasetRow from "./DatasetRow";
 import DatasetCell from "./DatasetCell";
 import Model from "./Model";
 
@@ -5,7 +7,7 @@ export default class Dataset extends Model {
 
 	constructor(props) {
 
-		super(props);
+		super({});
 
 		const mapper = `/**
  * Transform the response variable into a valid Polymind dataset
@@ -19,6 +21,7 @@ return {
 };`;
 
 		this.setDefaultValues({
+			id: null,
 			name: '',
 			description: '<p></p>',
 			is_private: true,
@@ -30,6 +33,9 @@ return {
 			columns: [],
 			rows: [],
 		}, props);
+
+		this.columns = this.columns.map(column => new DatasetColumn(column));
+		this.rows = this.rows.map(row => new DatasetRow(row));
 
 		this.validate();
 	}

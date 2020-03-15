@@ -4,7 +4,7 @@ export default class ComponentHook extends Model {
 
 	constructor(props) {
 
-		super(props);
+		super({});
 
 		this.setDefaultValues({
 			name: '',

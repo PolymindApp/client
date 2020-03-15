@@ -132,6 +132,10 @@ import StrategyService from "../services/StrategyService";
 import DatasetService from "../services/DatasetService";
 import DocumentService from "../services/DocumentService";
 import UserService from "../services/UserService";
+import StrategyModel from "../models/Strategy";
+import ComponentModel from "../models/Component";
+import DatasetModel from "../models/Dataset";
+import DocumentModel from "../models/Document";
 
 export default Vue.extend({
 	name: 'Sidebar',
@@ -220,7 +224,7 @@ export default Vue.extend({
 
 		loadStrategies() {
 			StrategyService.getAllMine.bind(this)().then(response => {
-				this.strategies = response.data;
+				this.strategies = response.data.map(item => new StrategyModel(item));
 			})
 				.catch(error => this.$handleError(this, error))
 				// .finally(() => this.$root.isLoading = false);
@@ -228,7 +232,7 @@ export default Vue.extend({
 
 		loadComponents() {
 			ComponentService.getAllMine.bind(this)().then(response => {
-				this.components = response.data;
+				this.components = response.data.map(item => new ComponentModel(item));
 			})
 				.catch(error => this.$handleError(this, error))
 				// .finally(() => this.$root.isLoading = false);
@@ -236,7 +240,11 @@ export default Vue.extend({
 
 		loadDatasets() {
 			DatasetService.getAllMine.bind(this)().then(response => {
-				this.datasets = response.data;
+				this.datasets = response.data.map(item => {
+					console.log(item);
+					console.log(new DatasetModel(item));
+					return new DatasetModel(item);
+				});
 			})
 				.catch(error => this.$handleError(this, error))
 			// .finally(() => this.$root.isLoading = false);
@@ -244,7 +252,7 @@ export default Vue.extend({
 
         loadDocuments() {
 			DocumentService.getAllMine.bind(this)().then(response => {
-				this.documents = response.data;
+				this.documents = response.data.map(item => new DocumentModel(item));
 			})
 				.catch(error => this.$handleError(this, error))
 			// .finally(() => this.$root.isLoading = false);

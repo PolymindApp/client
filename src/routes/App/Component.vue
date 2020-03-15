@@ -211,8 +211,8 @@ export default Vue.extend({
 			];
 			document.title = sectionTitle + ' | ' + this.$t('title.component');
 
-			this.id = parseInt(this.$route.params.id);
 			this.isNew = this.$route.params.id === 'new';
+			this.id = this.isNew ? 'new' : parseInt(this.$route.params.id);
 
 			setTimeout(() => {
 				const event = new Event('resize');
@@ -230,8 +230,7 @@ export default Vue.extend({
                 .then(response => {
                     this.commentCount = response.meta.filter_count;
                 })
-                .catch(error => this.$handleError(this, error))
-                .finally(() => this.$root.isLoading = false);
+                .catch(error => this.$handleError(this, error));
 		},
 
         loadRevision(offset) {
@@ -246,8 +245,7 @@ export default Vue.extend({
                     this.revisions = response.data.reverse();
                     this.revisionOffset = 0;
 				})
-                .catch(error => this.$handleError(this, error))
-                .finally(() => this.$root.isLoading = false);
+                .catch(error => this.$handleError(this, error));
 		},
 
 		load(revisionOffset) {
@@ -278,19 +276,6 @@ export default Vue.extend({
 						}
 						this.$handleError(this, error);
 					})
-					.finally(() => this.$root.isLoading = false);
-			} else {
-				this.$root.isLoading = true;
-				ComponentService.get.bind(this)(1)
-					.then(response => {
-						this.initializeValues();
-						this.component.html = response.data.html;
-						this.component.js = response.data.js;
-						this.component.scss = response.data.scss;
-						this.updateOriginalData();
-						this.updateTab();
-					})
-					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
 			}
 		},

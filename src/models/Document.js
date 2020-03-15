@@ -1,6 +1,6 @@
 import Model from "./Model";
 
-export default class Strategy extends Model {
+export default class Document extends Model {
 
 	constructor(props) {
 
@@ -14,8 +14,6 @@ export default class Strategy extends Model {
 			is_invisible: false,
 			is_private: false,
 			icon: '',
-			interface: {},
-			workflow: {},
 		}, props);
 	}
 }
