@@ -5,6 +5,7 @@ const literals = {
 		terms: 'Termes & Conditions',
 		policies: 'Politiques de Condidentialités',
 		dashboard: 'Tableau de bord',
+		news: 'Nouvelles',
 		community: 'Communauté',
 		shop: 'Marché au puces',
 		contact: 'Contact',
@@ -19,8 +20,6 @@ const literals = {
 		error404: 'Page non trouvé',
 		register: 'Inscription',
 		activate: 'Activation',
-		sound: true,
-		widgets: false,
 		forgotPassword: 'Oublie de mot de passe',
 		resetPassword: 'Réinitialisation de mot de passe',
 		strategy: 'Stratégie',
@@ -40,6 +39,15 @@ const literals = {
 		documentsEmpty: 'Aucun document pour le moment',
 		datasetsEmpty: 'Aucune base de donnée pour le moment',
 
+		news: {
+			title: 'Dernières actualités',
+			seeMore: 'En savoir plus',
+			types: {
+				general: 'Générale',
+				issue: 'Problème',
+			}
+		},
+
 		contextual: {
 			filters: 'Filtres',
 			archived: 'Archivé',
@@ -55,6 +63,9 @@ const literals = {
 		},
 		filteredNoResults: 'Aucun résultat...',
 		filteredNoResultsDesc: 'Vos critères de recherches n\'ont retournés aucun résultat',
+	},
+	news: {
+		writtenBy: 'Rédigé par <strong>{screenName}</strong>',
 	},
 	notification: {
 		types: {
@@ -79,6 +90,7 @@ const literals = {
 		btnTitle: 'Révision',
 	},
 	comment: {
+		title: 'Commentaires',
 		btnTitle: 'Commentaires',
 		newMessagePlaceholder: 'Écrivez votre commentaire ici...',
 		totalTitle: '{amount} commentaire(s)',
@@ -378,6 +390,7 @@ const literals = {
 				select: 'Sélectionner',
 				draw: 'Dessiner',
 				rotate: 'Tourner',
+				layers: 'Couches',
 				fullscreenOn: 'Aller en mode plein écran',
 				fullscreenOff: 'Sortir du mode plein écran',
 				zoomIn: 'Agrandir',
@@ -1012,9 +1025,11 @@ const literals = {
 		linkedInLogin: 'Connexion avec LinkedIn',
 		githubLogin: 'Connexion avec GitHub',
 		resetPassword: 'Réinitialiser mot de passe',
+		tempLocked: 'Votre compte a été vérouillé temporairement en votre absence. Revalider votre mot de passe pour retourner à vos activités.',
 		backLogin: 'Retour',
 		registerBtn: 'M\'inscrire',
 		loginBtn: 'Connexion',
+		unlockBtn: 'Dévérouiller',
 		emailPlaceholder: 'Adresse courriel',
 		actualPassPlaceholder: 'Mot de passe actuel',
 		newPassPlaceholder: 'Nouveau mot de passe',

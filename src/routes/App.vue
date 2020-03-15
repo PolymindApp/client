@@ -28,7 +28,7 @@
 			<Help ref="help" :visible="$root.help.visible" />
 
 			<!-- COMMENTS -->
-			<Comments ref="comments" />
+			<CommentDrawer ref="comments" />
 
 			<!-- IS DELETE -->
 			<v-snackbar color="success" v-model="$root.isDeleted">
@@ -69,6 +69,7 @@
 import Vue from 'vue';
 import moment from 'moment';
 import Dashboard from './App/Dashboard.vue';
+import News from './App/News.vue';
 import Account from './App/Account.vue';
 import Error404 from './Error/Error404.vue';
 import Toolbar from '../components/Toolbar.vue';
@@ -82,12 +83,13 @@ import Component from "./App/Component";
 import Strategy from "./App/Strategy";
 import Dataset from "./App/Dataset";
 import User from "../models/User";
-import Comments from "../components/Comments";
+import CommentDrawer from "../components/CommentDrawer";
 import Chat from "../components/Chat";
 
 export const routes = [
 	{path: '/', component: Dashboard, name: 'dashboard'},
 	{path: '/login', redirect: '/'},
+	{path: '/news/:locale/:slug', component: News, name: 'news' },
 	{path: '/account/:id', redirect: '/account/:id/wall' },
 	{path: '/account/:id/:section', component: Account, name: 'account'},
 	{path: '/account/:id/:section/:key', component: Account, name: 'accountMessaging'},
@@ -109,7 +111,7 @@ export default Vue.extend({
 	name: 'App',
 
 	components: {
-		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help, Comments, Chat
+		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help, CommentDrawer, Chat
 	},
 
 	created() {

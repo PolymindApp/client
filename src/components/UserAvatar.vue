@@ -1,5 +1,5 @@
 <template>
-	<v-avatar color="primary" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
+	<v-avatar @click="handleClick" color="primary" :class="classes" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
 
 		<v-overlay :absolute="true" :value="isUploading">
 			<v-progress-circular :size="size / 2" color="primary" indeterminate></v-progress-circular>
@@ -61,6 +61,12 @@ export default Vue.extend({
 
 	methods: {
 
+		handleClick() {
+			if (!this.editable) {
+				this.$router.push('/account/' + this.user.id);
+			}
+		},
+
 	    modify(param) {
 
 			File.promptFileDialog(images => {
@@ -93,6 +99,16 @@ export default Vue.extend({
 
         isOnline() {
             return moment(this.user.last_access_on).isAfter(moment().subtract(5, 'minutes'));
+		},
+
+		isCurrentUser() {
+        	return this.$root.user.id === this.user.id;
+		},
+
+		classes() {
+        	return {
+				redirectsToAccount: !this.editable,
+			};
 		}
 	},
 
@@ -118,6 +134,10 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+
+	.redirectsToAccount {
+		cursor: pointer;
+	}
 
 	.connection {
 		position: absolute;

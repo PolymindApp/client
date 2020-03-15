@@ -2,7 +2,7 @@
 	<v-navigation-drawer app :hide-overlay="hideOverlay" :temporary="temporary" :permanent="permanent" v-model="sidebar.opened" width="300" :mini-variant="sidebar.miniVariant">
 		<v-card tile height="100%" class="d-flex flex-column">
 			<div style="flex: 0">
-				<v-card tile class="py-5 lightbox default-gradient user-tile" :style="{ backgroundImage: backgroundImage }">
+				<v-img tile class="py-5 lightbox default-gradient user-tile" transition="fade" :src="backgroundImage" :gradient="gradient" max-height="180">
 
 					<v-overlay :absolute="false" :value="isLoading">
 						<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
@@ -40,7 +40,7 @@
 						</template>
 						<span>{{$t('toolbar.tooltip.pinSidebar')}}</span>
 					</v-tooltip>
-				</v-card>
+				</v-img>
 
 				<v-divider></v-divider>
 			</div>
@@ -130,12 +130,12 @@ import draggable from "vuedraggable";
 import ComponentService from "../services/ComponentService";
 import StrategyService from "../services/StrategyService";
 import DatasetService from "../services/DatasetService";
-import DocumentService from "../services/DocumentService";
+// import DocumentService from "../services/DocumentService";
 import UserService from "../services/UserService";
 import StrategyModel from "../models/Strategy";
 import ComponentModel from "../models/Component";
 import DatasetModel from "../models/Dataset";
-import DocumentModel from "../models/Document";
+// import DocumentModel from "../models/Document";
 
 export default Vue.extend({
 	name: 'Sidebar',
@@ -152,12 +152,12 @@ export default Vue.extend({
 		this.loadComponents();
 		this.loadStrategies();
 		this.loadDatasets();
-		this.loadDocuments();
+		// this.loadDocuments();
 
 	    this.$root.$on('COMPONENT_UPDATE', this.loadComponents);
 	    this.$root.$on('STRATEGY_UPDATE', this.loadStrategies);
 	    this.$root.$on('DATASET_UPDATE', this.loadDatasets);
-	    this.$root.$on('DOCUMENTS_UPDATE', this.loadDocuments);
+	    // this.$root.$on('DOCUMENTS_UPDATE', this.loadDocuments);
 	    this.$root.$on('FULLSCREEN', this.fullScreenEvent);
 	},
 
@@ -166,7 +166,7 @@ export default Vue.extend({
         this.$root.$off('COMPONENT_UPDATE', this.loadComponents);
         this.$root.$off('STRATEGY_UPDATE', this.loadStrategies);
         this.$root.$off('DATASET_UPDATE', this.loadDatasets);
-        this.$root.$off('DOCUMENTS_UPDATE', this.loadDocuments);
+        // this.$root.$off('DOCUMENTS_UPDATE', this.loadDocuments);
 	    this.$root.$off('FULLSCREEN', this.fullScreenEvent);
 	},
 
@@ -241,8 +241,6 @@ export default Vue.extend({
 		loadDatasets() {
 			DatasetService.getAllMine.bind(this)().then(response => {
 				this.datasets = response.data.map(item => {
-					console.log(item);
-					console.log(new DatasetModel(item));
 					return new DatasetModel(item);
 				});
 			})
@@ -250,13 +248,13 @@ export default Vue.extend({
 			// .finally(() => this.$root.isLoading = false);
 		},
 
-        loadDocuments() {
-			DocumentService.getAllMine.bind(this)().then(response => {
-				this.documents = response.data.map(item => new DocumentModel(item));
-			})
-				.catch(error => this.$handleError(this, error))
-			// .finally(() => this.$root.isLoading = false);
-		},
+        // loadDocuments() {
+		// 	DocumentService.getAllMine.bind(this)().then(response => {
+		// 		this.documents = response.data.map(item => new DocumentModel(item));
+		// 	})
+		// 		.catch(error => this.$handleError(this, error))
+		// 	// .finally(() => this.$root.isLoading = false);
+		// },
 
 		signOut() {
 		    UserService.logout.bind(this)()
@@ -282,8 +280,12 @@ export default Vue.extend({
 
 	    backgroundImage() {
             return this.$root.user.wallpaper
-                ? 'url(\'' + this.$thumbnails(this.$root.user.wallpaper.filename, 256, 256) + '\')'
+                ? this.$thumbnails(this.$root.user.wallpaper.filename, 256, 256)
                 : null;
+		},
+
+		gradient() {
+			return this.backgroundImage ? 'to top right, rgba(27, 142, 138, .7), rgba(27, 142, 138, .3)' : null;
 		},
 
 	    hideOverlay() {
@@ -337,7 +339,7 @@ export default Vue.extend({
 			strategies: [],
 			components: [],
 			datasets: [],
-			documents: [],
+			// documents: [],
 			newItem: '',
 			menuItems: [
 				{
@@ -382,24 +384,24 @@ export default Vue.extend({
 						return items;
 					},
 				},
-				{
-                	name: 'document', canAdd: true, addTo: '/document/new', getItems: () => {
-						let items = [];
-						this.documents.forEach(document => {
-							if (document.isArchived) {
-                            	return;
-							}
-							items.push({
-								title: document.name,
-								icon: 'mdi-file-document-outline',
-								link: '/dataset/' + document.id,
-								badge: document.totalItems,
-								badgeColor: 'transparent',
-							});
-						});
-						return items;
-					},
-				},
+				// {
+                // 	name: 'document', canAdd: true, addTo: '/document/new', getItems: () => {
+				// 		let items = [];
+				// 		this.documents.forEach(document => {
+				// 			if (document.isArchived) {
+                //             	return;
+				// 			}
+				// 			items.push({
+				// 				title: document.name,
+				// 				icon: 'mdi-file-document-outline',
+				// 				link: '/dataset/' + document.id,
+				// 				badge: document.totalItems,
+				// 				badgeColor: 'transparent',
+				// 			});
+				// 		});
+				// 		return items;
+				// 	},
+				// },
 				{
                 	name: 'dataset', canAdd: true, addTo: '/dataset/new', getItems: () => {
 						let items = [];

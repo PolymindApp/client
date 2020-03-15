@@ -17,6 +17,16 @@
 						</v-col>
 					</v-row>
 
+
+					<v-row>
+						<v-col cols="4" class="d-flex align-center">
+							<label v-text="$t('account.settings.theme.title')"></label>
+						</v-col>
+						<v-col>
+							<v-select :items="themes" v-model="user.settings.theme" outlined hide-details></v-select>
+						</v-col>
+					</v-row>
+
 					<v-row>
 						<v-col cols="4" class="d-flex align-center">
 							<label v-text="$t('account.settings.externalMsg')"></label>
@@ -114,6 +124,10 @@
             return {
 				form: true,
                 formErrors: {},
+				themes: [
+					{ text: this.$t('account.settings.theme.dark'), value: 'dark', },
+					{ text: this.$t('account.settings.theme.light'), value: 'light', },
+				],
 			};
         }
     });

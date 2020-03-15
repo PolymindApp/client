@@ -24,7 +24,9 @@ export const routes = [
 	{path: '/issue/ws', component: ErrorWs},
 	{path: '/issue/api', component: ErrorApi},
 	{path: '*', redirect: to => {
-		localStorage.setItem('redirect_uri', to.fullPath);
+		if (!to.fullPath.startsWith('/issue/')) {
+			localStorage.setItem('redirect_uri', to.fullPath);
+		}
 		return '/';
 	}},
 ];

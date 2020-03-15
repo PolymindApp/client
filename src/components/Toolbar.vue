@@ -46,7 +46,7 @@
 				<span v-if="$root.breadcrumbs.length === 0" class="font-weight-light">{{ $router.currentRoute.name && $t('title.' + $router.currentRoute.name) }}</span>
 
 				<template v-for="(breadcrumb, index) in $root.breadcrumbs">
-					<div class="d-inline">
+					<div class="d-inline headline-item">
 						<span v-if="typeof breadcrumb === 'string'">
 							<span v-if="index === 0" v-show="showTitle" :key="index + '_item'">{{ breadcrumb }}</span>
 							<span v-if="index > 0" v-show="showTitle" :key="index + '_item'" class="font-weight-light">{{ breadcrumb }}</span>
@@ -58,7 +58,7 @@
 						</template>
 					</div>
 
-					<v-icon v-if="index + 1 < $root.breadcrumbs.length" :key="index + '_chevron'">mdi-chevron-right</v-icon>
+					<v-icon v-if="index + 1 < $root.breadcrumbs.length" :key="index + '_chevron'" class="separator">mdi-chevron-right</v-icon>
 				</template>
 			</v-toolbar-title>
 
@@ -593,6 +593,18 @@ export default Vue.extend({
 	.v-toolbar__title {
 		span {
 			display: inline-block;
+		}
+	}
+
+	.headline {
+
+		@media all and (max-width: 767px) {
+			.separator {
+				display: none;
+			}
+			.headline-item:not(:last-child) {
+				display: none !important;
+			}
 		}
 	}
 </style>

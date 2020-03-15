@@ -1,0 +1,82 @@
+<template>
+	<div class="text-center fill-height align-center d-flex">
+		<v-form ref="form" v-model="formIsValid" @submit="validate" lazy-validation>
+
+			<div class="my-4">
+				<UserAvatar :user="$root.user" class="mb-8" />
+				<div>
+					<div class="mb-4" v-text="$t('restricted.tempLocked')"></div>
+					<v-text-field :error-messages="formErrors.password" v-model="password" :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" hide-details light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword"></v-text-field>
+				</div>
+			</div>
+
+			<v-btn type="submit" color="primary" large style="width: 100%" dark>
+				{{$t('restricted.unlockBtn')}}
+			</v-btn>
+		</v-form>
+	</div>
+</template>
+
+<script>
+import Vue from 'vue';
+import Rules from "../../utils/Rules";
+import UserService from "../../services/UserService";
+import UserAvatar from "../../components/UserAvatar";
+
+export default Vue.extend({
+
+	components: { UserAvatar },
+
+	created() {
+
+		const lockedUser = localStorage.getItem('lockedUser');
+		if (lockedUser) {
+			this.user = lockedUser;
+		} else {
+			this.$router.push('/login');
+		}
+	},
+
+	methods: {
+
+		validate (event) {
+
+			event.preventDefault();
+
+			if (this.$refs.form.validate()) {
+				this.$root.isLoading = true;
+				UserService.login.bind(this)(this.user.email, this.password)
+					.then(response => {
+						localStorage.removeItem('lockedUser');
+						window.location.href = localStorage.getItem('redirect_uri') || '/';
+					})
+					.catch(error => this.$handleError(this, error))
+					.finally(() => this.$root.isLoading = false);
+			} else {
+				this.$refs.email.focus();
+			}
+		},
+	},
+
+	data() {
+		return {
+			user: new User(),
+			formIsValid: false,
+			formErrors: {},
+			password: '',
+			showPassword: false,
+			rules: {
+				required: value => Rules.required(value) || this.$t('rules.required'),
+				min: value => Rules.min(8, value) || this.$t('rules.min', { amount: 8 }),
+			},
+		};
+	},
+});
+</script>
+
+<style lang="scss" scoped>
+	.v-form {
+		margin: 0 auto;
+		max-width: 20rem;
+	}
+</style>

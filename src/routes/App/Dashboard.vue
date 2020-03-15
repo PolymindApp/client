@@ -45,28 +45,44 @@
 					</v-card>
 				</v-col>
 				<v-col cols="6">
-					<v-card light color="white">
-						<v-list color="transparent">
+					<v-card light color="grey lighten-4">
+						<v-list color="white">
 							<v-list-item>
 								<v-list-item-icon class="mr-8">
-									<v-icon>mdi-comment-multiple-outline</v-icon>
+									<v-icon>mdi-newspaper-variant-multiple-outline</v-icon>
 								</v-list-item-icon>
 								<v-list-item-content>
-									<v-list-item-title class="headline primary--text">Feed</v-list-item-title>
+									<v-list-item-title class="headline primary--text" v-text="$t('dashboard.news.title')"></v-list-item-title>
 								</v-list-item-content>
 							</v-list-item>
-							<v-divider></v-divider>
 						</v-list>
-						<v-list color="transparent" height="413" class="scrollable">
-							<v-list-item v-for="(feedItem, i) in feed" :key="i">
-								<v-list-item-avatar>
-									<UserAvatar :size="40" :user="feedItem.created_by" />
-								</v-list-item-avatar>
-								<v-list-item-content>
-									<v-list-item-title>{{ feedItem.created_by | userScreenName }}</v-list-item-title>
-									<v-list-item-subtitle v-text="feedItem.comment"></v-list-item-subtitle>
-								</v-list-item-content>
-							</v-list-item>
+						<v-divider></v-divider>
+						<v-list color="transparent" height="414" class="scrollable" tile>
+							<v-slide-y-reverse-transition group>
+								<v-card class="mx-2" outlined v-for="(newsItem, newsIdx) in news.data" :key="newsIdx">
+									<v-list-item three-line>
+										<v-list-item-content>
+											<div class="overline mb-4" v-text="$t('dashboard.news.types.' + newsItem.type)"></div>
+											<v-list-item-title class="headline mb-1">
+												<span v-text="newsItem.content[0].title"></span>
+											</v-list-item-title>
+											<v-list-item-subtitle>
+												<span v-text="newsItem.content[0].abstract"></span>
+											</v-list-item-subtitle>
+										</v-list-item-content>
+
+										<v-list-item-avatar v-if="newsItem.thumbnail" tile size="80">
+											<v-img height="80" width="80" :src="$thumbnails(newsItem.thumbnail.filename, 200, 200)"></v-img>
+										</v-list-item-avatar>
+									</v-list-item>
+									<v-card-actions>
+										<v-btn :to="'/news/' + newsItem.content[0].language + '/' + newsItem.content[0].slug" text>
+											<span v-text="$t('dashboard.news.seeMore')"></span>
+											<v-icon right>mdi-plus</v-icon>
+										</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-slide-y-reverse-transition>
 						</v-list>
 					</v-card>
 				</v-col>
@@ -109,11 +125,11 @@
 <!--				<v-icon left>mdi-database</v-icon>-->
 <!--				<span v-text="$t('dashboard.new.dataset')"></span>-->
 			</v-btn>
-			<v-btn to="/document/new" dark small>
-				<v-icon>mdi-file-document-outline</v-icon>
-<!--				<v-icon left>mdi-file-document-outline</v-icon>-->
-<!--				<span v-text="$t('dashboard.new.document')"></span>-->
-			</v-btn>
+<!--			<v-btn to="/document/new" dark small>-->
+<!--				<v-icon>mdi-file-document-outline</v-icon>-->
+<!--&lt;!&ndash;				<v-icon left>mdi-file-document-outline</v-icon>&ndash;&gt;-->
+<!--&lt;!&ndash;				<span v-text="$t('dashboard.new.document')"></span>&ndash;&gt;-->
+<!--			</v-btn>-->
 			<v-btn to="/component/new" dark small>
 				<v-icon>mdi-cube-outline</v-icon>
 <!--				<v-icon left>mdi-cube-outline</v-icon>-->
@@ -135,7 +151,8 @@ import EmptyView from "../../components/EmptyView";
 import Deck from "../../components/Deck";
 import BarChart from "../../components/Chart/Bar";
 import Response from "../../models/Response";
-import StrategyService from "../../services/StrategyService";
+import NewsService from "../../services/NewsService";
+// import StrategyService from "../../services/StrategyService";
 // import ComponentService from "../../services/ComponentService";
 // import DocumentService from "../../services/DocumentService";
 // import DatasetService from "../../services/DatasetService";
@@ -160,12 +177,14 @@ export default Vue.extend({
 
             this.$root.isLoading = true;
             Promise.all([
+                NewsService.getAll.bind(this)(),
                 // StrategyService.getAllMine.bind(this)(),
                 // ComponentService.getAllMine.bind(this)(),
                 // DocumentService.getAllMine.bind(this)(),
                 // DatasetService.getAllMine.bind(this)()
             ])
-                .then(([strategies, components, documents, datasets]) => {
+                .then(([news, strategies, components, documents, datasets]) => {
+                	this.news = news;
                     // this.strategies = strategies;
                     // this.components = components;
                     // this.documents = documents;
@@ -200,21 +219,21 @@ export default Vue.extend({
 				{ title: 'Daily Objectives', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 10000), color: 'third', },
 				// { title: 'Daily Objectives', percentage: 66, value: 12039, color: 'white', },
 			],
-			feed: [
-				{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-				{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-				{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-				{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-				{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-				{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-				{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-				{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-				{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-				{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-			],
+			news: [],
+			// feed: [
+			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
+			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
+			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
+			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
+			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
+			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
+			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
+			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
+			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
+			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
+			// ],
 			// categories: ['strategies', 'components', 'documents', 'datasets'],
 			// types: ['strategy', 'component', 'document', 'dataset'],
-			strategies: new Response(),
 			strategyData: {
 				labels: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5],
 				datasets: [
@@ -233,6 +252,7 @@ export default Vue.extend({
 					}
 				]
 			},
+			strategies: new Response(),
 			// components: new Response(),
 			// documents: new Response(),
 			// datasets: new Response(),

@@ -24,6 +24,7 @@ export default class User extends Model {
 					dataset: true,
 					document: false
 				},
+				theme: "light",
 				newNotificationSound: true,
 				newMessageSound: true,
 				externalMsg: "public",

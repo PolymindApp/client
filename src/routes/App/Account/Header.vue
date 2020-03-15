@@ -1,5 +1,5 @@
 <template>
-	<v-img class="default-gradient wallpaper" :src="backgroundImage">
+	<v-img class="default-gradient wallpaper" :src="backgroundImage" :gradient="gradient">
 
 		<!-- MSG SENT -->
 		<v-snackbar color="success" v-model="newMessage.isSent">
@@ -211,178 +211,182 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import File from "../../../utils/File";
-import UserAvatar from "../../../components/UserAvatar";
-import UserModel from "../../../models/User";
-import FileService from "../../../services/FileService";
-import UserService from "../../../services/UserService";
-import FollowingService from "../../../services/FollowingService";
-import MessagingService from "../../../services/MessagingService";
+	import Vue from 'vue';
+	import File from "../../../utils/File";
+	import UserAvatar from "../../../components/UserAvatar";
+	import UserModel from "../../../models/User";
+	import FileService from "../../../services/FileService";
+	import UserService from "../../../services/UserService";
+	import FollowingService from "../../../services/FollowingService";
+	import MessagingService from "../../../services/MessagingService";
 
-export default Vue.extend({
+	export default Vue.extend({
 
-	props: ['user'],
-	components: { UserAvatar },
+		props: ['user'],
+		components: { UserAvatar },
 
-	mounted() {
-	    this.loadFollowingCount();
-	},
-
-	methods: {
-
-	    reset() {
-
-            Object.assign(this.newMessage, { visible: false, text: '', sent: false, });
-            Object.assign(this.followersModal, { visible: false, loaded: false, list: { data: [] } });
-            Object.assign(this.followingModal, { visible: false, loaded: false, list: { data: [] } });
+		mounted() {
+			this.loadFollowingCount();
 		},
 
-	    showNewMessage() {
-            this.newMessage.visible = true;
-            setTimeout(() => {
-                this.$refs.newMsg.$el.querySelector('textarea').focus();
-			});
-		},
+		methods: {
 
-	    sendMessage() {
+			reset() {
 
-            this.$root.isLoading = true;
-            MessagingService.sendMessage.bind(this)(this.user.id, this.newMessage.text)
-                .then(response => {
-                    Object.assign(this.newMessage, {
-                        visible: false,
-                        text: '',
-						isSent: true,
-                    });
-                })
-                .catch(error => this.$handleError(this, error))
-                .finally(() => this.$root.isLoading = false);
-		},
+				Object.assign(this.newMessage, { visible: false, text: '', sent: false, });
+				Object.assign(this.followersModal, { visible: false, loaded: false, list: { data: [] } });
+				Object.assign(this.followingModal, { visible: false, loaded: false, list: { data: [] } });
+			},
 
-	    loadFollowingCount() {
+			showNewMessage() {
+				this.newMessage.visible = true;
+				setTimeout(() => {
+					this.$refs.newMsg.$el.querySelector('textarea').focus();
+				});
+			},
 
-            Promise.all([
-                FollowingService.countFollowers.bind(this)(this.user.id),
-                FollowingService.countFollowing.bind(this)(this.user.id),
-                FollowingService.isFollowing.bind(this)(this.user.id),
-            ]).then(([followers, following, isFollowing]) => {
-                this.countFollowers = followers;
-                this.countFollowing = following;
-                this.isFollowing = isFollowing;
-            })
-                .catch(error => this.$handleError(this, error));
-		},
+			sendMessage() {
 
-	    loadFollowing() {
-
-            this.$root.isLoading = true;
-            FollowingService.getFollowings.bind(this)(this.user.id)
-				.then(response => {
-				    this.followingModal.list = response;
-                    this.followingModal.loaded = true;
-                })
-                .catch(error => this.$handleError(this, error))
-                .finally(response => this.$root.isLoading = false);
-		},
-
-	    loadFollowers() {
-
-            this.$root.isLoading = true;
-            FollowingService.getFollowers.bind(this)(this.user.id)
-                .then(response => {
-                    this.followersModal.list = response;
-                    this.followersModal.loaded = true;
-                })
-				.catch(error => this.$handleError(this, error))
-            	.finally(response => this.$root.isLoading = false);
-		},
-
-	    toggleFollowing() {
-
-            this.$root.isLoading = true;
-            FollowingService.toggleFollowing.bind(this)(this.user.id)
-				.then(response => {
-                    this.isFollowing.meta.filter_count = response ? 1 : 0;
-                    this.countFollowers.meta.filter_count = response ? 1 : 0
-				})
-                .catch(error => this.$handleError(this, error))
-                .finally(() => this.$root.isLoading = false);
-		},
-
-		modify(param) {
-			File.promptFileDialog(images => {
-				this.isUploading = true;
-				this.$crop(images, [1400, 350]).then(croppedImages => {
-					FileService.upload.bind(this)(croppedImages)
-						.then(filesResponse => {
-                            UserService.update.bind(this)(this.$root.user.id, {
-							    wallpaper: filesResponse.data.id
-							})
-								.then(response => {
-								    this.$root.user = Object.assign(this.$root.user, new UserModel(response.data));
-								    this.user = Object.assign(this.user, new UserModel(response.data));
-								})
-                                .catch(error => this.$handleError(this, error))
-                                .finally(() => this.isUploading = false);
+				this.$root.isLoading = true;
+				MessagingService.sendMessage.bind(this)(this.user.id, this.newMessage.text)
+						.then(response => {
+							Object.assign(this.newMessage, {
+								visible: false,
+								text: '',
+								isSent: true,
+							});
 						})
 						.catch(error => this.$handleError(this, error))
-                        .finally(() => this.isUploading = false);
-				}).catch(error => this.isUploading = false);
-			}, 'image/png, image/jpeg, image/gif');
+						.finally(() => this.$root.isLoading = false);
+			},
+
+			loadFollowingCount() {
+
+				Promise.all([
+					FollowingService.countFollowers.bind(this)(this.user.id),
+					FollowingService.countFollowing.bind(this)(this.user.id),
+					FollowingService.isFollowing.bind(this)(this.user.id),
+				]).then(([followers, following, isFollowing]) => {
+					this.countFollowers = followers;
+					this.countFollowing = following;
+					this.isFollowing = isFollowing;
+				})
+						.catch(error => this.$handleError(this, error));
+			},
+
+			loadFollowing() {
+
+				this.$root.isLoading = true;
+				FollowingService.getFollowings.bind(this)(this.user.id)
+						.then(response => {
+							this.followingModal.list = response;
+							this.followingModal.loaded = true;
+						})
+						.catch(error => this.$handleError(this, error))
+						.finally(response => this.$root.isLoading = false);
+			},
+
+			loadFollowers() {
+
+				this.$root.isLoading = true;
+				FollowingService.getFollowers.bind(this)(this.user.id)
+						.then(response => {
+							this.followersModal.list = response;
+							this.followersModal.loaded = true;
+						})
+						.catch(error => this.$handleError(this, error))
+						.finally(response => this.$root.isLoading = false);
+			},
+
+			toggleFollowing() {
+
+				this.$root.isLoading = true;
+				FollowingService.toggleFollowing.bind(this)(this.user.id)
+						.then(response => {
+							this.isFollowing.meta.filter_count = response ? 1 : 0;
+							this.countFollowers.meta.filter_count = response ? 1 : 0
+						})
+						.catch(error => this.$handleError(this, error))
+						.finally(() => this.$root.isLoading = false);
+			},
+
+			modify(param) {
+				File.promptFileDialog(images => {
+					this.isUploading = true;
+					this.$crop(images, [1400, 350]).then(croppedImages => {
+						FileService.upload.bind(this)(croppedImages)
+								.then(filesResponse => {
+									UserService.update.bind(this)(this.$root.user.id, {
+										wallpaper: filesResponse.data.id
+									})
+											.then(response => {
+												this.$root.user = Object.assign(this.$root.user, new UserModel(response.data));
+												this.user = Object.assign(this.user, new UserModel(response.data));
+											})
+											.catch(error => this.$handleError(this, error))
+											.finally(() => this.isUploading = false);
+								})
+								.catch(error => this.$handleError(this, error))
+								.finally(() => this.isUploading = false);
+					}).catch(error => this.isUploading = false);
+				}, 'image/png, image/jpeg, image/gif');
+			},
 		},
-	},
 
-	computed: {
+		computed: {
 
-	    isCurrentUser() {
-	        return this.user.id === this.$root.user.id;
+			isCurrentUser() {
+				return this.user.id === this.$root.user.id;
+			},
+
+			backgroundImage() {
+				return this.user.wallpaper
+						? this.$thumbnails(this.user.wallpaper.filename, 1500, 350)
+						: '';
+			},
+
+			gradient() {
+				return this.backgroundImage ? 'to top right, rgba(27, 142, 138, .7), rgba(27, 142, 138, .3)' : null;
+			},
 		},
 
-	    backgroundImage() {
-	        return this.user.wallpaper
-				? this.$thumbnails(this.user.wallpaper.filename, 1500, 350)
-				: '';
+		data: function() {
+			return {
+				isUploading: false,
+				newMessage: { visible: false, text: '', isSent: false, },
+				followersModal: { visible: false, loaded: false, list: { data: [] } },
+				followingModal: { visible: false, loaded: false, list: { data: [] } },
+				countFollowing: { data: [], meta: { filter_count: 0 } },
+				countFollowers: { data: [], meta: { filter_count: 0 } },
+				isFollowing: { data: [], meta: { filter_count: 0 } },
+			}
+		},
+
+		watch: {
+
+			'$route.params.id': function(id) {
+				this.reset();
+			},
+
+			'user.id'(id) {
+				if (id) {
+					this.loadFollowingCount();
+				}
+			},
+
+			'followingModal.visible'(visible) {
+				if (visible) {
+					this.loadFollowing();
+				}
+			},
+
+			'followersModal.visible'(visible) {
+				if (visible) {
+					this.loadFollowers();
+				}
+			},
 		}
-	},
-
-	data: function() {
-		return {
-			isUploading: false,
-            newMessage: { visible: false, text: '', isSent: false, },
-            followersModal: { visible: false, loaded: false, list: { data: [] } },
-            followingModal: { visible: false, loaded: false, list: { data: [] } },
-			countFollowing: { data: [], meta: { filter_count: 0 } },
-            countFollowers: { data: [], meta: { filter_count: 0 } },
-            isFollowing: { data: [], meta: { filter_count: 0 } },
-		}
-	},
-
-	watch: {
-
-        '$route.params.id': function(id) {
-            this.reset();
-        },
-
-	    'user.id'(id) {
-            if (id) {
-	        	this.loadFollowingCount();
-			}
-		},
-
-	    'followingModal.visible'(visible) {
-	        if (visible) {
-	        	this.loadFollowing();
-			}
-		},
-
-	    'followersModal.visible'(visible) {
-            if (visible) {
-	        	this.loadFollowers();
-			}
-		},
-	}
-});
+	});
 </script>
 
 <style lang="scss" scoped>
@@ -402,9 +406,9 @@ export default Vue.extend({
 		}
 
 		&:hover .zoom {
-			 transform: scale(1);
-			 opacity: 1;
-		 }
+			transform: scale(1);
+			opacity: 1;
+		}
 	}
 	.biography {
 		opacity: 0.75;

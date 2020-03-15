@@ -193,7 +193,7 @@
 			</table>
 		</div>
 
-		<div class="pa-2">
+		<div v-if="false" class="pa-2">
 			<v-row no-gutters>
 				<v-col cols="3">
 					<strong>Bugs:</strong>
