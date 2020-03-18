@@ -108,7 +108,7 @@ export default Vue.extend({
 
             this.$root.isLoading = true;
 	        Promise.all([
-                CommentService.getAll.bind(this)('directus_users', this.$route.params.id),
+                CommentService.getAll.bind(this)('directus_users', this.$route.params.id, '-id', 5),
                 HistoryService.fromUser.bind(this)(this.$route.params.id),
 			])
                 .then(([comments, histories]) => {

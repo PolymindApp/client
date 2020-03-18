@@ -19,7 +19,7 @@
 			</v-btn>
 		</v-snackbar>
 
-		<v-app-bar dark src="https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background.jpg" app :class="collapse ? 'fullscreen' : null" :flat="collapse" :color="collapse ? 'transparent' : null" :collapse="collapse" :clipped-right="sidebar.permanent">
+		<v-app-bar dark :src="backgroundImage" app :class="collapse ? 'fullscreen' : null" :flat="collapse" :color="collapse ? 'transparent' : null" :collapse="collapse" :clipped-right="sidebar.permanent">
 
 			<template v-slot:img="{ props }">
 				<v-img v-bind="props" gradient="to bottom, rgba(86, 190, 187, 0.75), rgba(27, 142, 138, 0.75)"></v-img>
@@ -505,6 +505,16 @@ export default Vue.extend({
 	},
 
 	computed: {
+
+		isDark() {
+			return this.$root.user.settings.theme !== 'dark';
+		},
+
+		backgroundImage() {
+			return this.isDark
+				? 'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background.jpg'
+				: null;
+		},
 
 	    newNotifications() {
 	        return this.notifications.filter(notification => {

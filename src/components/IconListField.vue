@@ -90,7 +90,8 @@ export default Vue.extend({
 		}
 
 		fieldset {
-			border: currentColor solid 1px;
+			border-style: solid;
+			border-width: 1px;
 			transition: border .333s ease;
 			border-radius: 4px;
 			color: rgba(0,0,0,.24);

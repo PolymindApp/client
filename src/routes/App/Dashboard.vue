@@ -22,6 +22,29 @@
 		<v-sheet color="transparent" class="py-2 px-4" tile>
 			<v-row>
 				<v-col cols="6">
+
+					<!-- RADAR -->
+					<v-card light color="grey lighten-4">
+						<v-list color="white">
+							<v-list-item>
+								<v-list-item-icon class="mr-8">
+									<v-icon>mdi-newspaper-variant-multiple-outline</v-icon>
+								</v-list-item-icon>
+								<v-list-item-content>
+									<v-list-item-title class="headline primary--text" v-text="$t('dashboard.objectives.title')"></v-list-item-title>
+								</v-list-item-content>
+							</v-list-item>
+						</v-list>
+						<v-divider></v-divider>
+						<div class="pa-4">
+							<Radar class="my-4" height="200" :labels="radar.labels" :datasets="radar.datasets" :colors="radar.colors" />
+							<Radar class="mt-12" height="200" :labels="radar2.labels" :datasets="radar2.datasets" :colors="radar2.colors" />
+						</div>
+					</v-card>
+				</v-col>
+				<v-col cols="6">
+
+					<!-- BARS -->
 					<v-card light color="white">
 						<div class="d-flex align-center pa-4">
 							<div class="shrink">
@@ -43,9 +66,9 @@
 							<bar-chart style="height: 400px" :chart-data="strategyData" :options="chartOptions"></bar-chart>
 						</div>
 					</v-card>
-				</v-col>
-				<v-col cols="6">
-					<v-card light color="grey lighten-4">
+
+					<!-- NEWS -->
+					<v-card class="mt-4" light color="grey lighten-4">
 						<v-list color="white">
 							<v-list-item>
 								<v-list-item-icon class="mr-8">
@@ -57,7 +80,7 @@
 							</v-list-item>
 						</v-list>
 						<v-divider></v-divider>
-						<v-list color="transparent" height="414" class="scrollable" tile>
+						<v-list color="transparent" max-height="400" class="scrollable" tile>
 							<v-slide-y-reverse-transition group>
 								<v-card class="mx-2" outlined v-for="(newsItem, newsIdx) in news.data" :key="newsIdx">
 									<v-list-item three-line>
@@ -156,11 +179,13 @@ import NewsService from "../../services/NewsService";
 // import ComponentService from "../../services/ComponentService";
 // import DocumentService from "../../services/DocumentService";
 // import DatasetService from "../../services/DatasetService";
+
+import Radar from "../../components/Chart/Radar";
 import UserAvatar from "../../components/UserAvatar";
 
 export default Vue.extend({
 
-	components: { EmptyView, Deck, UserAvatar, BarChart },
+	components: { EmptyView, Deck, UserAvatar, BarChart, Radar },
 
 	mounted() {
 
@@ -214,39 +239,27 @@ export default Vue.extend({
             fab: false,
 			selectedStrategy: [],
 			objectives: [
-				{ title: 'Daily Objectives', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 10000), color: 'primary', },
-				{ title: 'Daily Objectives', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 10000), color: 'secondary', },
-				{ title: 'Daily Objectives', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 10000), color: 'third', },
+				{ title: 'Réussis', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 10000), color: 'primary', },
+				{ title: 'Échoués', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'secondary', },
+				{ title: 'À étudier', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'third', },
 				// { title: 'Daily Objectives', percentage: 66, value: 12039, color: 'white', },
 			],
 			news: [],
-			// feed: [
-			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-			// 	{ created_by: this.$root.user, comment: 'Lorem ipsum dolor amet', },
-			// ],
 			// categories: ['strategies', 'components', 'documents', 'datasets'],
 			// types: ['strategy', 'component', 'document', 'dataset'],
 			strategyData: {
 				labels: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5],
 				datasets: [
 					{
-						label: 'Data One',
+						label: 'Visuel',
 						backgroundColor: this.$vuetify.theme.themes.light.primary,
 						data: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5]
 					}, {
-						label: 'Data One',
+						label: 'Écoute',
 						backgroundColor: this.$vuetify.theme.themes.light.secondary,
 						data: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5]
 					}, {
-						label: 'Data One',
+						label: 'Concentration',
 						backgroundColor: this.$vuetify.theme.themes.light.third,
 						data: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5]
 					}
@@ -259,6 +272,43 @@ export default Vue.extend({
 			chartOptions: {
 				responsive: true,
 				maintainAspectRatio: false,
+			},
+
+			radar: {
+				colors: [
+					this.$vuetify.theme.themes.light.primary,
+					this.$vuetify.theme.themes.light.third,
+					this.$vuetify.theme.themes.light.third,
+				],
+				labels: [
+					this.$t('dashboard.objectives.label1'),
+					this.$t('dashboard.objectives.label2'),
+					this.$t('dashboard.objectives.label3'),
+					this.$t('dashboard.objectives.label4'),
+					this.$t('dashboard.objectives.label5'),
+				],
+				datasets: [
+					{ data: [13, 10, 9, 8, 8] },
+					{ data: [12, 19, 16, 14, 17] },
+				]
+			},
+			radar2: {
+				colors: [
+					this.$vuetify.theme.themes.light.secondary,
+					this.$vuetify.theme.themes.light.third,
+					this.$vuetify.theme.themes.light.third,
+				],
+				labels: [
+					this.$t('dashboard.objectives.label6'),
+					this.$t('dashboard.objectives.label7'),
+					this.$t('dashboard.objectives.label8'),
+					this.$t('dashboard.objectives.label9'),
+					this.$t('dashboard.objectives.label10'),
+				],
+				datasets: [
+					{ data: [14, 2, 11, 6, 14] },
+					{ data: [8, 7, 12, 15, 19] },
+				]
 			}
 		}
 	},

@@ -5,7 +5,7 @@
 			<v-progress-circular :size="size / 2" color="primary" indeterminate></v-progress-circular>
 		</v-overlay>
 
-		<div v-if="user.id && $root.user.id !== user.id" :class="{
+		<div v-if="state && user.id && $root.user.id !== user.id" :class="{
 			connection: true,
 			grey: !isOnline,
 			green: isOnline,
@@ -45,6 +45,10 @@ export default Vue.extend({
 		size: {
 	        type: Number,
 			default: 96
+		},
+		state: {
+	        type: Boolean,
+			default: true,
 		},
 		editable: {
 	        type: Boolean,

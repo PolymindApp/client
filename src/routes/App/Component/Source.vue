@@ -407,7 +407,7 @@
 			<!-- CONSOLE -->
 			<div v-if="!fullscreen.active">
 				<v-expand-transition>
-					<div ref="console" v-if="console.opened" :style="{ height: preview.opened && !component.is_invisible ? '30vh' : $refs.previewContainer.offsetHeight - $refs.previewToolbar.$el.offsetHeight + 'px' }" class="d-flex console fill-height">
+					<div ref="console" v-if="console.opened" :style="{ height: preview.opened && !component.is_invisible ? '30vh' : getPreviewToolbarOffsetHeight() + 'px' }" class="d-flex console fill-height">
 						<Console class="w-100 fill-height" :reference="pmConsole" v-model="console.logs" :dark="dark" @clear="clearConsole()" @command="runCommand" />
 					</div>
 				</v-expand-transition>
@@ -581,6 +581,7 @@ export default Vue.extend({
 		this.$shortcuts.add(this.$t('shortcuts.componentSource.applyChanges.title'), this.$t('shortcuts.componentSource.applyChanges.desc'), 'componentSource', ['AltLeft', 'Enter'], this.shortcutApplyChanges);
 		this.$shortcuts.add(this.$t('shortcuts.componentSource.clearConsole.title'), this.$t('shortcuts.componentSource.clearConsole.desc'), 'componentSource', ['AltLeft', 'KeyC'], this.shortcutClearConsole);
 
+		window.addEventListener('resize', this.handleWindowResize);
 	},
 
 	destroyed() {
@@ -599,6 +600,8 @@ export default Vue.extend({
 		this.$shortcuts.remove(this.shortcutSwitchCss);
 		this.$shortcuts.remove(this.shortcutApplyChanges);
 		this.$shortcuts.remove(this.shortcutClearConsole);
+
+		window.removeEventListener(this.handleWindowResize);
 	},
 
 	methods: {
@@ -637,6 +640,10 @@ export default Vue.extend({
 
 		shortcutClearConsole() {
 			this.clearConsole();
+		},
+
+		handleWindowResize() {
+			this.$forceUpdate();
 		},
 
 		handleWheel(event) {
@@ -936,6 +943,14 @@ export default Vue.extend({
 			return JSON.stringify(originalData) !== JSON.stringify(data);
 		},
 
+		getPreviewToolbarOffsetHeight() {
+
+			if (!this.$refs.previewContainer) {
+				return 0;
+			}
+
+			return this.$refs.previewContainer.offsetHeight - this.$refs.previewToolbar.$el.offsetHeight;
+		}
 	},
 
 	computed: {

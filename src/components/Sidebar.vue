@@ -1,6 +1,6 @@
 <template>
 	<v-navigation-drawer app :hide-overlay="hideOverlay" :temporary="temporary" :permanent="permanent" v-model="sidebar.opened" width="300" :mini-variant="sidebar.miniVariant">
-		<v-card tile height="100%" class="d-flex flex-column">
+		<v-card :dark="$root.user.settings.theme === 'dark'" tile height="100%" class="d-flex flex-column">
 			<div style="flex: 0">
 				<v-img tile class="py-5 lightbox default-gradient user-tile" transition="fade" :src="backgroundImage" :gradient="gradient" max-height="180">
 
@@ -141,6 +141,7 @@ export default Vue.extend({
 	name: 'Sidebar',
 	props: ['sidebar'],
 	components: { UserAvatar, draggable },
+
 	model: {
 		prop: 'sidebar',
 		event: 'blur',

@@ -29,6 +29,20 @@ const literals = {
 	},
 	dashboard: {
 
+		objectives: {
+			title: 'Votre cheminement',
+			label1: 'Russe',
+			label2: 'Français',
+			label3: 'Anglais',
+			label4: 'Espagnol',
+			label5: 'Hindi',
+			label6: 'Prononciation',
+			label7: 'Conjugaison',
+			label8: 'Grammaire',
+			label9: 'Autre',
+			label10: 'Vocabulaire',
+		},
+
 		strategies: 'Strategies ({total})',
 		components: 'Composantes ({total})',
 		documents: 'Documents ({total})',
@@ -1026,6 +1040,7 @@ const literals = {
 		githubLogin: 'Connexion avec GitHub',
 		resetPassword: 'Réinitialiser mot de passe',
 		tempLocked: 'Votre compte a été vérouillé temporairement en votre absence. Revalider votre mot de passe pour retourner à vos activités.',
+		lockedOtherAccount: 'Utiliser un autre compte',
 		backLogin: 'Retour',
 		registerBtn: 'M\'inscrire',
 		loginBtn: 'Connexion',

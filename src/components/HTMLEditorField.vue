@@ -191,7 +191,8 @@ export default {
 
 		fieldset {
 			overflow: hidden;
-			border: currentColor solid 1px;
+			border-style: solid;
+			border-width: 1px;
 			transition: border .333s ease;
 			border-radius: 4px;
 			margin-top: -0.6rem;

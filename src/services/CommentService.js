@@ -8,8 +8,8 @@ export default class CommentService {
 		return Server.get.bind(this)('/activity?filter[action]=comment&filter[collection]=' + collection + '&filter[item]=' + id + '&fields=' + defaultFields + '&meta=filter_count&limit=0');
 	}
 
-	static getAll(collection, id, sort = '-id') {
-		return Server.get.bind(this)('/activity?filter[action]=comment&filter[collection]=' + collection + '&filter[item]=' + id + '&fields=' + defaultFields + '&sort=' + sort + '&meta=filter_count&limit=50');
+	static getAll(collection, id, sort = '-id', limit = 50) {
+		return Server.get.bind(this)('/activity?filter[action]=comment&filter[collection]=' + collection + '&filter[item]=' + id + '&fields=' + defaultFields + '&sort=' + sort + '&meta=filter_count&limit=' + limit);
 	}
 
 	static save(id, collection, comment, commentId) {

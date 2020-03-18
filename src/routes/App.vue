@@ -53,12 +53,14 @@
 
 			<v-scroll-y-transition>
 				<v-content v-if="$root.user.id" class="main-content">
-					<Chat />
-					<v-layout fill-height>
-						<v-fade-transition mode="out-in">
-							<router-view></router-view>
-						</v-fade-transition>
-					</v-layout>
+					<v-sheet class="fill-height" :dark="$root.user.settings.theme === 'dark'">
+						<Chat />
+						<v-layout fill-height>
+							<v-fade-transition mode="out-in">
+								<router-view></router-view>
+							</v-fade-transition>
+						</v-layout>
+					</v-sheet>
 				</v-content>
 			</v-scroll-y-transition>
 		</v-app>
@@ -68,6 +70,7 @@
 <script>
 import Vue from 'vue';
 import moment from 'moment';
+import Locked from './Restricted/Locked.vue';
 import Dashboard from './App/Dashboard.vue';
 import News from './App/News.vue';
 import Account from './App/Account.vue';
@@ -89,6 +92,7 @@ import Chat from "../components/Chat";
 export const routes = [
 	{path: '/', component: Dashboard, name: 'dashboard'},
 	{path: '/login', redirect: '/'},
+	{path: '/locked', component: Locked, name: 'locked'},
 	{path: '/news/:locale/:slug', component: News, name: 'news' },
 	{path: '/account/:id', redirect: '/account/:id/wall' },
 	{path: '/account/:id/:section', component: Account, name: 'account'},

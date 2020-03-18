@@ -138,7 +138,7 @@
 					<div :ref="'grid_' + gridIdx" :key="gridIdx" v-for="(grid, gridIdx) in layers.data" v-on="getGridEvents(grid, gridIdx)" :class="getGridClasses(grid, gridIdx)" :style="getGridStyle(grid, gridIdx)">
 						<v-fade-transition group>
 							<div class="item d-flex align-center justify-center" :key="itemIdx" v-on="getItemEvents(item, itemIdx)" :class="getItemClasses(item, itemIdx)" :style="getItemStyle(item, itemIdx)" v-for="(item, itemIdx) in visibleItems[gridIdx]">
-								{{item.name}}
+
 								<template v-if="item.type !== 'zone'">
 									<div class="text-center">
 										<v-icon color="primary" :size="zoomSize * (item.minSize / 1.5)" v-text="typeIcons[item.type]" :left="item.sizeX > 150"></v-icon>
@@ -996,8 +996,8 @@ export default Vue.extend({
 			orientation: null,
 			toolSelectStartItemPos: { x: 0, y: 0 },
 			orientations: [
-				{ key: '16/9', name: this.$t('strategy.interface.orientations._16_9'), snap: { size: 20, x: 16 * 4, y: 9 * 4, zoom: 0.5 } }, // Desktop landscape
-				{ key: '9/16', name: this.$t('strategy.interface.orientations._9_16'), snap: { size: 20, x: 9 * 4, y: 16 * 4, zoom: 0.5 } }, // Mobile portrait
+				{ key: '16/9', name: this.$t('strategy.interface.orientations._16_9'), snap: { size: 20, x: 16 * 4, y: 9 * 4, zoom: 1 } }, // Desktop landscape
+				{ key: '9/16', name: this.$t('strategy.interface.orientations._9_16'), snap: { size: 20, x: 9 * 4, y: 16 * 4, zoom: 1 } }, // Mobile portrait
 				{ key: '4/3', name: this.$t('strategy.interface.orientations._4_3') , snap: { size: 20, x: 4 * 8, y: 3 * 8, zoom: 1 } }, // Tablet landscape
 				{ key: '3/4', name: this.$t('strategy.interface.orientations._3_4') , snap: { size: 20, x: 3 * 8, y: 4 * 8, zoom: 1 } }, // Tablet portrait
 			],
