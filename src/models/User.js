@@ -1,20 +1,47 @@
-export default class User {
+import Model from "./Model";
 
-	constructor() {
+export default class User extends Model {
 
-		Object.assign(this, {
-			profile: {
-				screen_name: '',
-				picture: {
-					url: false
-				},
-				wallpaper: {
-					url: false
-				}
+	constructor(props) {
+
+		super({});
+
+		this.setDefaultValues({
+			id: null,
+			first_name: '',
+			last_name: '',
+			biography: null,
+			quote: null,
+			gender: null,
+			screen_name: null,
+			last_access_on: null,
+			locale: null,
+			avatar: null,
+			wallpaper: null,
+			role: {
+				name: '',
 			},
-			roles: [
-				{ name: '' }
-			]
-		});
+			isOnline: false,
+			settings: {
+				sidebar: {
+					fixed: false,
+					strategies: true,
+					components: true,
+					dataset: true,
+					document: false
+				},
+				theme: "light",
+				newNotificationSound: true,
+				newMessageSound: true,
+				externalMsg: "public",
+				development: {
+					theme: "dark",
+					fontSize: 16,
+					tabSize: 4,
+					showLines: true,
+					autoUpdate: false,
+				},
+			}
+		}, props);
 	}
 }

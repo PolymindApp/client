@@ -15,7 +15,7 @@
 				<p>{{$t('restricted.forgotPasswordDesc')}}</p>
 
 				<div class="my-4">
-					<v-text-field :error-messages="formErrors.email" ref="email" light solo v-model="email" :label="$t('restricted.email')" :rules="[rules.required, rules.email]" prepend-inner-icon="mdi-account-circle" :autofocus="$vuetify.breakpoint.lgAndUp"></v-text-field>
+					<v-text-field :error-messages="formErrors.email" ref="email" light solo v-model="email" :label="$t('restricted.email')" :rules="[rules.required, rules.email]" prepend-inner-icon="mdi-account-circle" :autofocus="$vuetify.breakpoint.lgAndUp" hide-details></v-text-field>
 				</div>
 
 				<v-btn type="submit" color="primary" style="width: 100%" dark large>
@@ -31,7 +31,7 @@
 import Vue from 'vue';
 import ErrorDialog from '../../components/ErrorDialog.vue';
 import Rules from "../../utils/Rules";
-import UserService from "../../services/User";
+import UserService from "../../services/UserService";
 import Form from "../../utils/Form";
 
 export default Vue.extend({

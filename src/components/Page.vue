@@ -14,15 +14,19 @@
 			<h1 class="display-1 mb-4" v-if="$attrs.title !== undefined" v-text="title"></h1>
 		</slot>
 
-		<slot name="content" v-if="!isLoading" :page="page">
-			<div v-html="content" />
-		</slot>
+		<v-scroll-y-transition mode="out-in">
+			<div v-if="content">
+				<slot name="content" :page="page">
+					<div v-html="content" />
+				</slot>
+			</div>
+		</v-scroll-y-transition>
 	</div>
 </template>
 
 <script>
 import Vue from 'vue';
-import PageService from '../services/Page';
+import PageService from '../services/PageService';
 
 export default Vue.extend({
 	name: 'Page',
@@ -84,11 +88,26 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
+
 	.page-component blockquote {
 		margin: 1rem;
 		border-left: rgba(255, 255, 255, 0.2) solid 3px;
 		padding-left: 1rem;
 		color: rgba(255, 255, 255, 0.75);
 		font-size: 1.25rem;
+	}
+
+	.page-component h1,
+	.page-component h2,
+	.page-component h3,
+	.page-component h4,
+	.page-component h5,
+	.page-component h6 {
+		margin-bottom: 1rem;
+	}
+
+	.page-component ul > li + li,
+	.page-component ol > li + li {
+		margin-top: 0.5rem;
 	}
 </style>

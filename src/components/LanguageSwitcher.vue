@@ -19,7 +19,7 @@
 		</template>
 		<v-list>
 			<v-list-item v-for="(lang, i) in $root.languages" :key="i" @click="switchLang(lang.abbreviation)">
-				<v-list-item-title>{{ lang.origin_name }}</v-list-item-title>
+				<v-list-item-title>{{ lang.origin_title }}</v-list-item-title>
 			</v-list-item>
 		</v-list>
 	</v-menu>
@@ -28,7 +28,7 @@
 <script>
 import Vue from 'vue';
 import moment from 'moment';
-import LanguageService from "../services/Language";
+import LanguageService from "../services/LanguageService";
 
 export default Vue.extend({
 	name: 'LanguageSwitcher',
@@ -48,10 +48,15 @@ export default Vue.extend({
 	methods: {
 
 		getSelectedLang() {
-			const lang = this.$root.languages.find(lang => lang.abbreviation === this.value);
 
+			const lang = this.$root.languages.find(lang => lang.abbreviation === this.value);
 			if (lang) {
-				return this.full !== null ? lang.origin_name : lang.abbreviation;
+				return this.full !== null ? lang.origin_title : lang.abbreviation;
+			}
+
+			const defaultLang = this.$root.languages.find(lang => lang.abbreviation === this.$i18n.locale);
+			if (defaultLang) {
+				return this.full !== null ? defaultLang.origin_title : defaultLang.abbreviation;
 			}
 
 			return null;

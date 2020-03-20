@@ -1,32 +1,29 @@
 <template>
-	<v-card tile flat dark class="d-flex flex-column align-center justify-center" style="width: 100%">
-		<div>
-			<v-icon color="primary" style="font-size: 5rem">mdi-file-question-outline</v-icon>
+	<v-card tile flat color="grey" dark class="d-flex flex-column align-center justify-center w-100">
+		<div class="limited-content text-center">
+			<h1 class="display-2 font-weight-thin">
+				{{$t('error.404.title')}}
+			</h1>
+			<p class="mt-4">
+				{{$t('error.404.desc')}}
+			</p>
+
+			<ErrorActions />
 		</div>
-		<h1 class="display-1 mt-4">
-			{{$t('title.error404')}}
-		</h1>
-		<p class="grey--text">
-			{{$t('error404.desc')}}
-		</p>
-		<v-btn color="primary" @click="goBack()">
-			<v-icon left>mdi-arrow-left</v-icon>
-			{{ $t('error.goBack') }}
-		</v-btn>
 	</v-card>
 </template>
 
 <script>
 import Vue from 'vue';
+import ErrorActions from "./ErrorActions";
 
 export default Vue.extend({
 	name: 'Error404',
 
+	components: { ErrorActions },
+
 	methods: {
 
-	    goBack() {
-	        this.$router.back();
-		}
 	},
 
 	data() {

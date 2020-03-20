@@ -1,9 +1,8 @@
 <template>
 	<v-navigation-drawer app :hide-overlay="hideOverlay" :temporary="temporary" :permanent="permanent" v-model="sidebar.opened" width="300" :mini-variant="sidebar.miniVariant">
-		<v-card tile height="100%" class="d-flex flex-column">
+		<v-card :dark="$root.user.settings.theme === 'dark'" tile height="100%" class="d-flex flex-column">
 			<div style="flex: 0">
-				<!--			<v-card tile class="py-5 lightbox default-gradient" v-bind:style="'background-image: linear-gradient(to bottom, ' + $root.user.setting.colorFrom + ', ' + $root.user.setting.colorTo + ')'">-->
-				<v-card tile class="py-5 lightbox default-gradient user-tile" :style="{ backgroundImage: 'url(\'' + $root.user.profile.wallpaper.url + '\')' }">
+				<v-img tile class="py-5 lightbox default-gradient user-tile" transition="fade" :src="backgroundImage" :gradient="gradient" max-height="180">
 
 					<v-overlay :absolute="false" :value="isLoading">
 						<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
@@ -11,14 +10,14 @@
 
 					<v-layout class="px-5" align-center>
 						<v-flex>
-							<UserAvatar :user="$root.user" :size="64" />
+							<UserAvatar :user="$root.user" :size="64" :editable="true" />
 						</v-flex>
 						<v-flex>
 							<v-layout align-end fill-height>
 								<v-list-item>
 									<v-list-item-content>
-										<v-list-item-title class="title white--text">{{ $root.user.profile.screen_name }}</v-list-item-title>
-										<v-list-item-subtitle class="white--text">
+										<v-list-item-title class="title white--text">{{ $root.user | userScreenName }}</v-list-item-title>
+										<v-list-item-subtitle class="white--text mt-n1">
 											<a class="my-account" :href="'/account/' + this.$root.user.id">
 												{{ $t('sidebar.myAccount') }}
 											</a>
@@ -29,19 +28,19 @@
 						</v-flex>
 					</v-layout>
 					<v-list-item class="mt-5">
-						<v-text-field v-model="filter" @keyup="handleKeyDown($event)" clearable solo-inverted dark :label="$t('sidebar.filterPlaceholder')" prepend-inner-icon="mdi-magnify" hide-details />
+						<v-text-field ref="search" v-model="filter" @keyup="handleKeyDown($event)" clearable solo-inverted dark :label="$t('sidebar.filterPlaceholder')" prepend-inner-icon="mdi-magnify" hide-details />
 					</v-list-item>
 
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on }">
-							<v-btn icon small v-on="on" class="white--text sidebar-button" v-if="$vuetify.breakpoint.mdAndUp" absolute top right @click="sidebar.permanent = !sidebar.permanent">
+							<v-btn icon small v-on="on" class="white--text sidebar-button" v-if="$vuetify.breakpoint.mdAndUp" absolute top right @click="toggleSidebar()">
 								<v-icon small v-if="sidebar.permanent">mdi-pin</v-icon>
 								<v-icon small v-if="!sidebar.permanent">mdi-pin-off</v-icon>
 							</v-btn>
 						</template>
 						<span>{{$t('toolbar.tooltip.pinSidebar')}}</span>
 					</v-tooltip>
-				</v-card>
+				</v-img>
 
 				<v-divider></v-divider>
 			</div>
@@ -57,39 +56,62 @@
 
 				<v-sheet tile :key="group.title" v-if="group.canAdd || group.getItems().length > 0" v-for="group in filteredMenuItems">
 					<v-subheader v-if="group.name">
-						<span style="flex: 1">{{ $t('app.menuGroup.' + group.name) }}</span>
+						<span style="flex: 1">
+							{{ $t('app.menuGroup.' + group.name) }}
+							<span class="font-weight-bold primary--text" v-if="group.canAdd && group.getItems().length > 0">({{group.getItems().length}})</span>
+						</span>
 
 						<v-tooltip v-if="group.canAdd" bottom>
 							<template v-slot:activator="{ on }">
-								<v-btn icon v-on="on" :to="group.addTo" icon color="primary">
+								<v-btn icon @click="toggleSection(group.name)" v-on="on" icon>
+									<v-icon v-if="$root.user.settings.sidebar[group.name]">mdi-chevron-down</v-icon>
+									<v-icon v-else>mdi-chevron-up</v-icon>
+								</v-btn>
+							</template>
+							<span>
+								<span v-if="$root.user.settings.sidebar[group.name]" v-text="$t('toolbar.tooltip.collapse')"></span>
+								<span v-else v-text="$t('toolbar.tooltip.expand')"></span>
+							</span>
+						</v-tooltip>
+
+						<v-tooltip v-if="group.canAdd" bottom>
+							<template v-slot:activator="{ on }">
+								<v-btn class="ml-2" icon v-on="on" :to="group.addTo" icon color="primary">
 									<v-icon>mdi-plus</v-icon>
 								</v-btn>
 							</template>
 							<span>{{$t('toolbar.tooltip.add' + group.name)}}</span>
 						</v-tooltip>
 					</v-subheader>
-					<v-alert v-if="group.canAdd && group.getItems().length === 0" text tile type="warning" class="ma-0">
-						{{$t('sidebar.' + group.name + 'Empty')}}
-					</v-alert>
-					<v-list v-if="group.getItems().length > 0" shaped v-bind:class="group.className">
-<!--						<draggable :disabled="$vuetify.breakpoint.smAndDown" class="draggable-list" :list="decks" v-bind="{ disabled: !group.sortable, animation: 200, }" @end="group.sortable && group.sortable.onEnd()">-->
-							<v-list-item :color="item.color" :key="item.name || item.title" :to="item.link" :exact="item.exact" @click="item.signOut ? signOut() : null" :disabled="item.disabled" v-for="item in group.getItems()">
-								<v-list-item-icon>
-									<v-icon>{{ item.icon }}</v-icon>
-								</v-list-item-icon>
 
-								<v-list-item-content>
-									<v-list-item-title>{{ item.title || (item.name && $t('title.' + item.name)) }}</v-list-item-title>
-								</v-list-item-content>
+					<v-expand-transition>
+						<template v-if="!group.canAdd || ($root.user.settings.sidebar[group.name] || filter)">
+							<div>
+								<v-alert v-if="group.canAdd && group.getItems().length === 0" text tile type="warning" class="ma-0">
+									{{$t('sidebar.' + group.name + 'Empty')}}
+								</v-alert>
+								<v-list v-if="group.getItems().length > 0" shaped v-bind:class="group.className">
+									<!--						<draggable :disabled="$vuetify.breakpoint.smAndDown" class="draggable-list" :list="decks" v-bind="{ disabled: !group.sortable, animation: 200, }" @end="group.sortable && group.sortable.onEnd()">-->
+									<v-list-item color="primary" :key="item.name || item.title" :to="item.link" :exact="item.exact" @click="item.signOut ? signOut() : null" :disabled="item.disabled" v-for="item in group.getItems()">
+										<v-list-item-icon>
+											<v-icon>{{ item.icon }}</v-icon>
+										</v-list-item-icon>
 
-								<v-list-item-action v-if="item.badge">
-									<v-chip :color="item.badgeColor">
-										{{ item.badge }}
-									</v-chip>
-								</v-list-item-action>
-							</v-list-item>
-<!--						</draggable>-->
-					</v-list>
+										<v-list-item-content>
+											<v-list-item-title>{{ item.title || (item.name && $t('title.' + item.name)) }}</v-list-item-title>
+										</v-list-item-content>
+
+										<v-list-item-action v-if="item.badge">
+											<v-chip :color="item.badgeColor">
+												{{ item.badge }}
+											</v-chip>
+										</v-list-item-action>
+									</v-list-item>
+									<!--						</draggable>-->
+								</v-list>
+							</div>
+						</template>
+					</v-expand-transition>
 				</v-sheet>
 			</div>
 			<div style="flex: 0">
@@ -105,15 +127,21 @@
 import Vue from 'vue';
 import UserAvatar from '../components/UserAvatar.vue';
 import draggable from "vuedraggable";
-import ComponentService from "../services/Component";
-import StrategyService from "../services/Strategy";
-import DataSetService from "../services/DataSet";
-// import DeckService from "../services/Deck";
+import ComponentService from "../services/ComponentService";
+import StrategyService from "../services/StrategyService";
+import DatasetService from "../services/DatasetService";
+// import DocumentService from "../services/DocumentService";
+import UserService from "../services/UserService";
+import StrategyModel from "../models/Strategy";
+import ComponentModel from "../models/Component";
+import DatasetModel from "../models/Dataset";
+// import DocumentModel from "../models/Document";
 
 export default Vue.extend({
 	name: 'Sidebar',
 	props: ['sidebar'],
 	components: { UserAvatar, draggable },
+
 	model: {
 		prop: 'sidebar',
 		event: 'blur',
@@ -122,25 +150,68 @@ export default Vue.extend({
 	originalSidebar: null,
 
 	mounted() {
-	    // this.loadDecks();
 		this.loadComponents();
 		this.loadStrategies();
-		this.loadDataSets();
+		this.loadDatasets();
+		// this.loadDocuments();
 
-	    // this.$root.$on('DECK_UPDATE', this.deckUpdateEvent);
+	    this.$root.$on('COMPONENT_UPDATE', this.loadComponents);
+	    this.$root.$on('STRATEGY_UPDATE', this.loadStrategies);
+	    this.$root.$on('DATASET_UPDATE', this.loadDatasets);
+	    // this.$root.$on('DOCUMENTS_UPDATE', this.loadDocuments);
 	    this.$root.$on('FULLSCREEN', this.fullScreenEvent);
 	},
 
 	destroyed() {
-	    // this.$root.$off('DECK_UPDATE', this.deckUpdateEvent);
+
+        this.$root.$off('COMPONENT_UPDATE', this.loadComponents);
+        this.$root.$off('STRATEGY_UPDATE', this.loadStrategies);
+        this.$root.$off('DATASET_UPDATE', this.loadDatasets);
+        // this.$root.$off('DOCUMENTS_UPDATE', this.loadDocuments);
 	    this.$root.$off('FULLSCREEN', this.fullScreenEvent);
 	},
 
 	methods: {
 
+	    focusSearch() {
+	        this.$refs.search.$el.querySelector('input').focus();
+	        this.$refs.search.$el.querySelector('input').select();
+		},
+
+	    toggleSection(name) {
+
+            this.$root.user.settings.sidebar[name] = !this.$root.user.settings.sidebar[name];
+            UserService.update.bind(this)(this.$root.user.id, {
+                settings: this.$root.user.settings
+            })
+                .catch(error => this.$handleError(this, error));
+		},
+
+		openSidebar() {
+			this.sidebar.opened = true;
+		},
+
+		closeSidebar() {
+			this.sidebar.opened = false;
+		},
+
+	    toggleSidebar() {
+
+	        this.sidebar.permanent = !this.sidebar.permanent;
+	        this.$root.user.settings.sidebar.fixed = this.sidebar.permanent;
+	        UserService.update.bind(this)(this.$root.user.id, {
+	            settings: this.$root.user.settings
+			})
+				.catch(error => this.$handleError(this, error));
+
+	        setTimeout(() => {
+				window.dispatchEvent(new Event('resize'));
+			}, 300);
+		},
+
 		fullScreenEvent(active) {
 			if (active) {
-				this.originalSidebar = {...this.sidebar};
+				this.originalSidebar = this.$deepClone(this.sidebar);
 				this.sidebar.hideOverlay = true;
 				this.sidebar.permanent = !active;
 				this.sidebar.opened = !active;
@@ -152,43 +223,45 @@ export default Vue.extend({
 			}
 		},
 
-		// deckUpdateEvent()  {
-		//     this.loadDecks();
-		// },
-
 		loadStrategies() {
-			StrategyService.getAll.bind(this)().then(response => {
-				this.strategies = response.data;
+			StrategyService.getAllMine.bind(this)().then(response => {
+				this.strategies = response.data.map(item => new StrategyModel(item));
 			})
 				.catch(error => this.$handleError(this, error))
 				// .finally(() => this.$root.isLoading = false);
 		},
 
 		loadComponents() {
-			ComponentService.getAll.bind(this)().then(response => {
-				this.components = response.data;
+			ComponentService.getAllMine.bind(this)().then(response => {
+				this.components = response.data.map(item => new ComponentModel(item));
 			})
 				.catch(error => this.$handleError(this, error))
 				// .finally(() => this.$root.isLoading = false);
 		},
 
-		loadDataSets() {
-			DataSetService.getAll.bind(this)().then(response => {
-				this.datasets = response.data;
+		loadDatasets() {
+			DatasetService.getAllMine.bind(this)().then(response => {
+				this.datasets = response.data.map(item => {
+					return new DatasetModel(item);
+				});
 			})
 				.catch(error => this.$handleError(this, error))
 			// .finally(() => this.$root.isLoading = false);
 		},
 
-	    // loadDecks() {
-	    //     DeckService.getAll.bind(this)().then(decks => {
-		// 		this.decks = decks;
-		// 	});
+        // loadDocuments() {
+		// 	DocumentService.getAllMine.bind(this)().then(response => {
+		// 		this.documents = response.data.map(item => new DocumentModel(item));
+		// 	})
+		// 		.catch(error => this.$handleError(this, error))
+		// 	// .finally(() => this.$root.isLoading = false);
 		// },
 
 		signOut() {
-			localStorage.removeItem('jwt');
-			this.$router.go(0);
+		    UserService.logout.bind(this)()
+				.then(() => {
+                    this.$router.go(0);
+				});
 		},
 
 		handleKeyDown(event) {
@@ -205,6 +278,16 @@ export default Vue.extend({
 	},
 
 	computed: {
+
+	    backgroundImage() {
+            return this.$root.user.wallpaper
+                ? this.$thumbnails(this.$root.user.wallpaper.filename, 256, 256)
+                : null;
+		},
+
+		gradient() {
+			return this.backgroundImage ? 'to top right, rgba(27, 142, 138, .7), rgba(27, 142, 138, .3)' : null;
+		},
 
 	    hideOverlay() {
 	        return this.sidebar.hideOverlay || this.sidebar.permanent || !this.sidebar.opened;
@@ -226,9 +309,10 @@ export default Vue.extend({
 
 			let groups = [];
 			this.menuItems.forEach(item => {
-				let group = {...item};
+				let group = this.$deepClone(item);
+				let items = item.getItems();
 				group.items = [];
-				group.getItems().forEach(child => {
+				items.forEach(child => {
 					const title = (child.title || (child.name && this.$t('title.' + child.name))).toLowerCase();
 					const filter = this.filter.trim().toLowerCase();
 					if (title.indexOf(filter) !== -1) {
@@ -249,16 +333,14 @@ export default Vue.extend({
 
 	data() {
 		return {
-			// cdnPrefix: process.env.VUE_APP_API_URL,
 			filter: '',
 			user: false,
 			isLoading: false,
 			version: process.env.VERSION,
-			// decks: [],
 			strategies: [],
 			components: [],
 			datasets: [],
-			// data: [],
+			// documents: [],
 			newItem: '',
 			menuItems: [
 				{
@@ -269,69 +351,6 @@ export default Vue.extend({
 						// {name: 'stats', icon: 'mdi-chart-bar', link: '/stats', disabled: true },
 					],
 				},
-				// {
-				// 	name: 'decks', canAdd: true, addTo: '/deck/new/edit', getItems: () => {
-				//         let items = [];
-				//         this.decks.forEach(deck => {
-				//             if (deck.isArchived) {
-				//                 return;
-				// 			}
-				//             items.push({
-				//                 title: deck.name,
-				//                 icon: deck.icon || 'mdi-cards-outline',
-				//                 link: '/deck/' + deck.id,
-				// 				badge: deck.totalCards,
-				// 				badgeColor: 'transparent',
-				// 				color: deck.setting.colorFrom,
-				// 				dark: deck.setting.dark,
-				//             });
-				//         });
-				//         return items;
-				//     }, sortable: {
-				// 	    onEnd: () => {
-				//             // this.$root.isLoading = true;
-				//             // DeckService.saveOrder.bind(this)(this.decks).then(decks => {
-				//             //     // this.decks = decks;
-				//             // }).finally(() => {
-				//             //     this.$root.isLoading = false;
-				//             // });
-				// 		}
-				// 	},
-				// },
-				// {
-				//     name: 'data', canAdd: true, addTo: '/data/new/edit', getItems: () => {
-				//         let items = [];
-				//         this.data.forEach(data => {
-				//             if (data.isArchived) {
-				//                 return;
-				//             }
-				//             items.push({
-				//                 title: data.name,
-				//                 icon: 'mdi-database',
-				//                 link: '/data/' + data.id,
-				//                 badge: data.totalItems,
-				//                 badgeColor: 'transparent',
-				//             });
-				//         });
-				//         return items;
-				//     }
-				// },
-				// {
-				// 	name: 'shared', canAdd: false, getItems: () => [
-				//
-				// 	],
-				// },
-				// {
-				// 	name: 'personal', canAdd: false, getItems: () => [
-				//
-				// 	],
-				// },
-				// {
-				// 	name: 'advanced', canAdd: false, getItems: () => [
-				// 		{name: 'preferences', icon: 'mdi-settings', link: '/preferences' },
-				// 		// {name: 'customize', icon: 'mdi-tools', link: '/customize', disabled: true },
-				// 	],
-				// },
 				{
                 	name: 'strategies', canAdd: true, addTo: '/strategy/new', getItems: () => {
 						let items = [];
@@ -341,8 +360,8 @@ export default Vue.extend({
 							}
 							items.push({
 								title: strategy.name,
-								icon: 'mdi-database',
-								link: '/component/' + strategy.id,
+								icon: 'mdi-strategy',
+								link: '/strategy/' + strategy.id,
 								badge: strategy.totalItems,
 								badgeColor: 'transparent',
 							});
@@ -366,6 +385,24 @@ export default Vue.extend({
 						return items;
 					},
 				},
+				// {
+                // 	name: 'document', canAdd: true, addTo: '/document/new', getItems: () => {
+				// 		let items = [];
+				// 		this.documents.forEach(document => {
+				// 			if (document.isArchived) {
+                //             	return;
+				// 			}
+				// 			items.push({
+				// 				title: document.name,
+				// 				icon: 'mdi-file-document-outline',
+				// 				link: '/dataset/' + document.id,
+				// 				badge: document.totalItems,
+				// 				badgeColor: 'transparent',
+				// 			});
+				// 		});
+				// 		return items;
+				// 	},
+				// },
 				{
                 	name: 'dataset', canAdd: true, addTo: '/dataset/new', getItems: () => {
 						let items = [];
@@ -384,17 +421,8 @@ export default Vue.extend({
 						return items;
 					},
 				},
-				// {
-				//     name: 'admin', canAdd: false, getItems: () => [
-				//         {name: 'admin.users', icon: 'mdi-account-details', link: '/admin/users'},
-				//         {name: 'admin.roles', icon: 'mdi-security', link: '/admin/roles'},
-				//         {name: 'admin.groups', icon: 'mdi-account-group', link: '/admin/groups'},
-				//         {name: 'admin.permissions', icon: 'mdi-account-check', link: '/admin/permissions'},
-				//     ],
-				// },
 				{
 					name: 'others', canAdd: false, getItems: () => [
-						// {name: 'account', icon: 'mdi-account', link: '/account/' + this.$root.user.id },
 						{name: 'about', icon: 'mdi-information', link: '/about' },
 						{name: 'signOut', icon: 'mdi-logout-variant', signOut: true},
 					],

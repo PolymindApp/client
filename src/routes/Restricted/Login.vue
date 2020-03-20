@@ -42,14 +42,24 @@
 						<span>{{$t('restricted.twitterLogin')}}</span>
 					</v-tooltip>
 				</v-col>
+<!--				<v-col cols="3" class="px-1 py-0">-->
+<!--					<v-tooltip bottom>-->
+<!--						<template v-slot:activator="{ on }">-->
+<!--							<v-btn v-on="on" color="#0E76A8" class="py-6" :href="linkedInLoginUrl" dark style="width: 100%">-->
+<!--								<v-icon>mdi-linkedin</v-icon>-->
+<!--							</v-btn>-->
+<!--						</template>-->
+<!--						<span>{{$t('restricted.linkedInLogin')}}</span>-->
+<!--					</v-tooltip>-->
+<!--				</v-col>-->
 				<v-col cols="3" class="px-1 py-0">
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on }">
-							<v-btn v-on="on" color="#0E76A8" class="py-6" :href="linkedInLoginUrl" dark style="width: 100%">
-								<v-icon>mdi-linkedin</v-icon>
+							<v-btn v-on="on" color="#211F1F" class="py-6" :href="githubLoginUrl" dark style="width: 100%">
+								<v-icon>mdi-github-circle</v-icon>
 							</v-btn>
 						</template>
-						<span>{{$t('restricted.linkedInLogin')}}</span>
+						<span>{{$t('restricted.githubLogin')}}</span>
 					</v-tooltip>
 				</v-col>
 			</v-row>
@@ -65,7 +75,9 @@
 
 			<p class="mt-4 overline mb-0" v-html="$t('restricted.acceptTermsLoginHint')" style="opacity: 0.5"></p>
 
-			<v-btn class="mt-2 white--text" to="/register" text>
+			<v-divider class="my-4"></v-divider>
+
+			<v-btn class="white--text" to="/register" text>
 				{{ $t("restricted.registerLink") }}
 			</v-btn>
 
@@ -79,7 +91,7 @@
 <script>
 import Vue from 'vue';
 import Rules from "../../utils/Rules";
-import UserService from "../../services/User";
+import UserService from "../../services/UserService";
 import Form from "../../utils/Form";
 import ServerError from "../../utils/ServerError";
 
@@ -95,33 +107,30 @@ export default Vue.extend({
 				this.$root.isLoading = true;
 				UserService.login.bind(this)(this.email, this.password)
 					.then(response => {
-						localStorage.setItem('jwt', response.data.jwt);
-						this.$router.go(0);
+						window.location.href = localStorage.getItem('redirect_uri') || '/';
 					})
 					.catch(error => {
-						if (error.data.message) {
-							switch (error.data.message) {
-								case 'NOT_CONFIRMED':
-									return this.$root.error = new ServerError(this, error, {
-										buttons: [
-											{ text: this.$t('restricted.resendActivation'), callback: (modal) => {
-												this.$root.isLoading = true;
-												UserService.resendActivationLost.bind(this)(this.email).then(response => {
-													this.activationResent = true;
-                                                	modal.close();
-												})
-													.catch(error => this.$handleError(this, error))
-                                                	.finally(() => this.$root.isLoading = false);
-											} },
-											{ text: this.$t('modal.close') },
-										],
-									});
-								    break;
-							}
+                        this.$root.isLoading = false;
+						switch (error.code) {
+							case 103:
+								return this.$root.error = new ServerError(this, error, {
+									buttons: [
+										{ text: this.$t('restricted.resendActivation'), callback: (modal) => {
+											this.$root.isLoading = true;
+											UserService.resendActivationLost.bind(this)(this.email).then(response => {
+												this.activationResent = true;
+												modal.close();
+											})
+												.catch(error => this.$handleError(this, error))
+												.finally(() => this.$root.isLoading = false);
+										} },
+										{ text: this.$t('modal.close') },
+									],
+								});
+								break;
 						}
 						this.$handleError(this, error);
-					})
-					.finally(() => this.$root.isLoading = false);
+					});
 			} else {
 				this.$refs.email.focus();
 			}
@@ -133,10 +142,11 @@ export default Vue.extend({
 			activationResent: false,
 			formIsValid: false,
 			formErrors: {},
-			googleLoginUrl: process.env.VUE_APP_API_URL + '/auth/google',
-			facebookLoginUrl: process.env.VUE_APP_API_URL + '/auth/facebook',
-			twitterLoginUrl: process.env.VUE_APP_API_URL + '/auth/twitter',
-			linkedInLoginUrl: process.env.VUE_APP_API_URL + '/auth/linkedin',
+			googleLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/google',
+			facebookLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/facebook',
+			twitterLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/twitter',
+			linkedInLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/linkedin',
+			githubLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/github',
 			email: '',
 			password: '',
 			showPassword: false,

@@ -1,6 +1,6 @@
 {
 	"name": "@polymind/client",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"private": true,
 	"author": "Danny Coulombe <contact@dannycoulombe.com>",
 	"engines": {
@@ -28,20 +28,27 @@
 		"monaca:debug": "npm run watch"
 	},
 	"dependencies": {
+		"@directus/sdk-js": "^5.3.4",
+		"@mdi/font": "^4.9.95",
+		"autobahn": "^19.12.1",
+		"chart.js": "^2.9.3",
 		"cordova": "^8.1.2",
 		"cordova-android": "^8.0.0",
-		"cordova-plugin-whitelist": "1",
 		"core-js": "^2.6.5",
 		"eslint-plugin-editorconfig": "^2.1.2",
 		"express": "^4.17.1",
 		"jimp": "^0.8.4",
 		"moment": "^2.24.0",
+		"object-assign-deep": "^0.4.0",
 		"papaparse": "^5.1.0",
 		"register-service-worker": "^1.6.2",
+		"roboto-fontface": "^0.10.0",
+		"simple-web-worker": "^1.2.0",
 		"tiptap": "^1.25.0",
 		"tiptap-extensions": "^1.27.0",
 		"vue": "^2.6.10",
 		"vue-analytics": "^5.17.2",
+		"vue-chartjs": "^3.5.0",
 		"vue-cookies": "^1.5.13",
 		"vue-cordova": "^0.1.2",
 		"vue-i18n": "^8.13.0",
@@ -50,7 +57,7 @@
 		"vue2-ace-editor": "^0.0.13",
 		"vue2-google-maps": "^0.10.7",
 		"vuedraggable": "^2.23.0",
-		"vuetify": "^2.0.0",
+	  	"vuetify": "^2.2.18",
 		"vuex": "^3.0.1"
 	},
 	"devDependencies": {

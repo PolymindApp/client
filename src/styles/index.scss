@@ -1,18 +1,79 @@
 .default-gradient {
-	background-image: linear-gradient(to bottom, #56BEBB, #1B8E8A);
+	background-image: linear-gradient(to bottom, #56BEBB, #4e8e8a);
 }
 .restricted-gradient {
 	background-image: linear-gradient(to bottom, #000000, #8e8e8e);
 }
+.perspective {
+  perspective: 60rem;
+}
+.relative {
+  position: relative;
+}
+.no-select {
+  user-select: none;
+}
+.auto-select {
+  user-select: auto;
+}
+.pe-none {
+  pointer-events: none;
+}
+.scrollable {
+  overflow: auto;
+  min-height: 0;
+}
+.scrollable-y {
+  overflow-y: auto;
+  min-height: 0;
+}
+.scrollable-x {
+  overflow-x: auto;
+}
+.not-scrollable {
+  overflow: auto;
+}
+.not-scrollable-y {
+  overflow-y: hidden;
+}
+.not-scrollable-x {
+  overflow-x: hidden;
+}
+.gradient-overlay {
+	 position: absolute;
+	 top: 0;
+	 left: 0;
+	 width: 100%;
+	 height: 100%;
+	 background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33));
+ }
 .blueprint-grid {
-	background-color: #0F629F;
+  	background-color: rgb(109, 139, 196);
 	background-size: 1rem 1rem;
 	background-repeat: repeat;
 	background-image:
 		linear-gradient(to right, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
 		linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
 }
-
+.grid {
+  background-size: 1rem 1rem;
+  background-repeat: repeat;
+  background-image:
+	  linear-gradient(to right, rgba(0, 0, 0, 0.15) 1px, transparent 1px),
+	  linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+}
+.theme--dark .blueprint-grid {
+  background-color: rgb(0, 0, 32);
+}
+.limited-content {
+	max-width: 30rem;
+}
+.very-limited-content {
+	max-width: 15rem;
+}
+.w-100 {
+	width: 100%;
+}
 ul + p {
 	margin-top: 16px;
 }
@@ -21,34 +82,85 @@ ul + p {
 	z-index: 4;
 }
 
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.v-navigation-drawer__content::-webkit-scrollbar {
+	display: none !important;
+}
+
 @media all and (min-width: 767px) {
 
-	/* Sizing */
-	::-webkit-scrollbar {
-		width: 0.5rem;
-		height: 0.5rem;
+	.ace_gutter {
+	  z-index: 3;
 	}
 
-	/* Track */
-	::-webkit-scrollbar-track {
-		background: white;
+	.ace_editor.ace-chrome {
+
+		/* Sizing */
+		::-webkit-scrollbar {
+			width: 0.5rem;
+			height: 0.5rem;
+		}
+
+		::-webkit-scrollbar-corner {
+			background-color: transparent;
+		}
+
+		/* Track */
+		::-webkit-scrollbar-track {
+			background: black;
+		}
+
+		/* Handle */
+		::-webkit-scrollbar-thumb {
+			transition: background 300ms ease;
+			background: rgba(255, 255, 255, 0.1);
+		}
+
+		/* Handle on hover */
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(255, 255, 255, 0.2);
+		}
+
+		::-webkit-scrollbar-track {
+			background-color: #ccc;
+		}
+		::-webkit-scrollbar-thumb {
+			background: rgba(0, 0, 0, 0.1);
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(0, 0, 0, 0.2);
+		}
 	}
 
-	/* Handle */
-	::-webkit-scrollbar-thumb {
-		transition: background 300ms ease;
-		background: rgba(0, 0, 0, 0.1);
-	}
+  	.dark-scrollbar,
+	.ace_editor.ace-twilight {
 
-	/* Handle on hover */
-	::-webkit-scrollbar-thumb:hover {
-		background: rgba(0, 0, 0, 0.2);
-	}
-	::-webkit-scrollbar-corner {
-		background-color: transparent;
-	}
+		/* Sizing */
+		::-webkit-scrollbar {
+			width: 0.5rem;
+			height: 0.5rem;
+		}
 
-	.ace_editor {
+		::-webkit-scrollbar-corner {
+			background-color: transparent;
+		}
+
+		/* Track */
+		::-webkit-scrollbar-track {
+			background: white;
+		}
+
+		/* Handle */
+		::-webkit-scrollbar-thumb {
+			transition: background 300ms ease;
+			background: rgba(0, 0, 0, 0.1);
+		}
+
+		/* Handle on hover */
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(0, 0, 0, 0.2);
+		}
 
 		::-webkit-scrollbar-track {
 			background-color: #333;
@@ -60,4 +172,6 @@ ul + p {
 			background: rgba(255, 255, 255,0.2);
 		}
 	}
+
+
 }

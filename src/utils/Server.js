@@ -1,79 +1,72 @@
-import RestError from './RestError';
+import Model from "../models/Model";
 
 export default class Server {
 
-	static get(url) {
+	static get(url, params) {
 
-		return Server.prepare.bind(this)('GET', url);
+		return Server.prepare.bind(this)('GET', url, params);
 	}
 
-	static post(url, data) {
+	static post(url, data, modelize = true) {
 
-		return Server.prepare.bind(this)('POST', url, data);
-	}
-
-	static put(url, data) {
-
-		return Server.prepare.bind(this)('PUT', url, data);
-	}
-
-	static delete(url) {
-
-		return Server.prepare.bind(this)('DELETE', url);
-	}
-
-	static prepare(method, url, data) {
-
-		const jwt = localStorage.getItem('jwt');
-		const headers = new Headers();
-
-		if (jwt) {
-			headers.append('Authorization', jwt);
+		if (modelize) {
+			data = new Model(data).flat(false);
 		}
 
-		let params = {
-			method: method,
-			headers: headers,
-		};
+		return Server.prepare.bind(this)('POST', url, undefined, data);
+	}
 
-		if (data instanceof FormData) {
-			params.body = data;
-		} else if (data) {
-			headers.append('Content-Type', 'application/json');
-			params.body = JSON.stringify(data);
+	static put(url, data, modelize = true) {
+
+		if (modelize) {
+			data = new Model(data).flat(false);
 		}
 
-		return fetch(process.env.VUE_APP_API_URL + url, params).then(response => {
-			let clonedRes = response.clone();
-			return clonedRes.json().catch(error => {
-				return response.text().then(data => {
-					return Promise.reject(new RestError(clonedRes, data));
-				});
-			}).then(data => {
-				if (response.status >= 200 && response.status < 300) {
-					return data;
-				}
+		return Server.prepare.bind(this)('PUT', url, undefined, data);
+	}
 
-				return Promise.reject(new RestError(response, data));
-			});
-		})
+	static patch(url, data, modelize = true) {
+
+		if (modelize) {
+			data = new Model(data).flat(false);
+		}
+
+		return Server.prepare.bind(this)('PATCH', url, undefined, data);
+	}
+
+	static delete(url, params, modelize = true) {
+
+		return Server.prepare.bind(this)('DELETE', url, params);
+	}
+
+	static upload(files = [], onProgress = () => {}, modelize = true) {
+
+		if (!(files instanceof Array)) {
+			files = [files];
+		}
+
+		let form = new FormData();
+		files.forEach(file => {
+			form.append('file', file);
+		});
+
+		return this.$server.uploadFiles(form, onProgress);
+	}
+
+	static prepare(method, url, params, data) {
+
+		return this.$server.request(method, url, params, data)
 			.catch(error => {
 
-				if (typeof error === 'string') {
-					return Promise.reject(error);
-				}
-
-				if (error.data && error.data.message) {
-					switch (error.data.message) {
-					case 'SESSION_TOKEN_EXPIRED':
-						localStorage.removeItem('jwt');
-						this.$router.go(0);
+				switch (error.code) {
+					case 3:
+					case 401:
+						if (!this.$server.loggedIn) {
+							localStorage.setItem('redirect_uri', this.$route.fullPath);
+							localStorage.setItem('lockedUser', JSON.stringify(this.$root.user));
+							return this.$router.push('/locked'); // Return necessary to avoid popups
+						}
 						break;
-					}
-				}
-
-				if (process.env.NODE_ENV === 'development') {
-					console.error(error);
 				}
 
 				return Promise.reject(error);

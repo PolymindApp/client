@@ -7,10 +7,17 @@ const globalVariables = {
 	breadcrumbs: [],
 	isLoading: false,
 	isSaved: false,
+	copiedToClipboard: false,
 	isDeleted: false,
 	toolbarOptions: [],
 	toolbarContextual: {
 		component: false
+	},
+	shortcuts: {
+		visible: false,
+	},
+	help: {
+		visible: false,
 	},
 };
 

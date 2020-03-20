@@ -1,12 +1,12 @@
 <template>
-	<v-card flat>
+	<v-card color="transparent" flat>
 
 		<v-alert type="info" prominent border="left" text icon="mdi-help-circle">
 
 			<div class="d-flex flex-column flex-md-row align-start align-md-center">
 				<div style="flex: 1" v-text="$t('component.settings.explanations')"></div>
 				<div style="flex: 0">
-					<v-btn class="ml-0 ml-md-8 mt-4 mt-md-0" to="/help/component">
+					<v-btn class="ml-0 ml-md-8 mt-4 mt-md-0" @click="$help.open('component-general')">
 						<v-icon left>mdi-book-search</v-icon>
 						<span class="text-break" v-text="$t('component.settings.readDoc')"></span>
 					</v-btn>
@@ -17,7 +17,9 @@
 		<v-row>
 			<v-col cols="12" sm="6" class="py-0">
 				<v-text-field :error-messages="formErrors.name" :label="$t('component.settings.namePlaceholder')" v-model="component.name"></v-text-field>
+				<v-select :error-messages="formErrors.category" :label="$t('component.settings.categoryPlaceholder')" :items="categories" v-model="component.category"></v-select>
 				<HTMLEditorField :error-messages="formErrors.description" :label="$t('component.settings.descPlaceholder')" v-model="component.description"></HTMLEditorField>
+				<HTMLEditorField :error-messages="formErrors.instructions" :label="$t('component.settings.instructionsPlaceholder')" v-model="component.instructions"></HTMLEditorField>
 			</v-col>
 			<v-col cols="12" sm="6" class="py-0">
 				<v-row>
@@ -30,6 +32,8 @@
 				</v-row>
 
 				<IconListField :error-messages="formErrors.icon" :label="$t('component.settings.iconPlaceholder')" v-model="component.icon" :height="226"></IconListField>
+
+<!--				<v-color-picker :error-messages="formErrors.color" :label="$t('component.settings.colorPlaceholder')" v-model="component.color"></v-color-picker>-->
 			</v-col>
 		</v-row>
 	</v-card>
@@ -53,7 +57,11 @@ export default Vue.extend({
 
 	data() {
 		return {
-
+            categories: [
+				{ text: this.$t('component.categories.general'), value: 'general' },
+				{ text: this.$t('component.categories.language'), value: 'language' },
+				{ text: this.$t('component.categories.functions'), value: 'functions' },
+			],
 		}
 	}
 })

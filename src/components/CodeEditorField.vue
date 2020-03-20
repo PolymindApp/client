@@ -1,7 +1,7 @@
 <template>
-	<v-input v-bind="$attrs" class="editor" :height="height ? height : null">
+	<v-input v-bind="$attrs" :class="{ 'editor': true }" :height="height ? height : null">
 		<fieldset style="width: 100%; height: 100%">
-			<editor v-model="content" ref="editor" @init="editorInit" :lang="lang" :theme="dark ? 'twilight' : 'chrome'"></editor>
+			<editor v-model="content" ref="editor" @init="editorInit" :lang="lang" :theme="theme"></editor>
 		</fieldset>
 	</v-input>
 </template>
@@ -43,6 +43,7 @@ export default Vue.extend({
 	},
 
 	methods: {
+
 		editorInit: function () {
 			require('brace/ext/language_tools');
 			require('brace/mode/html');
@@ -51,34 +52,49 @@ export default Vue.extend({
 			require('brace/theme/twilight');
 			require('brace/theme/chrome');
 			require('brace/snippets/javascript');
-			require('brace/snippets/javascript');
+
+			const config = this.$root.user.settings.development;
 
 			this.editor = this.$refs.editor.editor;
 			this.editor.setWrapBehavioursEnabled(true);
-			this.editor.session.setTabSize(4);
-
-			let options = {
-				enableBasicAutocompletion: true,
-				enableSnippets: true,
-				enableLiveAutocompletion: true,
-				fontSize: '15px',
-			};
-
-			if (this.lineNumber) {
-            	this.editor.setOption('showLineNumbers', this.lineNumber);
-			}
 
 			if (this.readonly) {
             	this.editor.setReadOnly(this.readonly);
 			}
 
-			if (this.dark) {
-				this.editor.setTheme("ace/theme/twilight");
-				options.theme = 'ace/theme/twilight';
-			}
-
-			this.editor.setOptions(options);
 			this.content = this.value;
+
+			this.setOptions();
+		},
+
+		setOptions() {
+
+            const config = this.$root.user.settings.development;
+
+            this.editor.session.setTabSize(config.tabSize);
+
+            let options = {
+                enableBasicAutocompletion: true,
+                // enableSnippets: true,
+                enableLiveAutocompletion: true,
+                fontSize: config.fontSize + 'px',
+                showLineNumbers: config.showLines,
+            };
+
+            switch(config.theme) {
+                case 'dark':
+                    this.editor.setTheme("ace/theme/twilight");
+                    options.theme = 'ace/theme/twilight';
+                    this.theme = 'twilight';
+                    break;
+                case 'light':
+                    this.editor.setTheme("ace/theme/chrome");
+                    options.theme = 'ace/theme/chrome';
+                    this.theme = 'chrome';
+                    break;
+            }
+
+            this.editor.setOptions(options);
 		}
 	},
 
@@ -87,10 +103,14 @@ export default Vue.extend({
 			updateTimeout: null,
 			content: '',
 			editor: null,
+			theme: 'twilight',
 		}
 	},
 
 	watch: {
+	    '$root.user.settings.development'() {
+            this.setOptions();
+		},
 	    content: function(val) {
 	        if (val !== this.value) {
 
@@ -113,17 +133,17 @@ export default Vue.extend({
 <style lang="scss" scoped>
 	.v-input {
 
-		& >>> .v-input__control,
-		& >>> .v-input__slot {
+		&::v-deep .v-input__control,
+		&::v-deep .v-input__slot {
 			height: 100%;
 		}
 
-		& >>> .ace_editor {
+		&::v-deep .ace_editor {
 			width: 100%;
 			height: 100% !important;
 		}
 
-		&[disabled] >>> .ace_editor {
+		&[disabled]::v-deep .ace_editor {
 			opacity: 0.5 !important;
 		}
 

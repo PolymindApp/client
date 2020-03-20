@@ -14,8 +14,8 @@
 				<h1 class="display-1">{{$t('restricted.registerTitle')}}</h1>
 
 				<div class="my-4">
-					<v-text-field :error-messages="formErrors.email" ref="email" v-model="email" :rules="[rules.required, rules.email]" :placeholder="$t('restricted.emailPlaceholder')" light solo prepend-inner-icon="mdi-account" :autofocus="$vuetify.breakpoint.lgAndUp"></v-text-field>
-					<v-text-field :error-messages="formErrors.password" v-model="password" loading :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword">
+					<v-text-field :error-messages="formErrors.email" ref="email" v-model="email" :rules="[rules.required, rules.email]" :placeholder="$t('restricted.emailPlaceholder')" light solo prepend-inner-icon="mdi-account" :autofocus="$vuetify.breakpoint.lgAndUp" hide-details></v-text-field>
+					<v-text-field :error-messages="formErrors.password" v-model="password" loading :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword" hide-details>
 						<template v-slot:progress>
 							<v-progress-linear :value="progress" :color="color" absolute height="7"></v-progress-linear>
 						</template>
@@ -35,7 +35,7 @@
 <script>
 import Vue from 'vue';
 import Rules from "../../utils/Rules";
-import UserService from "../../services/User";
+import UserService from "../../services/UserService";
 import Form from "../../utils/Form";
 
 export default Vue.extend({

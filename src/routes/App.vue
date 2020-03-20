@@ -1,85 +1,102 @@
 <template>
-	<v-app>
-		<ErrorDialog :response="$root.error"></ErrorDialog>
+	<div @contextmenu="handleContextMenu">
+		<v-app>
+			<ErrorDialog :response="$root.error"></ErrorDialog>
 
-		<!-- IS SAVED -->
-		<v-snackbar color="success" v-model="$root.isSaved">
-			<v-icon class="white--text" left>mdi-check</v-icon>
-			{{$t('snackbar.saved')}}
-			<v-btn text @click="$root.isSaved = false">
-				{{$t('modal.close')}}
-			</v-btn>
-		</v-snackbar>
+			<!-- COPIED TO CLIPBOARD -->
+			<v-snackbar v-model="$root.copiedToClipboard">
+				<v-icon class="white--text" left>mdi-check</v-icon>
+				{{$t('snackbar.copiedToClipboard')}}
+				<v-btn text @click="$root.copiedToClipboard = false">
+					{{$t('modal.close')}}
+				</v-btn>
+			</v-snackbar>
 
-		<!-- IS DELETE -->
-		<v-snackbar color="success" v-model="$root.isDeleted">
-			<v-icon class="white--text" left>mdi-delete-circle-outline</v-icon>
-			{{$t('snackbar.deleted')}}
-			<v-btn text @click="$root.isDeleted = false">
-				{{$t('modal.close')}}
-			</v-btn>
-		</v-snackbar>
+			<!-- IS SAVED -->
+			<v-snackbar color="success" v-model="$root.isSaved">
+				<v-icon class="white--text" left>mdi-check</v-icon>
+				{{$t('snackbar.saved')}}
+				<v-btn text @click="$root.isSaved = false">
+					{{$t('modal.close')}}
+				</v-btn>
+			</v-snackbar>
 
-		<!-- IS LOADING -->
-		<v-overlay :absolute="false" :value="$root.isLoading">
-			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
-		</v-overlay>
+			<!-- SHORTCUTS -->
+			<Shortcuts :visible="$root.shortcuts.visible" />
 
-		<Sidebar v-if="$root.user.id" v-model="sidebar"></Sidebar>
-		<Toolbar v-if="$root.user.id" :sidebar="sidebar"></Toolbar>
+			<!-- SHORTCUTS -->
+			<Help ref="help" :visible="$root.help.visible" />
 
-		<v-content v-if="$root.user.id" class="main-content">
-			<v-layout fill-height>
-				<router-view></router-view>
-			</v-layout>
-		</v-content>
-	</v-app>
+			<!-- COMMENTS -->
+			<CommentDrawer ref="comments" />
+
+			<!-- IS DELETE -->
+			<v-snackbar color="success" v-model="$root.isDeleted">
+				<v-icon class="white--text" left>mdi-delete-circle-outline</v-icon>
+				{{$t('snackbar.deleted')}}
+				<v-btn text @click="$root.isDeleted = false">
+					{{$t('modal.close')}}
+				</v-btn>
+			</v-snackbar>
+
+			<!-- IS LOADING -->
+			<v-overlay :absolute="false" :value="$root.isLoading" z-index="100">
+				<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+			</v-overlay>
+
+			<v-scroll-x-transition>
+				<Sidebar ref="sidebar" v-if="$root.user.id" v-model="sidebar" class="no-select"></Sidebar>
+			</v-scroll-x-transition>
+			<v-scroll-y-transition>
+				<Toolbar ref="toolbar" v-if="$root.user.id" :sidebar="sidebar" class="no-select"></Toolbar>
+			</v-scroll-y-transition>
+
+			<v-scroll-y-transition>
+				<v-content v-if="$root.user.id" class="main-content">
+					<v-sheet class="fill-height" :dark="$root.user.settings.theme === 'dark'">
+						<Chat />
+						<v-layout fill-height>
+							<v-fade-transition mode="out-in">
+								<router-view></router-view>
+							</v-fade-transition>
+						</v-layout>
+					</v-sheet>
+				</v-content>
+			</v-scroll-y-transition>
+		</v-app>
+	</div>
 </template>
 
 <script>
 import Vue from 'vue';
 import moment from 'moment';
-
+import Locked from './Restricted/Locked.vue';
 import Dashboard from './App/Dashboard.vue';
-import Preferences from './App/Preferences.vue';
+import News from './App/News.vue';
 import Account from './App/Account.vue';
 import Error404 from './Error/Error404.vue';
 import Toolbar from '../components/Toolbar.vue';
 import Sidebar from '../components/Sidebar.vue';
-import Stats from "./App/Stats.vue";
-import DeckView from "./App/Deck/View.vue";
-import DeckEdit from "./App/Deck/Edit.vue";
-import Shop from "./App/Shop.vue";
-import Help from "./App/Help.vue";
-import UserService from "../services/User";
+import Shortcuts from '../components/Shortcuts.vue';
+import Help from '../components/Help.vue';
+import UserService from "../services/UserService";
 import ErrorDialog from '../components/ErrorDialog.vue';
-import Community from './App/Community.vue';
 import About from './App/About.vue';
-import Notifications from './App/Notifications.vue';
-import Customize from "./App/Customize";
 import Component from "./App/Component";
 import Strategy from "./App/Strategy";
-import DataSet from "./App/DataSet";
+import Dataset from "./App/Dataset";
+import User from "../models/User";
+import CommentDrawer from "../components/CommentDrawer";
+import Chat from "../components/Chat";
 
 export const routes = [
 	{path: '/', component: Dashboard, name: 'dashboard'},
 	{path: '/login', redirect: '/'},
-	// {path: '/shop', component: Shop, name: 'shop'},
-	// {path: '/community', component: Community, name: 'community'},
-	// {path: '/stats', component: Stats, name: 'stats'},
-	{path: '/help', redirect: '/help/welcome'},
-	{path: '/help/:section', component: Help, name: 'help'},
-	{path: '/notifications', component: Notifications, name: 'notifications'},
-	// {path: '/deck/:id', component: DeckView, name: 'deck'},
-	// {path: '/deck/:id/edit', component: DeckEdit},
-	// {path: '/deck/:id/edit/:section', component: DeckEdit},
-	// {path: '/preferences', component: Preferences, name: 'preferences'},
-	// {path: '/preferences/:section', component: Preferences},
+	{path: '/locked', component: Locked, name: 'locked'},
+	{path: '/news/:locale/:slug', component: News, name: 'news' },
 	{path: '/account/:id', redirect: '/account/:id/wall' },
 	{path: '/account/:id/:section', component: Account, name: 'account'},
-	// {path: '/account/:id/decks', component: Account},
-	// {path: '/customize', component: Customize, name: 'customize'},
-	// {path: '/customize/:section', component: Customize},
+	{path: '/account/:id/:section/:key', component: Account, name: 'accountMessaging'},
 	{path: '/about', component: About, name: 'about'},
 	{path: '/about/:section', component: About},
 	{path: '/strategy/:id', redirect: '/strategy/:id/settings'},
@@ -87,14 +104,10 @@ export const routes = [
 	{path: '/component/:id', redirect: '/component/:id/settings'},
 	{path: '/component/:id/:section', component: Component, name: 'component'},
 	{path: '/dataset/:id', redirect: '/dataset/:id/settings'},
-	{path: '/dataset/:id/:section', component: DataSet, name: 'dataset'},
+	{path: '/dataset/:id/:section', component: Dataset, name: 'dataset'},
 	{path: '/contact', redirect: '/about/contact'},
 	{path: '/terms', redirect: '/about/terms'},
 	{path: '/privacy', redirect: '/about/privacy'},
-	// {path: '/admin/users', component: AdminUsers, name: 'admin.users'},
-	// {path: '/admin/roles', component: AdminRoles, name: 'admin.roles'},
-	// {path: '/admin/groups', component: AdminGroups, name: 'admin.groups'},
-	// {path: '/admin/permissions', component: AdminPermissions, name: 'admin.permissions'},
 	{path: '*', component: Error404, name: 'error404'},
 ];
 
@@ -102,20 +115,119 @@ export default Vue.extend({
 	name: 'App',
 
 	components: {
-		Toolbar, Sidebar, ErrorDialog,
+		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help, CommentDrawer, Chat
+	},
+
+	created() {
+        this.$shortcuts.attach(document.body);
 	},
 
 	mounted() {
+
 		moment.locale(this.$i18n.locale);
 		UserService.me.bind(this)().then(response => {
-			this.$root.user = Object.assign({}, this.$root.user, response.data);
+			this.$root.user = new User(response.data);
+
+			this.sidebar.permanent = this.$root.user.settings.sidebar.fixed;
+			this.sidebar.opened = this.$root.user.settings.sidebar.fixed;
 			// this.$i18n.locale = user.language_abbreviation;
 			// this.$vuetify.theme.themes.light.primary = user.setting.colorFrom;
 			this.$forceUpdate();
 		});
+
+        this.$shortcuts.add(this.$t('shortcuts.main.escape.title'), this.$t('shortcuts.main.escape.desc'), 'main', 'Escape', this.shortcutEscape);
+        this.$shortcuts.add(this.$t('shortcuts.main.help.title'), this.$t('shortcuts.main.help.desc'), 'main', 'F1', this.shortcutHelp, true);
+        this.$shortcuts.add(this.$t('shortcuts.main.search.title'), this.$t('shortcuts.main.search.desc'), 'main', ['ControlLeft', 'KeyF'], this.shortcutSearch, true);
+        this.$shortcuts.add(this.$t('shortcuts.main.sidebar.title'), this.$t('shortcuts.main.sidebar.desc'), 'main', ['AltLeft', 'KeyS'], this.shortcutSidebar, true);
+        this.$shortcuts.add(this.$t('shortcuts.navigation.dashboard.title'), this.$t('shortcuts.navigation.dashboard.desc'), 'navigation', ['AltLeft', 'KeyD'], this.shortcutDashboard, true);
+        this.$shortcuts.add(this.$t('shortcuts.navigation.profile.title'), this.$t('shortcuts.navigation.profile.desc'), 'navigation', ['AltLeft', 'KeyP'], this.shortcutProfile, true);
+
+        this.$help.setVueRef(this);
+        this.$help.setCompRef(this.$refs.help);
+        this.$comments.setRef(this.$refs.comments);
+	},
+
+	destroyed() {
+
+		this.$shortcuts.remove(this.shortcutEscape);
+		this.$shortcuts.remove(this.shortcutHelp);
+		this.$shortcuts.remove(this.shortcutSearch);
+		this.$shortcuts.remove(this.shortcutSidebar);
+		this.$shortcuts.remove(this.shortcutDashboard);
+		this.$shortcuts.remove(this.shortcutProfile);
 	},
 
 	methods: {
+
+		handleContextMenu(event) {
+
+			var getClosest = function (elem, selector) {
+
+				// Element.matches() polyfill
+				if (!Element.prototype.matches) {
+					Element.prototype.matches =
+							Element.prototype.matchesSelector ||
+							Element.prototype.mozMatchesSelector ||
+							Element.prototype.msMatchesSelector ||
+							Element.prototype.oMatchesSelector ||
+							Element.prototype.webkitMatchesSelector ||
+							function(s) {
+								var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+										i = matches.length;
+								while (--i >= 0 && matches.item(i) !== this) {}
+								return i > -1;
+							};
+				}
+
+				// Get the closest matching element
+				for ( ; elem && elem !== document; elem = elem.parentNode ) {
+					if ( elem.matches( selector ) ) return elem;
+				}
+				return null;
+
+			};
+
+			if (!event.target.classList.contains('allow-contextual-menu') && !getClosest(event.target, '.allow-contextual-menu')) {
+				event.preventDefault();
+			}
+		},
+
+	    shortcutEscape() {
+			this.$root.help.visible = false;
+			this.$root.shortcuts.visible = false;
+            this.$refs.sidebar.closeSidebar();
+        },
+
+	    shortcutHelp() {
+            this.$root.help.visible = !this.$root.help.visible;
+        },
+
+	    shortcutDashboard() {
+            this.$router.push('/');
+        },
+
+	    shortcutProfile() {
+            this.$router.push('/account/' + this.$root.user.id);
+        },
+
+        shortcutSearch() {
+
+	        if (this.$refs.toolbar) {
+				this.$refs.toolbar.searchMenuOpened = true;
+				this.$refs.toolbar.setSearchFocus();
+			}
+        },
+
+        shortcutSidebar() {
+
+	        if (this.$refs.sidebar) {
+				this.$refs.sidebar.openSidebar();
+				this.$refs.sidebar.focusSearch();
+			}
+        },
+	},
+
+	computed: {
 
 	},
 
@@ -123,11 +235,7 @@ export default Vue.extend({
 		return {
 			sidebar: {
 				opened: false,
-				pinned: false,
 				permanent: false,
-				// opened: this.$vuetify.breakpoint.mdAndUp,
-				// pinned: this.$vuetify.breakpoint.mdAndUp,
-				// permanent: this.$vuetify.breakpoint.mdAndUp,
 				miniVariant: false,
 				hideOverlay: false,
 			},
@@ -137,6 +245,10 @@ export default Vue.extend({
 	watch: {
 	    $route() {
 			this.$root.breadcrumbs = [];
+
+			// Scroll back to top
+			// ISSUE: Sometimes, we don't want to scroll about (tabs)
+            // this.$vuetify.goTo('html');
 		},
 	}
 });

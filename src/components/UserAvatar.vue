@@ -1,26 +1,43 @@
 <template>
-	<v-avatar color="primary" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
+	<v-avatar @click="handleClick" color="primary" :class="classes" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
 
 		<v-overlay :absolute="true" :value="isUploading">
 			<v-progress-circular :size="size / 2" color="primary" indeterminate></v-progress-circular>
 		</v-overlay>
 
-		<div class="overlay-edit d-flex align-center justify-center" v-if="!isUploading" @click="modify('picture_id')">
+		<div v-if="state && user.id && $root.user.id !== user.id" :class="{
+			connection: true,
+			grey: !isOnline,
+			green: isOnline,
+		}" :style="{
+			bottom: ((size / 96) + 'rem'),
+			right: ((size / 96) + 'rem'),
+			width: ((size / 128) + 'rem'),
+			height: ((size / 128) + 'rem')
+		}">
+
+		</div>
+
+		<div class="overlay-edit d-flex align-center justify-center" v-if="editable && !isUploading && $root.user.id === user.id" @click="modify('picture_id')">
 			<v-icon :style="{ fontSize: (size / 42) + 'rem' }">mdi-upload</v-icon>
 		</div>
 
-		<img v-if="user.profile.picture.url" :src="user.profile.picture.url" alt="avatar" />
-		<span :class="(size >= 96 ? 'display-3' : 'display-1') + ' white--text'" v-else>{{user.profile.screen_name.substring(0, 1).toUpperCase()}}</span>
+		<img v-if="user.avatar" :src="avatar" alt="avatar" />
+		<img v-else-if="$root.user.id === user.id && $root.user.avatar" :src="avatar" alt="avatar" />
+		<span :class="(size >= 96 ? 'display-3' : 'display-1') + ' white--text'" v-else>{{$options.filters.userScreenName(user).substring(0, 1).toUpperCase()}}</span>
 	</v-avatar>
 </template>
 
 <script>
 import Vue from 'vue';
+import UserModel from "../models/User";
 import File from '../utils/File';
-import FileService from "../services/File";
-import ProfileService from "../services/Profile";
+import FileService from "../services/FileService";
+import UserService from "../services/UserService";
+import moment from "moment";
 
 export default Vue.extend({
+
 	props: {
 	    user: {
 	        type: Object
@@ -28,28 +45,50 @@ export default Vue.extend({
 		size: {
 	        type: Number,
 			default: 96
+		},
+		state: {
+	        type: Boolean,
+			default: true,
+		},
+		editable: {
+	        type: Boolean,
+			default: false,
+		}
+	},
+
+	mounted() {
+
+	    if (this.user.avatar) {
+            this.avatar = this.$thumbnails(this.user.avatar.filename, 256, 256);
 		}
 	},
 
 	methods: {
 
+		handleClick() {
+			if (!this.editable) {
+				this.$router.push('/account/' + this.user.id);
+			}
+		},
+
 	    modify(param) {
+
 			File.promptFileDialog(images => {
 				this.isUploading = true;
-				this.$crop(images, [128, 128]).then(croppedImages => {
-					FileService.upload.bind(this)(croppedImages)
+				this.$crop(images, [512, 512]).then(croppedImages => {
+					FileService.upload.bind(this)(croppedImages, progress => {
+						const percent = (progress.loaded * 100) / progress.total;
+						// this.percentUploaded = percent.toFixed(2) + '%';
+					})
 						.then(filesResponse => {
-
-							let payload = {};
-							payload[param] = filesResponse.data.id;
-
-							ProfileService.update.bind(this)(this.user.profile.id, payload)
-								.then(profileResponse => {
-									this.$root.user.profile.picture.url = filesResponse.data.url;
-									this.user.profile.picture.url = filesResponse.data.url;
-								})
-								.catch(error => this.$handleError(this, error))
-								.finally(() => this.isUploading = false);
+                            UserService.update.bind(this)(this.$root.user.id, {
+                                avatar: filesResponse.data.id
+                            })
+                                .then(response => {
+                                    Object.assign(this.$root.user, new UserModel(response.data));
+                                })
+                                .catch(error => this.$handleError(this, error))
+                                .finally(() => this.isUploading = false);
 						})
 						.catch(error => {
 							this.$handleError(this, error);
@@ -60,15 +99,54 @@ export default Vue.extend({
 		}
 	},
 
+	computed: {
+
+        isOnline() {
+            return moment(this.user.last_access_on).isAfter(moment().subtract(5, 'minutes'));
+		},
+
+		isCurrentUser() {
+        	return this.$root.user.id === this.user.id;
+		},
+
+		classes() {
+        	return {
+				redirectsToAccount: !this.editable,
+			};
+		}
+	},
+
 	data() {
 		return {
+		    avatar: null,
 			isUploading: false,
 		};
 	},
+
+	watch: {
+	    'user.avatar.filename'(filename) {
+	        this.avatar = this.$thumbnails(filename, 256, 256);
+		},
+	    '$root.user.avatar.filename'(filename) {
+
+	        if (this.user.id === this.$root.user.id) {
+            	this.avatar = this.$thumbnails(filename, 256, 256);
+			}
+		}
+	}
 });
 </script>
 
 <style lang="scss" scoped>
+
+	.redirectsToAccount {
+		cursor: pointer;
+	}
+
+	.connection {
+		position: absolute;
+		border-radius: 100%;
+	}
 
 	.v-avatar {
 		position: relative;

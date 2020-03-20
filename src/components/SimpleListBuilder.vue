@@ -12,7 +12,7 @@
 		<draggable v-model="list" v-bind="dragOptions" handle=".handle" @start="dragStart()" @end="dragEnd()">
 			<transition-group type="transition" :name="!isDragging ? 'flip-list' : null">
 				<v-row :key="index" v-for="(item, index) in list">
-					<v-col v-if="$attrs.sortable !== undefined" class="py-0 d-flex align-center justify-start shrink">
+					<v-col v-if="$attrs.sortable !== undefined && list.length > 1" class="py-0 d-flex align-center justify-start shrink">
 						<v-icon class="handle">mdi-drag</v-icon>
 					</v-col>
 					<v-col class="py-0 d-flex align-center grow">
@@ -37,7 +37,7 @@
 		</draggable>
 
 		<!-- ADD BUTTON -->
-		<v-row>
+		<v-row v-if="!hideAddButton">
 			<v-col cols="12">
 				<v-btn @click="add()" :disabled="$attrs.disabled">
 					<v-icon>mdi-plus</v-icon>
@@ -61,6 +61,10 @@ export default Vue.extend({
 	    group: {
 	        type: String,
 		},
+        hideAddButton: {
+            type: Boolean,
+            default: false,
+        },
         value: {
             type: Array,
 			default: () => ({}),
@@ -78,7 +82,7 @@ export default Vue.extend({
     methods: {
 
         add() {
-            const deepClone = JSON.parse(JSON.stringify(this.emptyItem));
+            const deepClone = this.$deepClone(this.emptyItem);
 			this.list.push(deepClone);
 			this.$emit('input', this.list);
 		},

@@ -191,7 +191,8 @@ export default {
 
 		fieldset {
 			overflow: hidden;
-			border: currentColor solid 1px;
+			border-style: solid;
+			border-width: 1px;
 			transition: border .333s ease;
 			border-radius: 4px;
 			margin-top: -0.6rem;
@@ -223,12 +224,12 @@ export default {
 
 		.editor-content {
 
-			& >>> .ProseMirror {
+			&::v-deep .ProseMirror {
 				min-height: 11.15rem;
 				padding: 1rem;
 				color: black;
 			}
-			& >>> .ProseMirror:focus {
+			&::v-deep .ProseMirror:focus {
 				outline: 0;
 			}
 		}
@@ -237,7 +238,7 @@ export default {
 
 			.editor-content {
 
-				& >>> .ProseMirror {
+				&::v-deep .ProseMirror {
 					min-height: calc(11.15rem + 38px);
 				}
 			}

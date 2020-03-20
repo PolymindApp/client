@@ -4,9 +4,9 @@
 		<ErrorDialog :response="$root.error" />
 		<Modal :settings="$root.error" />
 
-		<div class="top-left" v-if="$route.name !== 'login'">
+		<div class="top-left" v-if="hasBackLink">
 			<v-btn class="white--text" to="/login" text>
-				<v-icon left>mdi-arrow-left</v-icon>
+				<v-icon :left="$vuetify.breakpoint.smAndUp">mdi-arrow-left</v-icon>
 				<span class="d-none d-sm-inline">{{ $t("restricted.backLogin") }}</span>
 			</v-btn>
 		</div>
@@ -19,32 +19,37 @@
 			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
 		</v-overlay>
 
-		<v-container fluid class="default-gradient pa-4 fill-height d-flex flex-column main-container" style="width: 100%; background-image: url('https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background.jpg');">
+		<v-fade-transition>
+			<v-container v-if="hasLoaded" fluid class="default-gradient pa-4 fill-height d-flex flex-column main-container" style="width: 100%; background-image: url('https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background.jpg');">
 
-			<div class="overlay"></div>
+				<div class="overlay"></div>
 
-			<v-container class="page main-content fill-height flex-column d-flex align-center justify-space-between">
+				<v-container class="page main-content fill-height flex-column d-flex align-center justify-space-between">
 
-				<div style="flex: 3" class="d-flex align-end">
-					<img transition="fade-transition" src="../assets/images/logo-light.svg" height="128" width="128" />
-				</div>
+					<div style="flex: 3" class="d-flex align-end mb-4" v-if="hasLogo">
+						<div class="d-flex align-center">
+							<img transition="fade-transition" src="../assets/images/polymind-light.svg" height="96" />
+							<h3 class="ml-4 mb-0 display-2 font-weight-thin white--text">Polymind</h3>
+						</div>
+					</div>
 
-				<v-sheet style="flex: 6; width: 100%" dark color="transparent" class="inner">
-					<router-view></router-view>
-				</v-sheet>
+					<v-sheet style="flex: 6; width: 100%" dark color="transparent" class="inner">
+						<router-view></router-view>
+					</v-sheet>
 
-				<div class="footer d-flex align-end" style="flex: 1">
-<!--					<div class="text-center">-->
-<!--						<v-btn class="white&#45;&#45;text" to="/terms" text>-->
-<!--							{{ $t("restricted.termsLink") }}-->
-<!--						</v-btn>-->
-<!--						<v-btn class="white&#45;&#45;text" to="/policies" text>-->
-<!--							{{ $t("restricted.policiesLink") }}-->
-<!--						</v-btn>-->
-<!--					</div>-->
-				</div>
+					<div class="footer d-flex align-end" style="flex: 1">
+<!--						<div class="text-center">-->
+<!--							<v-btn class="white&#45;&#45;text" to="/terms" text>-->
+<!--								{{ $t("restricted.termsLink") }}-->
+<!--							</v-btn>-->
+<!--							<v-btn class="white&#45;&#45;text" to="/policies" text>-->
+<!--								{{ $t("restricted.policiesLink") }}-->
+<!--							</v-btn>-->
+<!--						</div>-->
+					</div>
+				</v-container>
 			</v-container>
-		</v-container>
+		</v-fade-transition>
 	</v-app>
 </template>
 
@@ -52,6 +57,7 @@
 
 import Vue from 'vue';
 import Login from './Restricted/Login.vue';
+import Locked from './Restricted/Locked.vue';
 import Register from './Restricted/Register.vue';
 import Activate from './Restricted/Activate.vue';
 import ForgotPassword from './Restricted/ForgotPassword.vue';
@@ -66,18 +72,26 @@ import Modal from "../components/Modal";
 export const routes = [
 	{path: '/', redirect: '/login'},
 	{path: '/login', component: Login, name: 'login'},
+	{path: '/locked', component: Locked, name: 'locked'},
 	{path: '/register', component: Register, name: 'register'},
-	{path: '/user/activate/:lookup/:token', component: Activate, name: 'activate'},
+	{path: '/user/activate/:token/:lookup', component: Activate, name: 'activate'},
 	{path: '/user/forgot-password', component: ForgotPassword, name: 'forgotPassword'},
-	{path: '/user/reset-password/:lookup/:token', component: ResetPassword, name: 'resetPassword'},
+	{path: '/user/reset-password/:token', component: ResetPassword, name: 'resetPassword'},
 	{path: '/terms', component: Terms, name: 'terms'},
 	{path: '/policies', component: Policies, name: 'policies'},
 	{path: '/contact', component: Contact, name: 'contact'},
-	{path: '*', redirect: '/login'},
+	{path: '*', redirect: to => {
+		if (!to.fullPath.startsWith('/issue/')) {
+			localStorage.setItem('redirect_uri', to.fullPath);
+		}
+		return '/login';
+	}},
 ];
 
 export default Vue.extend({
+
 	name: 'Restricted',
+
 	components: {
 		LanguageSwitcher, ErrorDialog, Modal
 	},
@@ -86,9 +100,11 @@ export default Vue.extend({
 
 		setTimeout(() => { this.showLogo = true; }, 500);
 		setTimeout(() => { this.showPanel = true; }, 750);
+		setTimeout(() => { this.hasLoaded = true; }, 0);
 	},
 
 	methods: {
+
 		switchLang() {
 			const currentLang = this.$i18n.locale;
 			const newLang = currentLang === 'en' ? 'fr' : 'en';
@@ -97,10 +113,22 @@ export default Vue.extend({
 		},
 	},
 
+	computed: {
+
+		hasBackLink() {
+			return this.$route.name !== 'login' && this.$route.name !== 'locked';
+		},
+
+		hasLogo() {
+			return this.$route.name !== 'locked';
+		},
+	},
+
 	data: function() {
 	    return {
 			showLogo: false,
 			showPanel: false,
+            hasLoaded: false,
 			currentLang: this.$i18n.locale,
 		};
 	},
@@ -124,7 +152,7 @@ export default Vue.extend({
 		position: relative;
 		z-index: 1;
 	}
-	.main-content >>> a {
+	.main-content::v-deep a {
 		color: white;
 	}
 	.top-right {
