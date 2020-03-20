@@ -3,14 +3,23 @@
 		<template v-if="!canEdit">
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on }">
-					<v-btn @click="toggle()" v-on="on" icon>
-						<v-progress-circular color="primary" rotate="270" :value="audioProgress">
-							<v-icon v-if="!isPlaying">mdi-play</v-icon>
-							<v-icon v-else>mdi-stop</v-icon>
+					<v-btn @click="toggle()" @mousedown.stop @mouseup.stop v-on="on" class="my-n2 mx-n1" icon>
+						<v-progress-circular color="primary" rotate="270" size="24" :value="audioProgress">
+							<v-icon v-if="!isPlaying" x-small>mdi-play</v-icon>
+							<v-icon v-else x-small>mdi-stop</v-icon>
 						</v-progress-circular>
 					</v-btn>
 				</template>
 				<span v-text="isPlaying ? $t('dataType.stopAudioTooltip') : $t('dataType.playAudioTooltip')"></span>
+			</v-tooltip>
+
+			<v-tooltip bottom>
+				<template v-slot:activator="{ on }">
+					<v-btn @mousedown.stop @mouseup.stop v-on="on" class="my-n2 mx-n1" icon>
+						<v-icon small>mdi-microphone-outline</v-icon>
+					</v-btn>
+				</template>
+				<span v-text="isPlaying ? $t('dataType.stopRecordingTooltip') : $t('dataType.playRecordingTooltip')"></span>
 			</v-tooltip>
 
 			<audio ref="audio">
@@ -45,6 +54,9 @@
 
         mounted() {
 
+			this.$bus.$on('PLAY_AUDIO', () => {
+				this.stop();
+			});
         },
 
         destroyed() {
@@ -74,21 +86,27 @@
             },
 
             play() {
-                this.$refs.audio.ontimeupdate = this.setProgress;
-                this.$refs.audio.addEventListener('ended', this.stop);
-                this.isPlaying = true;
-                this.$refs.audio.play();
+                this.$bus.$emit('PLAY_AUDIO', this.$refs.audio);
+				setTimeout(() => {
+					this.$refs.audio.addEventListener('ended', this.stop);
+					this.$refs.audio.ontimeupdate = this.setProgress;
+					this.isPlaying = true;
+                	this.$refs.audio.play();
+				})
             },
 
-            toggle() {
+            toggle(event) {
                 this.isPlaying ? this.stop() : this.play();
             },
 
             stop() {
                 this.isPlaying = false;
                 this.audioProgress = 0;
-                this.$refs.audio.pause();
-                this.$refs.audio.currentTime = 0;
+
+                if (this.$refs.audio) {
+					this.$refs.audio.pause();
+					this.$refs.audio.currentTime = 0;
+				}
             },
 		},
 

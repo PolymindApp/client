@@ -108,7 +108,7 @@ export default Vue.extend({
 
             this.$root.isLoading = true;
 	        Promise.all([
-                CommentService.getAll.bind(this)('directus_users', this.$route.params.id),
+                CommentService.getAll.bind(this)('directus_users', this.$route.params.id, '-id', 5),
                 HistoryService.fromUser.bind(this)(this.$route.params.id),
 			])
                 .then(([comments, histories]) => {
@@ -150,7 +150,7 @@ export default Vue.extend({
 
             event.preventDefault();
 
-            this.isLoading = true;
+            this.$root.isLoading = true;
             CommentService.save.bind(this)(this.$route.params.id, 'directus_users', this.newComment.text)
                 .then(response => {
                     this.newComment.text = '';
@@ -164,7 +164,7 @@ export default Vue.extend({
                     }
                 })
                 .catch(error => this.$handleError(this, error))
-                .finally(() => this.isLoading = false);
+                .finally(() => this.$root.isLoading = false);
         },
 	},
 

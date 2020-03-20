@@ -72,9 +72,9 @@
 					<v-scroll-y-transition mode="out-in">
 						<v-card v-if="types.active.length > 0" :key="types.active[0].key" color="transparent" tile flat class="pa-8">
 							<v-row>
-								<v-col v-if="file.size < 100000" :key="index" v-for="(file, index) in files" class="d-flex align-center justify-center">
+								<v-col :key="index" v-for="(file, index) in files" class="d-flex align-center justify-center">
 									<v-card class="pa-2">
-										<v-img :src="file.url" max-height="150" max-width="200" @error="handleError">
+										<v-img :src="file.data.thumbnails[0].url" max-height="150" max-width="200" @error="handleError">
 											<template v-slot:placeholder>
 												<v-row class="fill-height pa-2" no-gutters align="center" justify="center">
 													<v-progress-circular v-if="errors.indexOf(file.url) === -1" indeterminate color="primary"></v-progress-circular>

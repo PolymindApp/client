@@ -48,10 +48,15 @@ export default Vue.extend({
 	methods: {
 
 		getSelectedLang() {
-			const lang = this.$root.languages.find(lang => lang.abbreviation === this.value);
 
+			const lang = this.$root.languages.find(lang => lang.abbreviation === this.value);
 			if (lang) {
 				return this.full !== null ? lang.origin_title : lang.abbreviation;
+			}
+
+			const defaultLang = this.$root.languages.find(lang => lang.abbreviation === this.$i18n.locale);
+			if (defaultLang) {
+				return this.full !== null ? defaultLang.origin_title : defaultLang.abbreviation;
 			}
 
 			return null;

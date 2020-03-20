@@ -1,7 +1,16 @@
 <template>
-	<div @contextmenu.prevent="">
+	<div @contextmenu="handleContextMenu">
 		<v-app>
 			<ErrorDialog :response="$root.error"></ErrorDialog>
+
+			<!-- COPIED TO CLIPBOARD -->
+			<v-snackbar v-model="$root.copiedToClipboard">
+				<v-icon class="white--text" left>mdi-check</v-icon>
+				{{$t('snackbar.copiedToClipboard')}}
+				<v-btn text @click="$root.copiedToClipboard = false">
+					{{$t('modal.close')}}
+				</v-btn>
+			</v-snackbar>
 
 			<!-- IS SAVED -->
 			<v-snackbar color="success" v-model="$root.isSaved">
@@ -19,7 +28,7 @@
 			<Help ref="help" :visible="$root.help.visible" />
 
 			<!-- COMMENTS -->
-			<Comments ref="comments" />
+			<CommentDrawer ref="comments" />
 
 			<!-- IS DELETE -->
 			<v-snackbar color="success" v-model="$root.isDeleted">
@@ -44,12 +53,14 @@
 
 			<v-scroll-y-transition>
 				<v-content v-if="$root.user.id" class="main-content">
-					<Chat />
-					<v-layout fill-height>
-						<v-fade-transition mode="out-in">
-							<router-view></router-view>
-						</v-fade-transition>
-					</v-layout>
+					<v-sheet class="fill-height" :dark="$root.user.settings.theme === 'dark'">
+						<Chat />
+						<v-layout fill-height>
+							<v-fade-transition mode="out-in">
+								<router-view></router-view>
+							</v-fade-transition>
+						</v-layout>
+					</v-sheet>
 				</v-content>
 			</v-scroll-y-transition>
 		</v-app>
@@ -59,7 +70,9 @@
 <script>
 import Vue from 'vue';
 import moment from 'moment';
+import Locked from './Restricted/Locked.vue';
 import Dashboard from './App/Dashboard.vue';
+import News from './App/News.vue';
 import Account from './App/Account.vue';
 import Error404 from './Error/Error404.vue';
 import Toolbar from '../components/Toolbar.vue';
@@ -73,12 +86,14 @@ import Component from "./App/Component";
 import Strategy from "./App/Strategy";
 import Dataset from "./App/Dataset";
 import User from "../models/User";
-import Comments from "../components/Comments";
+import CommentDrawer from "../components/CommentDrawer";
 import Chat from "../components/Chat";
 
 export const routes = [
 	{path: '/', component: Dashboard, name: 'dashboard'},
 	{path: '/login', redirect: '/'},
+	{path: '/locked', component: Locked, name: 'locked'},
+	{path: '/news/:locale/:slug', component: News, name: 'news' },
 	{path: '/account/:id', redirect: '/account/:id/wall' },
 	{path: '/account/:id/:section', component: Account, name: 'account'},
 	{path: '/account/:id/:section/:key', component: Account, name: 'accountMessaging'},
@@ -100,7 +115,7 @@ export default Vue.extend({
 	name: 'App',
 
 	components: {
-		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help, Comments, Chat
+		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help, CommentDrawer, Chat
 	},
 
 	created() {
@@ -143,6 +158,39 @@ export default Vue.extend({
 	},
 
 	methods: {
+
+		handleContextMenu(event) {
+
+			var getClosest = function (elem, selector) {
+
+				// Element.matches() polyfill
+				if (!Element.prototype.matches) {
+					Element.prototype.matches =
+							Element.prototype.matchesSelector ||
+							Element.prototype.mozMatchesSelector ||
+							Element.prototype.msMatchesSelector ||
+							Element.prototype.oMatchesSelector ||
+							Element.prototype.webkitMatchesSelector ||
+							function(s) {
+								var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+										i = matches.length;
+								while (--i >= 0 && matches.item(i) !== this) {}
+								return i > -1;
+							};
+				}
+
+				// Get the closest matching element
+				for ( ; elem && elem !== document; elem = elem.parentNode ) {
+					if ( elem.matches( selector ) ) return elem;
+				}
+				return null;
+
+			};
+
+			if (!event.target.classList.contains('allow-contextual-menu') && !getClosest(event.target, '.allow-contextual-menu')) {
+				event.preventDefault();
+			}
+		},
 
 	    shortcutEscape() {
 			this.$root.help.visible = false;

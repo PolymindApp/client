@@ -6,19 +6,22 @@ import globalVariables from './global';
 import * as VueGoogleMaps from 'vue2-google-maps';
 import App, { routes as appRoutes } from './routes/App.vue';
 import Restricted, { routes as restrictedRoutes } from './routes/Restricted.vue';
+import Issue, { routes as issueRoutes } from './routes/Issue.vue';
 import VueI18n from 'vue-i18n';
 import VueRouter from 'vue-router';
 import messages from './locales';
-import loader from './loader';
 import VueCookies from 'vue-cookies';
 import VueAnalytics from 'vue-analytics';
 import VueCordova from 'vue-cordova';
+import 'roboto-fontface/css/roboto/sass/roboto-fontface.scss';
+import '@mdi/font/scss/materialdesignicons.scss';
 import "./styles/index.scss";
 import './filters';
+import './loader';
 import DirectusSDK from "@directus/sdk-js";
 import ab from 'autobahn';
-import Server from "./utils/Server";
 
+let router;
 let directusConfig = {
 	url: process.env.VUE_APP_API_URL,
 	project: 'polymind',
@@ -29,6 +32,9 @@ const server = new DirectusSDK(directusConfig);
 
 Object.defineProperties(Vue.prototype, {
 	$server: { value: server }
+});
+Object.defineProperties(Vue.prototype, {
+	$bus: { value: new Vue() }
 });
 
 Vue.config.productionTip = false;
@@ -61,58 +67,50 @@ const i18n = new VueI18n({
 		localStorage.removeItem('redirect_uri');
 	}
 
-	const router = new VueRouter({
-		mode: 'history',
-		routes,
-	});
-
-	router.beforeEach((to, from, next) => {
-
-		if (to.name) {
-			const title = i18n.t('title.' + to.name);
-			if (title) {
-				document.title = title.toString();
-			}
-		} else {
-			document.title = 'Polymind';
-		}
-
-		Array.from(document.querySelectorAll('[data-vue-router-controlled]')).map((el) => el.parentNode.removeChild(el));
-
-		next();
-	});
-
-	Vue.use(VueAnalytics, {
-		id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID,
-		checkDuplicatedScript: true,
-		router
-	});
-
 	let loadCallback = () => {
 
 		let callback = () => {
-			window.addEventListener('click', event => {
 
-				// ensure we use the link, in case the click has been received by a subelement
+			router = new VueRouter({
+				mode: 'history',
+				routes,
+			});
+
+			router.beforeEach((to, from, next) => {
+
+				if (to.name) {
+					const title = i18n.t('title.' + to.name);
+					if (title) {
+						document.title = title.toString();
+					}
+				} else {
+					document.title = 'Polymind';
+				}
+
+				Array.from(document.querySelectorAll('[data-vue-router-controlled]')).map((el) => el.parentNode.removeChild(el));
+
+				next();
+			});
+
+			Vue.use(VueAnalytics, {
+				id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID,
+				checkDuplicatedScript: true,
+				router
+			});
+
+			// Make router listen to injected links (from database for instance)
+			window.addEventListener('click', event => {
 				let { target } = event;
 				while (target && target.tagName !== 'A') target = target.parentNode;
-				// handle only links that do not reference external resources
 				if (target && target.matches("a:not([href*='://'])") && target.href) {
-					// some sanity checks taken from vue-router:
-					// https://github.com/vuejs/vue-router/blob/dev/src/components/link.js#L106
 					const { altKey, ctrlKey, metaKey, shiftKey, button, defaultPrevented } = event;
-					// don't handle with control keys
 					if (metaKey || altKey || ctrlKey || shiftKey) return;
-					// don't handle when preventDefault called
 					if (defaultPrevented) return;
-					// don't handle right clicks
 					if (button !== undefined && button !== 0) return;
-					// don't handle if `target="_blank"`
 					if (target && target.getAttribute) {
 						const linkTarget = target.getAttribute('target');
 						if (/\b_blank\b/i.test(linkTarget)) return;
 					}
-					// don't handle same page links/anchors
 					const url = new URL(target.href);
 					const to = url.pathname;
 					if (window.location.pathname !== to && event.preventDefault) {
@@ -138,16 +136,27 @@ const i18n = new VueI18n({
 			url: process.env.VUE_APP_WS_URI,
 			realm: 'polymind',
 		});
+
 		conn.onopen = (session) => {
 			server.request('POST', '/custom/user/update-ws-token', undefined, {
 				sessionId: session.id
 			})
-				.then(() => {
-					callback()
-				})
-				.catch(error => this.$handleError(this, error));
+				.then(() => {callback()})
+				.catch(error => {
+					component = Issue;
+					routes = issueRoutes;
+					callback();
+					router.push('/issue/api');
+				});
+		};
+		conn.onclose = (session) => {
+			component = Issue;
+			routes = issueRoutes;
+			callback();
+			router.push('/issue/ws');
 		};
 		conn.open();
+
 		Object.defineProperties(Vue.prototype, {
 			$ws: { value: conn }
 		});

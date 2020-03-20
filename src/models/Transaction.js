@@ -1,13 +1,17 @@
-export default class Transaction {
+import Model from "./Model";
+
+export default class Transaction extends Model {
 
 	constructor(props = {}) {
 
-		Object.assign(this, {
+		super({});
+
+		this.setDefaultValues({
 			guid: null,
+			id: null,
 			action: null,
 			collection: null,
-			// data
-			// id
+			data: null,
 		}, props);
 	}
 }

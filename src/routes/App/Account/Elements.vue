@@ -6,7 +6,7 @@
 		</v-alert>
 		<v-slide-y-transition group tag="div" class="row">
 			<v-col cols="12" md="4" :key="index" v-for="(component, index) in components.data">
-				<Deck :model="component" />
+				<Deck :model="component" type="component" />
 			</v-col>
 		</v-slide-y-transition>
 	</div>

@@ -4,7 +4,7 @@
 			<v-card :key="box.user.id" v-for="(box, index) in boxes" class="ml-4" style="width: 15rem; border-bottom-left-radius: 0; border-bottom-right-radius: 0">
 
 				<!-- HEADER -->
-				<v-card @click="toggle(box)" class="pa-2 d-flex align-center no-select" :color="box.acknowledged ? 'secondary' : 'primary'" tile flat dark>
+				<v-card @click="toggle(box)" class="pa-2 d-flex align-center no-select" :color="box.acknowledged ? 'grey' : 'primary'" tile flat dark>
 					<div class="mr-2">
 						<UserAvatar :user="box.user" :size="24" />
 					</div>

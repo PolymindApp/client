@@ -23,28 +23,54 @@ export default class DatasetService {
 		return Server.get.bind(this)('/items/dataset?filter[created_by]=' + this.$root.user.id + '&fields=' + defaultFields);
 	}
 
-	static get(id, includeData = false) {
+	static get(id, includeData = false, revisionOffset) {
 
 		let suffix = '';
 		if (includeData) {
 			suffix += '?fields=*,rows.*,columns.*,rows.cells.*,rows.created_by.*,rows.created_by.avatar.filename';
 		}
 
-		return Server.get.bind(this)('/items/dataset/' + id + suffix);
+		return Server.get.bind(this)('/items/dataset/' + id + (revisionOffset !== undefined ? '/revisions/' + revisionOffset : '') + suffix);
+	}
+
+	static getRevisions(id) {
+		return Server.get.bind(this)('/items/dataset/' + id + '/revisions?limit=25');
+	}
+
+	static fork(revisionId) {
+		return Server.post.bind(this)('/custom/dataset/fork/' + revisionId);
 	}
 
 	static save(id, dataset, transactions = []) {
 
 		const promises = [];
+		const datasetClone = new Model(dataset).flat(false);
 
 		if (id) {
-			const datasetClone = new Model(dataset).flat(false);
+
 			delete datasetClone.columns;
 			delete datasetClone.rows;
 
+			transactions = transactions.map(transaction => transaction.flat());
+
 			promises.push(Server.patch.bind(this)('/items/dataset/' + id, datasetClone));
-			promises.push(Server.post.bind(this)('/custom/transaction/run', transactions));
+
+			if (transactions.length > 0) {
+				promises.push(Server.post.bind(this)('/custom/transaction/run', transactions, false));
+			}
 		} else {
+
+			for (let i = 0; i < datasetClone.columns.length; i++) {
+				datasetClone.columns[i] = new Model(datasetClone.columns[i]).flat(false, true);
+			}
+
+			for (let i = 0; i < datasetClone.rows.length; i++) {
+				datasetClone.rows[i] = new Model(datasetClone.rows[i]).flat(false, true);
+				for (let y = 0; y < datasetClone.rows[i].cells.length; y++) {
+					datasetClone.rows[i].cells[y] = new Model(datasetClone.rows[i].cells[y]).flat(false, true);
+				}
+			}
+
 			promises.push(Server.post.bind(this)('/items/dataset', dataset));
 		}
 

@@ -1,4 +1,4 @@
-import RestError from './RestError';
+import Model from "../models/Model";
 
 export default class Server {
 
@@ -7,27 +7,39 @@ export default class Server {
 		return Server.prepare.bind(this)('GET', url, params);
 	}
 
-	static post(url, data) {
+	static post(url, data, modelize = true) {
+
+		if (modelize) {
+			data = new Model(data).flat(false);
+		}
 
 		return Server.prepare.bind(this)('POST', url, undefined, data);
 	}
 
-	static put(url, data) {
+	static put(url, data, modelize = true) {
+
+		if (modelize) {
+			data = new Model(data).flat(false);
+		}
 
 		return Server.prepare.bind(this)('PUT', url, undefined, data);
 	}
 
-	static patch(url, data) {
+	static patch(url, data, modelize = true) {
+
+		if (modelize) {
+			data = new Model(data).flat(false);
+		}
 
 		return Server.prepare.bind(this)('PATCH', url, undefined, data);
 	}
 
-	static delete(url, params) {
+	static delete(url, params, modelize = true) {
 
 		return Server.prepare.bind(this)('DELETE', url, params);
 	}
 
-	static upload(files = [], onProgress = () => {}) {
+	static upload(files = [], onProgress = () => {}, modelize = true) {
 
 		if (!(files instanceof Array)) {
 			files = [files];
@@ -50,7 +62,9 @@ export default class Server {
 					case 3:
 					case 401:
 						if (!this.$server.loggedIn) {
-							return this.$router.go(0); // Return necessary to avoid popups
+							localStorage.setItem('redirect_uri', this.$route.fullPath);
+							localStorage.setItem('lockedUser', JSON.stringify(this.$root.user));
+							return this.$router.push('/locked'); // Return necessary to avoid popups
 						}
 						break;
 				}

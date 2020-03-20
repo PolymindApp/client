@@ -1,5 +1,5 @@
 <template>
-	<v-card color="transparent" flat>
+	<v-sheet color="white" class="pa-4" tile>
 
 		<v-alert type="info" prominent border="left" text icon="mdi-information-outline">
 
@@ -46,7 +46,7 @@
 				</div>
 			</v-col>
 		</v-row>
-	</v-card>
+	</v-sheet>
 </template>
 
 <script>
@@ -83,6 +83,16 @@ export default Vue.extend({
 	data() {
 		return {
 			remoteTestResponse: null,
+		}
+	},
+
+	watch: {
+
+		dataset: {
+			deep: true,
+			handler(dataset) {
+				this.$emit('update:dataset', dataset);
+			}
 		}
 	}
 })

@@ -7,6 +7,7 @@ const globalVariables = {
 	breadcrumbs: [],
 	isLoading: false,
 	isSaved: false,
+	copiedToClipboard: false,
 	isDeleted: false,
 	toolbarOptions: [],
 	toolbarContextual: {

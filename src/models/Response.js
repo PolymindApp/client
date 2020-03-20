@@ -1,8 +1,12 @@
-export default class Response {
+import Model from "./Model";
 
-	constructor() {
+export default class Response extends Model {
 
-		Object.assign(this, {
+	constructor(props) {
+
+		super({});
+
+		this.setDefaultValues({
 			data: [],
 			meta: {
 				filter_count: 0,

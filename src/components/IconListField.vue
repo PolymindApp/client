@@ -26,7 +26,7 @@
 					<v-card :height="height" flat style="background-color: transparent">
 						<div class="icon-container">
 							<div v-for="item in icons" class="icon pa-2">
-								<v-btn :disabled="$attrs.disabled" v-bind:input-value="value === ('mdi-' + item)" :color="(value === 'mdi-' + item) ? 'primary' : 'secondary'" icon @click="icon = item; $emit('input', 'mdi-' + icon)">
+								<v-btn :disabled="$attrs.disabled" v-bind:input-value="value === ('mdi-' + item)" :color="(value === 'mdi-' + item) ? 'primary' : 'grey'" icon @click="icon = item; $emit('input', 'mdi-' + icon)">
 									<v-icon>mdi-{{ item }}</v-icon>
 								</v-btn>
 							</div>
@@ -90,7 +90,8 @@ export default Vue.extend({
 		}
 
 		fieldset {
-			border: currentColor solid 1px;
+			border-style: solid;
+			border-width: 1px;
 			transition: border .333s ease;
 			border-radius: 4px;
 			color: rgba(0,0,0,.24);

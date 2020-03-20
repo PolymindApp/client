@@ -28,4 +28,10 @@ export default class StrategyService {
 	static remove(id) {
 		return Server.delete.bind(this)('/items/strategy/' + id);
 	}
+
+	static restore(id) {
+		return Server.patch.bind(this)('/items/strategy/' + id, {
+			status: 'draft'
+		});
+	}
 }

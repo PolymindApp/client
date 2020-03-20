@@ -1,8 +1,10 @@
 <template>
-	<div>
-		<v-chip v-if="!canEdit && currentValue === null" class="text-center" x-small>NULL</v-chip>
-		<span v-if="!canEdit" v-text="currentValue"></span>
-		<v-text-field v-else ref="input" type="date" v-model="currentValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
+	<div class="w-100">
+		<slot name="read" v-if="!canEdit">
+			<v-chip v-if="currentValue === null" class="text-center pe-none" x-small>NULL</v-chip>
+			<span v-else v-text="currentValue"></span>
+		</slot>
+		<v-text-field v-else ref="input" type="date" v-model="editingValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="ma-0 pa-0" dense hide-details />
 	</div>
 </template>
 
@@ -41,12 +43,14 @@
 
 			blur() {
 				this.isEditing = false;
-				this.$emit('input', this.currentValue);
+				this.$emit('update', this.editingValue);
+				this.editingValue = null;
 			},
 
 			focus() {
 
 				this.isEditing = true;
+				this.editingValue = this.value;
 
 				this.$nextTick(() => {
 					if (!this.$refs.input) {
@@ -59,15 +63,24 @@
 			},
 
 			clear() {
-				this.$emit('input', null);
+				this.currentValue = null;
 			},
 
 			reset() {
-				this.$emit('input', this.originalValue);
+				this.currentValue = this.originalValue;
 			},
 		},
 
         computed: {
+
+			currentValue: {
+				get() {
+					return this.value;
+				},
+				set(val) {
+					// this.$emit('input', val);
+				}
+			},
 
 			canEdit() {
 				return !this.readonly && this.isEditing;
@@ -80,17 +93,11 @@
 
         data() {
             return {
+				editingValue: null,
 				isEditing: false,
-				currentValue: this.value,
 				originalValue: this.value,
 			};
         },
-
-        watch: {
-            value(value) {
-                this.currentValue = value;
-            }
-        }
     });
 </script>
 

@@ -1,6 +1,6 @@
 <template>
-	<div @click="$root.shortcuts.visible = false">
-		<v-overlay class="shortcuts" :value="visible" opacity="0.7" z-index="10">
+	<div>
+		<v-overlay class="shortcuts scrollable" :value="visible" opacity="0.7" z-index="10">
 			<v-container :class="{ 'fill-height': true, 'small': columnLength <= 1 }">
 
 				<v-btn class="close" icon @click="$root.shortcuts.visible = false">
@@ -69,15 +69,19 @@
                     const shortcuts = this.$shortcuts.list[key];
                     shortcuts.forEach(shortcut => {
 
+						if (!shortcut.includeInHelp) {
+							return;
+						}
+
                         if (!items[shortcut.group]) {
                             items[shortcut.group] = [];
 						}
 
-                        items[shortcut.group].push({
-                            title: shortcut.name,
-                            desc: shortcut.desc,
-                            keys: typeof shortcut.keys === 'string' ? [shortcut.keys] : shortcut.keys,
-                        });
+						items[shortcut.group].push({
+							title: shortcut.name,
+							desc: shortcut.desc,
+							keys: typeof shortcut.keys === 'string' ? [shortcut.keys] : shortcut.keys,
+						});
 					});
                 }
 

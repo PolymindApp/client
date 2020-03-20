@@ -1,11 +1,11 @@
 <template>
-	<v-avatar color="primary" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
+	<v-avatar @click="handleClick" color="primary" :class="classes" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
 
 		<v-overlay :absolute="true" :value="isUploading">
 			<v-progress-circular :size="size / 2" color="primary" indeterminate></v-progress-circular>
 		</v-overlay>
 
-		<div v-if="user.id && $root.user.id !== user.id" :class="{
+		<div v-if="state && user.id && $root.user.id !== user.id" :class="{
 			connection: true,
 			grey: !isOnline,
 			green: isOnline,
@@ -30,6 +30,7 @@
 
 <script>
 import Vue from 'vue';
+import UserModel from "../models/User";
 import File from '../utils/File';
 import FileService from "../services/FileService";
 import UserService from "../services/UserService";
@@ -44,6 +45,10 @@ export default Vue.extend({
 		size: {
 	        type: Number,
 			default: 96
+		},
+		state: {
+	        type: Boolean,
+			default: true,
 		},
 		editable: {
 	        type: Boolean,
@@ -60,6 +65,12 @@ export default Vue.extend({
 
 	methods: {
 
+		handleClick() {
+			if (!this.editable) {
+				this.$router.push('/account/' + this.user.id);
+			}
+		},
+
 	    modify(param) {
 
 			File.promptFileDialog(images => {
@@ -74,7 +85,7 @@ export default Vue.extend({
                                 avatar: filesResponse.data.id
                             })
                                 .then(response => {
-                                    Object.assign(this.$root.user, response.data);
+                                    Object.assign(this.$root.user, new UserModel(response.data));
                                 })
                                 .catch(error => this.$handleError(this, error))
                                 .finally(() => this.isUploading = false);
@@ -92,6 +103,16 @@ export default Vue.extend({
 
         isOnline() {
             return moment(this.user.last_access_on).isAfter(moment().subtract(5, 'minutes'));
+		},
+
+		isCurrentUser() {
+        	return this.$root.user.id === this.user.id;
+		},
+
+		classes() {
+        	return {
+				redirectsToAccount: !this.editable,
+			};
 		}
 	},
 
@@ -117,6 +138,10 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+
+	.redirectsToAccount {
+		cursor: pointer;
+	}
 
 	.connection {
 		position: absolute;

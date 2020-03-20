@@ -47,7 +47,7 @@ $shortcuts.install = function (Vue, options) {
 		},
 
 		// TODO: Parameter to accept INPUT/TEXTAREA/CONTENTEDITABLE
-		add: function(name, desc, group, keys, callback = () => {}, includeFields = false) {
+		add: function(name, desc, group, keys, callback = () => {}, includeFields = false, includeInHelp = true) {
 
 			let originalKeys = keys;
 
@@ -62,7 +62,7 @@ $shortcuts.install = function (Vue, options) {
 				this.list[keysStr] = [];
 			}
 
-			this.list[keysStr].push({name, keys, desc, group, originalKeys, callback, includeFields});
+			this.list[keysStr].push({name, keys, desc, group, originalKeys, callback, includeFields, includeInHelp});
 
 			let callbackRef = Hash.guid();
 			this.callbacks[callbackRef] = {

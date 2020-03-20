@@ -75,7 +75,7 @@ export default Vue.extend({
 
             let options = {
                 enableBasicAutocompletion: true,
-                enableSnippets: true,
+                // enableSnippets: true,
                 enableLiveAutocompletion: true,
                 fontSize: config.fontSize + 'px',
                 showLineNumbers: config.showLines,

@@ -4,7 +4,7 @@
 		<ErrorDialog :response="$root.error" />
 		<Modal :settings="$root.error" />
 
-		<div class="top-left" v-if="$route.name !== 'login'">
+		<div class="top-left" v-if="hasBackLink">
 			<v-btn class="white--text" to="/login" text>
 				<v-icon :left="$vuetify.breakpoint.smAndUp">mdi-arrow-left</v-icon>
 				<span class="d-none d-sm-inline">{{ $t("restricted.backLogin") }}</span>
@@ -26,7 +26,7 @@
 
 				<v-container class="page main-content fill-height flex-column d-flex align-center justify-space-between">
 
-					<div style="flex: 3" class="d-flex align-end mb-4">
+					<div style="flex: 3" class="d-flex align-end mb-4" v-if="hasLogo">
 						<div class="d-flex align-center">
 							<img transition="fade-transition" src="../assets/images/polymind-light.svg" height="96" />
 							<h3 class="ml-4 mb-0 display-2 font-weight-thin white--text">Polymind</h3>
@@ -57,6 +57,7 @@
 
 import Vue from 'vue';
 import Login from './Restricted/Login.vue';
+import Locked from './Restricted/Locked.vue';
 import Register from './Restricted/Register.vue';
 import Activate from './Restricted/Activate.vue';
 import ForgotPassword from './Restricted/ForgotPassword.vue';
@@ -71,6 +72,7 @@ import Modal from "../components/Modal";
 export const routes = [
 	{path: '/', redirect: '/login'},
 	{path: '/login', component: Login, name: 'login'},
+	{path: '/locked', component: Locked, name: 'locked'},
 	{path: '/register', component: Register, name: 'register'},
 	{path: '/user/activate/:token/:lookup', component: Activate, name: 'activate'},
 	{path: '/user/forgot-password', component: ForgotPassword, name: 'forgotPassword'},
@@ -79,13 +81,17 @@ export const routes = [
 	{path: '/policies', component: Policies, name: 'policies'},
 	{path: '/contact', component: Contact, name: 'contact'},
 	{path: '*', redirect: to => {
-		localStorage.setItem('redirect_uri', to.fullPath);
+		if (!to.fullPath.startsWith('/issue/')) {
+			localStorage.setItem('redirect_uri', to.fullPath);
+		}
 		return '/login';
 	}},
 ];
 
 export default Vue.extend({
+
 	name: 'Restricted',
+
 	components: {
 		LanguageSwitcher, ErrorDialog, Modal
 	},
@@ -98,11 +104,23 @@ export default Vue.extend({
 	},
 
 	methods: {
+
 		switchLang() {
 			const currentLang = this.$i18n.locale;
 			const newLang = currentLang === 'en' ? 'fr' : 'en';
 			localStorage.setItem('lang', newLang);
 			this.$i18n.locale = newLang;
+		},
+	},
+
+	computed: {
+
+		hasBackLink() {
+			return this.$route.name !== 'login' && this.$route.name !== 'locked';
+		},
+
+		hasLogo() {
+			return this.$route.name !== 'locked';
 		},
 	},
 

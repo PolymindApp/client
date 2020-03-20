@@ -1,7 +1,15 @@
 <template>
-	<div>
-		<v-chip v-if="!canEdit && currentValue === null" class="text-center" x-small>NULL</v-chip>
-		<v-switch v-else ref="input" v-model="currentValue" @blur="blur" v-bind="$attrs" v-on="$listeners" class="my-0 py-0 ml-1 mr-n3" color="primary" inset hide-details />
+	<div class="w-100">
+		<slot name="read" v-if="!canEdit">
+			<div class="d-inline-block" @mousedown.stop @mouseup.stop>
+				<v-switch ref="input" v-model="currentValue" @change="$emit('update', $event)" v-bind="$attrs" v-on="$listeners" class="my-0 py-0 ml-1 mr-n3" color="primary" dense inset hide-details />
+			</div>
+		</slot>
+		<slot name="edit" v-else>
+			<div class="d-inline-block" @mousedown.stop @mouseup.stop>
+				<v-switch ref="input" v-model="currentValue" @change="$emit('update', $event)" v-bind="$attrs" v-on="$listeners" class="my-0 py-0 ml-1 mr-n3" color="primary" dense inset hide-details />
+			</div>
+		</slot>
 	</div>
 </template>
 
@@ -47,14 +55,14 @@
 
 				this.isEditing = true;
 
-				this.$nextTick(() => {
-					if (!this.$refs.input) {
-						return;
-					}
-
-					this.$refs.input.focus();
-					this.$refs.input.$el.querySelector('input').select();
-				});
+				// this.$nextTick(() => {
+				// 	if (!this.$refs.input) {
+				// 		return;
+				// 	}
+				//
+				// 	this.$refs.input.focus();
+				// 	this.$refs.input.$el.querySelector('input').select();
+				// });
 			},
 
 			clear() {
@@ -88,7 +96,10 @@
         watch: {
             value(value) {
                 this.currentValue = value;
-            }
+            },
+			currentValue(value) {
+				this.$emit('input', this.currentValue);
+			},
         }
     });
 </script>
