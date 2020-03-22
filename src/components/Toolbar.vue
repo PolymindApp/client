@@ -377,9 +377,9 @@ export default Vue.extend({
 	destroyed() {
 		this.$root.$off('FULLSCREEN', this.fullScreenEvent);
 
-		if (this.wsSubscription) {
-        	this.$ws.session.unsubscribe(this.wsSubscription);
-		}
+		// if (this.wsSubscription) {
+        // 	this.$ws.session.unsubscribe(this.wsSubscription);
+		// }
 	},
 
 	methods: {
@@ -398,35 +398,35 @@ export default Vue.extend({
 				})
 				.catch(error => this.$handleError(this, error));
 
-            this.$ws.session.subscribe('activity', data => {
-				switch(data[0].collection) {
-					case 'messaging':
-						MessagingService.get.bind(this)(data[0].item.data.id)
-								.then(response => {
-									response.data.acknowledged_on = null;
-									this.messages.unshift(response.data);
-									if (this.$root.user.settings.newMessageSound) {
-										this.$playSound('notification');
-									}
-									this.newMessage = true;
-								})
-								.catch(error => this.$handleError(this, error));
-						break;
-
-					case 'directus_activity':
-						NotificationService.get.bind(this)(data[0].item.id)
-								.then(response => {
-									response.data.acknowledged_on = null;
-									this.notifications.unshift(response.data);
-									if (this.$root.user.settings.newMessageSound) {
-										this.$playSound('notification');
-									}
-									this.newNotification = true;
-								})
-								.catch(error => this.$handleError(this, error));
-						break;
-				}
-            }).then(sub => this.wsSubscription = sub);
+            // this.$ws.session.subscribe('activity', data => {
+			// 	switch(data[0].collection) {
+			// 		case 'messaging':
+			// 			MessagingService.get.bind(this)(data[0].item.data.id)
+			// 					.then(response => {
+			// 						response.data.acknowledged_on = null;
+			// 						this.messages.unshift(response.data);
+			// 						if (this.$root.user.settings.newMessageSound) {
+			// 							this.$playSound('notification');
+			// 						}
+			// 						this.newMessage = true;
+			// 					})
+			// 					.catch(error => this.$handleError(this, error));
+			// 			break;
+			//
+			// 		case 'directus_activity':
+			// 			NotificationService.get.bind(this)(data[0].item.id)
+			// 					.then(response => {
+			// 						response.data.acknowledged_on = null;
+			// 						this.notifications.unshift(response.data);
+			// 						if (this.$root.user.settings.newMessageSound) {
+			// 							this.$playSound('notification');
+			// 						}
+			// 						this.newNotification = true;
+			// 					})
+			// 					.catch(error => this.$handleError(this, error));
+			// 			break;
+			// 	}
+            // }).then(sub => this.wsSubscription = sub);
 		},
 
 		acknowledgeNotifications() {
