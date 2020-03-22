@@ -132,14 +132,14 @@ const i18n = new VueI18n({
 			}).$mount('#app');
 		};
 
-		const conn = new ab.Connection({
-			url: process.env.VUE_APP_WS_URI,
-			realm: 'polymind',
-		});
-
-		conn.onopen = (session) => {
+		// const conn = new ab.Connection({
+		// 	url: process.env.VUE_APP_WS_URI,
+		// 	realm: 'polymind',
+		// });
+		//
+		// conn.onopen = (session) => {
 			server.request('POST', '/custom/user/update-ws-token', undefined, {
-				sessionId: session.id
+				// sessionId: session.id
 			})
 				.then(() => {callback()})
 				.catch(error => {
@@ -148,18 +148,18 @@ const i18n = new VueI18n({
 					callback();
 					router.push('/issue/api');
 				});
-		};
-		conn.onclose = (session) => {
-			component = Issue;
-			routes = issueRoutes;
-			callback();
-			router.push('/issue/ws');
-		};
-		conn.open();
-
-		Object.defineProperties(Vue.prototype, {
-			$ws: { value: conn }
-		});
+		// };
+		// conn.onclose = (session) => {
+		// 	component = Issue;
+		// 	routes = issueRoutes;
+		// 	callback();
+		// 	router.push('/issue/ws');
+		// };
+		// conn.open();
+		//
+		// Object.defineProperties(Vue.prototype, {
+		// 	$ws: { value: conn }
+		// });
 	};
 
 	if (window.location.protocol === 'file:' || window.location.port === '3000') {

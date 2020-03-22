@@ -77,9 +77,9 @@
         },
 
         destroyed() {
-			if (this.wsSubscription) {
-				this.$ws.session.unsubscribe(this.wsSubscription);
-			}
+			// if (this.wsSubscription) {
+			// 	this.$ws.session.unsubscribe(this.wsSubscription);
+			// }
         },
 
         methods: {
@@ -99,18 +99,18 @@
                     this.getMessages(this.userId);
 				}
 
-				this.$ws.session.subscribe('activity', data => {
-					switch(data[0].collection) {
-						case 'messaging':
-							MessagingService.get.bind(this)(data[0].item.data.id)
-									.then(response => {
-										response.data.acknowledged_on = new Date();
-										this.messages[this.userId].unshift(response.data);
-									})
-									.catch(error => this.$handleError(this, error));
-							break;
-					}
-				}).then(sub => this.wsSubscription = sub);
+				// this.$ws.session.subscribe('activity', data => {
+				// 	switch(data[0].collection) {
+				// 		case 'messaging':
+				// 			MessagingService.get.bind(this)(data[0].item.data.id)
+				// 					.then(response => {
+				// 						response.data.acknowledged_on = new Date();
+				// 						this.messages[this.userId].unshift(response.data);
+				// 					})
+				// 					.catch(error => this.$handleError(this, error));
+				// 			break;
+				// 	}
+				// }).then(sub => this.wsSubscription = sub);
 			},
 
 			getMessages(userId) {

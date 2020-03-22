@@ -118,25 +118,25 @@
                     this.followings = followings;
 				}).catch(error => this.$handleError(this, error));
 
-                this.wsSubscription = this.$ws.session.subscribe('activity', data => {
-                    // console.log('ACTIVITY', data[0]);
-					//
-                    // if (data[0].action_by !== this.$root.user.id) {
-
-                        if (data[0].collection === 'directus_activity')  {
-
-                            NotificationService.get.bind(this)(data[0].item.id)
-                                .then(response => {
-                                    response.data.acknowledged_on = null;
-                                    this.notifications.data.unshift(response.data);
-                                    if (this.$root.user.settings.newMessageSound) {
-                                        this.$playSound('notification');
-                                    }
-                                })
-                                .catch(error => this.$handleError(this, error));
-                        }
-                    // }
-                });
+                // this.wsSubscription = this.$ws.session.subscribe('activity', data => {
+                //     // console.log('ACTIVITY', data[0]);
+				// 	//
+                //     // if (data[0].action_by !== this.$root.user.id) {
+				//
+                //         if (data[0].collection === 'directus_activity')  {
+				//
+                //             NotificationService.get.bind(this)(data[0].item.id)
+                //                 .then(response => {
+                //                     response.data.acknowledged_on = null;
+                //                     this.notifications.data.unshift(response.data);
+                //                     if (this.$root.user.settings.newMessageSound) {
+                //                         this.$playSound('notification');
+                //                     }
+                //                 })
+                //                 .catch(error => this.$handleError(this, error));
+                //         }
+                //     // }
+                // });
 			}
 		},
 
