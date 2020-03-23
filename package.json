@@ -9,23 +9,10 @@
 	"scripts": {
 		"serve": "vue-cli-service serve --port 4000 --host 0.0.0.0",
 		"build": "vue-cli-service build",
-		"build:cordova": "vue-cli-service build && copyfiles -u 1 dist/**/* www",
 		"lint": "vue-cli-service lint",
 		"lintfix": "eslint --fix --ext .js,.vue src",
 		"postinstall": "npm run build",
-		"start": "node server.js",
-		"pwa-asset": "npx pwa-asset-generator public/pwa/index.html public/pwa/output --background=\"rgba(255, 255, 255, .5)\" --manifest=public/manifest.json --index=public/index.html",
-		"cordova-assets": "splashicon-generator --imagespath=res",
-		"android:run": "cordova prepare android && cordova run android",
-		"android:build": "cordova build android",
-		"android:build:sign": "jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore polymind.keystore platforms/android/app/build/outputs/apk/x86_64/debug/app-x86_64-debug.apk Flipped",
-		"android:build:zipalign": "zipalign -v 4 platforms/android/app/build/outputs/apk/x86_64/debug/app-x86_64-debug.apk platforms/android/app/build/outputs/apk/x86_64/debug/app-x86_64-debug-signed-zipaligned.apk",
-		"android:release": "cordova build android --release && cd ./platforms/android/ && gradlew bundleRelease",
-		"android:release:sign": "jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore polymind.keystore platforms/android/app/build/outputs/bundle/x86_64Release/app.aab Flipped",
-		"android:release:zipalign": "zipalign -v 4 platforms/android/app/build/outputs/bundle/x86_64Release/app.aab platforms/android/app/build/outputs/bundle/x86_64Release/app-signed-zipaligned.aab",
-		"monaca:preview": "npm run dev & npm run watch",
-		"monaca:transpile": "npm run build",
-		"monaca:debug": "npm run watch"
+		"start": "node server.js"
 	},
 	"dependencies": {
 		"@directus/sdk-js": "^5.3.4",
