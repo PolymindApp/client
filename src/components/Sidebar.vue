@@ -282,7 +282,7 @@ export default Vue.extend({
 	    backgroundImage() {
             return this.$root.user.wallpaper
                 ? this.$thumbnails(this.$root.user.wallpaper.filename, 256, 256)
-                : null;
+                : '';
 		},
 
 		gradient() {
