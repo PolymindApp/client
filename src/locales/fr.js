@@ -1024,6 +1024,7 @@ const literals = {
 		forgotPasswordLink: 'J\'ai oublié mon mot de passe',
 		registerTitle: 'Créer mon compte',
 		registerLink: 'Créer un nouveau compte',
+		registrationLocked: 'Accès limité aux invités pour le moment. Nous nous excusons pour l\'inconvénient.',
 		acceptTermsLoginHint: 'En vous connectant, vous acceptez les <a href="/terms">termes et conditions</a> ainsi que les <a href="/policies">politiques de confidentialité</a>.',
 		acceptTermsRegisterHint: 'En vous inscrivant, vous acceptez les <a href="/terms">termes et conditions</a> ainsi que les <a href="/policies">politiques de confidentialité</a>.',
 		login: 'Connexion',
