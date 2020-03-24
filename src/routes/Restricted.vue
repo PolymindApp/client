@@ -26,8 +26,8 @@
 
 				<v-container class="page main-content fill-height flex-column d-flex align-center justify-space-between">
 
-					<div style="flex: 3" class="d-flex align-end mb-4" v-if="hasLogo">
-						<div class="d-flex align-center">
+					<div style="flex: 3" :class="{ 'd-flex align-end mb-4': true }" v-if="hasLogo">
+						<div :class="{ 'd-flex align-center': true, 'mt-12 pt-4': $vuetify.breakpoint.smAndDown }">
 							<img transition="fade-transition" src="../assets/images/polymind-light.svg" height="96" />
 							<h3 class="ml-4 mb-0 display-2 font-weight-thin white--text">Polymind</h3>
 						</div>
