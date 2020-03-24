@@ -26,8 +26,8 @@
 
 				<v-container class="page main-content fill-height flex-column d-flex align-center justify-space-between">
 
-					<div style="flex: 3" class="d-flex align-end mb-4" v-if="hasLogo">
-						<div class="d-flex align-center">
+					<div style="flex: 3" :class="{ 'd-flex align-end mb-4': true }" v-if="hasLogo">
+						<div :class="{ 'd-flex align-center': true, 'mt-12 pt-4': $vuetify.breakpoint.smAndDown }">
 							<img transition="fade-transition" src="../assets/images/polymind-light.svg" height="96" />
 							<h3 class="ml-4 mb-0 display-2 font-weight-thin white--text">Polymind</h3>
 						</div>
@@ -73,7 +73,8 @@ export const routes = [
 	{path: '/', redirect: '/login'},
 	{path: '/login', component: Login, name: 'login'},
 	{path: '/locked', component: Locked, name: 'locked'},
-	{path: '/register', component: Register, name: 'register'},
+	// {path: '/register', component: Register, name: 'register'},
+	{path: '/register', redirect: '/login'},
 	{path: '/user/activate/:token/:lookup', component: Activate, name: 'activate'},
 	{path: '/user/forgot-password', component: ForgotPassword, name: 'forgotPassword'},
 	{path: '/user/reset-password/:token', component: ResetPassword, name: 'resetPassword'},

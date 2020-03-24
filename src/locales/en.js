@@ -285,6 +285,7 @@ const literals = {
 		forgotPasswordLink: 'I forgot my password',
 		registerTitle: 'Create my account',
 		registerLink: 'Create a new account',
+		registrationLocked: 'Access limited to guests at this time. We apologize for the inconvenience.',
 		acceptTermsLoginHint: 'By logging in, you accept the <a href="/terms">terms and conditions</a> as well as the <a href="/policies">privacy policies</a>.',
 		acceptTermsRegisterHint: 'By registering, you accept the <a href="/terms">terms and conditions</a> as well as the <a href="/policies">privacy policies</a>.',
 		login: 'Sign In',

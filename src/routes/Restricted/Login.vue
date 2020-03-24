@@ -11,7 +11,12 @@
 		</div>
 
 		<v-form v-if="!activationResent" ref="form" v-model="formIsValid" @submit="validate" lazy-validation>
-			<v-row class="mx-n1">
+
+			<v-alert class="text-left" type="warning" border="left" light colored-border>
+				{{ $t('restricted.registrationLocked') }}
+			</v-alert>
+
+			<v-row v-if="registrationOpen" class="mx-n1">
 				<v-col cols="3" class="px-1 py-0">
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on }">
@@ -75,15 +80,17 @@
 
 			<p class="mt-4 overline mb-0" v-html="$t('restricted.acceptTermsLoginHint')" style="opacity: 0.5"></p>
 
-			<v-divider class="my-4"></v-divider>
+			<div v-if="registrationOpen">
+				<v-divider class="my-4"></v-divider>
 
-			<v-btn class="white--text" to="/register" text>
-				{{ $t("restricted.registerLink") }}
-			</v-btn>
+				<v-btn class="white--text" to="/register" text>
+					{{ $t("restricted.registerLink") }}
+				</v-btn>
 
-			<v-btn class="white--text" to="/user/forgot-password" text>
-				{{ $t("restricted.forgotPasswordLink") }}
-			</v-btn>
+				<v-btn class="white--text" to="/user/forgot-password" text>
+					{{ $t("restricted.forgotPasswordLink") }}
+				</v-btn>
+			</div>
 		</v-form>
 	</div>
 </template>
@@ -142,6 +149,7 @@ export default Vue.extend({
 			activationResent: false,
 			formIsValid: false,
 			formErrors: {},
+			registrationOpen: false,
 			googleLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/google',
 			facebookLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/facebook',
 			twitterLoginUrl: process.env.VUE_APP_API_URL + '/polymind/auth/sso/twitter',
