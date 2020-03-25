@@ -1044,6 +1044,7 @@ const literals = {
 		tempLocked: 'Votre compte a été vérouillé temporairement en votre absence. Revalider votre mot de passe pour retourner à vos activités.',
 		lockedOtherAccount: 'Utiliser un autre compte',
 		backLogin: 'Retour',
+		backWebsite: 'Site web',
 		registerBtn: 'M\'inscrire',
 		loginBtn: 'Connexion',
 		unlockBtn: 'Dévérouiller',

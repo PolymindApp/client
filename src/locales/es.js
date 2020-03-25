@@ -285,6 +285,7 @@ const literals = {
 		linkedInLogin: 'Iniciar sesión con LinkedIn',
 		resetPassword: 'Restablecer contraseña',
 		backLogin: 'Volver',
+		backWebsite: 'Sitio web',
 		registerBtn: 'Inscribirme',
 		loginBtn: 'Sign-In',
 		emailPlaceholder: 'Correo electrónico',
