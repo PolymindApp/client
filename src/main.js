@@ -52,7 +52,7 @@ Vue.use(VueGoogleMaps, {
 });
 
 const i18n = new VueI18n({
-	locale: localStorage.getItem('lang') || 'en',
+	locale: VueCookies.get('lang') || 'en',
 	fallbackLocale: 'en',
 	messages,
 });
