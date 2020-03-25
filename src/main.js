@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import store from './store';
-import './registerServiceWorker';
 import vuetify from './plugins/vuetify';
 import globalVariables from './global';
 import * as VueGoogleMaps from 'vue2-google-maps';
@@ -12,13 +11,14 @@ import VueRouter from 'vue-router';
 import messages from './locales';
 import VueCookies from 'vue-cookies';
 import VueAnalytics from 'vue-analytics';
+import DirectusSDK from "@directus/sdk-js";
 import 'roboto-fontface/css/roboto/sass/roboto-fontface.scss';
 import '@mdi/font/scss/materialdesignicons.scss';
 import "./styles/index.scss";
 import './filters';
 import './loader';
-import DirectusSDK from "@directus/sdk-js";
-import ab from 'autobahn';
+// import './registerServiceWorker';
+// import ab from 'autobahn';
 
 let router;
 let directusConfig = {
@@ -66,108 +66,103 @@ const i18n = new VueI18n({
 		localStorage.removeItem('redirect_uri');
 	}
 
-	let loadCallback = () => {
+	let callback = () => {
 
-		let callback = () => {
-
-			router = new VueRouter({
-				mode: 'history',
-				routes,
-			});
-
-			router.beforeEach((to, from, next) => {
-
-				if (to.name) {
-					const title = i18n.t('title.' + to.name);
-					if (title) {
-						document.title = title.toString() + ' | Polymind';
-					}
-				} else {
-					document.title = 'Polymind';
-				}
-
-				Array.from(document.querySelectorAll('[data-vue-router-controlled]')).map((el) => el.parentNode.removeChild(el));
-
-				next();
-			});
-
-			Vue.use(VueAnalytics, {
-				id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID,
-				checkDuplicatedScript: true,
-				router
-			});
-
-			// Make router listen to injected links (from database for instance)
-			window.addEventListener('click', event => {
-				let { target } = event;
-				while (target && target.tagName !== 'A') target = target.parentNode;
-				if (target && target.matches("a:not([href*='://'])") && target.href) {
-					const { altKey, ctrlKey, metaKey, shiftKey, button, defaultPrevented } = event;
-					if (metaKey || altKey || ctrlKey || shiftKey) return;
-					if (defaultPrevented) return;
-					if (button !== undefined && button !== 0) return;
-					if (target && target.getAttribute) {
-						const linkTarget = target.getAttribute('target');
-						if (/\b_blank\b/i.test(linkTarget)) return;
-					}
-					const url = new URL(target.href);
-					const to = url.pathname;
-					if (window.location.pathname !== to && event.preventDefault) {
-						event.preventDefault();
-						router.push(to);
-					}
-				}
-			});
-
-			new Vue({
-				router,
-				store,
-				vuetify,
-				i18n,
-				data: {
-					...globalVariables
-				},
-				render: (h) => h(component),
-			}).$mount('#app');
-		};
-
-		$busView.$on('LOCK_USER', (user) => {
-			localStorage.setItem('lockedUser', JSON.stringify(user));
-			component = Restricted;
-			routes = restrictedRoutes;
-			callback();
-			router.push('/locked');
+		router = new VueRouter({
+			mode: 'history',
+			routes,
 		});
 
-		// const conn = new ab.Connection({
-		// 	url: process.env.VUE_APP_WS_URI,
-		// 	realm: 'polymind',
-		// });
-		//
-		// conn.onopen = (session) => {
-			server.request('POST', '/custom/user/update-ws-token', undefined, {
-				// sessionId: session.id
-			})
-				.then(() => {callback()})
-				.catch(error => {
-					component = Issue;
-					routes = issueRoutes;
-					callback();
-					router.push('/issue/api');
-				});
-		// };
-		// conn.onclose = (session) => {
-		// 	component = Issue;
-		// 	routes = issueRoutes;
-		// 	callback();
-		// 	router.push('/issue/ws');
-		// };
-		// conn.open();
-		//
-		// Object.defineProperties(Vue.prototype, {
-		// 	$ws: { value: conn }
-		// });
+		router.beforeEach((to, from, next) => {
+
+			if (to.name) {
+				const title = i18n.t('title.' + to.name);
+				if (title) {
+					document.title = title.toString() + ' | Polymind';
+				}
+			} else {
+				document.title = 'Polymind';
+			}
+
+			Array.from(document.querySelectorAll('[data-vue-router-controlled]')).map((el) => el.parentNode.removeChild(el));
+
+			next();
+		});
+
+		Vue.use(VueAnalytics, {
+			id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID,
+			checkDuplicatedScript: true,
+			router
+		});
+
+		// Make router listen to injected links (from database for instance)
+		window.addEventListener('click', event => {
+			let { target } = event;
+			while (target && target.tagName !== 'A') target = target.parentNode;
+			if (target && target.matches("a:not([href*='://'])") && target.href) {
+				const { altKey, ctrlKey, metaKey, shiftKey, button, defaultPrevented } = event;
+				if (metaKey || altKey || ctrlKey || shiftKey) return;
+				if (defaultPrevented) return;
+				if (button !== undefined && button !== 0) return;
+				if (target && target.getAttribute) {
+					const linkTarget = target.getAttribute('target');
+					if (/\b_blank\b/i.test(linkTarget)) return;
+				}
+				const url = new URL(target.href);
+				const to = url.pathname;
+				if (window.location.pathname !== to && event.preventDefault) {
+					event.preventDefault();
+					router.push(to);
+				}
+			}
+		});
+
+		new Vue({
+			router,
+			store,
+			vuetify,
+			i18n,
+			data: {
+				...globalVariables
+			},
+			render: (h) => h(component),
+		}).$mount('#app');
 	};
 
-	loadCallback();
+	$busView.$on('LOCK_USER', (user) => {
+		localStorage.setItem('lockedUser', JSON.stringify(user));
+		component = Restricted;
+		routes = restrictedRoutes;
+		callback();
+		router.push('/locked');
+	});
+
+	// const conn = new ab.Connection({
+	// 	url: process.env.VUE_APP_WS_URI,
+	// 	realm: 'polymind',
+	// });
+	//
+	// conn.onopen = (session) => {
+		server.request('POST', '/custom/user/update-ws-token', undefined, {
+			// sessionId: session.id
+		})
+			.then(() => {callback()})
+			.catch(error => {
+				component = Issue;
+				routes = issueRoutes;
+				callback();
+				router.push('/issue/api');
+			});
+	// };
+	// conn.onclose = (session) => {
+	// 	component = Issue;
+	// 	routes = issueRoutes;
+	// 	callback();
+	// 	router.push('/issue/ws');
+	// };
+	// conn.open();
+	//
+	// Object.defineProperties(Vue.prototype, {
+	// 	$ws: { value: conn }
+	// });
 })();
