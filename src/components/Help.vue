@@ -1,60 +1,72 @@
 <template>
 	<v-dialog v-model="showModal" fullscreen hide-overlay transition="dialog-bottom-transition">
-		<v-card color="transparent" class="d-flex flex-column fill-height grey lighten-2">
-			<v-toolbar style="flex: 0" dark color="primary" class="default-gradient">
-				<v-icon left>mdi-book</v-icon>
-				<v-toolbar-title v-text="$t('help.title')"></v-toolbar-title>
+
+		<v-card class="d-flex flex-column fill-height">
+
+			<!-- TOOLBAR -->
+			<v-toolbar style="flex: 0; z-index: 1" dark color="primary" class="default-gradient">
+				<v-icon v-if="isPermanent" left>mdi-book</v-icon>
+				<v-icon v-else @click="toggleSidebar()" left>mdi-menu</v-icon>
+				<v-toolbar-title class="ml-2" v-text="$t('help.title')"></v-toolbar-title>
 				<v-spacer></v-spacer>
 				<v-btn icon dark @click="$root.help.visible = false">
 					<v-icon>mdi-close</v-icon>
 				</v-btn>
 			</v-toolbar>
-			<v-row style="flex: 1" no-gutters>
-				<v-col cols="6" md="3" class="pa-4 inner-shadow">
 
-					<v-text-field ref="search" v-model="filter" :disabled="items.length === 0" clearable solo :label="$t('help.filterPlaceholder')" prepend-inner-icon="mdi-magnify" hide-details />
+			<div class="d-flex fill-height">
 
-					<v-alert v-if="items.length === 0" type="warning" text tile colored-border border="bottom" class="mt-4 white">
-						{{$t('help.noItems')}}
-					</v-alert>
+				<!-- SIDEBAR -->
+				<v-navigation-drawer :permanent="isPermanent" :temporary="!isPermanent" v-model="sidebar.opened" class="fill-height" style="min-width: 300px" :absolute="!isPermanent">
+					<div :class="{ 'pa-4 fill-height grey lighten-4': true, 'grey lighten-2 inner-shadow': isPermanent }">
 
-					<v-slide-y-transition>
-						<v-treeview
-							v-if="itemsLoaded"
-							v-model="tree"
-							:active.sync="active"
-							:open.sync="opened"
-							:search="filter"
-							:items="items"
-							item-key="key"
-							class="mt-4"
-							rounded
-							open-all
-							activatable
-							open-on-click
-							return-object
-						>
-							<template v-slot:prepend="{ item, open }">
-								<v-icon v-if="item.type === 'cat'">
-									{{ open ? 'mdi-folder-open' : 'mdi-folder' }}
-								</v-icon>
-								<v-icon v-else>
-									{{ item.icon || types[item.type] }}
-								</v-icon>
-							</template>
-						</v-treeview>
-					</v-slide-y-transition>
-				</v-col>
-				<v-col cols="6" md="9" class="white d-flex">
-					<v-scroll-y-transition mode="out-in">
-						<v-card v-if="active.length > 0" :key="active[0].key" color="transparent" tile flat class="pa-8 align-self-start">
-							<h1 v-html="active[0].name" class="display-1 mb-8 primary--text"></h1>
-							<div v-html="active[0].content"></div>
-						</v-card>
-						<EmptyView v-else :title="$t('help.noSelectTitle')" :desc="$t('help.noSelectDesc')" />
-					</v-scroll-y-transition>
-				</v-col>
-			</v-row>
+						<!-- SEARCH -->
+						<v-text-field ref="search" v-model="filter" :disabled="items.length === 0" clearable solo :label="$t('help.filterPlaceholder')" prepend-inner-icon="mdi-magnify" hide-details />
+
+						<!-- ALERNO ITEMS -->
+						<v-alert v-if="items.length === 0" type="warning" text tile colored-border border="bottom" class="mt-4 white">
+							{{$t('help.noItems')}}
+						</v-alert>
+
+						<!-- HIERARCHY -->
+						<v-slide-y-transition>
+							<v-treeview
+									v-if="itemsLoaded"
+									v-model="tree"
+									:active.sync="active"
+									:open.sync="opened"
+									:search="filter"
+									:items="items"
+									item-key="key"
+									class="mt-4"
+									rounded
+									open-all
+									activatable
+									open-on-click
+									return-object
+							>
+								<template v-slot:prepend="{ item, open }">
+									<v-icon v-if="item.type === 'cat'">
+										{{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+									</v-icon>
+									<v-icon v-else>
+										{{ item.icon || types[item.type] }}
+									</v-icon>
+								</template>
+							</v-treeview>
+						</v-slide-y-transition>
+					</div>
+				</v-navigation-drawer>
+
+				<!-- CONTENT -->
+				<v-scroll-y-transition mode="out-in">
+					<v-card color="transparent" v-if="active.length > 0" :key="active[0].key" tile flat class="pa-8 align-self-start">
+						<h1 v-html="active[0].name" class="display-1 mb-8 primary--text"></h1>
+						<div v-html="active[0].content"></div>
+					</v-card>
+					<EmptyView v-else :title="$t('help.noSelectTitle')" :desc="$t('help.noSelectDesc')" />
+				</v-scroll-y-transition>
+			</div>
 		</v-card>
 	</v-dialog>
 </template>
@@ -98,6 +110,10 @@
                 this.$forceUpdate();
 			},
 
+			toggleSidebar() {
+            	this.sidebar.opened = !this.sidebar.opened;
+			},
+
             load() {
 
                 this.$root.isLoading = true;
@@ -115,6 +131,10 @@
 		},
 
         computed: {
+
+			isPermanent() {
+				return this.$vuetify.breakpoint.mdAndUp;
+			},
 
             // TODO: At this point, Vuetify does not provide a way to know if the filtered items are empty or not
 
@@ -159,6 +179,9 @@
             return {
                 itemsLoaded: false,
                 showModal: false,
+				sidebar: {
+                	opened: true,
+				},
                 filter: '',
                 opened: [],
                 tree: [],
@@ -186,6 +209,15 @@
             showModal(visible) {
                 if (!visible) {
                     this.$root.help.visible = false;
+				}
+			},
+
+			active: {
+            	deep: true,
+				handler: function() {
+            		if (!this.isPermanent) {
+            			this.sidebar.opened = false;
+					}
 				}
 			}
 		}
