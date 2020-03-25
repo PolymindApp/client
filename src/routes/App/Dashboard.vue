@@ -3,7 +3,7 @@
 
 		<v-sheet color="white" class="py-2 px-4" tile>
 			<v-row>
-				<v-col :cols="12 / objectives.length" v-for="(objective, objectiveIdx) in objectives">
+				<v-col cols="12" :md="12 / objectives.length" v-for="(objective, objectiveIdx) in objectives">
 					<v-card class="pa-4 d-flex align-center" :color="objective.color">
 						<div class="shrink mr-4">
 							<v-progress-circular :rotate="-90" :size="80" :width="15" :value="objective.percentage" color="white">
@@ -21,13 +21,13 @@
 
 		<v-sheet color="transparent" class="py-2 px-4" tile>
 			<v-row>
-				<v-col cols="6">
+				<v-col cols="12" md="6">
 
 					<!-- RADAR -->
 					<v-card light color="grey lighten-4">
 						<v-list color="white">
 							<v-list-item>
-								<v-list-item-icon class="mr-8">
+								<v-list-item-icon class="mr-4">
 									<v-icon>mdi-newspaper-variant-multiple-outline</v-icon>
 								</v-list-item-icon>
 								<v-list-item-content>
@@ -42,7 +42,7 @@
 						</div>
 					</v-card>
 				</v-col>
-				<v-col cols="6">
+				<v-col cols="12" md="6">
 
 					<!-- BARS -->
 					<v-card light color="white">
@@ -52,8 +52,8 @@
 									<v-icon>mdi-chevron-left</v-icon>
 								</v-btn>
 							</div>
-							<div class="grow mx-4">
-								<v-select class="pa-0 ma-0" label="Strategy" item-text="name" :items="strategies.data" v-model="selectedStrategy" solo flat dense hide-details></v-select>
+							<div class="grow">
+								<v-select class="pa-0 ma-0 mx-4" label="Strategie" item-text="name" :items="strategies.data" v-model="selectedStrategy" solo flat dense hide-details></v-select>
 							</div>
 							<div class="shrink">
 								<v-btn :disabled="strategies.data.length < 2" icon>
@@ -71,7 +71,7 @@
 					<v-card class="mt-4" light color="grey lighten-4">
 						<v-list color="white">
 							<v-list-item>
-								<v-list-item-icon class="mr-8">
+								<v-list-item-icon class="mr-4">
 									<v-icon>mdi-newspaper-variant-multiple-outline</v-icon>
 								</v-list-item-icon>
 								<v-list-item-content>
@@ -81,6 +81,13 @@
 						</v-list>
 						<v-divider></v-divider>
 						<v-list color="transparent" max-height="400" class="scrollable" tile>
+
+							<!-- EMPTY -->
+							<v-slide-y-reverse-transition>
+								<EmptyView v-if="news.data.length === 0" desc="Aucune actualité" />
+							</v-slide-y-reverse-transition>
+
+							<!-- HAS CONTENT -->
 							<v-slide-y-reverse-transition group>
 								<v-card class="mx-2" outlined v-for="(newsItem, newsIdx) in news.data" :key="newsIdx">
 									<v-list-item three-line>
@@ -111,25 +118,6 @@
 				</v-col>
 			</v-row>
 		</v-sheet>
-
-<!--		<v-sheet color="secondary" class="py-2 px-4" tile>-->
-<!--			WORD LIST-->
-<!--		</v-sheet>-->
-
-<!--		<EmptyView v-if="!$root.isLoading && !hasItems" :title="$t('dashboard.filteredNoResults')" :desc="$t('dashboard.filteredNoResultsDesc')" />-->
-
-<!--		<v-row v-else-if="!$root.isLoading">-->
-<!--			<v-col cols="12" :md="3" v-for="(category, index) in categories">-->
-<!--				<h2 class="mb-4 title" v-text="$t('dashboard.' + category, { total: getItems(category).length })"></h2>-->
-
-<!--				<v-alert v-if="getItems(category).length === 0" type="warning" border="left" colored-border light elevation="2">-->
-<!--					{{$t('dashboard.' + category + 'Empty')}}-->
-<!--				</v-alert>-->
-<!--				<template v-else v-for="(item, index) in getItems(category)">-->
-<!--					<Deck :key="index" :type="types[index]" :model="item" :class="{ 'mt-2': index > 0 }" dense />-->
-<!--				</template>-->
-<!--			</v-col>-->
-<!--		</v-row>-->
 
 		<v-speed-dial fixed right bottom v-model="fab" direction="top">
 			<template v-slot:activator>
@@ -281,11 +269,11 @@ export default Vue.extend({
 					this.$vuetify.theme.themes.light.third,
 				],
 				labels: [
-					this.$t('dashboard.objectives.label1'),
-					this.$t('dashboard.objectives.label2'),
-					this.$t('dashboard.objectives.label3'),
-					this.$t('dashboard.objectives.label4'),
-					this.$t('dashboard.objectives.label5'),
+					'Russe',
+					'Français',
+					'Anglais',
+					'Espagnol',
+					'Hindi',
 				],
 				datasets: [
 					{ data: [13, 10, 9, 8, 8] },
@@ -299,11 +287,11 @@ export default Vue.extend({
 					this.$vuetify.theme.themes.light.third,
 				],
 				labels: [
-					this.$t('dashboard.objectives.label6'),
-					this.$t('dashboard.objectives.label7'),
-					this.$t('dashboard.objectives.label8'),
-					this.$t('dashboard.objectives.label9'),
-					this.$t('dashboard.objectives.label10'),
+					'Prononciation',
+					'Conjugaison',
+					'Grammaire',
+					'Autre',
+					'Vocabulaire',
 				],
 				datasets: [
 					{ data: [14, 2, 11, 6, 14] },

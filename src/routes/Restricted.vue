@@ -75,7 +75,7 @@ export const routes = [
 	{path: '/locked', component: Locked, name: 'locked'},
 	// {path: '/register', component: Register, name: 'register'},
 	{path: '/register', redirect: '/login'},
-	{path: '/user/activate/:token/:lookup', component: Activate, name: 'activate'},
+	// {path: '/user/activate/:token/:lookup', component: Activate, name: 'activate'},
 	{path: '/user/forgot-password', component: ForgotPassword, name: 'forgotPassword'},
 	{path: '/user/reset-password/:token', component: ResetPassword, name: 'resetPassword'},
 	{path: '/terms', component: Terms, name: 'terms'},

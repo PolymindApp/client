@@ -119,7 +119,7 @@
 			</v-alert>
 		</div>
 
-		<v-tabs-items ref="tabsItems" class="grey lighten-4" style="flex: 1; overflow: auto" v-model="tab">
+		<v-tabs-items touchless ref="tabsItems" class="grey lighten-4" style="flex: 1; overflow: auto" v-model="tab">
 			<v-tab-item :value="'/dataset/' + id + '/settings'" class="fill-height">
 				<div style="height: 0">
 					<Settings :dataset.sync="dataset" :form-errors="formErrors" @update:dataset="compareJsonJob($event, 0)" @update="updateTab" />

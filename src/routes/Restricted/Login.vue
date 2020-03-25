@@ -12,7 +12,7 @@
 
 		<v-form v-if="!activationResent" ref="form" v-model="formIsValid" @submit="validate" lazy-validation>
 
-			<v-alert class="text-left" type="warning" border="left" light colored-border>
+			<v-alert class="text-left" type="warning" color="secondary">
 				{{ $t('restricted.registrationLocked') }}
 			</v-alert>
 
@@ -80,10 +80,10 @@
 
 			<p class="mt-4 overline mb-0" v-html="$t('restricted.acceptTermsLoginHint')" style="opacity: 0.5"></p>
 
-			<div v-if="registrationOpen">
+			<div>
 				<v-divider class="my-4"></v-divider>
 
-				<v-btn class="white--text" to="/register" text>
+				<v-btn class="white--text" to="/register" v-if="registrationOpen" text>
 					{{ $t("restricted.registerLink") }}
 				</v-btn>
 

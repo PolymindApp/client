@@ -123,7 +123,7 @@
 			</v-alert>
 		</div>
 
-		<v-tabs-items ref="items" style="flex: 1;" class="scrollable" v-model="tab">
+		<v-tabs-items touchless ref="items" style="flex: 1;" class="scrollable" v-model="tab">
 			<v-tab-item :value="'/strategy/' + id + '/settings'" :style="tabStyle" class="fill-height">
 				<div style="height: 0">
 					<Settings @update="updateTab()" :strategy="strategy" :form-errors="formErrors" />

@@ -335,14 +335,34 @@
 						<v-divider class="my-4"></v-divider>
 					</template>
 
+					<!-- MESSAGING -->
+					<v-list-item :to="'/account/' + $root.user.id + '/messages'">
+						<v-icon left>mdi-comment</v-icon>
+						<v-list-item-title>{{$t('toolbar.tooltip.messaging')}}</v-list-item-title>
+						<div>
+							<v-chip x-small :color="newMessages.length > 0 ? 'primary' : null" class="ml-4">
+								<span v-text="newMessages.length"></span>
+							</v-chip>
+						</div>
+					</v-list-item>
+
+					<!-- NOTIFICATIONS -->
+					<v-list-item :to="'/account/' + $root.user.id + '/notifications'">
+						<v-icon left>mdi-bell</v-icon>
+						<v-list-item-title>{{$t('toolbar.tooltip.notification')}}</v-list-item-title>
+						<div>
+							<v-chip x-small :color="notifications.length > 0 ? 'primary' : null" class="ml-4">
+								<span v-text="notifications.length"></span>
+							</v-chip>
+						</div>
+					</v-list-item>
+
+					<v-divider class="my-2"></v-divider>
+
+					<!-- HELP -->
 					<v-list-item @click="toggleHelp()">
 						<v-icon left>mdi-help-circle-outline</v-icon>
 						<v-list-item-title>{{$t('toolbar.help')}}</v-list-item-title>
-					</v-list-item>
-					<v-list-item :disabled="notifications.length === 0" :to="'/account/' + $root.user.id + '/notifications'">
-						<v-icon left>mdi-bell</v-icon>
-						<v-list-item-title>{{$t('toolbar.tooltip.notification')}}</v-list-item-title>
-						<v-chip color="primary" small class="ml-4 text-center" v-text="notifications.length"></v-chip>
 					</v-list-item>
 				</v-list>
 			</v-menu>
