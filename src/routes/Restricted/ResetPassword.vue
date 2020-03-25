@@ -33,12 +33,12 @@
 				<p>{{$t('restricted.resetPasswordDesc')}}</p>
 
 				<div class="my-4">
-					<v-text-field :error-messages="formErrors.password" v-model="password" loading :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword">
+					<v-text-field :error-messages="formErrors.password" v-model="password" loading :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword" autocomplete="new-password">
 						<template v-slot:progress>
 							<v-progress-linear :value="progress" :color="color" absolute height="7"></v-progress-linear>
 						</template>
 					</v-text-field>
-					<v-text-field :error-messages="formErrors.confirmation" v-model="confirmation" :rules="[rules.required, rules.min, rules.identical]" :placeholder="$t('restricted.confirmationPlaceholder')" class="mt-2" light solo prepend-inner-icon="mdi-lock" :type="showConfirmPassword ? 'text' : 'password'" :append-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showConfirmPassword = !showConfirmPassword"></v-text-field>
+					<v-text-field :error-messages="formErrors.confirmation" v-model="confirmation" :rules="[rules.required, rules.min, rules.identical]" :placeholder="$t('restricted.confirmationPlaceholder')" class="mt-2" light solo prepend-inner-icon="mdi-lock" :type="showConfirmPassword ? 'text' : 'password'" :append-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showConfirmPassword = !showConfirmPassword" autocomplete="new-password"></v-text-field>
 				</div>
 
 				<v-btn type="submit" color="primary" style="width: 100%" dark large>

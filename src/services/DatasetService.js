@@ -3,7 +3,7 @@ import Model from "../models/Model";
 import CommentService from "./CommentService";
 import HistoryService from "./HistoryService";
 
-const defaultFields = '*,created_by.*,created_by.avatar.filename';
+const defaultFields = '*,created_by.*,created_by.avatar.private_hash';
 
 export default class DatasetService {
 
@@ -27,7 +27,7 @@ export default class DatasetService {
 
 		let suffix = '';
 		if (includeData) {
-			suffix += '?fields=*,rows.*,columns.*,rows.cells.*,rows.created_by.*,rows.created_by.avatar.filename';
+			suffix += '?fields=*,rows.*,columns.*,rows.cells.*,rows.created_by.*,rows.created_by.avatar.private_hash';
 		}
 
 		return Server.get.bind(this)('/items/dataset/' + id + (revisionOffset !== undefined ? '/revisions/' + revisionOffset : '') + suffix);

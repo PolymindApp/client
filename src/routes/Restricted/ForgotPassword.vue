@@ -15,7 +15,7 @@
 				<p>{{$t('restricted.forgotPasswordDesc')}}</p>
 
 				<div class="my-4">
-					<v-text-field :error-messages="formErrors.email" ref="email" light solo v-model="email" :label="$t('restricted.email')" :rules="[rules.required, rules.email]" prepend-inner-icon="mdi-account-circle" :autofocus="$vuetify.breakpoint.lgAndUp" hide-details></v-text-field>
+					<v-text-field :error-messages="formErrors.email" ref="email" light solo v-model="email" :label="$t('restricted.email')" :rules="[rules.required, rules.email]" prepend-inner-icon="mdi-account-circle" :autofocus="$vuetify.breakpoint.lgAndUp" hide-details autocomplete="email"></v-text-field>
 				</div>
 
 				<v-btn type="submit" color="primary" style="width: 100%" dark large>

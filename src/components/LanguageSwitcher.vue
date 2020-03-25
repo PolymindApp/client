@@ -72,7 +72,11 @@ export default Vue.extend({
 		},
 
 		applyLang(lang) {
-			localStorage.setItem('lang', lang);
+
+			const cookieDate = new Date();
+			cookieDate.setMonth(cookieDate.getMonth() + 12);
+			this.$cookies.set("lang", lang, cookieDate, '/', process.env.VUE_APP_COOKIE_DOMAIN);
+
 			this.$i18n.locale = lang;
 			moment.locale(lang);
 			const event = new Event('resize');

@@ -1,7 +1,7 @@
 import Server from '../utils/Server';
 import Model from "../models/Model";
 
-const defaultFields = '*,created_by.*,created_by.avatar.filename';
+const defaultFields = '*,created_by.*,created_by.avatar.private_hash';
 
 export default class ComponentService {
 

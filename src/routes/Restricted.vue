@@ -4,10 +4,14 @@
 		<ErrorDialog :response="$root.error" />
 		<Modal :settings="$root.error" />
 
-		<div class="top-left" v-if="hasBackLink">
-			<v-btn class="white--text" to="/login" text>
+		<div class="top-left">
+			<v-btn v-if="hasBackLink" class="white--text" to="/login" text>
 				<v-icon :left="$vuetify.breakpoint.smAndUp">mdi-arrow-left</v-icon>
 				<span class="d-none d-sm-inline">{{ $t("restricted.backLogin") }}</span>
+			</v-btn>
+			<v-btn v-else class="white--text" :href="wwwUrl" text>
+				<v-icon left>mdi-arrow-left</v-icon>
+				<span>{{ $t("restricted.backWebsite") }}</span>
 			</v-btn>
 		</div>
 
@@ -106,12 +110,6 @@ export default Vue.extend({
 
 	methods: {
 
-		switchLang() {
-			const currentLang = this.$i18n.locale;
-			const newLang = currentLang === 'en' ? 'fr' : 'en';
-			localStorage.setItem('lang', newLang);
-			this.$i18n.locale = newLang;
-		},
 	},
 
 	computed: {
@@ -130,6 +128,7 @@ export default Vue.extend({
 			showLogo: false,
 			showPanel: false,
             hasLoaded: false,
+            wwwUrl: process.env.VUE_APP_WWW_URL,
 			currentLang: this.$i18n.locale,
 		};
 	},

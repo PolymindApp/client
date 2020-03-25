@@ -281,7 +281,7 @@ export default Vue.extend({
 
 	    backgroundImage() {
             return this.$root.user.wallpaper
-                ? this.$thumbnails(this.$root.user.wallpaper.filename, 256, 256)
+                ? this.$thumbnails(this.$root.user.wallpaper.private_hash, 'avatar')
                 : '';
 		},
 

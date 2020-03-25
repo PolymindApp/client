@@ -7,8 +7,8 @@ export default class MessagingService {
 	static getMessages(fromUserId) {
 
 		return Promise.all([
-			Server.get.bind(this)('/items/messaging?fields=' + defaultFields + ',created_by.avatar.filename&filter[created_by][eq]=' + this.$root.user.id + '&filter[to_user][logical]=and&filter[to_user][eq]=' + fromUserId + '&sort=-id'),
-			Server.get.bind(this)('/items/messaging?fields=' + defaultFields + ',created_by.avatar.filename&filter[created_by][eq]=' + fromUserId + '&filter[to_user][logical]=and&filter[to_user][eq]=' + this.$root.user.id + '&sort=-id'),
+			Server.get.bind(this)('/items/messaging?fields=' + defaultFields + ',created_by.avatar.private_hash&filter[created_by][eq]=' + this.$root.user.id + '&filter[to_user][logical]=and&filter[to_user][eq]=' + fromUserId + '&sort=-id'),
+			Server.get.bind(this)('/items/messaging?fields=' + defaultFields + ',created_by.avatar.private_hash&filter[created_by][eq]=' + fromUserId + '&filter[to_user][logical]=and&filter[to_user][eq]=' + this.$root.user.id + '&sort=-id'),
 			Server.post.bind(this)('/custom/messaging/acknowledge/' + fromUserId)
 		]).then(results => {
 			return {
@@ -18,15 +18,15 @@ export default class MessagingService {
 	}
 
 	static get(id) {
-		return Server.get.bind(this)('/items/messaging?fields=*,created_by.*,created_by.avatar.filename&filter[to_user]=' + this.$root.user.id + '&filter[id]=' + id + '&single=1');
+		return Server.get.bind(this)('/items/messaging?fields=*,created_by.*,created_by.avatar.private_hash&filter[to_user]=' + this.$root.user.id + '&filter[id]=' + id + '&single=1');
 	}
 
 	static getUsers() {
-		return Server.get.bind(this)('/items/messaging?groups=created_by&fields=*,created_by.*,created_by.avatar.filename&filter[to_user]=' + this.$root.user.id + '&sort=-created_on');
+		return Server.get.bind(this)('/items/messaging?groups=created_by&fields=*,created_by.*,created_by.avatar.private_hash&filter[to_user]=' + this.$root.user.id + '&sort=-created_on');
 	}
 
 	static sendMessage(userId, message) {
-		return Server.post.bind(this)('/items/messaging?fields=' + defaultFields + ',created_by.avatar.filename', {
+		return Server.post.bind(this)('/items/messaging?fields=' + defaultFields + ',created_by.avatar.private_hash', {
 			to_user: userId,
 			content: message,
 		});

@@ -92,7 +92,6 @@ import Chat from "../components/Chat";
 export const routes = [
 	{path: '/', component: Dashboard, name: 'dashboard'},
 	{path: '/login', redirect: '/'},
-	{path: '/locked', component: Locked, name: 'locked'},
 	{path: '/news/:locale/:slug', component: News, name: 'news' },
 	{path: '/account/:id', redirect: '/account/:id/wall' },
 	{path: '/account/:id/:section', component: Account, name: 'account'},

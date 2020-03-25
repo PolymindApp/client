@@ -336,7 +336,7 @@
 					</template>
 
 					<!-- MESSAGING -->
-					<v-list-item :to="'/account/' + $root.user.id + '/messages'">
+					<v-list-item :to="'/account/' + $root.user.id + '/messaging'">
 						<v-icon left>mdi-comment</v-icon>
 						<v-list-item-title>{{$t('toolbar.tooltip.messaging')}}</v-list-item-title>
 						<div>

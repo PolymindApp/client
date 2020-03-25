@@ -8,6 +8,7 @@ export default class User extends Model {
 
 		this.setDefaultValues({
 			id: null,
+			email: null,
 			first_name: '',
 			last_name: '',
 			biography: null,
