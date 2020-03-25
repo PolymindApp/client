@@ -6,8 +6,6 @@ import Thumbnails from './utils/Thumbnails';
 import Crop from './utils/Crop';
 import Error from './utils/Error';
 import Comments from './utils/Comments';
-import sendSound from './assets/sounds/send.mp3';
-import notificationSound from './assets/sounds/notification.mp3';
 
 Vue.use(Modal);
 Vue.use(Crop);
@@ -22,8 +20,8 @@ Vue.prototype.$deepClone = function(obj) {
 };
 
 const sounds = {
-	send: new Audio(sendSound),
-	notification: new Audio(notificationSound),
+	send: new Audio('https://polymind.s3.ca-central-1.amazonaws.com/assets/client/sounds/send.mp3'),
+	notification: new Audio('https://polymind.s3.ca-central-1.amazonaws.com/assets/client/sounds/notification.mp3'),
 };
 Vue.prototype.$playSound = function(name) {
 	sounds[name].play();
