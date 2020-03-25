@@ -676,15 +676,13 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@directus/sdk-js@^5.3.4":
-  version "5.3.4"
-  resolved "https://registry.yarnpkg.com/@directus/sdk-js/-/sdk-js-5.3.4.tgz#51560eb03718fb2985992989c487fe17bbdfdd92"
-  integrity sha512-SGL0rWlZaxzIsSOVCc6l4gJT3UdgVgLtgw8ePYjG0kjOb0Yo3WLu5a2/UJ6Sa9jNNUCiS0vUJWyYDMext2+Z1Q==
+"@directus/sdk-js@^6.0.5":
+  version "6.0.5"
+  resolved "https://registry.yarnpkg.com/@directus/sdk-js/-/sdk-js-6.0.5.tgz#22bb2598afe512a675228e656cbb96cd0970758c"
+  integrity sha512-BkX+OV3WeV9hB1o/rR8TdRfa3Ssulkm+FnI9TTjfLNBpF+DiNDWl4uGGKgEJ/fA86yzFDj8Cp9t4D4tATLVMuw==
   dependencies:
-    argument-validator "0.1.0"
     axios "0.19.0"
     base-64 "0.1.0"
-    qs "6.7.0"
 
 "@hapi/address@2.x.x":
   version "2.1.4"
@@ -1780,11 +1778,6 @@ argparse@^1.0.7:
   integrity sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==
   dependencies:
     sprintf-js "~1.0.2"
-
-argument-validator@0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/argument-validator/-/argument-validator-0.1.0.tgz#fcfcaad8a6f15b861cc881ba8b27ccb4c4126809"
-  integrity sha1-/Pyq2KbxW4YcyIG6iyfMtMQSaAk=
 
 arr-diff@^4.0.0:
   version "4.0.0"
@@ -11305,11 +11298,6 @@ vue-cookies@^1.5.13:
   resolved "https://registry.yarnpkg.com/vue-cookies/-/vue-cookies-1.6.1.tgz#ab036382d37a3f4c83140e0175d9dc60ce67fe01"
   integrity sha512-qyzhuq0x9xLEwniSXFoEsFErHgQ24jviB527IDul+8KrlxU9jdqrvVunRRBk4lPpxPgL0ywv8NxcD6MDWcTMug==
 
-vue-cordova@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/vue-cordova/-/vue-cordova-0.1.2.tgz#f3ca208b51f1523a8f571447e76a480aa89c081b"
-  integrity sha1-88ogi1HxUjqPVxRH52pICqicCBs=
-
 vue-eslint-parser@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/vue-eslint-parser/-/vue-eslint-parser-2.0.3.tgz#c268c96c6d94cfe3d938a5f7593959b0ca3360d1"
@@ -11403,7 +11391,7 @@ vue2-google-maps@^0.10.7:
     babel-runtime "^6.26.0"
     marker-clusterer-plus "^2.1.4"
 
-vue@^2.6.10:
+vue@^2.6.11:
   version "2.6.11"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.11.tgz#76594d877d4b12234406e84e35275c6d514125c5"
   integrity sha512-VfPwgcGABbGAue9+sfrD4PuwFar7gPb1yl1UK1MwXoQPAw0BKSqWfoYCT/ThFrdEVWoI51dBuyCoiNU9bZDZxQ==
@@ -11422,10 +11410,10 @@ vuetify-loader@^1.2.2:
   dependencies:
     loader-utils "^1.2.0"
 
-vuetify@^2.2.18:
-  version "2.2.18"
-  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.2.18.tgz#5a43beaf7c8fc66dcfb5876e1619f7e44c7881da"
-  integrity sha512-RXN065xh5xKmTnEH6+1YFZWp67soOJPTIqqPNliSp9eE72Q7a5fmaV1xQsEVVaVA12+5Hvroo7NW7MP/APucGw==
+vuetify@^2.2.19:
+  version "2.2.19"
+  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.2.19.tgz#826f6899267a0f867aff56aff0cf000d07a421e7"
+  integrity sha512-6o+wdB77FBTkZsFlF8g3W5paG6CsFWtxv6gjkovOQ1P0nggTX8AbIGYIX7xHiOqG+PvBsoIfOEt2E/x6U/d45g==
 
 vuex@^3.0.1:
   version "3.1.2"
