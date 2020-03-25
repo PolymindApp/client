@@ -1,7 +1,7 @@
 import Server from '../utils/Server';
 
-const createdBy = 'created_by.id,created_by.screen_name,created_by.first_name,created_by.last_name,created_by.avatar.filename,created_by.last_access_on';
-const user = 'user.id,user.screen_name,user.first_name,user.last_name,user.avatar.filename,user.last_access_on';
+const createdBy = 'created_by.id,created_by.screen_name,created_by.first_name,created_by.last_name,created_by.avatar.private_hash,created_by.last_access_on';
+const user = 'user.id,user.screen_name,user.first_name,user.last_name,user.avatar.private_hash,user.last_access_on';
 
 export default class FollowingService {
 

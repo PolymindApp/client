@@ -2,8 +2,8 @@ const $thumbnails = {};
 
 $thumbnails.install = function (Vue, options) {
 
-	Vue.prototype.$thumbnails = (filename, width, height, quality = 'better', action = 'crop') => {
-		return process.env.VUE_APP_API_URL + '/thumbnail/polymind/' + width + '/' + height + '/' + action + '/' + quality + '/' + filename;
+	Vue.prototype.$thumbnails = (filename, key) => {
+		return process.env.VUE_APP_API_URL + '/polymind/assets/' + filename + '?key=' + key;
 	};
 }
 

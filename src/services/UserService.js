@@ -3,11 +3,11 @@ import Server from "../utils/Server";
 export default class UserService {
 
 	static me(lookup, token) {
-		return Server.get.bind(this)('/users/me?fields=*,avatar.filename,wallpaper.filename,role.name,language.language_id.english_title,language.language_id.id,language.id');
+		return Server.get.bind(this)('/users/me?fields=*,avatar.private_hash,wallpaper.private_hash,role.name,language.language_id.english_title,language.language_id.id,language.id');
 	}
 
 	static get(id) {
-		return Server.get.bind(this)('/users/' + id + '?fields=*,avatar.filename,wallpaper.filename,role.name,language.language_id.english_title,language.language_id.id,language.id,last_access_on');
+		return Server.get.bind(this)('/users/' + id + '?fields=*,avatar.private_hash,wallpaper.private_hash,role.name,language.language_id.english_title,language.language_id.id,language.id,last_access_on');
 	}
 
 	static login(email, password) {
@@ -74,6 +74,6 @@ export default class UserService {
 	}
 
 	static update(id, data) {
-		return Server.patch.bind(this)('/users/' + id + '?fields=*,avatar.filename,wallpaper.filename,role.name,language.language_id.english_title,language.language_id.id,language.id', data);
+		return Server.patch.bind(this)('/users/' + id + '?fields=*,avatar.private_hash,wallpaper.private_hash,role.name,language.language_id.english_title,language.language_id.id,language.id', data);
 	}
 }

@@ -1,6 +1,6 @@
 import Server from '../utils/Server';
 
-const defaultFields = 'id,comment,comment_deleted_on,comment_thumb_up,comment_thumb_down,action_on,action_by.screen_name,action_by.first_name,action_by.last_access_on,action_by.last_name,action_by.avatar.filename,action_by.id';
+const defaultFields = 'id,comment,comment_deleted_on,comment_thumb_up,comment_thumb_down,action_on,action_by.screen_name,action_by.first_name,action_by.last_access_on,action_by.last_name,action_by.avatar.private_hash,action_by.id';
 
 export default class CommentService {
 

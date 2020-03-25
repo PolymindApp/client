@@ -1,26 +1,26 @@
 <template>
 	<v-row>
-		<v-col cols="12" md="7" lg="8">
-			<v-card class="pa-8">
+		<v-col cols="12" md="7" lg="8" class="py-0 py-md-3">
+			<v-card class="pa-4 pa-md-8">
 				<h1 class="title">{{ $t('account.information.generalTitle') }}</h1>
 
 				<v-form ref="generalForm" @submit="apply" lazy-validation v-model="form.general">
 					<div class="mt-4">
 						<v-text-field :disabled="!isOwner" :error-messages="formErrors.screen_name" v-model="user.screen_name" :label="$t('account.information.screenNameLabel')" class="mt-2" type="text"></v-text-field>
 						<v-row>
-							<v-col class="py-0">
+							<v-col cols="12" md="6" class="py-0">
 								<v-text-field :disabled="!isOwner" :error-messages="formErrors.first_name" v-model="user.first_name" :label="$t('account.information.firstNameLabel')" class="mt-2" type="text"></v-text-field>
 							</v-col>
-							<v-col class="py-0">
+							<v-col cols="12" md="6" class="py-0">
 								<v-text-field :disabled="!isOwner" :error-messages="formErrors.last_name" v-model="user.last_name" :label="$t('account.information.lastNameLabel')" class="mt-2" type="text"></v-text-field>
 							</v-col>
 						</v-row>
 						<v-row>
-							<v-col class="py-0">
+							<v-col cols="12" md="6" class="py-0">
 								<v-select :disabled="!isOwner" :error-messages="formErrors.gender" v-model="user.gender" :items="genders" :label="$t('account.information.genderLabel')" class="mt-2"></v-select>
 							</v-col>
-							<v-col class="py-0">
-								<DirectUsSelect :disabled="!isOwner" @mapped="results => m2m.language = results" :error-messages="formErrors.language" v-model="user.language" root-key="language_id" return-object item-text="english_title" item-value="id" multiple :items="languages" :label="$t('account.information.languagesLabel')" class="mt-2" />
+							<v-col cols="12" md="6" class="py-0">
+								<DirectUsSelect class="mt-0 mt-md-2" :disabled="!isOwner" @mapped="results => m2m.language = results" :error-messages="formErrors.language" v-model="user.language" root-key="language_id" return-object item-text="english_title" item-value="id" multiple :items="languages" :label="$t('account.information.languagesLabel')" />
 							</v-col>
 						</v-row>
 
@@ -31,14 +31,14 @@
 
 					<v-btn v-if="isOwner" class="mt-4" type="submit" color="primary" :disabled="!isDifferent" large>
 						<v-icon left>mdi-content-save</v-icon>
-						{{ $t("account.information.applyChanges") }}
+						<span>{{ $t("account.information.applyChanges") }}</span>
 					</v-btn>
 				</v-form>
 
 			</v-card>
 		</v-col>
-		<v-col v-if="isOwner" cols="12" md="5" lg="4">
-			<v-card class="pa-8">
+		<v-col v-if="isOwner" cols="12" md="5" lg="4" class="py-0 py-md-3">
+			<v-card class="pa-4 pa-md-8">
 				<h1 class="title">{{$t('restricted.resetPasswordTitle')}}</h1>
 				<p>{{$t('restricted.resetPasswordDesc')}}</p>
 

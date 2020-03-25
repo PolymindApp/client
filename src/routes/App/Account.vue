@@ -45,19 +45,19 @@
 				<v-tab-item color="transparent" :value="'/account/' + id + '/wall'" class="pa-4">
 					<Activities :user="user" />
 				</v-tab-item>
-				<v-tab-item color="transparent" :value="'/account/' + id + '/information'" class="pa-4">
+				<v-tab-item color="transparent" :value="'/account/' + id + '/information'" class="pa-0 pa-md-4">
 					<Information @update="updateValue($event)" :user="user" :is-different="isDifferent" />
 				</v-tab-item>
-<!--				<v-tab-item color="transparent" :value="'/account/' + id + '/elements'" class="pa-4">-->
+<!--				<v-tab-item color="transparent" :value="'/account/' + id + '/elements'" class="pa-0 pa-md-4">-->
 <!--					<Elements :user="user" />-->
 <!--				</v-tab-item>-->
-				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/messaging'" class="pa-4">
+				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/messaging'" class="pa-0 pa-md-4">
 					<Messaging :user="user" />
 				</v-tab-item>
-				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/notifications'" class="pa-4">
+				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/notifications'" class="pa-0 pa-md-4">
 					<Notifications :user="user" />
 				</v-tab-item>
-				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/settings'" class="pa-4">
+				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/settings'" class="pa-0 pa-md-4">
 					<Settings @update="updateValue($event)" :user="user" :is-different="isDifferent" />
 				</v-tab-item>
 			</v-tabs-items>

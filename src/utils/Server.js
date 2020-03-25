@@ -63,8 +63,7 @@ export default class Server {
 					case 401:
 						if (!this.$server.loggedIn) {
 							localStorage.setItem('redirect_uri', this.$route.fullPath);
-							localStorage.setItem('lockedUser', JSON.stringify(this.$root.user));
-							return this.$router.push('/locked'); // Return necessary to avoid popups
+							this.$bus.$emit('LOCK_USER', this.$root.user);
 						}
 						break;
 				}

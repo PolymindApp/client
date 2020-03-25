@@ -41,8 +41,8 @@ export default Vue.extend({
 			visible: false,
 			data: {
 			    type: 'default',
-				title: this.$t('modal.defaultTitle'),
-				message: this.$t('general.defaultErrorDesc'),
+				title: '',
+				message: '',
 			}
 		};
 	},
