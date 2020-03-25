@@ -390,9 +390,12 @@
 </script>
 
 <style lang="scss" scoped>
-	.wallpaper,
-	.wallpaper-container {
-		min-height: 20rem;
+
+	@media all and (min-width: 768) {
+		.wallpaper,
+		.wallpaper-container {
+			min-height: 20rem;
+		}
 	}
 	.wallpaper {
 		background-size: cover;
