@@ -33,8 +33,9 @@ const server = new DirectusSDK(directusConfig);
 Object.defineProperties(Vue.prototype, {
 	$server: { value: server }
 });
+const $busView = new Vue();
 Object.defineProperties(Vue.prototype, {
-	$bus: { value: new Vue() }
+	$bus: { value: $busView }
 });
 
 Vue.config.productionTip = false;
@@ -81,7 +82,7 @@ const i18n = new VueI18n({
 				if (to.name) {
 					const title = i18n.t('title.' + to.name);
 					if (title) {
-						document.title = title.toString();
+						document.title = title.toString() + ' | Polymind';
 					}
 				} else {
 					document.title = 'Polymind';
@@ -131,6 +132,14 @@ const i18n = new VueI18n({
 				render: (h) => h(component),
 			}).$mount('#app');
 		};
+
+		$busView.$on('LOCK_USER', (user) => {
+			localStorage.setItem('lockedUser', JSON.stringify(user));
+			component = Restricted;
+			routes = restrictedRoutes;
+			callback();
+			router.push('/locked');
+		});
 
 		// const conn = new ab.Connection({
 		// 	url: process.env.VUE_APP_WS_URI,

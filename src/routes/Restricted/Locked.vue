@@ -42,6 +42,10 @@ export default Vue.extend({
 		const lockedUser = localStorage.getItem('lockedUser');
 		if (lockedUser) {
 			this.user = JSON.parse(lockedUser);
+
+			if (!this.user.email) {
+				this.$router.push('/login');
+			}
 		} else {
 			this.$router.push('/login');
 		}
