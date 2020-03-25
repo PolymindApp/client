@@ -102,7 +102,7 @@
 										</v-list-item-content>
 
 										<v-list-item-avatar v-if="newsItem.thumbnail" tile size="80">
-											<v-img height="80" width="80" :src="$thumbnails(newsItem.thumbnail.filename, 200, 200)"></v-img>
+											<v-img height="80" width="80" :src="$thumbnails(newsItem.thumbnail.private_hash, 200, 200)"></v-img>
 										</v-list-item-avatar>
 									</v-list-item>
 									<v-card-actions>
