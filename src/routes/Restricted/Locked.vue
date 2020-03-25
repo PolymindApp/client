@@ -1,15 +1,15 @@
 <template>
-	<div class="text-center fill-height align-center d-flex">
+	<div class="text-center fill-height align-center d-flex w-100">
 		<v-form ref="form" v-model="formIsValid" @submit="validate" lazy-validation>
 
 			<div class="my-4">
 				<div class="d-flex align-center mb-4">
-					<UserAvatar :user="user" :state="false" />
-					<h3 class="ml-4 display-1">{{ user | userScreenName }}</h3>
+					<UserAvatar :user="user" :clickable="false" :state="false" />
+					<h3 class="ml-4 display-1 text-left">{{ user | userScreenName }}</h3>
 				</div>
 				<div>
 <!--					<div class="mb-4" v-text="$t('restricted.tempLocked')"></div>-->
-					<v-text-field :error-messages="formErrors.password" v-model="password" :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" hide-details light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword"></v-text-field>
+					<v-text-field :error-messages="formErrors.password" v-model="password" :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" hide-details light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" autocomplete="password" @click:append="showPassword = !showPassword"></v-text-field>
 				</div>
 			</div>
 

@@ -70,8 +70,8 @@
 			</v-row>
 
 			<div class="my-4">
-				<v-text-field :error-messages="formErrors.email" ref="email" v-model="email" :rules="[rules.required]" :placeholder="$t('restricted.emailPlaceholder')" hide-details light solo prepend-inner-icon="mdi-account" :autofocus="$vuetify.breakpoint.lgAndUp"></v-text-field>
-				<v-text-field :error-messages="formErrors.password" v-model="password" :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" hide-details light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword"></v-text-field>
+				<v-text-field :error-messages="formErrors.email" ref="email" v-model="email" :rules="[rules.required]" :placeholder="$t('restricted.emailPlaceholder')" hide-details light solo prepend-inner-icon="mdi-account" :autofocus="$vuetify.breakpoint.lgAndUp" autocomplete="email"></v-text-field>
+				<v-text-field :error-messages="formErrors.password" v-model="password" :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" hide-details light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword" autocomplete="password"></v-text-field>
 			</div>
 
 			<v-btn type="submit" color="primary" large style="width: 100%" dark>
