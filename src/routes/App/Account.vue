@@ -41,7 +41,7 @@
 
 		<!-- TAB-ITEMS -->
 		<v-container class="pa-0">
-			<v-tabs-items style="background-color: transparent" v-model="tab">
+			<v-tabs-items touchless style="background-color: transparent" v-model="tab">
 				<v-tab-item color="transparent" :value="'/account/' + id + '/wall'" class="pa-4">
 					<Activities :user="user" />
 				</v-tab-item>
