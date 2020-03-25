@@ -139,32 +139,32 @@
 
 		<v-container class="d-flex pa-4 wallpaper-container fill-height">
 
-			<v-row class="fill-height">
-				<v-col order="last" order-sm="first" cols="12" sm="6" md="8" class="py-0 d-flex align-end">
+			<v-row class="fill-height w-100" :no-gutters="$vuetify.breakpoint.smAndDown">
+				<v-col order="last" order-sm="first" cols="12" md="9" lg="8" class="py-0 d-flex align-center align-sm-end">
 
 					<!-- PICTURE / NAME -->
-					<v-sheet style="flex: 1" class="d-flex align-center" :dark="true" color="transparent">
-						<div>
-							<UserAvatar :user="user" color="primary" :size="128" :editable="true" class="mr-4" />
+					<v-sheet style="flex: 1" class="d-flex align-center flex-sm-row flex-column text-center text-sm-left" :dark="true" color="transparent">
+						<div class="mr-sm-8">
+							<UserAvatar :user="user" color="primary" :size="$vuetify.breakpoint.smAndDown ? 96 : 128" :clickable="false" :editable="true" />
 						</div>
 						<div>
-							<h1 class="display-2 font-weight-thin">
+							<h1 class="display-1 display-md-2 font-weight-thin my-sm-0 my-4 mb-0 mb-sm-1">
 								{{ user | userScreenName }}
 							</h1>
 							<div>
-								<h4 class="subheading d-inline-block" v-if="user.role.name">
+								<h4 class="subheading d-sm-inline-block d-none" v-if="user.role.name">
 									{{ $t('role.' + user.role.name.toLowerCase()) }}
 								</h4>
 
-								<v-divider class="mx-4" dark vertical inset></v-divider>
+								<v-divider class="d-none d-sm-inline-block mx-4" dark vertical inset></v-divider>
 
-								<a class="white--text" @click="followersModal.visible = true">
+								<a class="white--text d-sm-inline d-none" @click="followersModal.visible = true">
 									<span v-text="$t('account.header.followers')"></span>
 									<v-chip class="ml-2" color="primary" x-small>
 										{{ countFollowers.meta.filter_count }}
 									</v-chip>
 								</a>
-								<a class="ml-4 white--text" @click="followingModal.visible = true">
+								<a class="ml-sm-4 white--text d-sm-inline d-none" @click="followingModal.visible = true">
 									<span v-text="$t('account.header.following')"></span>
 									<v-chip class="ml-2" color="primary" x-small>
 										{{ countFollowing.meta.filter_count }}
@@ -192,7 +192,7 @@
 					</v-sheet>
 				</v-col>
 
-				<v-col v-if="$vuetify.breakpoint.smAndUp" order="first" order-sm="last" cols="12" sm="6" md="4" class="py-0 d-flex flex-column justify-space-between">
+				<v-col order="first" order-sm="last" cols="12" md="3" lg="4" class="d-none d-md-flex flex-column py-0 justify-space-between">
 					<v-btn v-if="isCurrentUser" class="zoom align-self-end" @click="modify('wallpaper_id')" dark text>
 						<v-icon left>mdi-pencil</v-icon>
 						<span>{{ $t('account.changeWallpaper') }}</span>
