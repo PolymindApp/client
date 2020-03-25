@@ -16,13 +16,13 @@
 						<v-icon left>mdi-card-bulleted-outline</v-icon>
 						{{$t('account.information.title')}}
 					</v-tab>
-					<v-tab :to="'/account/' + id + '/elements'">
-						<v-icon left>mdi-group</v-icon>
-						{{$t('account.elements.title')}}
-						<v-chip x-small :color="elementCount > 0 ? 'primary' : ''" class="ml-2">
-							{{ elementCount }}
-						</v-chip>
-					</v-tab>
+<!--					<v-tab :to="'/account/' + id + '/elements'">-->
+<!--						<v-icon left>mdi-group</v-icon>-->
+<!--						{{$t('account.elements.title')}}-->
+<!--						<v-chip x-small :color="elementCount > 0 ? 'primary' : ''" class="ml-2">-->
+<!--							{{ elementCount }}-->
+<!--						</v-chip>-->
+<!--					</v-tab>-->
 					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/messaging'">
 						<v-icon left>mdi-email</v-icon>
 						{{$t('account.messaging.title')}}
@@ -48,9 +48,9 @@
 				<v-tab-item color="transparent" :value="'/account/' + id + '/information'" class="pa-4">
 					<Information @update="updateValue($event)" :user="user" :is-different="isDifferent" />
 				</v-tab-item>
-				<v-tab-item color="transparent" :value="'/account/' + id + '/elements'" class="pa-4">
-					<Elements :user="user" />
-				</v-tab-item>
+<!--				<v-tab-item color="transparent" :value="'/account/' + id + '/elements'" class="pa-4">-->
+<!--					<Elements :user="user" />-->
+<!--				</v-tab-item>-->
 				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/messaging'" class="pa-4">
 					<Messaging :user="user" />
 				</v-tab-item>
@@ -115,11 +115,11 @@ export default Vue.extend({
 			this.$root.isLoading = true;
 			Promise.all([
                 UserService.get.bind(this)(this.id),
-				ComponentService.countByUser.bind(this)(this.id)
+				// ComponentService.countByUser.bind(this)(this.id)
 			]).then(([user, component]) => {
                 this.user = new User(user.data);
                 this.originalUser = this.$deepClone(this.user);
-                this.elementCount = component.meta.filter_count;
+                // this.elementCount = component.meta.filter_count;
                 this.updateContext();
 			})
 				.catch(error => this.$handleError(this, error))
