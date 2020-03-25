@@ -2,6 +2,7 @@ const literals = {
 	title: {
 		help: 'Aide',
 		login: 'Connexion',
+		locked: 'Compte vérouillé',
 		terms: 'Termes & Conditions',
 		policies: 'Politiques de Condidentialités',
 		dashboard: 'Tableau de bord',
