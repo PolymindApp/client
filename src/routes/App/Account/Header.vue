@@ -391,7 +391,7 @@
 
 <style lang="scss" scoped>
 
-	@media all and (min-width: 768) {
+	@media all and (min-width: 768px) {
 		.wallpaper,
 		.wallpaper-container {
 			min-height: 20rem;
