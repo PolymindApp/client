@@ -53,7 +53,11 @@ export default Vue.extend({
 		editable: {
 	        type: Boolean,
 			default: false,
-		}
+		},
+		clickable: {
+	        type: Boolean,
+			default: true,
+		},
 	},
 
 	mounted() {
@@ -66,7 +70,7 @@ export default Vue.extend({
 	methods: {
 
 		handleClick() {
-			if (!this.editable) {
+			if (!this.editable && this.clickable) {
 				this.$router.push('/account/' + this.user.id);
 			}
 		},
