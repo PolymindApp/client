@@ -12,7 +12,6 @@ import VueRouter from 'vue-router';
 import messages from './locales';
 import VueCookies from 'vue-cookies';
 import VueAnalytics from 'vue-analytics';
-import VueCordova from 'vue-cordova';
 import 'roboto-fontface/css/roboto/sass/roboto-fontface.scss';
 import '@mdi/font/scss/materialdesignicons.scss';
 import "./styles/index.scss";
@@ -43,7 +42,6 @@ Vue.config.productionTip = false;
 Vue.use(VueRouter);
 Vue.use(VueI18n);
 Vue.use(VueCookies);
-Vue.use(VueCordova);
 Vue.use(VueGoogleMaps, {
 	load: {
 		key: process.env.VUE_APP_GOOGLE_API_KEY,
@@ -171,16 +169,5 @@ const i18n = new VueI18n({
 		// });
 	};
 
-	if (window.location.protocol === 'file:' || window.location.port === '3000') {
-		const cordovaScript = document.createElement('script');
-		cordovaScript.setAttribute('type', 'text/javascript');
-		cordovaScript.setAttribute('src', 'cordova.js');
-		document.body.appendChild(cordovaScript);
-
-		Vue.cordova.on('deviceready', () => {
-			loadCallback();
-		});
-	} else {
-		loadCallback();
-	}
+	loadCallback();
 })();
