@@ -341,7 +341,7 @@
 
 			backgroundImage() {
 				return this.user.wallpaper
-						? this.$thumbnails(this.user.wallpaper.filename, 1500, 350)
+						? this.$thumbnails(this.user.wallpaper.private_hash, 'wallpaper')
 						: '';
 			},
 

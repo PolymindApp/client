@@ -20,7 +20,7 @@
 		computed: {
 
 			backgroundImage() {
-				return (this.news.data && this.news.data.image && this.$thumbnails(this.news.data.image.filename, 1500, 350)) || '';
+				return (this.news.data && this.news.data.image && this.$thumbnails(this.news.data.image.private_hash, 'wallpaper')) || '';
 			},
 
 			gradient() {

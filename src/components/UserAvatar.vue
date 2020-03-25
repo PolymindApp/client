@@ -63,7 +63,7 @@ export default Vue.extend({
 	mounted() {
 
 	    if (this.user.avatar) {
-            this.avatar = this.$thumbnails(this.user.avatar.filename, 256, 256);
+            this.avatar = this.$thumbnails(this.user.avatar.private_hash, 'avatar');
 		}
 	},
 
@@ -128,13 +128,13 @@ export default Vue.extend({
 	},
 
 	watch: {
-	    'user.avatar.filename'(filename) {
-	        this.avatar = this.$thumbnails(filename, 256, 256);
+	    'user.avatar.private_hash'(filename) {
+	        this.avatar = this.$thumbnails(filename, 'avatar');
 		},
-	    '$root.user.avatar.filename'(filename) {
+	    '$root.user.avatar.private_hash'(filename) {
 
 	        if (this.user.id === this.$root.user.id) {
-            	this.avatar = this.$thumbnails(filename, 256, 256);
+            	this.avatar = this.$thumbnails(filename, 'avatar');
 			}
 		}
 	}
