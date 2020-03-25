@@ -80,10 +80,10 @@
 
 			<p class="mt-4 overline mb-0" v-html="$t('restricted.acceptTermsLoginHint')" style="opacity: 0.5"></p>
 
-			<div v-if="registrationOpen">
+			<div>
 				<v-divider class="my-4"></v-divider>
 
-				<v-btn class="white--text" to="/register" text>
+				<v-btn class="white--text" to="/register" v-if="registrationOpen" text>
 					{{ $t("restricted.registerLink") }}
 				</v-btn>
 
