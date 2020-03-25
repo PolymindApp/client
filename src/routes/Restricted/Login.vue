@@ -12,7 +12,7 @@
 
 		<v-form v-if="!activationResent" ref="form" v-model="formIsValid" @submit="validate" lazy-validation>
 
-			<v-alert class="text-left" type="warning" border="left" light colored-border>
+			<v-alert class="text-left" type="warning" color="secondary">
 				{{ $t('restricted.registrationLocked') }}
 			</v-alert>
 
