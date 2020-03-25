@@ -172,6 +172,11 @@ body::-webkit-scrollbar,
 			background: rgba(255, 255, 255,0.2);
 		}
 	}
+}
 
 
+@media all and (max-width: 767px) {
+  .v-tooltip__content {
+	display: none !important;
+  }
 }
