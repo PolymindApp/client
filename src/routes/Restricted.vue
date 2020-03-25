@@ -106,12 +106,6 @@ export default Vue.extend({
 
 	methods: {
 
-		switchLang() {
-			const currentLang = this.$i18n.locale;
-			const newLang = currentLang === 'en' ? 'fr' : 'en';
-			localStorage.setItem('lang', newLang);
-			this.$i18n.locale = newLang;
-		},
 	},
 
 	computed: {
