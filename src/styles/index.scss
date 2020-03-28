@@ -74,6 +74,25 @@
 .w-100 {
 	width: 100%;
 }
+.w-auto {
+	width: auto;
+}
+@media all and (min-width: 768px) {
+  .w-sm-100 {
+	width: 100%;
+  }
+  .w-sm-auto {
+	width: auto;
+  }
+}
+@media all and (min-width: 992px) {
+  .w-md-100 {
+	width: 100%;
+  }
+  .w-md-auto {
+	width: auto;
+  }
+}
 ul + p {
 	margin-top: 16px;
 }
