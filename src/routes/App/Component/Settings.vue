@@ -1,14 +1,13 @@
 <template>
 	<v-card color="transparent" flat>
 
-		<v-alert type="info" prominent border="left" text icon="mdi-help-circle">
-
-			<div class="d-flex flex-column flex-md-row align-start align-md-center">
+		<v-alert type="info" :prominent="!isMobile" border="left" text icon="mdi-help-circle">
+			<div class="d-block d-md-flex flex-md-row align-md-center">
 				<div style="flex: 1" v-text="$t('component.settings.explanations')"></div>
-				<div style="flex: 0">
+				<div class="d-block d-md-flex" style="flex: 0">
 					<v-btn class="ml-0 ml-md-8 mt-4 mt-md-0" @click="$help.open('component-general')">
 						<v-icon left>mdi-book-search</v-icon>
-						<span class="text-break" v-text="$t('component.settings.readDoc')"></span>
+						<div class="text-break" v-text="$t('component.settings.readDoc')"></div>
 					</v-btn>
 				</div>
 			</div>
@@ -53,6 +52,13 @@ export default Vue.extend({
 
 	methods: {
 
+	},
+
+	computed: {
+
+		isMobile() {
+			return this.$vuetify.breakpoint.smAndDown;
+		}
 	},
 
 	data() {

@@ -137,19 +137,18 @@
 			</v-tab-item>
 		</v-tabs-items>
 
-		<v-card flat class="pa-4" style="flex: 0; border-radius: 0">
+		<v-toolbar ref="actions" style="flex: 0; border-top: #ccc solid 1px" flat tile>
+
 			<v-btn :disabled="!dataHasChanged" @click="save()" color="primary" class="mr-1">
 				<v-icon left>mdi-content-save</v-icon>
 				{{$t('modal.save')}}
 			</v-btn>
+
 			<v-btn :disabled="!dataHasChanged" @click="reset()" text>
 				{{$t('modal.cancel')}}
 			</v-btn>
 
-			<v-btn :disabled="isNew || isDeleted" @click="remove()" class="float-right" text color="error">
-				<v-icon :left="$vuetify.breakpoint.mdAndUp">mdi-delete</v-icon>
-				<span v-if="$vuetify.breakpoint.mdAndUp">{{$t('modal.delete')}}</span>
-			</v-btn>
+			<v-spacer></v-spacer>
 
 			<v-menu max-height="450" offset-y>
 				<template v-slot:activator="{ on }">
@@ -167,7 +166,21 @@
 					</v-list-item-group>
 				</v-list>
 			</v-menu>
-		</v-card>
+
+			<v-menu offset-y top>
+				<template v-slot:activator="{ on }">
+					<v-btn v-on="on" icon>
+						<v-icon>mdi-dots-vertical</v-icon>
+					</v-btn>
+				</template>
+				<v-list>
+					<v-list-item :disabled="isDeleted || isNew" @click="remove()">
+						<v-list-item-icon><v-icon>mdi-delete</v-icon></v-list-item-icon>
+						<v-list-item-title>{{$t('modal.delete')}}</v-list-item-title>
+					</v-list-item>
+				</v-list>
+			</v-menu>
+		</v-toolbar>
 	</v-sheet>
 </template>
 

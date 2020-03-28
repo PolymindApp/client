@@ -52,7 +52,7 @@
 									<v-icon>mdi-chevron-left</v-icon>
 								</v-btn>
 							</div>
-							<div class="grow">
+							<div class="flex-md-grow-1">
 								<v-select class="pa-0 ma-0 mx-4" label="Strategie" item-text="name" :items="strategies.data" v-model="selectedStrategy" solo flat dense hide-details></v-select>
 							</div>
 							<div class="shrink">
@@ -232,7 +232,7 @@ export default Vue.extend({
 				{ title: 'À étudier', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'third', },
 				// { title: 'Daily Objectives', percentage: 66, value: 12039, color: 'white', },
 			],
-			news: [],
+			news: new Response(),
 			// categories: ['strategies', 'components', 'documents', 'datasets'],
 			// types: ['strategy', 'component', 'document', 'dataset'],
 			strategyData: {
@@ -254,9 +254,9 @@ export default Vue.extend({
 				]
 			},
 			strategies: new Response(),
-			// components: new Response(),
-			// documents: new Response(),
-			// datasets: new Response(),
+			components: new Response(),
+			documents: new Response(),
+			datasets: new Response(),
 			chartOptions: {
 				responsive: true,
 				maintainAspectRatio: false,
