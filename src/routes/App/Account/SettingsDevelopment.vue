@@ -1,18 +1,18 @@
 <template>
     <div>
 		<v-row>
-			<v-col cols="4" class="d-flex align-center">
+			<v-col cols="12" md="4" class="d-flex align-center">
 				<label v-text="$t('account.settings.theme.title')"></label>
 			</v-col>
-			<v-col>
+			<v-col cols="12" md="8">
 				<v-select :items="themes" v-model="user.settings.development.theme" outlined hide-details></v-select>
 			</v-col>
 		</v-row>
 		<v-row>
-			<v-col cols="4" class="d-flex align-center">
+			<v-col cols="12" md="4" class="d-flex align-center">
 				<label v-text="$t('account.settings.fontSize')"></label>
 			</v-col>
-			<v-col>
+			<v-col cols="12" md="8">
 				<v-text-field v-model="user.settings.development.fontSize" type="number" outlined hide-details></v-text-field>
 			</v-col>
 		</v-row>
@@ -26,10 +26,10 @@
 		<!--						</v-col>-->
 		<!--					</v-row>-->
 		<v-row>
-			<v-col cols="4" class="d-flex align-center">
+			<v-col cols="12" md="4" class="d-flex align-center">
 				<label v-text="$t('account.settings.showLines')"></label>
 			</v-col>
-			<v-col>
+			<v-col cols="12" md="8">
 				<v-radio-group mandatory hide-details row class="mt-0" v-model="user.settings.development.showLines">
 					<v-radio :value="true" color="primary" :label="$t('account.settings.yes')" />
 					<v-radio :value="false" color="primary" :label="$t('account.settings.no')" />

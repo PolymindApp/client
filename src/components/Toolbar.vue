@@ -71,54 +71,54 @@
 				</template>
 
 				<!-- MESSAGING -->
-				<v-menu v-model="messagingMenu" v-if="!collapse" transition="slide-y-transition" max-width="450" min-width="450">
-					<template v-slot:activator="{ on: menu }">
-						<v-tooltip bottom>
-							<template v-slot:activator="{ on: tooltip }">
-								<v-btn :disabled="messages.length === 0" :class="$vuetify.breakpoint.smAndUp ? 'ml-4 mr-0' : null" icon v-on="{ ...tooltip, ...menu }">
-									<v-badge color="error" v-if="newMessages.length > 0">
-										<template v-slot:badge>{{ newMessages.length }}</template>
-										<v-icon>mdi-comment</v-icon>
-									</v-badge>
-									<v-icon v-else>mdi-comment</v-icon>
-								</v-btn>
-							</template>
-							<span>{{$t('toolbar.tooltip.messaging')}}</span>
-						</v-tooltip>
-					</template>
-					<v-card>
-						<v-list>
-							<template v-for="(message, i) in messages">
-								<v-list-item :key="'item_' + i" :to="'/account/' + $root.user.id + '/messaging/' + message.created_by.id" :class="(!message.is_read ? 'v-list-item--active primary--text' : '') + ' align-center'">
-									<v-list-item-avatar>
-										<UserAvatar :size="48" :user="message.created_by" />
-									</v-list-item-avatar>
+<!--				<v-menu v-model="messagingMenu" v-if="!collapse" transition="slide-y-transition" max-width="450" min-width="450">-->
+<!--					<template v-slot:activator="{ on: menu }">-->
+<!--						<v-tooltip bottom>-->
+<!--							<template v-slot:activator="{ on: tooltip }">-->
+<!--								<v-btn :disabled="messages.length === 0" :class="$vuetify.breakpoint.smAndUp ? 'ml-4 mr-0' : null" icon v-on="{ ...tooltip, ...menu }">-->
+<!--									<v-badge color="error" v-if="newMessages.length > 0">-->
+<!--										<template v-slot:badge>{{ newMessages.length }}</template>-->
+<!--										<v-icon>mdi-comment</v-icon>-->
+<!--									</v-badge>-->
+<!--									<v-icon v-else>mdi-comment</v-icon>-->
+<!--								</v-btn>-->
+<!--							</template>-->
+<!--							<span>{{$t('toolbar.tooltip.messaging')}}</span>-->
+<!--						</v-tooltip>-->
+<!--					</template>-->
+<!--					<v-card>-->
+<!--						<v-list>-->
+<!--							<template v-for="(message, i) in messages">-->
+<!--								<v-list-item :key="'item_' + i" :to="'/account/' + $root.user.id + '/messaging/' + message.created_by.id" :class="(!message.is_read ? 'v-list-item&#45;&#45;active primary&#45;&#45;text' : '') + ' align-center'">-->
+<!--									<v-list-item-avatar>-->
+<!--										<UserAvatar :size="48" :user="message.created_by" />-->
+<!--									</v-list-item-avatar>-->
 
-									<v-list-item-content>
-										<v-list-item-title>{{message.created_by | userScreenName }}</v-list-item-title>
-										<v-list-item-subtitle>{{message.content}}</v-list-item-subtitle>
-									</v-list-item-content>
+<!--									<v-list-item-content>-->
+<!--										<v-list-item-title>{{message.created_by | userScreenName }}</v-list-item-title>-->
+<!--										<v-list-item-subtitle>{{message.content}}</v-list-item-subtitle>-->
+<!--									</v-list-item-content>-->
 
-									<v-list-item-icon v-if="!message.is_read">
-										<v-icon color="primary" xSmall>
-											mdi-checkbox-blank-circle
-										</v-icon>
-									</v-list-item-icon>
-								</v-list-item>
-							</template>
+<!--									<v-list-item-icon v-if="!message.is_read">-->
+<!--										<v-icon color="primary" xSmall>-->
+<!--											mdi-checkbox-blank-circle-->
+<!--										</v-icon>-->
+<!--									</v-list-item-icon>-->
+<!--								</v-list-item>-->
+<!--							</template>-->
 
-							<v-divider class="my-4" v-if="messages.length > 0"></v-divider>
+<!--							<v-divider class="my-4" v-if="messages.length > 0"></v-divider>-->
 
-							<v-list-item v-if="messages.length > 0" exact :to="'/account/' + $root.user.id + '/messaging'" class="text-center">
-								<v-list-item-content>
-									<v-list-item-title>
-										{{$t('toolbar.seeAllMessages')}}
-									</v-list-item-title>
-								</v-list-item-content>
-							</v-list-item>
-						</v-list>
-					</v-card>
-				</v-menu>
+<!--							<v-list-item v-if="messages.length > 0" exact :to="'/account/' + $root.user.id + '/messaging'" class="text-center">-->
+<!--								<v-list-item-content>-->
+<!--									<v-list-item-title>-->
+<!--										{{$t('toolbar.seeAllMessages')}}-->
+<!--									</v-list-item-title>-->
+<!--								</v-list-item-content>-->
+<!--							</v-list-item>-->
+<!--						</v-list>-->
+<!--					</v-card>-->
+<!--				</v-menu>-->
 
 				<!-- NOTIFICATIONS -->
 				<v-menu v-model="notificationMenu" v-if="!collapse" transition="slide-y-transition" max-width="450" min-width="450">
@@ -336,15 +336,15 @@
 					</template>
 
 					<!-- MESSAGING -->
-					<v-list-item :to="'/account/' + $root.user.id + '/messaging'">
-						<v-icon left>mdi-comment</v-icon>
-						<v-list-item-title>{{$t('toolbar.tooltip.messaging')}}</v-list-item-title>
-						<div>
-							<v-chip x-small :color="newMessages.length > 0 ? 'primary' : null" class="ml-4">
-								<span v-text="newMessages.length"></span>
-							</v-chip>
-						</div>
-					</v-list-item>
+<!--					<v-list-item :to="'/account/' + $root.user.id + '/messaging'">-->
+<!--						<v-icon left>mdi-comment</v-icon>-->
+<!--						<v-list-item-title>{{$t('toolbar.tooltip.messaging')}}</v-list-item-title>-->
+<!--						<div>-->
+<!--							<v-chip x-small :color="newMessages.length > 0 ? 'primary' : null" class="ml-4">-->
+<!--								<span v-text="newMessages.length"></span>-->
+<!--							</v-chip>-->
+<!--						</div>-->
+<!--					</v-list-item>-->
 
 					<!-- NOTIFICATIONS -->
 					<v-list-item :to="'/account/' + $root.user.id + '/notifications'">
@@ -412,11 +412,11 @@ export default Vue.extend({
 				})
 				.catch(error => this.$handleError(this, error));
 
-            MessagingService.getUsers.bind(this)()
-				.then(response => {
-				    this.messages = response.data;
-				})
-				.catch(error => this.$handleError(this, error));
+            // MessagingService.getUsers.bind(this)()
+			// 	.then(response => {
+			// 	    this.messages = response.data;
+			// 	})
+			// 	.catch(error => this.$handleError(this, error));
 
             // this.$ws.session.subscribe('activity', data => {
 			// 	switch(data[0].collection) {
@@ -503,10 +503,12 @@ export default Vue.extend({
 		},
 
         toggleShortcut() {
+	    	this.$stats.push('TOOGLE_SHORTCUT');
 		    this.$root.shortcuts.visible = !this.$root.shortcuts.visible;
 		},
 
         toggleHelp() {
+			this.$stats.push('TOOGLE_HELP');
 		    this.$root.help.visible = !this.$root.help.visible;
 		},
 

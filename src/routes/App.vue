@@ -53,7 +53,7 @@
 
 			<v-scroll-y-transition>
 				<v-content v-if="$root.user.id" class="main-content">
-					<v-sheet class="fill-height" :dark="$root.user.settings.theme === 'dark'">
+					<v-sheet class="fill-height" :dark="$root.user.settings.theme === 'dark'" tile>
 						<Chat />
 						<v-layout fill-height>
 							<v-fade-transition mode="out-in">

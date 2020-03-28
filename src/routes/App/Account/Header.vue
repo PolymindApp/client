@@ -137,7 +137,7 @@
 			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
 		</v-overlay>
 
-		<v-container class="d-flex pa-4 wallpaper-container fill-height">
+		<v-container class="d-flex px-4 py-8 wallpaper-container fill-height">
 
 			<v-row class="fill-height w-100" :no-gutters="$vuetify.breakpoint.smAndDown">
 				<v-col order="last" order-sm="first" cols="12" md="9" lg="8" class="py-0 d-flex align-center align-sm-end">
@@ -148,7 +148,7 @@
 							<UserAvatar :user="user" color="primary" :size="$vuetify.breakpoint.smAndDown ? 96 : 128" :clickable="false" :editable="true" />
 						</div>
 						<div>
-							<h1 class="display-1 display-md-2 font-weight-thin my-sm-0 my-4 mb-0 mb-sm-1">
+							<h1 :class="{ 'font-weight-thin my-sm-0 my-4 mb-0 mb-sm-1': true, 'display-2': $vuetify.breakpoint.mdAndUp, 'display-1': $vuetify.breakpoint.smAndDown }">
 								{{ user | userScreenName }}
 							</h1>
 							<div>

@@ -92,7 +92,7 @@
 
 				<v-spacer></v-spacer>
 
-				<v-btn :disabled="isDeleted" @click="$comments.open(id, 'component')" class="mt-3 mr-4" text small>
+				<v-btn :disabled="isDeleted" @click="$comments.open(id, 'strategy')" class="mt-3 mr-4" text small>
 					<v-icon left>mdi-comment</v-icon>
 					{{$t('comment.btnTitle')}}
 					<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
@@ -149,12 +149,12 @@
 
 			<v-menu offset-y top>
 				<template v-slot:activator="{ on }">
-					<v-btn :disabled="isDeleted" v-on="on" icon>
+					<v-btn v-on="on" icon>
 						<v-icon>mdi-dots-vertical</v-icon>
 					</v-btn>
 				</template>
 				<v-list>
-					<v-list-item :disabled="isNew" @click="remove()">
+					<v-list-item :disabled="isDeleted || isNew" @click="remove()">
 						<v-list-item-icon><v-icon>mdi-delete</v-icon></v-list-item-icon>
 						<v-list-item-title>{{$t('modal.delete')}}</v-list-item-title>
 					</v-list-item>
@@ -173,7 +173,6 @@ import StrategyService from "../../services/StrategyService";
 import DeleteDialog from "../../components/DeleteDialog";
 import StrategyModel from "../../models/Strategy";
 import CommentService from "../../services/CommentService";
-import ComponentService from "../../services/ComponentService";
 import DeploymentService from "../../services/DeploymentService";
 
 export default Vue.extend({
@@ -280,12 +279,12 @@ export default Vue.extend({
 
 			const revision = this.revisions[this.revisionOffset];
 
-			ComponentService.fork.bind(this)(revision.id)
+			StrategyService.fork.bind(this)(revision.id)
 					.then(response => {
 						this.forkModal.visible = false;
-						this.$router.push('/component/' + response.data.id);
+						this.$router.push('/strategy/' + response.data.id);
 						this.forkModal.forked = true;
-						this.$root.$emit('COMPONENT_UPDATE');
+						this.$root.$emit('STRATEGY_UPDATE');
 					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
@@ -297,7 +296,7 @@ export default Vue.extend({
 
 		publish(version, changelog) {
 
-			DeploymentService.fork.bind(this)('component', this.id, version, changelog)
+			DeploymentService.fork.bind(this)('strategy', this.id, version, changelog)
 					.then(response => {
 						this.publishModal.visible = false;
 						this.publishModal.publied = true;

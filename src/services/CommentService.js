@@ -12,15 +12,21 @@ export default class CommentService {
 		return Server.get.bind(this)('/activity?filter[action]=comment&filter[collection]=' + collection + '&filter[item]=' + id + '&fields=' + defaultFields + '&sort=' + sort + '&meta=filter_count&limit=' + limit);
 	}
 
-	static save(id, collection, comment, commentId) {
+	static save(id, collection, comment, parentId) {
 
-		const data = { item: id, collection, comment };
-
-		if (commentId) {
-			return Server.patch.bind(this)('/activity/comment/' + commentId + '?fields=' + defaultFields, data);
-		} else {
-			return Server.post.bind(this)('/activity/comment?fields' + defaultFields, data);
+		let data = { item: id, collection, comment };
+		if (parentId) {
+			data.comment_parent_id = parentId;
 		}
+
+		return Server.post.bind(this)('/activity/comment?fields' + defaultFields, data);
+	}
+
+	static update(id, comment) {
+
+		return Server.patch.bind(this)('/activity/comment/' + id + '?fields=' + defaultFields, {
+			comment: comment
+		});
 	}
 
 	static delete(id) {
