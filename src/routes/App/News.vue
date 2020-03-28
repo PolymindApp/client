@@ -4,29 +4,51 @@
 		<!-- HEADER -->
 		<Header :news="news" v-if="isLoaded" />
 
-		<v-container v-if="isLoaded" class="pa-4">
+		<v-expand-transition>
+			<div v-if="isLoaded && !$root.isLoading" class="white pb-12">
+				<v-container class="pa-4">
 
-			<!-- CONTENT -->
-			<div class="my-12" v-html="news.data.content[0].content"></div>
+					<!-- CONTENT -->
+					<div class="my-12" v-html="news.data.content[0].content"></div>
 
-			<!-- CREDITS -->
-			<div>
-				<div class="d-flex align-center">
-					<UserAvatar :size="64" :user="news.data.created_by" />
-					<div class="ml-4">
-						<div v-html="$t('news.writtenBy', { screenName: $options.filters.userScreenName(news.data.created_by) })"></div>
-						<div>{{ news.data.created_on | timeAgo }}</div>
+					<!-- CREDITS -->
+					<div>
+						<div class="d-flex align-center">
+							<UserAvatar :size="64" :user="news.data.created_by" />
+							<div class="ml-4">
+								<div v-html="$t('news.writtenBy', { screenName: $options.filters.userScreenName(news.data.created_by) })"></div>
+								<div>{{ news.data.created_on | timeAgo }}</div>
+							</div>
+						</div>
 					</div>
-				</div>
-				<v-divider class="my-12"></v-divider>
+				</v-container>
 			</div>
+		</v-expand-transition>
 
-			<!-- COMMENTS -->
-			<div class="my-12">
-				<h3 v-if="totalComments === 0" v-text="$t('comment.title')"></h3>
-				<Comments ref="comments" collection="news" :id="news.data.id"></Comments>
-			</div>
-		</v-container>
+		<v-expand-transition>
+			<v-container v-if="isLoaded && !$root.isLoading" class="pa-4">
+
+				<!-- COMMENTS -->
+				<div class="my-12 mb-4 mb-md-12">
+
+					<v-row class="mb-8" no-gutters>
+						<v-col cols="12" md="6">
+							<v-icon left>mdi-comment-multiple</v-icon>
+							<h2 class="title d-inline-block" v-text="$t('comment.totalTitle', { amount: comments.length })"></h2>
+						</v-col>
+						<v-col cols="12" md="6" class="text-left text-md-right">
+							<CommentSorting :comments="comments" @sortBy="commentsSortBy = $event" />
+						</v-col>
+					</v-row>
+
+					<CommentForm collection="news" :id="news.data.id" :comments.sync="comments" solo />
+
+					<v-divider class="my-6" />
+
+					<Comments collection="news" :id="news.data.id" :comments.sync="comments" :sort-by="commentsSortBy" />
+				</div>
+			</v-container>
+		</v-expand-transition>
 	</v-card>
 </template>
 
@@ -36,10 +58,12 @@ import Header from "./News/Header";
 import NewsService from "../../services/NewsService";
 import UserAvatar from "../../components/UserAvatar";
 import Comments from "../../components/Comments";
+import CommentForm from "../../components/Comment/Form";
+import CommentSorting from "../../components/Comment/Sorting";
 
 export default Vue.extend({
 
-	components: { Header, UserAvatar, Comments },
+	components: { Header, UserAvatar, Comments, CommentForm, CommentSorting, },
 
 	mounted() {
 	    this.load();
@@ -81,9 +105,6 @@ export default Vue.extend({
 
 	computed: {
 
-		totalComments() {
-			return 1; //this.$refs.comments.totalCount;
-		}
 	},
 
 	data() {
@@ -93,6 +114,8 @@ export default Vue.extend({
 			news: {},
 			slug: null,
 			locale: null,
+			comments: [],
+			commentsSortBy: null,
 		}
 	},
 

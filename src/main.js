@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import store from './store';
+import moment from 'moment';
 import vuetify from './plugins/vuetify';
 import globalVariables from './global';
 import * as VueGoogleMaps from 'vue2-google-maps';
@@ -11,6 +12,7 @@ import VueRouter from 'vue-router';
 import messages from './locales';
 import VueCookies from 'vue-cookies';
 import VueAnalytics from 'vue-analytics';
+import StatsService from './services/StatsService';
 import DirectusSDK from "@directus/sdk-js";
 import 'roboto-fontface/css/roboto/sass/roboto-fontface.scss';
 import '@mdi/font/scss/materialdesignicons.scss';
@@ -28,13 +30,34 @@ let directusConfig = {
 };
 
 const server = new DirectusSDK(directusConfig);
-
 Object.defineProperties(Vue.prototype, {
 	$server: { value: server }
 });
+
 const $busView = new Vue();
 Object.defineProperties(Vue.prototype, {
 	$bus: { value: $busView }
+});
+
+// const stats = JSON.parse(localStorage.getItem('statsQueue')) || { queue: [], };
+const stats = { queue: [], };
+const statsObj = {
+	push(action, meta) {
+		stats.queue.push({action, meta, date: moment().format('YYYY-MM-DD HH:mm:ss')});
+	},
+	process() {
+		StatsService.process.bind(Vue.prototype)(stats.queue)
+			.then(() => {
+				stats.queue = [];
+				// localStorage.removeItem('statsQueue');
+			})
+			.catch(err => {
+				// localStorage.setItem('statsQueue', JSON.stringify(stats));
+			});
+	}
+};
+Object.defineProperties(Vue.prototype, {
+	$stats: { value: statsObj }
 });
 
 Vue.config.productionTip = false;
@@ -84,9 +107,18 @@ const i18n = new VueI18n({
 				document.title = 'Polymind';
 			}
 
+			statsObj.push('ROUTE', {
+				from: from.fullPath,
+				to: to.fullPath,
+			});
+
 			Array.from(document.querySelectorAll('[data-vue-router-controlled]')).map((el) => el.parentNode.removeChild(el));
 
 			next();
+		});
+
+		router.afterEach((to, from) => {
+			statsObj.process();
 		});
 
 		Vue.use(VueAnalytics, {
@@ -116,6 +148,8 @@ const i18n = new VueI18n({
 				}
 			}
 		});
+
+		statsObj.push('APP_LOADED');
 
 		new Vue({
 			router,

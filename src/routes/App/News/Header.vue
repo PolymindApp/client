@@ -1,7 +1,7 @@
 <template>
 	<v-img class="default-gradient wallpaper" transition="fade" :src="backgroundImage" :gradient="gradient">
 		<v-container class="d-flex pa-4 wallpaper-container fill-height align-end pb-12">
-			<h1 class="display-3 white--text" v-text="title"></h1>
+			<h1 :class="{ 'white--text': true, 'display-1': isMobile, 'display-3': !isMobile }" v-text="title"></h1>
 		</v-container>
 	</v-img>
 </template>
@@ -18,6 +18,10 @@
 		},
 
 		computed: {
+
+			isMobile() {
+				return this.$vuetify.breakpoint.smAndDown;
+			},
 
 			backgroundImage() {
 				return (this.news.data && this.news.data.image && this.$thumbnails(this.news.data.image.private_hash, 'wallpaper')) || '';
@@ -41,6 +45,7 @@
 </script>
 
 <style lang="scss" scoped>
+
 	.wallpaper,
 	.wallpaper-container {
 		min-height: 20rem;

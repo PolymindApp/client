@@ -1,7 +1,7 @@
 <template>
 	<v-row>
 		<v-col cols="12" md="7" lg="8" class="py-0 py-md-3">
-			<v-card class="pa-4 pa-md-8">
+			<v-card class="pa-4 pa-md-8" :flat="isMobile" :tile="isMobile">
 				<h1 class="title">{{ $t('account.information.generalTitle') }}</h1>
 
 				<v-form ref="generalForm" @submit="apply" lazy-validation v-model="form.general">
@@ -31,14 +31,14 @@
 
 					<v-btn v-if="isOwner" class="mt-4" type="submit" color="primary" :disabled="!isDifferent" large>
 						<v-icon left>mdi-content-save</v-icon>
-						<span>{{ $t("account.information.applyChanges") }}</span>
+						<span class="text-break">{{ $t("account.information.applyChanges") }}</span>
 					</v-btn>
 				</v-form>
 
 			</v-card>
 		</v-col>
 		<v-col v-if="isOwner" cols="12" md="5" lg="4" class="py-0 py-md-3">
-			<v-card class="pa-4 pa-md-8">
+			<v-card class="pa-4 pa-md-8" :flat="isMobile" :tile="isMobile">
 				<h1 class="title">{{$t('restricted.resetPasswordTitle')}}</h1>
 				<p>{{$t('restricted.resetPasswordDesc')}}</p>
 
@@ -137,6 +137,10 @@ export default Vue.extend({
 	},
 
 	computed: {
+
+		isMobile() {
+			return this.$vuetify.breakpoint.smAndDown;
+		},
 
 	    isOwner() {
 	        return this.$root.user.id === this.user.id;

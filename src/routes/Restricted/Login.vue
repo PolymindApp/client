@@ -104,6 +104,18 @@ import ServerError from "../../utils/ServerError";
 
 export default Vue.extend({
 
+	created() {
+
+		const lockedUser = localStorage.getItem('lockedUser');
+		if (lockedUser) {
+			this.user = JSON.parse(lockedUser);
+
+			if (this.user.email) {
+				this.$router.push('/locked');
+			}
+		}
+	},
+
 	methods: {
 
 		validate (event) {

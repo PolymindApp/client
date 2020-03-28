@@ -2,7 +2,9 @@
 	<div>
 		<v-row>
 			<v-col cols="12">
-				<v-card-title>{{ $t('account.contributionLastYear', { total: commits.data.length }) }}</v-card-title>
+				<v-card-title>
+					<span class="text-break">{{ $t('account.contributionLastYear', { total: commits.data.length }) }}</span>
+				</v-card-title>
 				<CommitGraph :user="user" @load="commits = arguments[0]" />
 			</v-col>
 		</v-row>
@@ -18,16 +20,16 @@
 				<v-timeline v-else dense clipped>
 					<v-slide-y-transition group>
 						<template v-for="(comment, index) in comments.data">
-							<v-timeline-item :icon="comment.icon" :color="comment.color" large :key="index" label>
+							<v-timeline-item :icon="comment.icon" :color="comment.color" :key="index" large label>
 								<template v-slot:icon>
 									<UserAvatar :size="48" :user="comment.action_by" />
 								</template>
 								<v-card>
 									<v-card-title class="pt-2 pb-0">
 										<span class="font-weight-medium">{{comment.action_by | userScreenName }}</span>
-										<span class="font-weight-light ml-4 body-2">{{comment.action_on | timeAgo}}</span>
+										<span class="font-weight-light ml-md-4 body-2">{{comment.action_on | timeAgo}}</span>
 									</v-card-title>
-									<v-card-text>
+									<v-card-text class="mt-2 mt-md-0">
 										{{comment.comment}}
 									</v-card-text>
 								</v-card>
@@ -48,7 +50,7 @@
 				<v-timeline v-else dense clipped>
 					<v-timeline-item :icon="history.icon" :color="history.color" large v-for="(history, index) in histories.data" :key="index" label>
 						<v-row justify="space-between">
-							<v-col cols="8" class="py-0">
+							<v-col cols="12" md="8" class="py-0">
 								<v-card class="elevation-2">
 									<v-card-text>
 										<template v-if="history.action === 'create'">
@@ -74,8 +76,8 @@
 									</v-card-text>
 								</v-card>
 							</v-col>
-							<v-col class="text-right align-end d-flex flex-column justify-center py-0" cols="4">
-								{{ history.action_on | timeAgo }}
+							<v-col class="text-right align-end d-flex flex-column justify-center py-0" cols="12" md="4">
+								<span class="py-2">{{ history.action_on | timeAgo }}</span>
 							</v-col>
 						</v-row>
 					</v-timeline-item>
