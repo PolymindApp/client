@@ -9,7 +9,7 @@
 				</div>
 				<div>
 <!--					<div class="mb-4" v-text="$t('restricted.tempLocked')"></div>-->
-					<v-text-field :error-messages="formErrors.password" v-model="password" :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" hide-details light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" autocomplete="password" @click:append="showPassword = !showPassword"></v-text-field>
+					<v-text-field :error-messages="formErrors.password" v-model="password" :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" hide-details light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" autocomplete="password" @click:append="showPassword = !showPassword" autofocus></v-text-field>
 				</div>
 			</div>
 
@@ -19,7 +19,7 @@
 
 			<v-divider class="my-4"></v-divider>
 
-			<v-btn class="white--text" to="/login" text>
+			<v-btn class="white--text" @click="useOtherAccount()" text>
 				{{ $t("restricted.lockedOtherAccount") }}
 			</v-btn>
 		</v-form>
@@ -52,6 +52,11 @@ export default Vue.extend({
 	},
 
 	methods: {
+
+		useOtherAccount() {
+			localStorage.removeItem('lockedUser');
+			this.$router.push('/login');
+		},
 
 		validate (event) {
 
