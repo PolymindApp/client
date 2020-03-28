@@ -1,11 +1,31 @@
 <template>
 	<v-navigation-drawer fixed right temporary touchless v-model="sidebar.opened" width="450" color="transparent" style="z-index: 7">
-		<v-card tile class="fill-height" color="grey lighten-3">
-			<Comments class="d-flex flex-column fill-height" v-if="sidebar.opened" ref="comments" :collection="collection" :id="id" autofocus>
-				<template slot="empty">
-					<EmptyView :title="$t('comment.emptyTitle')" :desc="$t('comment.emptyDesc')" />
-				</template>
-			</Comments>
+		<v-card tile class="fill-height d-flex flex-column" color="grey lighten-3" v-if="sidebar.opened">
+
+			<!-- HEADING -->
+			<v-row style="flex: 0" class="pa-4" no-gutters>
+				<v-col cols="12" md="6">
+					<v-icon left>mdi-comment-multiple</v-icon>
+					<h2 class="title d-inline-block" v-text="$t('comment.totalTitle', { amount: comments.length })"></h2>
+				</v-col>
+				<v-col cols="12" md="6" class="text-left text-md-right">
+					<CommentSorting :comments="comments" @sortBy="commentsSortBy = $event" />
+				</v-col>
+			</v-row>
+
+			<!-- COMMENTS -->
+			<div class="pa-4 scrollable fill-height" style="flex: 1">
+				<Comments class="fill-height" :collection="collection" :id="id" :comments.sync="comments" :sort-by="commentsSortBy">
+					<template slot="empty">
+						<EmptyView :title="$t('comment.emptyTitle')" :desc="$t('comment.emptyDesc')" />
+					</template>
+				</Comments>
+			</div>
+
+			<!-- FORM -->
+			<div class="pa-4 white" style="flex: 0">
+				<CommentForm :collection="collection" :id="id" :comments.sync="comments" autofocus />
+			</div>
 		</v-card>
 	</v-navigation-drawer>
 </template>
@@ -13,13 +33,15 @@
 <script>
     import Vue from 'vue';
     import Comments from "./Comments";
+    import CommentForm from "./Comment/Form";
+    import CommentSorting from "./Comment/Sorting";
 	import EmptyView from "./EmptyView";
 
     export default Vue.extend({
 
         name: 'CommentDrawer',
 
-        components: { Comments, EmptyView },
+        components: { Comments, EmptyView, CommentForm, CommentSorting },
 
 		methods: {
 
@@ -27,6 +49,9 @@
 				this.id = id;
 				this.collection = collection;
 				this.sidebar.opened = true;
+
+				this.comments = [];
+				this.commentsSortBy = null;
 			},
 
 			close() {
@@ -38,6 +63,8 @@
             return {
             	id: null,
             	collection: null,
+				comments: [],
+				commentsSortBy: null,
                 sidebar: {
                     opened: false,
 				},

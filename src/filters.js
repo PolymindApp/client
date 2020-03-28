@@ -69,7 +69,7 @@ Vue.filter('shortcutKey', (key) => {
 Vue.filter('plainExcerpt', (value, limit = 250) => {
 
 	let tmp = document.createElement('div');
-	tmp.innerHTML = value;
+	tmp.innerText = value;
 	let excerpt = (tmp.textContent || tmp.innerText || "");
 
 	if (excerpt.length > limit) {
