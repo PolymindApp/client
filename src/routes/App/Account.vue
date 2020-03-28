@@ -23,10 +23,10 @@
 <!--							{{ elementCount }}-->
 <!--						</v-chip>-->
 <!--					</v-tab>-->
-					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/messaging'">
-						<v-icon left>mdi-email</v-icon>
-						{{$t('account.messaging.title')}}
-					</v-tab>
+<!--					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/messaging'">-->
+<!--						<v-icon left>mdi-email</v-icon>-->
+<!--						{{$t('account.messaging.title')}}-->
+<!--					</v-tab>-->
 					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/notifications'">
 						<v-icon left>mdi-bell</v-icon>
 						{{$t('account.notifications.title')}}
@@ -54,7 +54,7 @@
 				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/messaging'" class="pa-0 pa-md-4">
 					<Messaging :user="user" />
 				</v-tab-item>
-				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/notifications'" class="pa-0 pa-md-4">
+				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/notifications'" class="pa-4">
 					<Notifications :user="user" />
 				</v-tab-item>
 				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/settings'" class="pa-0 pa-md-4">

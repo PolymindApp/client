@@ -18,15 +18,17 @@
 									<UserAvatar :size="48" :user="notification.created_by" />
 								</v-col>
 								<v-col>
-									<v-list-item-title>
+									<v-list-item-title class="mb-1">
 										<span class="font-weight-medium">{{notification.created_by | userScreenName }}</span>
-										<span class="font-weight-light ml-4">{{notification.activity.action_on | timeAgo}}</span>
+										<span class="font-weight-light d-block d-md-inline ml-md-4">{{notification.activity.action_on | timeAgo}}</span>
 									</v-list-item-title>
-									<v-list-item-subtitle v-html="$t('notification.types.' + notification.type + '_' + notification.collection, {
-										name: notification.relation.data.name
-									})"></v-list-item-subtitle>
+									<v-list-item-subtitle>
+										<span class="text-break" v-html="$t('notification.types.' + notification.type + '_' + notification.collection, {
+											name: notification.relation.data.name
+										})"></span>
+									</v-list-item-subtitle>
 								</v-col>
-								<v-col v-if="notification.activity.action === 'comment'">
+								<v-col class="d-none d-md-block" v-if="notification.activity.action === 'comment'">
 									<v-icon>mdi-format-quote-open</v-icon>
 									<span class="title font-italic font-weight-light mx-4">
 										{{ notification.activity.comment | plainExcerpt(100) }}
