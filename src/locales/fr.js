@@ -113,7 +113,7 @@ const literals = {
 		viewCompleteMsg: 'Lire plus...',
 		unviewCompleteMsg: 'Réduire...',
 		emptyTitle: 'Aucun commentaire',
-		emptyDesc: 'Poster un nouveau commentaire en utilisant le champs ci-dessous',
+		emptyDesc: 'Soyez le premier à commenter en utilisant le champs ci-dessous',
 		thumbUpTooltip: 'J\'aime',
 		thumbDownTooltip: 'Je n\'aime pas',
 		deleteTooltip: 'Effacer',
@@ -305,7 +305,7 @@ const literals = {
 			biographyLabel: 'Biographie',
 			genderLabel: 'Sexe',
 			quoteLabel: 'Citation',
-			applyChanges: 'Appliquer les changements',
+			applyChanges: 'Appliquer',
 		},
 		messaging: {
 			title: 'Messagerie',
