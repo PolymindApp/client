@@ -103,7 +103,7 @@
 					{{$t('modal.fork')}}
 				</v-btn>
 
-				<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3" small>
+				<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3" small hidden>
 					<v-icon left>mdi-publish</v-icon>
 					{{$t('modal.publish')}}
 				</v-btn>
