@@ -1,5 +1,5 @@
 <template>
-	<v-avatar v-ripple @click="handleClick" :color="color ? color : 'primary'" :class="classes" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
+	<v-avatar v-ripple="isInteractive" @click="handleClick" :color="color ? color : 'primary'" :class="classes" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
 
 		<v-overlay :absolute="true" :value="isUploading">
 			<v-progress-circular :size="size / 2" color="primary" indeterminate></v-progress-circular>
@@ -118,7 +118,7 @@ export default Vue.extend({
 		},
 
 		isInteractive() {
-        	return this.props.editable || this.props.clickable;
+        	return this.editable || this.clickable;
 		},
 
 		classes() {
