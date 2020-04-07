@@ -10,7 +10,7 @@
 
 					<v-layout class="px-5" align-center>
 						<v-flex>
-							<UserAvatar :user="$root.user" :size="64" :editable="true" />
+							<UserAvatar :user="$root.user" :size="64" :editable="false" />
 						</v-flex>
 						<v-flex>
 							<v-layout align-end fill-height>

@@ -14,7 +14,7 @@
 						</v-badge>
 					</v-btn>
 				</template>
-				<span v-text="$t('components.console.total.log', { total: counts.log })"></span>
+				<span v-text="$tc('components.console.total.log', counts.log, { total: counts.log })"></span>
 			</v-tooltip>
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on }">
@@ -24,7 +24,7 @@
 						</v-badge>
 					</v-btn>
 				</template>
-				<span v-text="$t('components.console.total.error', { total: counts.error })"></span>
+				<span v-text="$tc('components.console.total.error', counts.error, { total: counts.error })"></span>
 			</v-tooltip>
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on }">
@@ -34,7 +34,7 @@
 						</v-badge>
 					</v-btn>
 				</template>
-				<span v-text="$t('components.console.total.warning', { total: counts.warning })"></span>
+				<span v-text="$tc('components.console.total.warning', counts.warning, { total: counts.warning })"></span>
 			</v-tooltip>
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on }">
@@ -44,7 +44,7 @@
 						</v-badge>
 					</v-btn>
 				</template>
-				<span v-text="$t('components.console.total.info', { total: counts.info })"></span>
+				<span v-text="$tc('components.console.total.info', counts.info, { total: counts.info })"></span>
 			</v-tooltip>
 
 			<v-spacer></v-spacer>

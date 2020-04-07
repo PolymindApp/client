@@ -21,7 +21,7 @@
 								<v-fade-transition group>
 									<v-tooltip :key="'day_' + dayIdx" v-if="day < 52 || currentDay >= weekday" bottom>
 										<template v-slot:activator="{ on }">
-											<div @click="viewContributions(day, weekday)" v-on="on" :class="getClasses(day, weekday)">
+											<div v-ripple @click="viewContributions(day, weekday)" v-on="on" :class="getClasses(day, weekday)">
 												<!--									<span v-if="getDate(day, weekday).format('DD') == 1">{{((day - 1) * 7) + weekday}}</span>-->
 											</div>
 										</template>
@@ -32,7 +32,6 @@
 									</v-tooltip>
 								</v-fade-transition>
 							</td>
-							<td>1</td>
 						</tr>
 					</tbody>
 				</table>
@@ -274,7 +273,7 @@
 
 		td {
 			height: 1rem;
-			padding: 0.05rem;
+			padding: 1px;
 
 			div.clickable {
 				cursor: pointer;

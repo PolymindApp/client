@@ -1,5 +1,5 @@
 <template>
-	<v-avatar @click="handleClick" color="primary" :class="classes" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
+	<v-avatar v-ripple @click="handleClick" :color="color ? color : 'primary'" :class="classes" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
 
 		<v-overlay :absolute="true" :value="isUploading">
 			<v-progress-circular :size="size / 2" color="primary" indeterminate></v-progress-circular>
@@ -49,6 +49,10 @@ export default Vue.extend({
 		state: {
 	        type: Boolean,
 			default: true,
+		},
+		color: {
+	        type: String,
+			default: 'primary',
 		},
 		editable: {
 	        type: Boolean,
@@ -115,6 +119,7 @@ export default Vue.extend({
 
 		classes() {
         	return {
+        		'no-select': true,
 				redirectsToAccount: !this.editable,
 			};
 		}

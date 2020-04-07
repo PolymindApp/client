@@ -1,11 +1,11 @@
 import Server from '../utils/Server';
+import Transaction from "../models/Transaction";
 
 export default class StatsService {
 
 	static process(queue = []) {
 
-		const promises = [];
-
+		const transactions = [];
 		queue.forEach(item => {
 
 			if (item.action === 'APP_LOADED') {
@@ -36,13 +36,15 @@ export default class StatsService {
 				}
 			}
 
-			promises.push(Server.post.bind(this)('/items/stats', {
-				action: item.action,
-				meta: item.meta,
-				user_date: item.date,
+			transactions.push(new Transaction({
+				action: 'insert',
+				collection: 'stats',
+				data: item,
 			}));
 		});
 
-		return Promise.all(promises);
+		if (transactions.length > 0) {
+			return Server.post.bind(this)('/custom/transaction/run', transactions, false);
+		}
 	}
 }

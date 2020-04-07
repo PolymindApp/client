@@ -14,7 +14,7 @@
 
         name: 'Form',
 
-        props: ['id', 'collection', 'comments', 'parent'],
+        props: ['id', 'collection', 'comments', 'parent', 'total'],
 
         components: { UserAvatar },
 
@@ -51,6 +51,7 @@
 								action_by: {...this.$root.user}
 							}));
 							this.$emit('update:comments', comments);
+							this.$emit('update:total', this.total + 1);
 							this.$emit('send', response);
 
 							setTimeout(() => {

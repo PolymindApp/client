@@ -34,18 +34,18 @@
 					<v-row class="mb-8" no-gutters>
 						<v-col cols="12" md="6">
 							<v-icon left>mdi-comment-multiple</v-icon>
-							<h2 class="title d-inline-block" v-text="$t('comment.totalTitle', { amount: comments.length })"></h2>
+							<h2 class="title d-inline-block" v-text="$tc('comment.totalTitle', totalComments, { amount: totalComments })"></h2>
 						</v-col>
 						<v-col cols="12" md="6" class="text-left text-md-right">
 							<CommentSorting :comments="comments" @sortBy="commentsSortBy = $event" />
 						</v-col>
 					</v-row>
 
-					<CommentForm collection="news" :id="news.data.id" :comments.sync="comments" solo />
+					<CommentForm collection="news" :id="news.data.id" :comments.sync="comments" :total.sync="totalComments" solo />
 
 					<v-divider class="my-6" />
 
-					<Comments collection="news" :id="news.data.id" :comments.sync="comments" :sort-by="commentsSortBy" />
+					<Comments collection="news" :id="news.data.id" :comments.sync="comments" :total.sync="totalComments" :sort-by="commentsSortBy" />
 				</div>
 			</v-container>
 		</v-expand-transition>
@@ -115,6 +115,7 @@ export default Vue.extend({
 			slug: null,
 			locale: null,
 			comments: [],
+			totalComments: 0,
 			commentsSortBy: null,
 		}
 	},

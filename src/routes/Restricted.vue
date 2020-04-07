@@ -28,29 +28,20 @@
 
 				<div class="overlay"></div>
 
-				<v-container class="page main-content fill-height flex-column d-flex align-center justify-space-between">
+				<v-container class="page main-content fill-height flex-column d-flex align-center justify-center mt-10 mt-md-0 pt-4 pt-md-0">
 
-					<div style="flex: 3" :class="{ 'd-flex align-end mb-4': true }" v-if="hasLogo">
-						<div :class="{ 'd-flex align-center': true, 'mt-12 pt-4': $vuetify.breakpoint.smAndDown }">
-							<img transition="fade-transition" src="../assets/images/polymind-light.svg" height="96" />
-							<h3 class="ml-4 mb-0 display-2 font-weight-thin white--text">Polymind</h3>
+					<v-sheet dark color="transparent">
+						<v-scale-transition>
+							<div class="d-flex align-center justify-center" v-if="hasLogo">
+								<img src="../assets/images/polymind-light.svg" height="96" />
+								<h3 class="ml-4 mb-0 display-2 font-weight-thin white--text">Polymind</h3>
+							</div>
+						</v-scale-transition>
+
+						<div class="mt-8">
+							<router-view></router-view>
 						</div>
-					</div>
-
-					<v-sheet style="flex: 6; width: 100%" dark color="transparent" class="inner">
-						<router-view></router-view>
 					</v-sheet>
-
-					<div class="footer d-flex align-end" style="flex: 1">
-<!--						<div class="text-center">-->
-<!--							<v-btn class="white&#45;&#45;text" to="/terms" text>-->
-<!--								{{ $t("restricted.termsLink") }}-->
-<!--							</v-btn>-->
-<!--							<v-btn class="white&#45;&#45;text" to="/policies" text>-->
-<!--								{{ $t("restricted.policiesLink") }}-->
-<!--							</v-btn>-->
-<!--						</div>-->
-					</div>
 				</v-container>
 			</v-container>
 		</v-fade-transition>
@@ -59,80 +50,80 @@
 
 <script>
 
-import Vue from 'vue';
-import Login from './Restricted/Login.vue';
-import Locked from './Restricted/Locked.vue';
-import Register from './Restricted/Register.vue';
-import Activate from './Restricted/Activate.vue';
-import ForgotPassword from './Restricted/ForgotPassword.vue';
-import ResetPassword from './Restricted/ResetPassword.vue';
-import LanguageSwitcher from "../components/LanguageSwitcher.vue";
-import Terms from "./Restricted/Terms.vue";
-import Policies from "./Restricted/Policies.vue";
-import ErrorDialog from '../components/ErrorDialog.vue';
-import Contact from './Restricted/Contact.vue';
-import Modal from "../components/Modal";
+	import Vue from 'vue';
+	import Login from './Restricted/Login.vue';
+	import Locked from './Restricted/Locked.vue';
+	// import Register from './Restricted/Register.vue';
+	// import Activate from './Restricted/Activate.vue';
+	import ForgotPassword from './Restricted/ForgotPassword.vue';
+	import ResetPassword from './Restricted/ResetPassword.vue';
+	import LanguageSwitcher from "../components/LanguageSwitcher.vue";
+	import Terms from "./Restricted/Terms.vue";
+	import Policies from "./Restricted/Policies.vue";
+	import ErrorDialog from '../components/ErrorDialog.vue';
+	import Contact from './Restricted/Contact.vue';
+	import Modal from "../components/Modal";
 
-export const routes = [
-	{path: '/', redirect: '/login'},
-	{path: '/login', component: Login, name: 'login'},
-	{path: '/locked', component: Locked, name: 'locked'},
-	// {path: '/register', component: Register, name: 'register'},
-	{path: '/register', redirect: '/login'},
-	// {path: '/user/activate/:token/:lookup', component: Activate, name: 'activate'},
-	{path: '/user/forgot-password', component: ForgotPassword, name: 'forgotPassword'},
-	{path: '/user/reset-password/:token', component: ResetPassword, name: 'resetPassword'},
-	{path: '/terms', component: Terms, name: 'terms'},
-	{path: '/policies', component: Policies, name: 'policies'},
-	{path: '/contact', component: Contact, name: 'contact'},
-	{path: '*', redirect: to => {
-		if (!to.fullPath.startsWith('/issue/')) {
-			localStorage.setItem('redirect_uri', to.fullPath);
-		}
-		return '/login';
-	}},
-];
+	export const routes = [
+		{path: '/', redirect: '/login'},
+		{path: '/login', component: Login, name: 'login'},
+		{path: '/locked', component: Locked, name: 'locked'},
+		// {path: '/register', component: Register, name: 'register'},
+		{path: '/register', redirect: '/login'},
+		// {path: '/user/activate/:token/:lookup', component: Activate, name: 'activate'},
+		{path: '/user/forgot-password', component: ForgotPassword, name: 'forgotPassword'},
+		{path: '/user/reset-password/:token', component: ResetPassword, name: 'resetPassword'},
+		{path: '/terms', component: Terms, name: 'terms'},
+		{path: '/policies', component: Policies, name: 'policies'},
+		{path: '/contact', component: Contact, name: 'contact'},
+		{path: '*', redirect: to => {
+				if (!to.fullPath.startsWith('/issue/')) {
+					localStorage.setItem('redirect_uri', to.fullPath);
+				}
+				return '/login';
+			}},
+	];
 
-export default Vue.extend({
+	export default Vue.extend({
 
-	name: 'Restricted',
+		name: 'Restricted',
 
-	components: {
-		LanguageSwitcher, ErrorDialog, Modal
-	},
-
-	created() {
-
-		setTimeout(() => { this.showLogo = true; }, 500);
-		setTimeout(() => { this.showPanel = true; }, 750);
-		setTimeout(() => { this.hasLoaded = true; }, 0);
-	},
-
-	methods: {
-
-	},
-
-	computed: {
-
-		hasBackLink() {
-			return this.$route.name !== 'login' && this.$route.name !== 'locked';
+		components: {
+			LanguageSwitcher, ErrorDialog, Modal
 		},
 
-		hasLogo() {
-			return this.$route.name !== 'locked';
-		},
-	},
+		created() {
 
-	data: function() {
-	    return {
-			showLogo: false,
-			showPanel: false,
-            hasLoaded: false,
-            wwwUrl: process.env.VUE_APP_WWW_URL,
-			currentLang: this.$i18n.locale,
-		};
-	},
-});
+			setTimeout(() => { this.showLogo = true; }, 500);
+			setTimeout(() => { this.showPanel = true; }, 750);
+			setTimeout(() => { this.hasLoaded = true; }, 0);
+		},
+
+		methods: {
+
+		},
+
+		computed: {
+
+			hasBackLink() {
+				return this.$route.name !== 'login' && this.$route.name !== 'locked';
+			},
+
+			hasLogo() {
+				return this.$route.name !== 'locked';
+			},
+		},
+
+		data: function() {
+			return {
+				showLogo: false,
+				showPanel: false,
+				hasLoaded: false,
+				wwwUrl: process.env.VUE_APP_WWW_URL,
+				currentLang: this.$i18n.locale,
+			};
+		},
+	});
 </script>
 
 <style lang="scss" scoped>

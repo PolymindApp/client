@@ -16,6 +16,10 @@ export default class StrategyService {
 		return Server.get.bind(this)('/items/strategy/' + id);
 	}
 
+	static getRevisions(id) {
+		return Server.get.bind(this)('/items/strategy/' + id + '/revisions?limit=25&fields=*,activity.action_by.first_name,activity.action_by.last_name,activity.action_by.screen_name,activity.action_by.avatar.private_hash');
+	}
+
 	static save(id, data) {
 
 		if (id) {

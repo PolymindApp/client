@@ -421,7 +421,7 @@
 				<div class="d-flex flex-column code fill-height" :style="{ minWidth: '40%' }">
 					<v-row v-if="showTabs" no-gutters style="flex: 0">
 						<v-col cols="12">
-							<v-tabs :dark="dark" show-arrows v-model="tab" grow>
+							<v-tabs :dark="dark" v-model="tab" grow>
 								<v-tab v-if="!component.is_invisible">HTML</v-tab>
 								<v-tab>JS</v-tab>
 								<v-tab v-if="!component.is_invisible">CSS</v-tab>

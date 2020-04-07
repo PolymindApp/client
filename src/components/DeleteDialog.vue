@@ -1,23 +1,23 @@
 <template>
 	<v-dialog v-model="visible" scrollable max-width="500px">
-		<v-card color="error" class="white--text">
-			<v-card-title class="headline">
-				<v-icon slot="icon" color="white" size="36" left>mdi-alert</v-icon>
+		<v-card>
+			<v-card-title class="headline error--text">
+				<v-icon color="error" slot="icon" size="36" left>mdi-alert</v-icon>
 				{{ title || $t('modalDelete.title') }}
 			</v-card-title>
 
-			<v-card-text class="my-5 white--text">
+			<v-card-text class="my-5">
 				{{ desc || $t('modalDelete.desc') }}
 			</v-card-text>
 
 			<v-card-actions>
 				<v-spacer></v-spacer>
 
-				<v-btn text @click="$emit('delete')">
+				<v-btn color="error" @click="$emit('delete')">
 					{{$t('modal.delete')}}
 				</v-btn>
 
-				<v-btn @click="visible = false">
+				<v-btn outlined class="ml-2" @click="visible = false">
 					{{$t('modal.cancel')}}
 				</v-btn>
 			</v-card-actions>
