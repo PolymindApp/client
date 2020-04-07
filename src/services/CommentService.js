@@ -1,6 +1,6 @@
 import Server from '../utils/Server';
 
-const defaultFields = 'id,comment,comment_deleted_on,comment_thumb_up,comment_thumb_down,action_on,action_by.screen_name,action_by.first_name,action_by.last_access_on,action_by.last_name,action_by.avatar.private_hash,action_by.id';
+const defaultFields = 'id,comment,comment_deleted_on,edited_on,comment_thumb_up,comment_thumb_down,action_on,action_by.screen_name,action_by.first_name,action_by.last_access_on,action_by.last_name,action_by.avatar.private_hash,action_by.id';
 
 export default class CommentService {
 
@@ -8,8 +8,9 @@ export default class CommentService {
 		return Server.get.bind(this)('/activity?filter[action]=comment&filter[collection]=' + collection + '&filter[item]=' + id + '&fields=' + defaultFields + '&meta=filter_count&limit=0');
 	}
 
-	static getAll(collection, id, sort = '-id', limit = 50) {
-		return Server.get.bind(this)('/activity?filter[action]=comment&filter[collection]=' + collection + '&filter[item]=' + id + '&fields=' + defaultFields + '&sort=' + sort + '&meta=filter_count&limit=' + limit);
+	static getAll(collection, id, sort = '-id', limit = 50, parentId = null) {
+
+		return Server.get.bind(this)('/activity?filter[action]=comment&filter[collection]=' + collection + (parentId ? '&filter[comment_parent_id]=' + parentId : '&filter[comment_parent_id][null]') + '&filter[item]=' + id + '&fields=' + defaultFields + '&sort=' + sort + '&meta=filter_count&limit=' + limit);
 	}
 
 	static save(id, collection, comment, parentId) {

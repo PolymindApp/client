@@ -8,10 +8,7 @@
 			</v-col>
 			<v-col cols="12" sm="6" class="py-0">
 				<v-row>
-					<v-col cols="6" class="py-0">
-						<v-checkbox :error-messages="formErrors.is_invisible" :label="$t('strategy.settings.isInvisibleLabel')" v-model="strategy.is_invisible" color="primary"></v-checkbox>
-					</v-col>
-					<v-col cols="6" class="py-0">
+					<v-col cols="12" class="py-0">
 						<v-checkbox :error-messages="formErrors.is_private" :label="$t('strategy.settings.isPrivateLabel')" v-model="strategy.is_private" color="primary"></v-checkbox>
 					</v-col>
 				</v-row>

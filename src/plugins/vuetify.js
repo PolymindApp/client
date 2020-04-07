@@ -17,7 +17,7 @@ export default new Vuetify({
 				secondary: '#FF7383',
 				third: '#F9BE6C',
 				// accent: '#8c9eff',
-				// error: '#b71c1c',
+				error: '#FF7383',
 			},
 		},
 	},

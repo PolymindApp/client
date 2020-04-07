@@ -34,7 +34,7 @@ export default class DatasetService {
 	}
 
 	static getRevisions(id) {
-		return Server.get.bind(this)('/items/dataset/' + id + '/revisions?limit=25');
+		return Server.get.bind(this)('/items/dataset/' + id + '/revisions?limit=25&fields=*,activity.action_by.first_name,activity.action_by.last_name,activity.action_by.screen_name,activity.action_by.avatar.private_hash');
 	}
 
 	static fork(revisionId) {

@@ -42,7 +42,7 @@
 			<v-card>
 				<v-card-title>
 					<v-icon color="primary" slot="icon" size="36" left>mdi-account-star-outline</v-icon>
-					{{$t('account.header.followingModalTitle')}}
+					{{$tc('account.header.followingModalTitle', followingModal.list.data.length, { total: followingModal.list.data.length })}}
 				</v-card-title>
 
 				<v-card-text>

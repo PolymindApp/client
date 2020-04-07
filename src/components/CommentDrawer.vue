@@ -4,9 +4,9 @@
 
 			<!-- HEADING -->
 			<v-row style="flex: 0" class="pa-4" no-gutters>
-				<v-col cols="12" md="6">
-					<v-icon left>mdi-comment-multiple</v-icon>
-					<h2 class="title d-inline-block" v-text="$t('comment.totalTitle', { amount: comments.length })"></h2>
+				<v-col cols="12" md="6" class="d-flex align-center">
+					<v-icon class="mr-4">mdi-comment-multiple</v-icon>
+					<h2 class="title d-inline-block" v-text="$tc('comment.totalTitle', totalComments, { amount: totalComments })"></h2>
 				</v-col>
 				<v-col cols="12" md="6" class="text-left text-md-right">
 					<CommentSorting :comments="comments" @sortBy="commentsSortBy = $event" />
@@ -15,7 +15,7 @@
 
 			<!-- COMMENTS -->
 			<div class="pa-4 scrollable fill-height" style="flex: 1">
-				<Comments class="fill-height" :collection="collection" :id="id" :comments.sync="comments" :sort-by="commentsSortBy">
+				<Comments class="fill-height" :collection="collection" :id="id" :comments.sync="comments" :total.sync="totalComments" :sort-by="commentsSortBy">
 					<template slot="empty">
 						<EmptyView :title="$t('comment.emptyTitle')" :desc="$t('comment.emptyDesc')" />
 					</template>
@@ -24,7 +24,7 @@
 
 			<!-- FORM -->
 			<div class="pa-4 white" style="flex: 0">
-				<CommentForm :collection="collection" :id="id" :comments.sync="comments" autofocus />
+				<CommentForm :collection="collection" :id="id" :comments.sync="comments" :total.sync="totalComments" autofocus />
 			</div>
 		</v-card>
 	</v-navigation-drawer>
@@ -64,6 +64,7 @@
             	id: null,
             	collection: null,
 				comments: [],
+				totalComments: 0,
 				commentsSortBy: null,
                 sidebar: {
                     opened: false,
@@ -74,5 +75,7 @@
 </script>
 
 <style lang="scss" scoped>
-
+	.title {
+		line-height: 1.5rem;
+	}
 </style>

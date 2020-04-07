@@ -7,7 +7,7 @@
 		<!-- TABS -->
 		<v-card tile flat>
 			<v-container class="pa-0">
-				<v-tabs show-arrows v-model="tab" @change="updateContext()">
+				<v-tabs v-model="tab" @change="updateContext()">
 					<v-tab :to="'/account/' + id + '/wall'">
 						<v-icon left>mdi-timeline-text</v-icon>
 						{{$t('account.wall.title')}}

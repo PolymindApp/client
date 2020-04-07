@@ -100,7 +100,7 @@
 		<!-- SIDEBAR -->
 		<v-navigation-drawer :width="sidebar.width" style="z-index: 1; border-left: #ccc solid 1px" class="no-select">
 			<div class="fill-height d-flex flex-column">
-				<v-tabs style="flex: 0" v-model="drawer.tab" show-arrows grow>
+				<v-tabs style="flex: 0" v-model="drawer.tab" grow>
 					<v-tab v-text="$t('strategy.workflow.components')"></v-tab>
 					<v-tab v-text="$t('strategy.workflow.datasets')"></v-tab>
 					<v-tab v-text="$t('strategy.workflow.documents')"></v-tab>

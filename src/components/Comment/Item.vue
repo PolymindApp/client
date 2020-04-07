@@ -23,6 +23,9 @@
 						<span class="mr-2">{{comment.comment | plainExcerpt(expandedComment[comment.id] || 100) }}</span>
 						<a v-if="comment.comment.length > 100 && !expandedComment[comment.id]" @click="toggleExpand(comment)" v-text="$t('comment.viewCompleteMsg')"></a>
 						<a v-if="expandedComment[comment.id]" @click="toggleExpand(comment)" v-text="$t('comment.unviewCompleteMsg')"></a>
+						<span v-if="comment.edited_on" class="font-italic font-weight-light caption">
+							({{ $t('comment.modified') }})
+						</span>
 					</span>
 
 					<!-- OWNER OPTIONS -->
@@ -63,7 +66,7 @@
 				<v-tooltip bottom>
 					<template v-slot:activator="{ on }">
 						<v-btn @click="toggleLike(comment.id)" :disabled="comment.comment_deleted_on !== null" :class="{ 'primary--text': totalThumbsUp > 0 }" v-on="on" small icon>
-							<v-icon v-if="totalThumbsUp > 0" small>mdi-thumb-up</v-icon>
+							<v-icon v-if="comment.comment_user_has_liked" small>mdi-thumb-up</v-icon>
 							<v-icon v-else small>mdi-thumb-up-outline</v-icon>
 						</v-btn>
 					</template>
@@ -75,7 +78,7 @@
 				<v-tooltip bottom>
 					<template v-slot:activator="{ on }">
 						<v-btn @click="toggleLike(comment.id, false)" :disabled="comment.comment_deleted_on !== null" :class="{ 'ml-2': true, 'secondary--text': totalThumbsDown > 0 }" v-on="on" small icon>
-							<v-icon v-if="totalThumbsDown > 0" small>mdi-thumb-down</v-icon>
+							<v-icon v-if="comment.comment_user_has_liked" small>mdi-thumb-down</v-icon>
 							<v-icon v-else small>mdi-thumb-down-outline</v-icon>
 						</v-btn>
 					</template>
@@ -213,6 +216,7 @@
 					.then(response => {
 						const comment = this.$deepClone(this.comment);
 						comment.comment = response.data.comment;
+						comment.edited_on = response.data.edited_on;
 
 						this.$emit('update:comment', comment);
 						this.$stats.push('MODIFY_COMMENT', {

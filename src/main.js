@@ -43,7 +43,7 @@ Object.defineProperties(Vue.prototype, {
 const stats = { queue: [], };
 const statsObj = {
 	push(action, meta) {
-		stats.queue.push({action, meta, date: moment().format('YYYY-MM-DD HH:mm:ss')});
+		stats.queue.push({action, meta, user_date: moment().format('YYYY-MM-DD HH:mm:ss')});
 	},
 	process() {
 		StatsService.process.bind(Vue.prototype)(stats.queue)

@@ -44,31 +44,8 @@
 				</v-col>
 				<v-col cols="12" md="6">
 
-					<!-- BARS -->
-					<v-card light color="white">
-						<div class="d-flex align-center pa-4">
-							<div class="shrink">
-								<v-btn :disabled="strategies.data.length < 2" icon>
-									<v-icon>mdi-chevron-left</v-icon>
-								</v-btn>
-							</div>
-							<div class="flex-md-grow-1">
-								<v-select class="pa-0 ma-0 mx-4" label="Strategie" item-text="name" :items="strategies.data" v-model="selectedStrategy" solo flat dense hide-details></v-select>
-							</div>
-							<div class="shrink">
-								<v-btn :disabled="strategies.data.length < 2" icon>
-									<v-icon>mdi-chevron-right</v-icon>
-								</v-btn>
-							</div>
-						</div>
-
-						<div class="pa-4 pt-0">
-							<bar-chart style="height: 400px" :chart-data="strategyData" :options="chartOptions"></bar-chart>
-						</div>
-					</v-card>
-
 					<!-- NEWS -->
-					<v-card class="mt-4" light color="grey lighten-4">
+					<v-card light color="grey lighten-4">
 						<v-list color="white">
 							<v-list-item>
 								<v-list-item-icon class="mr-4">
@@ -84,7 +61,7 @@
 
 							<!-- EMPTY -->
 							<v-slide-y-reverse-transition>
-								<EmptyView v-if="news.data.length === 0" desc="Aucune actualité" />
+								<EmptyView key="empty" v-if="!newsIsLoading && news.data.length === 0" desc="Aucune actualité" />
 							</v-slide-y-reverse-transition>
 
 							<!-- HAS CONTENT -->
@@ -114,6 +91,29 @@
 								</v-card>
 							</v-slide-y-reverse-transition>
 						</v-list>
+					</v-card>
+
+					<!-- BARS -->
+					<v-card class="mt-4" light color="white">
+						<div class="d-flex align-center pa-4">
+							<div class="shrink">
+								<v-btn :disabled="strategies.data.length < 2" icon>
+									<v-icon>mdi-chevron-left</v-icon>
+								</v-btn>
+							</div>
+							<div class="flex-md-grow-1">
+								<v-select class="pa-0 ma-0 mx-4" label="Strategie" item-text="name" :items="strategies.data" v-model="selectedStrategy" solo flat dense hide-details></v-select>
+							</div>
+							<div class="shrink">
+								<v-btn :disabled="strategies.data.length < 2" icon>
+									<v-icon>mdi-chevron-right</v-icon>
+								</v-btn>
+							</div>
+						</div>
+
+						<div class="pa-4 pt-0">
+							<bar-chart style="height: 400px" :chart-data="strategyData" :options="chartOptions"></bar-chart>
+						</div>
 					</v-card>
 				</v-col>
 			</v-row>
@@ -188,7 +188,7 @@ export default Vue.extend({
 
 	    load() {
 
-            this.$root.isLoading = true;
+            this.newsIsLoading = true;
             Promise.all([
                 NewsService.getAll.bind(this)(),
                 // StrategyService.getAllMine.bind(this)(),
@@ -204,7 +204,7 @@ export default Vue.extend({
                     // this.datasets = datasets;
                 })
                 .catch(error => this.$handleError(this, error))
-                .finally(() => this.$root.isLoading = false);
+                .finally(() => this.newsIsLoading = false);
 		},
 
 		// getItems(category) {
@@ -233,6 +233,7 @@ export default Vue.extend({
 				// { title: 'Daily Objectives', percentage: 66, value: 12039, color: 'white', },
 			],
 			news: new Response(),
+			newsIsLoading: false,
 			// categories: ['strategies', 'components', 'documents', 'datasets'],
 			// types: ['strategy', 'component', 'document', 'dataset'],
 			strategyData: {

@@ -1,6 +1,6 @@
 <template>
 	<v-sheet class="panel-overflow d-flex flex-column about" :style="'width: 100%; border-radius: 0; background-color: ' + about.backgroundColor">
-		<v-tabs show-arrows style="flex: 0" v-model="tab" centered :color="about.color" background-color="rgba(0, 0, 0, 0.1)" :dark="about.dark" @change="updateContext()">
+		<v-tabs style="flex: 0" v-model="tab" centered :color="about.color" background-color="rgba(0, 0, 0, 0.1)" :dark="about.dark" @change="updateContext()">
 			<v-tab to="/about" exact>
 				<v-icon left>mdi-information-outline</v-icon>
 				{{$t('about.general.title')}}

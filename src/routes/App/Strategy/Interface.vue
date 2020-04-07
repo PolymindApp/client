@@ -190,7 +190,7 @@
 			<div class="fill-height d-flex flex-column">
 
 				<!-- TABS -->
-				<v-tabs style="flex: 0" v-model="drawer.tab" show-arrows grow>
+				<v-tabs style="flex: 0" v-model="drawer.tab" grow>
 					<v-tab v-text="$t('strategy.interface.stencils')"></v-tab>
 					<v-tab v-text="$t('strategy.interface.hierarchy')"></v-tab>
 				</v-tabs>

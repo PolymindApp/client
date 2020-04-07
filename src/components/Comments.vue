@@ -36,7 +36,7 @@
 
         name: 'Comments',
 
-        props: ['id', 'collection', 'comments', 'sortBy'],
+        props: ['id', 'collection', 'comments', 'total', 'sortBy'],
 
         components: { EmptyView, UserAvatar, DeleteDialog, CommentSorting, CommentItem },
 
@@ -49,14 +49,17 @@
 			load(id, collection, sort) {
 
                 this.isLoading = true;
-                CommentService.getAll.bind(this)(collection, id, sort)
-					.then(response => {
-                        this.reset();
-                        this.$emit('update:comments', response.data);
-						this.hasLoaded = true;
-					})
-                    .catch(error => this.$handleError(this, error))
-                	.finally(() => this.isLoading = false);
+                Promise.all([
+					CommentService.count.bind(this)(collection, id, sort),
+					CommentService.getAll.bind(this)(collection, id, sort)
+				]).then(([count, comments]) => {
+					this.reset();
+					this.$emit('update:total', count.meta.filter_count);
+					this.$emit('update:comments', comments.data);
+					this.hasLoaded = true;
+				})
+					.catch(error => this.$handleError(this, error))
+					.finally(() => this.isLoading = false);
 			},
 
 			reset() {

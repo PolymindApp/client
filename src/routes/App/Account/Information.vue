@@ -1,6 +1,6 @@
 <template>
 	<v-row>
-		<v-col cols="12" md="7" lg="8" class="py-0 py-md-3">
+		<v-col cols="12" :md="!isOwner ? 12 : 7" :lg="!isOwner ? 12 : 8" class="py-0 py-md-3">
 			<v-card class="pa-4 pa-md-8" :flat="isMobile" :tile="isMobile">
 				<h1 class="title">{{ $t('account.information.generalTitle') }}</h1>
 
