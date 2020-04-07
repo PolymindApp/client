@@ -117,10 +117,14 @@ export default Vue.extend({
         	return this.$root.user.id === this.user.id;
 		},
 
+		isInteractive() {
+        	return this.props.editable || this.props.clickable;
+		},
+
 		classes() {
         	return {
         		'no-select': true,
-				redirectsToAccount: !this.editable,
+				redirectsToAccount: !this.editable && this.clickable,
 			};
 		}
 	},

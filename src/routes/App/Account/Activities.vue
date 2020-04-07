@@ -22,7 +22,7 @@
 						<template v-for="(comment, index) in comments.data">
 							<v-timeline-item :icon="comment.icon" :color="comment.color" :key="index" large label>
 								<template v-slot:icon>
-									<UserAvatar :size="48" :user="comment.action_by" />
+									<UserAvatar :size="48" :user="comment.action_by" :clickable="false" />
 								</template>
 								<v-card>
 									<v-card-title class="pt-2 pb-0">
