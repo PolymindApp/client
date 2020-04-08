@@ -39,49 +39,40 @@
 				</v-timeline>
 			</v-col>
 			<v-col cols="12" md="5">
-				<v-card-title>
-					{{ $t('account.recentActivities') }}
-	<!--				<span v-if="histories.data.length > 0" class="primary&#45;&#45;text ml-2">({{histories.meta.filter_count}})</span>-->
-				</v-card-title>
 
-				<v-alert v-if="histories.data.length === 0" type="info" class="mb-6" transition="scale-transition" border="left" colored-border light elevation="2">
-					{{$t('account.activities.historyEmpty')}}
-				</v-alert>
-				<v-timeline v-else dense clipped>
-					<v-timeline-item :icon="history.icon" :color="history.color" large v-for="(history, index) in histories.data" :key="index" label>
-						<v-row justify="space-between">
-							<v-col cols="12" md="8" class="py-0">
-								<v-card class="elevation-2">
-									<v-card-text>
-										<template v-if="history.action === 'create'">
-											<span v-if="history.collection === 'page'">
-												<span v-html="$t('account.activities.history.createPage', history.relation.data)"></span>
-											</span>
-											<span v-else-if="history.collection === 'component'">
-												<span v-html="$t('account.activities.history.createComponent', history.relation.data)"></span>
-											</span>
-											<span v-else-if="history.collection === 'documentation'">
-												<span v-html="$t('account.activities.history.createDocumentation', history.relation.data)"></span>
-											</span>
-										</template>
+				<v-slide-x-transition>
+					<AccountActivities v-if="showingRecentActivities" :title="$t('account.recentActivities')" activityType="recentActivities" :activities="histories">
+						<template v-slot:content="props">
+							<v-card-text>
+								<template v-if="props.activity.action === 'create'">
+								<span v-if="props.activity.collection === 'page'">
+									<span v-html="$t('account.activities.history.createPage', props.activity.relation.data)"></span>
+								</span>
+									<span v-else-if="props.activity.collection === 'component'">
+									<span v-html="$t('account.activities.history.createComponent', props.activity.relation.data)"></span>
+								</span>
+									<span v-else-if="props.activity.collection === 'documentation'">
+									<span v-html="$t('account.activities.history.createDocumentation', props.activity.relation.data)"></span>
+								</span>
+								</template>
 
-										<div class="mt-2">
-											<v-btn v-if="history.to" :to="history.to" x-small>
-												{{$t('account.activities.view')}}
-											</v-btn>
-											<v-btn v-else-if="history.click" @click="history.click" x-small>
-												{{$t('account.activities.view')}}
-											</v-btn>
-										</div>
-									</v-card-text>
-								</v-card>
-							</v-col>
-							<v-col class="text-right align-end d-flex flex-column justify-center py-0" cols="12" md="4">
-								<span class="py-2">{{ history.action_on | timeAgo }}</span>
-							</v-col>
-						</v-row>
-					</v-timeline-item>
-				</v-timeline>
+								<div class="mt-2">
+									<v-btn v-if="props.activity.to" :to="props.activity.to" x-small>
+										{{$t('account.activities.view')}}
+									</v-btn>
+									<v-btn v-else-if="props.activity.click" @click="props.activity.click" x-small>
+										{{$t('account.activities.view')}}
+									</v-btn>
+								</div>
+							</v-card-text>
+						</template>
+					</AccountActivities>
+					<AccountActivities v-else :title="$t('account.recentActivities')" activityType="recentActivities" :activities="histories">
+						<template v-slot:content="props">
+
+						</template>
+					</AccountActivities>
+				</v-slide-x-transition>
 			</v-col>
 		</v-row>
 	</div>
@@ -93,12 +84,13 @@ import HistoryService from '../../../services/HistoryService';
 import CommentService from "../../../services/CommentService";
 import UserAvatar from "../../../components/UserAvatar";
 import CommitGraph from "../../../components/CommitGraph";
+import AccountActivities from "./AccountActivities";
 
 export default Vue.extend({
 
 	props: ['user'],
 
-	components: { UserAvatar, CommitGraph },
+	components: { UserAvatar, CommitGraph, AccountActivities },
 
 	mounted() {
 		this.load();
