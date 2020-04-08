@@ -118,7 +118,7 @@ export default Vue.extend({
 		},
 
 		isInteractive() {
-        	return this.editable || this.clickable;
+			return this.editable || this.clickable;
 		},
 
 		classes() {
