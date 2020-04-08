@@ -114,7 +114,7 @@ export default Vue.extend({
 		},
 
 		isCurrentUser() {
-        	return this.$root.user.id === this.user.id;
+			return this.$root.user.id === this.user.id;
 		},
 
 		isInteractive() {
@@ -124,7 +124,7 @@ export default Vue.extend({
 		classes() {
         	return {
         		'no-select': true,
-				redirectsToAccount: !this.editable && this.clickable,
+				'redirects-to-account': !this.editable && this.clickable,
 			};
 		}
 	},
@@ -152,7 +152,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 
-	.redirectsToAccount {
+	.redirects-to-account {
 		cursor: pointer;
 	}
 
