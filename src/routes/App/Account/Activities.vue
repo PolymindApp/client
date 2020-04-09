@@ -91,10 +91,10 @@
 								</template>
 								<v-card>
 									<v-card-title :class="{ 'pb-0': props.activity.action === 'comment' }">
-										<span class="font-weight-light text-break body-2" v-html="$t('activity.' + props.activity.action + '.' + props.activity.collection + '.title', {
+										<span class="font-weight-light text-break body-2 mr-md-4" v-html="$t('activity.' + props.activity.action + '.' + props.activity.collection + '.title', {
 											name: props.activity.relation.data.name
 										})"></span>
-										<span class="font-weight-medium pt-md-1 ml-4 ml-md-0 body-2">{{props.activity.action_on | date('HH:mm:ss')}}</span>
+										<span class="font-weight-medium ml-4 ml-md-0 body-2">{{props.activity.action_on | date('HH:mm:ss')}}</span>
 									</v-card-title>
 									<v-card-text v-if="props.activity.action === 'comment'">
 										<v-icon color="grey lighten-2">mdi-format-quote-open</v-icon>
