@@ -227,11 +227,11 @@
 			},
 
 			commits(value) {
-                this.$emit('load', value);
+				this.$emit('load', value);
 			},
 
 			commitsDay(value) {
-            	if (value.data.length > 0) {
+				if (value.data.length > 0) {
 					this.$emit('loadCommitsDay', value);
 				}
 			},
