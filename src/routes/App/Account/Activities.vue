@@ -45,7 +45,7 @@
 							{{ $t('account.recentActivities') }}
 						</template>>
 						<template v-slot:content="props">
-							<v-timeline-item :icon="props.activity.icon" :color="props.activity.color" large :key="index" label>
+							<v-timeline-item :icon="props.activity.icon" :color="props.activity.color" large :key="props.index" label>
 								<v-row justify="space-between">
 									<v-col cols="12" md="8" class="py-0">
 										<v-card class="elevation-2">
@@ -91,10 +91,10 @@
 								</template>
 								<v-card>
 									<v-card-title :class="{ 'pb-0': props.activity.action === 'comment' }">
-									<span class="font-weight-light text-break body-2" v-html="$t('activity.' + props.activity.action + '.' + props.activity.collection + '.title', {
-										name: props.activity.relation.data.name
-									})"></span>
-										<span class="font-weight-light ml-md-4 body-2">{{props.activity.action_on | date('HH:mm:ss')}}</span>
+										<span class="font-weight-light text-break body-2" v-html="$t('activity.' + props.activity.action + '.' + props.activity.collection + '.title', {
+											name: props.activity.relation.data.name
+										})"></span>
+										<span class="font-weight-medium pt-md-1 ml-4 ml-md-0 body-2">{{props.activity.action_on | date('HH:mm:ss')}}</span>
 									</v-card-title>
 									<v-card-text v-if="props.activity.action === 'comment'">
 										<v-icon color="grey lighten-2">mdi-format-quote-open</v-icon>
@@ -213,7 +213,7 @@ export default Vue.extend({
 			histories: { data: [] },
 			target: '#contributionsSection',
 			duration: 300,
-			offset: 0,
+			offset: 30,
 			easing: 'easeInOutCubic',
             newComment: {
 		        text: '',
