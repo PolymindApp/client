@@ -5,7 +5,7 @@
 				<v-card-title>
 					<span class="text-break">{{ $t('account.contributionLastYear', { total: commits.data.length }) }}</span>
 				</v-card-title>
-				<CommitGraph :user="user" @load="commits = arguments[0]" />
+				<CommitGraph :user="user" @load="commits = arguments[0]" @loadCommitsDay="commitsDay = arguments[0]" @loadCommitsDayDate="commitsDayDate = arguments[0]"/>
 			</v-col>
 		</v-row>
 		<v-row>
@@ -39,40 +39,69 @@
 				</v-timeline>
 			</v-col>
 			<v-col cols="12" md="5">
-
-				<v-slide-x-transition>
-					<AccountActivities v-if="showingRecentActivities" :title="$t('account.recentActivities')" activityType="recentActivities" :activities="histories">
+				<v-slide-y-transition>
+					<AccountActivities v-if="!commitsLoaded" :activities-empty="$t('account.activities.historyEmpty')" :activities="histories">
+						<template v-slot:title>
+							{{ $t('account.recentActivities') }}
+						</template>>
 						<template v-slot:content="props">
-							<v-card-text>
-								<template v-if="props.activity.action === 'create'">
-								<span v-if="props.activity.collection === 'page'">
-									<span v-html="$t('account.activities.history.createPage', props.activity.relation.data)"></span>
-								</span>
-									<span v-else-if="props.activity.collection === 'component'">
-									<span v-html="$t('account.activities.history.createComponent', props.activity.relation.data)"></span>
-								</span>
-									<span v-else-if="props.activity.collection === 'documentation'">
-									<span v-html="$t('account.activities.history.createDocumentation', props.activity.relation.data)"></span>
-								</span>
-								</template>
+							<v-row justify="space-between">
+								<v-col cols="12" md="8" class="py-0">
+									<v-card class="elevation-2">
+										<v-card-text>
+											<template v-if="props.activity.action === 'create'">
+											<span v-if="props.activity.collection === 'page'">
+												<span v-html="$t('account.activities.history.createPage', props.activity.relation.data)"></span>
+											</span>
+												<span v-else-if="props.activity.collection === 'component'">
+												<span v-html="$t('account.activities.history.createComponent', props.activity.relation.data)"></span>
+											</span>
+												<span v-else-if="props.activity.collection === 'documentation'">
+												<span v-html="$t('account.activities.history.createDocumentation', props.activity.relation.data)"></span>
+											</span>
+											</template>
 
-								<div class="mt-2">
-									<v-btn v-if="props.activity.to" :to="props.activity.to" x-small>
-										{{$t('account.activities.view')}}
-									</v-btn>
-									<v-btn v-else-if="props.activity.click" @click="props.activity.click" x-small>
-										{{$t('account.activities.view')}}
-									</v-btn>
-								</div>
-							</v-card-text>
+											<div class="mt-2">
+												<v-btn v-if="props.activity.to" :to="props.activity.to" x-small>
+													{{$t('account.activities.view')}}
+												</v-btn>
+												<v-btn v-else-if="props.activity.click" @click="props.activity.click" x-small>
+													{{$t('account.activities.view')}}
+												</v-btn>
+											</div>
+										</v-card-text>
+									</v-card>
+								</v-col>
+								<v-col class="text-right align-end d-flex flex-column justify-center py-0" cols="12" md="4">
+									<span class="py-2">{{ props.activity.action_on | timeAgo }}</span>
+								</v-col>
+							</v-row>
 						</template>
 					</AccountActivities>
-					<AccountActivities v-else :title="$t('account.recentActivities')" activityType="recentActivities" :activities="histories">
+					<AccountActivities v-else activities-empty="" :activities="commitsDay">
+						<template v-slot:title>
+							<span class="text-break" v-html="$t('commitGraph.contributionsDay', { total: commitsDay.data.length, date: moment(commitsDayDate).format('ll') })"></span>
+						</template>>
+						<template v-slot:activityIcon="props">
+							<v-icon dark>{{ props.activity | activityIcon }}</v-icon>
+						</template>
 						<template v-slot:content="props">
-
+							<v-card>
+								<v-card-title :class="{ 'pb-0': props.activity.action === 'comment' }">
+									<span class="font-weight-light text-break body-2" v-html="$t('activity.' + props.activity.action + '.' + props.activity.collection + '.title', {
+										name: props.activity.relation.data.name
+									})"></span>
+									<span class="font-weight-light ml-md-4 body-2">{{props.activity.action_on | date('HH:mm:ss')}}</span>
+								</v-card-title>
+								<v-card-text v-if="props.activity.action === 'comment'">
+									<v-icon color="grey lighten-2">mdi-format-quote-open</v-icon>
+									<span class="font-italic font-weight-light body-1 mx-2" v-text="props.activity.comment"></span>
+									<v-icon color="grey lighten-2">mdi-format-quote-close</v-icon>
+								</v-card-text>
+							</v-card>
 						</template>
 					</AccountActivities>
-				</v-slide-x-transition>
+				</v-slide-y-transition>
 			</v-col>
 		</v-row>
 	</div>
@@ -85,6 +114,7 @@ import CommentService from "../../../services/CommentService";
 import UserAvatar from "../../../components/UserAvatar";
 import CommitGraph from "../../../components/CommitGraph";
 import AccountActivities from "./AccountActivities";
+import moment from 'moment';
 
 export default Vue.extend({
 
@@ -164,8 +194,12 @@ export default Vue.extend({
 
 	data() {
 		return {
+			moment: moment,
             comments: { data: [] },
             commits: { data: [] },
+			commitsDay: { data: [] },
+			commitsDayDate: false,
+			commitsLoaded: false,
 			histories: { data: [] },
             newComment: {
 		        text: '',
@@ -177,7 +211,11 @@ export default Vue.extend({
 
         '$route.params.id': function(id) {
             this.load();
-        }
+        },
+
+		commitsDay(value) {
+			this.commitsLoaded = true;
+		}
 	}
 });
 </script>
