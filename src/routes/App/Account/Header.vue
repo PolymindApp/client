@@ -145,7 +145,7 @@
 					<!-- PICTURE / NAME -->
 					<v-sheet style="flex: 1" class="d-flex align-center flex-sm-row flex-column text-center text-sm-left" :dark="true" color="transparent">
 						<div class="mr-sm-8">
-							<UserAvatar :user="user" color="primary" :size="$vuetify.breakpoint.smAndDown ? 96 : 128" :clickable="false" :editable="true" />
+							<UserAvatar :user="user" color="primary" :size="$vuetify.breakpoint.smAndDown ? 96 : 128" :clickable="false" :editable="isCurrentUser" />
 						</div>
 						<div>
 							<h1 :class="{ 'font-weight-thin my-sm-0 my-4 mb-0 mb-sm-1': true, 'display-2': $vuetify.breakpoint.mdAndUp, 'display-1': $vuetify.breakpoint.smAndDown }">
