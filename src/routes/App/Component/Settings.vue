@@ -1,13 +1,15 @@
 <template>
 	<v-card color="transparent" flat>
 
-		<v-alert type="info" :prominent="!isMobile" border="left" text icon="mdi-help-circle">
+		<v-alert type="info" :prominent="!isMobile" border="left" text :icon="!isMobile ? 'mdi-help-circle' : false" class="mx-n4 mt-n4" tile>
 			<div class="d-block d-md-flex flex-md-row align-md-center">
-				<div style="flex: 1" v-text="$t('component.settings.explanations')"></div>
-				<div class="d-block d-md-flex" style="flex: 0">
-					<v-btn class="ml-0 ml-md-8 mt-4 mt-md-0" @click="$help.open('component-general')">
+				<div style="flex: 1">
+					<div v-text="$t('component.settings.explanations')"></div>
+				</div>
+				<div class="text-center" style="flex: 0">
+					<v-btn :class="{ 'ml-0 ml-md-8 mt-4 mt-md-0': true, 'text-wrap d-block w-100': isMobile }" :large="isMobile" @click="$help.open('component-general')">
 						<v-icon left>mdi-book-search</v-icon>
-						<div class="text-break" v-text="$t('component.settings.readDoc')"></div>
+						<div v-text="$t('component.settings.readDoc')"></div>
 					</v-btn>
 				</div>
 			</div>

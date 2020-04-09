@@ -1,14 +1,15 @@
 <template>
 	<v-sheet color="white" class="pa-4" tile>
 
-		<v-alert type="info" prominent border="left" text icon="mdi-information-outline">
-
-			<div class="d-flex flex-column flex-md-row align-start align-md-center">
-				<div style="flex: 1" v-text="$t('dataset.settings.explanations')"></div>
-				<div style="flex: 0">
-					<v-btn class="ml-0 ml-md-8 mt-4 mt-md-0" @click="$help.open('dataset-general')">
+		<v-alert type="info" :prominent="!isMobile" border="left" text :icon="!isMobile ? 'mdi-help-circle' : false" class="mx-n4 mt-n4" tile>
+			<div class="d-block d-md-flex flex-md-row align-md-center">
+				<div style="flex: 1">
+					<div v-text="$t('dataset.settings.explanations')"></div>
+				</div>
+				<div class="text-center" style="flex: 0">
+					<v-btn :class="{ 'ml-0 ml-md-8 mt-4 mt-md-0': true, 'text-wrap d-block w-100': isMobile }" :large="isMobile" @click="$help.open('dataset-general')">
 						<v-icon left>mdi-book-search</v-icon>
-						<span class="text-break" v-text="$t('dataset.settings.readDoc')"></span>
+						<div v-text="$t('dataset.settings.readDoc')"></div>
 					</v-btn>
 				</div>
 			</div>
@@ -77,6 +78,13 @@ export default Vue.extend({
 				})
 				.catch(error => this.remoteTestResponse = error)
 				.finally(() => this.$root.isLoading = false);
+		}
+	},
+
+	computed: {
+
+		isMobile() {
+			return this.$vuetify.breakpoint.smAndDown;
 		}
 	},
 

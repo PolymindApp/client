@@ -75,7 +75,7 @@
 			</v-card>
 		</v-dialog>
 
-		<v-tabs ref="tabs" show-arrows style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
+		<v-tabs ref="tabs" style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
 			<v-tab :to="'/dataset/' + id + '/settings'" exact>
 				<v-icon left>mdi-pencil-box-outline</v-icon>
 				{{$t('dataset.settings.title')}}

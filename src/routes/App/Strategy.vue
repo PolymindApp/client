@@ -76,7 +76,7 @@
 		</v-dialog>
 
 		<div ref="header">
-			<v-tabs show-arrows style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
+			<v-tabs style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
 				<v-tab :to="'/strategy/' + id + '/settings'" exact>
 					<v-icon left>mdi-pencil-box-outline</v-icon>
 					{{$t('strategy.settings.title')}}
