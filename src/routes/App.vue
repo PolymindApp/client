@@ -201,8 +201,9 @@ export default Vue.extend({
             this.$refs.sidebar.closeSidebar();
         },
 
-	    shortcutHelp() {
+	    shortcutHelp(event) {
             this.$root.help.visible = !this.$root.help.visible;
+			event.preventDefault();
         },
 
 	    shortcutDashboard() {
@@ -213,11 +214,12 @@ export default Vue.extend({
             this.$router.push('/account/' + this.$root.user.id);
         },
 
-        shortcutSearch() {
+        shortcutSearch(event) {
 
 	        if (this.$refs.toolbar) {
 				this.$refs.toolbar.searchMenuOpened = true;
 				this.$refs.toolbar.setSearchFocus();
+				event.preventDefault();
 			}
         },
 

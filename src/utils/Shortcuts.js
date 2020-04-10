@@ -99,32 +99,30 @@ $shortcuts.install = function (Vue, options) {
 
 		run: function(keys, event) {
 
-			let inputTags = ['INPUT', 'TEXTAREA'];
+			// let inputTags = ['INPUT', 'TEXTAREA'];
 			let target = event.target;
 			let tagName = target.tagName.toUpperCase();
-			let isInInput = inputTags.indexOf(tagName) !== -1
-				|| target.getAttribute('contenteditable') !== null;
+			// let isInInput = inputTags.indexOf(tagName) !== -1
+			// 	|| target.getAttribute('contenteditable') !== null;
 
 			let keyStr = this.keysToString(keys);
 
-			if (!this.list[keyStr]) {
+			if (!this.list[keyStr] || this.list[keyStr].length === 0) {
 				return;
 			}
 
 			this.list[keyStr].forEach(shortcut => {
 
-				if (!shortcut.includeFields && !event.altKey && isInInput) {
-					return;
-				}
+				// if (!shortcut.includeFields && !event.altKey) {// && isInInput) {
+				// 	return;
+				// }
 
 				shortcut.callback(event);
 			});
 
-			event.preventDefault();
-
-			return false;
+			return;
 		},
 	};
-}
+};
 
 export default $shortcuts;

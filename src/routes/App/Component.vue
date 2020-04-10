@@ -206,8 +206,9 @@ export default Vue.extend({
 
 	methods: {
 
-		shortcutSave() {
+		shortcutSave(event) {
 			this.save();
+			event.preventDefault();
 		},
 
 		updateTab() {
