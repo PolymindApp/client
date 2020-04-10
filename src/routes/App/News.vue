@@ -97,7 +97,7 @@ export default Vue.extend({
                 this.updateContext();
 			})
 				.catch(error => {
-					return this.$router.push('/404');
+					return this.$router.replace('/404');
 				})
 				.finally(() => this.$root.isLoading = false);
 		},

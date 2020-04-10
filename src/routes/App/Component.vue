@@ -104,18 +104,11 @@
 					{{$t('modal.publish')}}
 				</v-btn>
 			</v-tabs>
+		</div>
 
-			<v-alert v-if="isDeleted" tile prominent type="error">
-				<v-row align="center">
-					<v-col class="grow">
-						<span v-text="$t('component.isDeleted')"></span>
-					</v-col>
-					<v-col class="shrink">
-						<v-btn @click="restore()">
-							<span v-text="$t('component.restore')"></span>
-						</v-btn>
-					</v-col>
-				</v-row>
+		<div v-if="isDeleted">
+			<v-alert dark prominent type="error" class="mb-0" tile>
+				<span v-text="$t('component.isDeleted')"></span>
 			</v-alert>
 		</div>
 
@@ -153,7 +146,13 @@
 				<v-list>
 					<v-list-item-group v-model="revisionOffset" color="primary">
 						<v-list-item v-for="(revision, index) in revisions" :key="index" @click="loadRevision(index)">
-							<v-list-item-title>{{ revision.data.modified_on }}</v-list-item-title>
+							<v-list-item-avatar>
+								<UserAvatar :size="48" :user="revision.activity.action_by" />
+							</v-list-item-avatar>
+							<v-list-item-content>
+								<v-list-item-title>{{revision.activity.action_by | userScreenName }}</v-list-item-title>
+								<v-list-item-subtitle>{{ revision.data.modified_on }}</v-list-item-subtitle>
+							</v-list-item-content>
 						</v-list-item>
 					</v-list-item-group>
 				</v-list>
@@ -185,10 +184,11 @@ import ComponentModel from "../../models/Component";
 import DeleteDialog from "../../components/DeleteDialog";
 import CommentService from "../../services/CommentService";
 import DeploymentService from "../../services/DeploymentService";
+import UserAvatar from "../../components/UserAvatar";
 
 export default Vue.extend({
 
-	components: { Source, Settings, DeleteDialog },
+	components: { Source, Settings, DeleteDialog, UserAvatar },
 
 	mounted() {
 		this.initializeValues();
@@ -285,7 +285,7 @@ export default Vue.extend({
 					})
 					.catch(error => {
 						if (error.code === 203) {
-							return this.$router.push('/404')
+							return this.$router.replace('/404')
 						}
 						this.$handleError(this, error);
 					})
