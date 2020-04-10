@@ -307,14 +307,17 @@ export default Vue.extend({
 
 		shortcutZoomReset(event) {
 			this.canvas.zoom = 1;
+			event.preventDefault();
 		},
 
 		shortcutZoomIn(event) {
 			this.setZoom(1);
+			event.preventDefault();
 		},
 
 		shortcutZoomOut(event) {
 			this.setZoom(-1);
+			event.preventDefault();
 		},
 
 		shortcutFullscreen() {

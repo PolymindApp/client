@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import store from './store';
 import moment from 'moment';
 import vuetify from './plugins/vuetify';
 import globalVariables from './global';
@@ -153,7 +152,6 @@ const i18n = new VueI18n({
 
 		new Vue({
 			router,
-			store,
 			vuetify,
 			i18n,
 			data: {

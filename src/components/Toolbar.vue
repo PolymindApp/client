@@ -43,9 +43,11 @@
 
 			<!-- TITLE -->
 			<v-toolbar-title class="headline text-uppercase auto-select">
-				<span v-if="$root.breadcrumbs.length === 0" class="font-weight-light">{{ $router.currentRoute.name && $t('title.' + $router.currentRoute.name) }}</span>
 
-				<template v-for="(breadcrumb, index) in $root.breadcrumbs">
+				<span v-if="$root.breadcrumbs.length > 0 && $vuetify.breakpoint.xsOnly" class="font-weight-light">{{ $root.breadcrumbs[$root.breadcrumbs.length - 1] }}</span>
+				<span v-else-if="$root.breadcrumbs.length === 0" class="font-weight-light">{{ $router.currentRoute.name && $t('title.' + $router.currentRoute.name) }}</span>
+
+				<template v-if="$vuetify.breakpoint.smAndUp" v-for="(breadcrumb, index) in $root.breadcrumbs">
 					<div class="d-inline headline-item">
 						<span v-if="typeof breadcrumb === 'string'">
 							<span v-if="index === 0" v-show="showTitle" :key="index + '_item'">{{ breadcrumb }}</span>
@@ -621,22 +623,5 @@ export default Vue.extend({
 <style lang="scss" scoped>
 	.v-toolbar {
 		z-index: 4;
-	}
-	.v-toolbar__title {
-		span {
-			display: inline-block;
-		}
-	}
-
-	.headline {
-
-		@media all and (max-width: 767px) {
-			.separator {
-				display: none;
-			}
-			.headline-item:not(:last-child) {
-				display: none !important;
-			}
-		}
 	}
 </style>

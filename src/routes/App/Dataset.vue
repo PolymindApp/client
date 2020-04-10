@@ -1,5 +1,5 @@
 <template>
-	<v-sheet tile :disabled="isDeleted" class="panel-overflow d-flex flex-column" style="width: 100%;">
+	<v-sheet :disabled="isDeleted" class="panel-overflow d-flex flex-column w-100" tile>
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
@@ -75,7 +75,7 @@
 			</v-card>
 		</v-dialog>
 
-		<v-tabs ref="tabs" show-arrows style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
+		<v-tabs ref="tabs" style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
 			<v-tab :to="'/dataset/' + id + '/settings'" exact>
 				<v-icon left>mdi-pencil-box-outline</v-icon>
 				{{$t('dataset.settings.title')}}
@@ -119,8 +119,8 @@
 			</v-alert>
 		</div>
 
-		<v-tabs-items touchless ref="tabsItems" class="grey lighten-4" style="flex: 1; overflow: auto" v-model="tab">
-			<v-tab-item :value="'/dataset/' + id + '/settings'" class="fill-height">
+		<v-tabs-items touchless ref="tabsItems" class="grey lighten-4" :style="{ flex: 1, overflow: (tab !== '/dataset/' + id + '/source') ? 'auto' : null }" v-model="tab">
+			<v-tab-item :value="'/dataset/' + id + '/settings'" class="pa-4 fill-height">
 				<div style="height: 0">
 					<Settings :dataset.sync="dataset" :form-errors="formErrors" @update:dataset="compareJsonJob($event, 0)" @update="updateTab" />
 				</div>
@@ -221,10 +221,12 @@ export default Vue.extend({
 
 	methods: {
 
-		shortcutSave() {
+		shortcutSave(event) {
 			if (this.dataHasChanged) {
 				this.save();
 			}
+
+			event.preventDefault();
 		},
 
 		updateTab() {
