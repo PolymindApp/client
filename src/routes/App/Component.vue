@@ -1,5 +1,5 @@
 <template>
-	<v-sheet class="panel-overflow d-flex flex-column w-100" style="border-radius: 0;">
+	<v-sheet class="panel-overflow d-flex flex-column w-100" tile>
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
@@ -119,7 +119,7 @@
 			</v-alert>
 		</div>
 
-		<v-tabs-items touchless :dark="$root.user.settings.theme === 'dark'" :style="{ flex: 1, overflow: (tab !== '/component/' + id + '/source') ? 'auto' : null }" v-model="tab">
+		<v-tabs-items touchless :dark="$root.user.settings.theme === 'dark'" class="grey lighten-4" :style="{ flex: 1, overflow: (tab !== '/component/' + id + '/source') ? 'auto' : null }" v-model="tab">
 			<v-tab-item :value="'/component/' + id + '/settings'" class="pa-4 fill-height">
 				<div style="height: 0">
 					<Settings @update="updateTab()" :component="component" :form-errors="formErrors" />

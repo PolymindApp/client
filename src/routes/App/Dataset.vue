@@ -1,5 +1,5 @@
 <template>
-	<v-sheet tile :disabled="isDeleted" class="panel-overflow d-flex flex-column" style="width: 100%;">
+	<v-sheet :disabled="isDeleted" class="panel-overflow d-flex flex-column w-100" tile>
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
@@ -119,8 +119,8 @@
 			</v-alert>
 		</div>
 
-		<v-tabs-items touchless ref="tabsItems" class="grey lighten-4" style="flex: 1; overflow: auto" v-model="tab">
-			<v-tab-item :value="'/dataset/' + id + '/settings'" class="fill-height">
+		<v-tabs-items touchless ref="tabsItems" class="grey lighten-4" :style="{ flex: 1, overflow: (tab !== '/dataset/' + id + '/source') ? 'auto' : null }" v-model="tab">
+			<v-tab-item :value="'/dataset/' + id + '/settings'" class="pa-4 fill-height">
 				<div style="height: 0">
 					<Settings :dataset.sync="dataset" :form-errors="formErrors" @update:dataset="compareJsonJob($event, 0)" @update="updateTab" />
 				</div>

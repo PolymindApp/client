@@ -1,5 +1,5 @@
 <template>
-	<v-card color="transparent" flat>
+	<v-card color="transparent" flat tile>
 
 		<v-alert type="info" :prominent="!isMobile" border="left" text :icon="!isMobile ? 'mdi-help-circle' : false" class="mx-n4 mt-n4" tile>
 			<div class="d-block d-md-flex flex-md-row align-md-center">
