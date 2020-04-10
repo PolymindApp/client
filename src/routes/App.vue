@@ -1,5 +1,5 @@
 <template>
-	<div @contextmenu="handleContextMenu">
+	<div v-resize="handleWindowResize" @contextmenu="handleContextMenu">
 		<v-app>
 			<ErrorDialog :response="$root.error"></ErrorDialog>
 
@@ -157,6 +157,10 @@ export default Vue.extend({
 	},
 
 	methods: {
+
+		handleWindowResize() {
+			this.$root.isMobile = this.$vuetify.breakpoint.smAndDown;
+		},
 
 		handleContextMenu(event) {
 

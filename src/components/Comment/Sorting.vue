@@ -1,9 +1,9 @@
 <template>
 	<v-menu offset-y>
 		<template v-slot:activator="{ on }">
-			<v-btn :disabled="comments.length < 2" v-on="on" text>
-				<v-icon left>mdi-sort-variant</v-icon>
-				<span v-text="sortByItems[currentSortBy].text"></span>
+			<v-btn :disabled="comments.length < 2" v-on="on" :text="!$root.isMobile" :icon="$root.isMobile">
+				<v-icon :left="!$root.isMobile">mdi-sort-variant</v-icon>
+				<span class="d-none d-md-inline" v-text="sortByItems[currentSortBy].text"></span>
 			</v-btn>
 		</template>
 		<v-list>

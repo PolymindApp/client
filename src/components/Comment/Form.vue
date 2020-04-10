@@ -1,7 +1,7 @@
 <template>
 	<v-form @submit="send($event)" class="d-flex align-center">
 		<UserAvatar class="mr-4" :user="$root.user" :size="48" />
-		<v-text-field v-bind="$attrs" v-on="$listeners" ref="input" v-model="newComment.text" :disabled="isSending || isLocked" @click:append="send($event)" :placeholder="$t('comment.newMessagePlaceholder')" :append-icon="$vuetify.breakpoint.mdAndUp ? 'mdi-send' : null" outlined hide-details></v-text-field>
+		<v-text-field v-bind="$attrs" v-on="$listeners" ref="input" v-model="newComment.text" :disabled="isSending || isLocked" @click:append="send($event)" :placeholder="$t('comment.newMessagePlaceholder')" :append-icon="$vuetify.breakpoint.mdAndUp ? 'mdi-send' : null" :dense="$root.isMobile" outlined hide-details></v-text-field>
 	</v-form>
 </template>
 
