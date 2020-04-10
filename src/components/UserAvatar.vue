@@ -1,5 +1,5 @@
 <template>
-	<v-avatar v-ripple @click="handleClick" :color="color ? color : 'primary'" :class="classes" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
+	<v-avatar v-ripple="isInteractive" @click="handleClick" :color="color ? color : 'primary'" :class="classes" :size="size" :style="{ borderWidth: (size / 500) + 'rem'}">
 
 		<v-overlay :absolute="true" :value="isUploading">
 			<v-progress-circular :size="size / 2" color="primary" indeterminate></v-progress-circular>
@@ -114,13 +114,17 @@ export default Vue.extend({
 		},
 
 		isCurrentUser() {
-        	return this.$root.user.id === this.user.id;
+			return this.$root.user.id === this.user.id;
+		},
+
+		isInteractive() {
+			return this.editable || this.clickable;
 		},
 
 		classes() {
         	return {
         		'no-select': true,
-				redirectsToAccount: !this.editable,
+				'redirects-to-account': !this.editable && this.clickable,
 			};
 		}
 	},
@@ -148,7 +152,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 
-	.redirectsToAccount {
+	.redirects-to-account {
 		cursor: pointer;
 	}
 
