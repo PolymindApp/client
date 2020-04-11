@@ -19,7 +19,7 @@
 
 			<v-divider class="my-4"></v-divider>
 
-			<v-btn class="white--text" @click="useOtherAccount()" text>
+			<v-btn class="white--text" :disabled="!formIsValid" @click="useOtherAccount()" text>
 				{{ $t("restricted.lockedOtherAccount") }}
 			</v-btn>
 		</v-form>

@@ -12,8 +12,13 @@
 
 		<v-form v-if="!activationResent" ref="form" v-model="formIsValid" @submit="validate" lazy-validation>
 
-			<v-alert class="text-left" type="warning" color="secondary">
-				{{ $t('restricted.registrationLocked') }}
+			<v-alert color="secondary" style="background-color: rgba(0, 0, 0, 0.333) !important" outlined>
+				<div class="mb-4">{{ $t('restricted.registrationLocked') }}</div>
+
+				<v-btn to="/contact?subject=invitation" class="w-100 d-block text-wrap py-2" style="height: auto" text>
+					<v-icon left>mdi-send</v-icon>
+					<span v-text="$t('restricted.requestInvite')"></span>
+				</v-btn>
 			</v-alert>
 
 			<v-row v-if="registrationOpen" class="mx-n1">
@@ -74,7 +79,7 @@
 				<v-text-field :error-messages="formErrors.password" v-model="password" :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" hide-details light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword" autocomplete="password"></v-text-field>
 			</div>
 
-			<v-btn type="submit" color="primary" large style="width: 100%" dark>
+			<v-btn type="submit" color="primary" :disabled="!formIsValid" large style="width: 100%" dark>
 				{{$t('restricted.loginBtn')}}
 			</v-btn>
 
@@ -101,6 +106,7 @@ import Rules from "../../utils/Rules";
 import UserService from "../../services/UserService";
 import Form from "../../utils/Form";
 import ServerError from "../../utils/ServerError";
+import User from "../../models/User";
 
 export default Vue.extend({
 
@@ -126,10 +132,16 @@ export default Vue.extend({
 				this.$root.isLoading = true;
 				UserService.login.bind(this)(this.email, this.password)
 					.then(response => {
-						window.location.href = localStorage.getItem('redirect_uri') || '/';
+						UserService.me.bind(this)().then(response => {
+							this.$root.user = new User(response.data);
+							if (this.$root.user.force_reset_password) {
+								this.$router.push('/update-access');
+							} else {
+								window.location.href = localStorage.getItem('redirect_uri') || '/';
+							}
+						});
 					})
 					.catch(error => {
-                        this.$root.isLoading = false;
 						switch (error.code) {
 							case 103:
 								return this.$root.error = new ServerError(this, error, {
@@ -149,7 +161,8 @@ export default Vue.extend({
 								break;
 						}
 						this.$handleError(this, error);
-					});
+					})
+					.finally(() => this.$root.isLoading = false);
 			} else {
 				this.$refs.email.focus();
 			}

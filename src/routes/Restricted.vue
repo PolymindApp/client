@@ -24,13 +24,13 @@
 		</v-overlay>
 
 		<v-fade-transition>
-			<v-container v-if="hasLoaded" fluid class="default-gradient pa-4 fill-height d-flex flex-column main-container" style="width: 100%; background-image: url('https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background.jpg');">
+			<v-container v-if="hasLoaded" fluid class="pa-4 fill-height d-flex flex-column main-container w-100" :style="{ backgroundImage: 'url(' + backgrounds[backgroundIdx] + ')' }">
 
 				<div class="overlay"></div>
 
 				<v-container class="page main-content fill-height flex-column d-flex align-center justify-center mt-10 mt-md-0 pt-4 pt-md-0">
 
-					<v-sheet dark color="transparent">
+					<v-sheet dark color="transparent" class="w-100">
 						<v-scale-transition>
 							<div class="d-flex align-center justify-center" v-if="hasLogo">
 								<img src="../assets/images/polymind-light.svg" height="96" />
@@ -39,12 +39,18 @@
 						</v-scale-transition>
 
 						<div class="mt-8">
-							<router-view></router-view>
+							<transition name="slide" mode="out-in">
+								<router-view></router-view>
+							</transition>
 						</div>
 					</v-sheet>
 				</v-container>
 			</v-container>
 		</v-fade-transition>
+
+		<div class="version overline d-none d-md-block">
+			<span v-text="version"></span>
+		</div>
 	</v-app>
 </template>
 
@@ -53,20 +59,22 @@
 	import Vue from 'vue';
 	import Login from './Restricted/Login.vue';
 	import Locked from './Restricted/Locked.vue';
-	// import Register from './Restricted/Register.vue';
-	// import Activate from './Restricted/Activate.vue';
 	import ForgotPassword from './Restricted/ForgotPassword.vue';
 	import ResetPassword from './Restricted/ResetPassword.vue';
+	import ForceChangePassword from './Restricted/ForceChangePassword.vue';
 	import LanguageSwitcher from "../components/LanguageSwitcher.vue";
 	import Terms from "./Restricted/Terms.vue";
 	import Policies from "./Restricted/Policies.vue";
 	import ErrorDialog from '../components/ErrorDialog.vue';
 	import Contact from './Restricted/Contact.vue';
 	import Modal from "../components/Modal";
+	// import Register from './Restricted/Register.vue';
+	// import Activate from './Restricted/Activate.vue';
 
 	export const routes = [
 		{path: '/', redirect: '/login'},
 		{path: '/login', component: Login, name: 'login'},
+		{path: '/update-access', component: ForceChangePassword, name: 'updateAccess'},
 		{path: '/locked', component: Locked, name: 'locked'},
 		// {path: '/register', component: Register, name: 'register'},
 		{path: '/register', redirect: '/login'},
@@ -97,6 +105,18 @@
 			setTimeout(() => { this.showLogo = true; }, 500);
 			setTimeout(() => { this.showPanel = true; }, 750);
 			setTimeout(() => { this.hasLoaded = true; }, 0);
+
+			this.backgroundIdx = Math.round(Math.random() * (this.backgrounds.length - 1));
+			// this.backgroundInterval = setInterval(() => {
+			// 	this.backgroundIdx++;
+			// 	if (this.backgroundIdx > this.backgrounds.length - 1) {
+			// 		this.backgroundIdx = 0;
+			// 	}
+			// }, 30 * 1000);
+		},
+
+		destroyed() {
+			// clearInterval(this.backgroundInterval);
 		},
 
 		methods: {
@@ -116,11 +136,20 @@
 
 		data: function() {
 			return {
+				version: process.env.VERSION,
+				backgroundInterval: null,
 				showLogo: false,
 				showPanel: false,
 				hasLoaded: false,
 				wwwUrl: process.env.VUE_APP_WWW_URL,
 				currentLang: this.$i18n.locale,
+				backgroundIdx: 0,
+				backgrounds: [
+					'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background.jpg',
+					'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-2.jpg',
+					'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-3.jpg',
+					'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-4.jpg',
+				],
 			};
 		},
 	});
@@ -166,5 +195,27 @@
 		position: relative;
 		max-width: 50rem;
 		z-index: 3;
+	}
+
+	.slide-enter-active,
+	.slide-leave-active {
+		transition-duration: 0.2s;
+		transition-property: opacity, transform;
+		transition-timing-function: ease;
+		transform: translateY(0px);
+	}
+
+	.slide-enter,
+	.slide-leave-active {
+		opacity: 0;
+		transform: translateY(2.5rem);
+	}
+
+	.version {
+		position: absolute;
+		bottom: 1rem;
+		right: 1rem;
+		z-index: 1;
+		color: rgba(255, 255, 255, 0.1);
 	}
 </style>

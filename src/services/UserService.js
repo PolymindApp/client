@@ -2,7 +2,7 @@ import Server from "../utils/Server";
 
 export default class UserService {
 
-	static me(lookup, token) {
+	static me() {
 		return Server.get.bind(this)('/users/me?fields=*,avatar.private_hash,wallpaper.private_hash,role.name,language.language_id.english_title,language.language_id.id,language.id');
 	}
 
@@ -65,10 +65,16 @@ export default class UserService {
 		});
 	}
 
-	static setPassword(email, actual, password, confirmation) {
+	static setPassword(email, actual, password) {
 		return Server.post.bind(this)('/custom/set-password', {
 			email: email,
 			actual: actual,
+			password: password
+		});
+	}
+
+	static loggedSetPassword(password) {
+		return Server.post.bind(this)('/custom/user/logged-set-password', {
 			password: password
 		});
 	}

@@ -18,6 +18,7 @@ const literals = {
 		about: 'About',
 		error404: 'Page not found',
 		register: 'Register',
+		updateAccess: 'Update access',
 	},
 	error404: {
 		desc: 'A wind of mystery rise upon us...'
@@ -274,6 +275,7 @@ const literals = {
 		send: 'Send',
 		success: 'Thank you! Your message has been received and we will get back to you as soon as possible.',
 		subjects: {
+			invitation: 'Obtain an invitation',
 			issue: 'Issue with the app',
 			feature: 'New feature',
 			other: 'Other',
@@ -306,6 +308,15 @@ const literals = {
 		loginBtn: 'Sign-In',
 		emailPlaceholder: 'Email address',
 		passwordPlaceholder: 'Password',
+		actualPassPlaceholder: 'Current password',
+		confirmationPlaceholder: 'Confirm your password',
+		forceChangePasswordTitle: 'Update your password',
+		forceChangePasswordDesc: 'You must set a new password in order to proceed with your Polymind account.',
+		forceChangePasswordBtn: 'Update',
+		forceChangePasswordConfirmTitle: 'Password Updated!',
+		forceChangePasswordConfirmDesc: 'Keep your password in a safe place.',
+		goToDashboard: 'Go to the Dashboard',
+		requestInvite: 'Request invite',
 	},
 	rules: {
 		required: 'This field is required',

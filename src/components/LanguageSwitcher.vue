@@ -19,7 +19,7 @@
 		</template>
 		<v-list>
 			<v-list-item v-for="(lang, i) in $root.languages" :key="i" @click="switchLang(lang.abbreviation)">
-				<v-list-item-title>{{ lang.origin_title }}</v-list-item-title>
+				<v-list-item-title :class="{ 'font-weight-bold': lang.abbreviation === $i18n.locale }">{{ lang.origin_title }}</v-list-item-title>
 			</v-list-item>
 		</v-list>
 	</v-menu>
