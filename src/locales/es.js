@@ -300,8 +300,10 @@ const literals = {
 		forceChangePasswordBtn: 'Actualizar',
 		forceChangePasswordConfirmTitle: '¡Contraseña actualizada!',
 		forceChangePasswordConfirmDesc: 'Guarde su contraseña en un lugar seguro',
-		goToDashboard: 'Ir al panel de control',
+		goToDashboard: 'Ir al salpicadero',
 		requestInvite: 'Solicitud de invitación',
+		loginConfirmTitle: '¡Este conectado!',
+		loginConfirmDesc: 'Será redirigido automáticamente a su cuenta en un instante',
 	},
 	rules: {
 		required: 'Este campo es obligatorio',

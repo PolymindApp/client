@@ -317,6 +317,8 @@ const literals = {
 		forceChangePasswordConfirmDesc: 'Keep your password in a safe place.',
 		goToDashboard: 'Go to the Dashboard',
 		requestInvite: 'Request invite',
+		loginConfirmTitle: 'You are connected!',
+		loginConfirmDesc: 'You will be automatically redirected to your account in a moment.',
 	},
 	rules: {
 		required: 'This field is required',

@@ -1082,6 +1082,8 @@ const literals = {
 		forceChangePasswordConfirmDesc: 'Notez votre mot de passe dans un endroit sécuritaire.',
 		goToDashboard: 'Allez au tableau de bord',
 		requestInvite: 'Demander une invitation',
+		loginConfirmTitle: 'Vous êtes connecté !',
+		loginConfirmDesc: 'Vous serez automatiquement redirigé vers votre compte dans un instant.',
 	},
 	rules: {
 		required: 'Ce champ est requis',
