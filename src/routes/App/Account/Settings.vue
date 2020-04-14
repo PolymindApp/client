@@ -17,7 +17,7 @@
 							<LanguageSwitcher v-model="user.locale" />
 						</v-col>
 					</v-row>
-					<v-row>
+<!--					<v-row>
 						<v-col cols="12" md="4" class="d-flex align-center">
 							<label v-text="$t('account.settings.theme.title')"></label>
 						</v-col>
@@ -31,12 +31,12 @@
 						</v-col>
 						<v-col cols="12" md="8">
 							<v-radio-group mandatory hide-details row class="mt-0" v-model="user.settings.externalMsg">
-								<v-radio value="public" color="primary" :label="$t('account.settings.externalMsgPublic')" />
+								<v-radio value="public" color="primary" :label="$t('account.settings.externalMsgPublic')" />-->
 <!--								<v-radio value="friends" color="primary" :label="$t('account.settings.externalMsgFriends')" />-->
-								<v-radio value="nobody" color="primary" :label="$t('account.settings.externalMsgNobody')" />
+<!--								<v-radio value="nobody" color="primary" :label="$t('account.settings.externalMsgNobody')" />
 							</v-radio-group>
 						</v-col>
-					</v-row>
+					</v-row>-->
 				</v-card>
 
 				<!-- DEVELOPMENT -->
