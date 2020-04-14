@@ -45,36 +45,6 @@
 					<span class="text-break" v-html="$t('commitGraph.noCommitsThisDay', { date: moment(commitsDayDate).format('ll') })"></span>
 				</v-alert>
 			</div>
-			<div key="notEmpty" v-if="commitsDayDate && commitsDay.data.length > 0">
-				<v-card-title ref="timelineTitle">
-					<span class="text-break" v-html="$t('commitGraph.contributionsDay', { total: commitsDay.data.length, date: moment(commitsDayDate).format('ll') })"></span>
-				</v-card-title>
-				<v-timeline ref="timeline" dense clipped>
-					<v-slide-y-transition group>
-						<template v-for="(commit, index) in commitsDay.data">
-							<v-timeline-item :icon="commit.icon" :color="commit | activityColor" large :key="index" label>
-								<template v-slot:icon>
-									<v-icon dark>{{ commit | activityIcon }}</v-icon>
-								</template>
-								<v-card>
-									<v-card-title :class="{ 'pb-0': commit.action === 'comment' }">
-										<span class="font-weight-medium text-break" v-html="$t('activity.' + commit.action + '.' + commit.collection + '.title', {
-											name: commit.relation.data.name
-										})"></span>
-										<span class="font-weight-light ml-md-4 body-2">{{commit.action_on | date('HH:mm:ss')}}</span>
-									</v-card-title>
-									<v-card-text v-if="commit.action === 'comment'">
-<!--										<span v-html="$t('activity.' + commit.action + '.' + commit.collection + '.desc', commit)"></span>-->
-										<v-icon color="grey lighten-2">mdi-format-quote-open</v-icon>
-										<span class="font-italic font-weight-light body-1 mx-2" v-text="commit.comment"></span>
-										<v-icon color="grey lighten-2">mdi-format-quote-close</v-icon>
-									</v-card-text>
-								</v-card>
-							</v-timeline-item>
-						</template>
-					</v-slide-y-transition>
-				</v-timeline>
-			</div>
 		</v-expand-transition>
 	</div>
 </template>
@@ -136,7 +106,7 @@
                         // this.commitsDay = {data};
                         this.commitsDay = response;
                         this.commitsDayDate = date;
-                        setTimeout(() => this.$vuetify.goTo(this.$refs.timelineTitle));
+                        //setTimeout(() => this.$vuetify.goTo(this.$refs.timelineTitle));
                     })
                     .catch(error => this.$handleError(this, error))
                     .finally(() => this.isLoading = false);
@@ -257,7 +227,17 @@
 			},
 
 			commits(value) {
-                this.$emit('load', value);
+				this.$emit('load', value);
+			},
+
+			commitsDay(value) {
+				if (value.data.length > 0) {
+					this.$emit('load-commits-day', value);
+				}
+			},
+
+			commitsDayDate(value) {
+				this.$emit('load-commits-day-date', value);
 			}
 		}
     });
