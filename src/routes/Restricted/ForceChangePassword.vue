@@ -10,7 +10,7 @@
 					<p class="mb-0">{{ $t("restricted.forceChangePasswordConfirmDesc") }}</p>
 				</v-alert>
 
-				<v-progress-linear class="mb-4" v-model="progress" rounded></v-progress-linear>
+				<v-progress-linear class="mb-4" v-model="progressBar" rounded></v-progress-linear>
 
 				<v-btn color="primary" @click="goToDashboard()" class="w-100 d-block text-wrap py-3" style="height: auto">
 					<v-icon left>mdi-send</v-icon>
@@ -58,9 +58,9 @@ export default Vue.extend({
 
 		initProgress() {
 			this.progressInterval = setInterval(() => {
-				this.progress++;
+				this.progressBar++;
 
-				if(this.progress === 100) {
+				if(this.progressBar === 100) {
 					clearInterval(this.progressInterval);
 					this.goToDashboard();
 				}
@@ -104,7 +104,7 @@ export default Vue.extend({
 	data() {
 		return {
 			progressInterval: null,
-			progress: 0,
+			progressBar: 0,
 			isActive: null,
 			isResetted: false,
 			formIsValid: false,

@@ -2,7 +2,7 @@
 	"name": "@polymind/client",
 	"version": "0.1.5-beta",
 	"private": true,
-	"author": "Danny Coulombe <contact@dannycoulombe.com>",
+	"author": "Danny Coulombe <danny.coulombe@polymind.app>",
 	"engines": {
 		"node": "10.15.0"
 	},
@@ -63,11 +63,5 @@
 		"vue-cli-plugin-vuetify": "^0.6.3",
 		"vue-template-compiler": "^2.6.10",
 		"vuetify-loader": "^1.2.2"
-	},
-	"cordova": {
-		"plugins": {
-			"cordova-plugin-whitelist": {}
-		},
-		"platforms": []
 	}
 }

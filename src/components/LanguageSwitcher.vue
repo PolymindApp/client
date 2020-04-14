@@ -4,7 +4,7 @@
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on: tooltip }">
 					<v-btn v-on="{ ...tooltip, ...menu }" :disabled="$root.languages.length === 0" v-bind="$attrs">
-						<v-icon left>mdi-earth</v-icon>
+						<v-icon left>mdi-translate</v-icon>
 						<span v-if="hideLang !== true">
 							<span v-if="!isLoading">{{ getSelectedLang() }}</span>
 							<span v-else>

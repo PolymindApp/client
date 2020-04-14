@@ -200,6 +200,7 @@ import DatasetCell from "../../models/DatasetCell";
 import Model from "../../models/Model";
 import Transaction from "../../models/Transaction";
 import UserAvatar from "../../components/UserAvatar";
+import Hash from "../../utils/Hash";
 // import {VSkeletonLoader} from "vuetify";
 
 let jsonJobTimeout = null;
@@ -483,6 +484,15 @@ export default Vue.extend({
 
 				return transactions;
 			};
+
+			if (!this.dataset.id) {
+				transactions.push(new Transaction({
+					action: 'insert',
+					guid: this.dataset.guid,
+					collection: 'dataset',
+					data: new Model(this.dataset).flat(),
+				}));
+			}
 
 			const rowTransactions = getTransactions('dataset_row', this.dataset.rows, this.originalDataset.rows);
 			if (rowTransactions.length > 0) {
