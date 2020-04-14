@@ -1,5 +1,5 @@
 <template>
-	<v-sheet class="panel-overflow d-flex flex-column w-100" style="border-radius: 0;">
+	<v-sheet class="panel-overflow d-flex flex-column w-100" tile>
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
@@ -76,7 +76,7 @@
 		</v-dialog>
 
 		<div ref="header">
-			<v-tabs show-arrows style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
+			<v-tabs style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
 				<v-tab :disabled="isDeleted" :to="'/component/' + id + '/settings'" exact>
 					<v-icon left>mdi-pencil-box-outline</v-icon>
 					{{$t('component.settings.title')}}
@@ -119,7 +119,7 @@
 			</v-alert>
 		</div>
 
-		<v-tabs-items touchless :dark="$root.user.settings.theme === 'dark'" :style="{ flex: 1, overflow: (tab !== '/component/' + id + '/source') ? 'auto' : null }" v-model="tab">
+		<v-tabs-items touchless :dark="$root.user.settings.theme === 'dark'" class="grey lighten-4" :style="{ flex: 1, overflow: (tab !== '/component/' + id + '/source') ? 'auto' : null }" v-model="tab">
 			<v-tab-item :value="'/component/' + id + '/settings'" class="pa-4 fill-height">
 				<div style="height: 0">
 					<Settings @update="updateTab()" :component="component" :form-errors="formErrors" />
@@ -206,8 +206,9 @@ export default Vue.extend({
 
 	methods: {
 
-		shortcutSave() {
+		shortcutSave(event) {
 			this.save();
+			event.preventDefault();
 		},
 
 		updateTab() {

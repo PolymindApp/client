@@ -1,5 +1,20 @@
 <template>
-	<v-card class="pa-4" tile flat>
+	<v-card color="transparent" class="pa-4" tile flat>
+
+		<v-alert type="info" :prominent="!isMobile" border="left" text :icon="!isMobile ? 'mdi-help-circle' : false" class="mx-n4 mt-n4" tile>
+			<div class="d-block d-md-flex flex-md-row align-md-center">
+				<div style="flex: 1">
+					<div v-text="$t('strategy.settings.explanations')"></div>
+				</div>
+				<div class="text-center" style="flex: 0">
+					<v-btn :class="{ 'ml-0 ml-md-8 mt-4 mt-md-0': true, 'text-wrap d-block w-100': isMobile }" :large="isMobile" @click="$help.open('strategy-general')">
+						<v-icon left>mdi-book-search</v-icon>
+						<div v-text="$t('strategy.settings.readDoc')"></div>
+					</v-btn>
+				</div>
+			</div>
+		</v-alert>
+
 		<v-row>
 			<v-col cols="12" sm="6" class="py-0">
 				<v-text-field :error-messages="formErrors.name" :label="$t('strategy.settings.namePlaceholder')" v-model="strategy.name"></v-text-field>
@@ -34,6 +49,13 @@ export default Vue.extend({
 
 	methods: {
 
+	},
+
+	computed: {
+
+		isMobile() {
+			return this.$vuetify.breakpoint.smAndDown;
+		}
 	},
 
 	data() {
