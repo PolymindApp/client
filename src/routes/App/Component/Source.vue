@@ -187,6 +187,7 @@
 
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
+							<v-icon class="mr-md-2">mdi-function</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.functions.title')"></span>
 								<span v-if="component.functions.length > 0"> ({{ component.functions.length }})</span>
@@ -207,9 +208,6 @@
 						</v-slide-x-transition>
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(func, index) in component.functions" :key="index">
-								<v-list-item-icon>
-									<v-icon>mdi-function</v-icon>
-								</v-list-item-icon>
 								<v-list-item-content>
 									<v-list-item-title v-text="func.name"></v-list-item-title>
 								</v-list-item-content>
