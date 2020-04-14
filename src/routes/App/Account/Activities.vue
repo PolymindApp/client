@@ -82,7 +82,7 @@
 					</AccountActivities>
 					<AccountActivities v-else activities-empty="" :activities="commitsDay">
 						<template v-slot:title>
-							<span id="contributionsSection" class="text-break" v-html="$t('commitGraph.contributionsDay', { total: commitsDay.data.length, date: moment(commitsDayDate).format('ll') })"></span>
+							<span id="contributions_section" class="text-break" v-html="$t('commitGraph.contributionsDay', { total: commitsDay.data.length, date: moment(commitsDayDate).format('ll') })"></span>
 						</template>>
 						<template v-slot:content="props">
 							<v-timeline-item :icon="props.activity.icon" :color="props.activity | activityColor" :key="props.index" large label>
@@ -91,10 +91,10 @@
 								</template>
 								<v-card>
 									<v-card-title :class="{ 'pb-0': props.activity.action === 'comment' }">
-										<span class="font-weight-light text-break body-2 mr-md-4" v-html="$t('activity.' + props.activity.action + '.' + props.activity.collection + '.title', {
+										<span class="font-weight-light text-break body-2 mr-4" v-html="$t('activity.' + props.activity.action + '.' + props.activity.collection + '.title', {
 											name: props.activity.relation.data.name
 										})"></span>
-										<span class="font-weight-medium ml-4 ml-md-0 body-2">{{props.activity.action_on | date('HH:mm:ss')}}</span>
+										<span class="font-weight-medium body-2">{{props.activity.action_on | date('HH:mm:ss')}}</span>
 									</v-card-title>
 									<v-card-text v-if="props.activity.action === 'comment'">
 										<v-icon color="grey lighten-2">mdi-format-quote-open</v-icon>
@@ -211,7 +211,7 @@ export default Vue.extend({
 			commitsDayDate: false,
 			commitsLoaded: false,
 			histories: { data: [] },
-			target: '#contributionsSection',
+			target: '#contributions_section',
 			duration: 300,
 			offset: 30,
 			easing: 'easeInOutCubic',
