@@ -196,9 +196,7 @@ export default Vue.extend({
         },
 
 		toContributions() {
-			this.$nextTick(() => {
-				this.$vuetify.goTo(this.target, this.options);
-			});
+			this.$vuetify.goTo(this.target, this.options);
 		},
 	},
 
@@ -239,7 +237,7 @@ export default Vue.extend({
 
 		commitsDay(value) {
 			this.commitsLoaded = true;
-			this.toContributions();
+			setTimeout(() => this.toContributions());
 		}
 	}
 });

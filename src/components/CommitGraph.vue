@@ -106,7 +106,7 @@
                         // this.commitsDay = {data};
                         this.commitsDay = response;
                         this.commitsDayDate = date;
-                        setTimeout(() => this.$vuetify.goTo(this.$refs.timelineTitle));
+                        //setTimeout(() => this.$vuetify.goTo(this.$refs.timelineTitle));
                     })
                     .catch(error => this.$handleError(this, error))
                     .finally(() => this.isLoading = false);
