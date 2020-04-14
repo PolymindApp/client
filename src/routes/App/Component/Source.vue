@@ -83,6 +83,7 @@
 				<div style="height: 0; min-width: 20vw">
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
+							<v-icon class="mr-md-2">mdi-flash</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.hooks.title')"></span>
 								<span v-if="component.hooks.length > 0"> ({{ component.hooks.length }})</span>
@@ -103,9 +104,6 @@
 						</v-slide-x-transition>
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(hook, index) in component.hooks" :key="index">
-								<v-list-item-icon>
-									<v-icon>mdi-flash</v-icon>
-								</v-list-item-icon>
 								<v-list-item-content>
 									<v-list-item-title v-text="hook.name"></v-list-item-title>
 								</v-list-item-content>
@@ -137,6 +135,7 @@
 
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
+							<v-icon class="mr-md-2">mdi-code-parentheses-box</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.parameters.title')"></span>
 								<span v-if="component.parameters.length > 0"> ({{ component.parameters.length }})</span>
@@ -157,9 +156,6 @@
 						</v-slide-x-transition>
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(parameter, index) in component.parameters" :key="index">
-								<v-list-item-icon>
-									<v-icon>mdi-code-parentheses-box</v-icon>
-								</v-list-item-icon>
 								<v-list-item-content>
 									<v-list-item-title v-text="parameter.name"></v-list-item-title>
 								</v-list-item-content>
@@ -245,6 +241,7 @@
 
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
+							<v-icon class="mr-md-2">mdi-bug</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.tests.title')"></span>
 								<span v-if="component.tests.length > 0"> ({{ component.tests.length }})</span>
@@ -265,9 +262,6 @@
 						</v-slide-x-transition>
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(test, index) in component.tests" :key="index">
-								<v-list-item-icon>
-									<v-icon>mdi-bug</v-icon>
-								</v-list-item-icon>
 								<v-list-item-content>
 									<v-list-item-title v-text="test.name"></v-list-item-title>
 								</v-list-item-content>
