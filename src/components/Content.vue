@@ -34,11 +34,11 @@ export default Vue.extend({
 			this.isLoading = true;
 			PageService.get.bind(this)(this.slug).then(page => this.content = page.data.content)
 				.catch(error => {
-					if (error.response.status === 404) {
+					if (error.code === 203) {
 						return this.notFound = true;
 					}
-					if (error.data.message) {
-						switch(error.data.message) {
+					if (error.message) {
+						switch(error.message) {
 							case 'UNAUTHORIZED':
 								return this.isUnauthorized = true;
 								break;

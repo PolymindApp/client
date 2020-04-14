@@ -13,6 +13,7 @@ import VueCookies from 'vue-cookies';
 import VueAnalytics from 'vue-analytics';
 import StatsService from './services/StatsService';
 import DirectusSDK from "@directus/sdk-js";
+import User from "./models/User";
 import 'roboto-fontface/css/roboto/sass/roboto-fontface.scss';
 import '@mdi/font/scss/materialdesignicons.scss';
 import "./styles/index.scss";
@@ -175,10 +176,21 @@ const i18n = new VueI18n({
 	// });
 	//
 	// conn.onopen = (session) => {
+
 		server.request('POST', '/custom/user/update-ws-token', undefined, {
 			// sessionId: session.id
 		})
-			.then(() => {callback()})
+			.then(data => {
+				const user = new User(data.user);
+				if (!server.loggedIn || (data.user && user.force_reset_password !== true)) {
+					callback();
+				} else {
+					component = Restricted;
+					routes = restrictedRoutes;
+					callback();
+					router.push('/update-access');
+				}
+			})
 			.catch(error => {
 				component = Issue;
 				routes = issueRoutes;

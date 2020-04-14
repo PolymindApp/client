@@ -4,7 +4,7 @@
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on: tooltip }">
 					<v-btn v-on="{ ...tooltip, ...menu }" :disabled="$root.languages.length === 0" v-bind="$attrs">
-						<v-icon left>mdi-earth</v-icon>
+						<v-icon left>mdi-translate</v-icon>
 						<span v-if="hideLang !== true">
 							<span v-if="!isLoading">{{ getSelectedLang() }}</span>
 							<span v-else>
@@ -19,7 +19,7 @@
 		</template>
 		<v-list>
 			<v-list-item v-for="(lang, i) in $root.languages" :key="i" @click="switchLang(lang.abbreviation)">
-				<v-list-item-title>{{ lang.origin_title }}</v-list-item-title>
+				<v-list-item-title :class="{ 'font-weight-bold': lang.abbreviation === $i18n.locale }">{{ lang.origin_title }}</v-list-item-title>
 			</v-list-item>
 		</v-list>
 	</v-menu>

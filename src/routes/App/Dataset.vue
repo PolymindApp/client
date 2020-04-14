@@ -109,13 +109,8 @@
 		</v-tabs>
 
 		<div v-if="isDeleted">
-			<v-alert dark prominent type="error">
-				<v-row align="center">
-					<v-col class="grow">You have flagged this database as deleted. This is your last chance to restore it.</v-col>
-					<v-col class="shrink">
-						<v-btn class="restore-deleted" @click="restore()">Restore</v-btn>
-					</v-col>
-				</v-row>
+			<v-alert dark prominent type="error" class="mb-0" tile>
+				<span v-text="$t('dataset.isDeleted')"></span>
 			</v-alert>
 		</div>
 
@@ -161,7 +156,13 @@
 				<v-list>
 					<v-list-item-group v-model="revisionOffset" color="primary">
 						<v-list-item v-for="(revision, index) in revisions" :key="index" @click="loadRevision(index)">
-							<v-list-item-title>{{ revision.data.modified_on }}</v-list-item-title>
+							<v-list-item-avatar>
+								<UserAvatar :size="48" :user="revision.activity.action_by" />
+							</v-list-item-avatar>
+							<v-list-item-content>
+								<v-list-item-title>{{revision.activity.action_by | userScreenName }}</v-list-item-title>
+								<v-list-item-subtitle>{{ revision.data.modified_on }}</v-list-item-subtitle>
+							</v-list-item-content>
 						</v-list-item>
 					</v-list-item-group>
 				</v-list>
@@ -198,13 +199,15 @@ import DatasetRow from "../../models/DatasetRow";
 import DatasetCell from "../../models/DatasetCell";
 import Model from "../../models/Model";
 import Transaction from "../../models/Transaction";
+import UserAvatar from "../../components/UserAvatar";
+import Hash from "../../utils/Hash";
 // import {VSkeletonLoader} from "vuetify";
 
 let jsonJobTimeout = null;
 
 export default Vue.extend({
 
-	components: { Views, Data, Settings, DeleteDialog },
+	components: { Views, Data, Settings, DeleteDialog, UserAvatar },
 
 	mounted() {
 		this.initializeValues();
@@ -232,16 +235,7 @@ export default Vue.extend({
 		updateTab() {
 
 			const section = (this.$route.params.section ? this.$route.params.section : 'edit');
-			const sectionTitle = this.isNew ? this.$t('dataset.newTitle') : (
-			    this.dataset.id
-					? this.dataset.name
-					: Vue.component('loading', {
-					    // components: { VSkeletonLoader },
-					    components: { },
-					    // template: `<v-skeleton-loader type="text"></v-skeleton-loader>`,
-					    template: `<div></div>`,
-					})
-			);
+			const sectionTitle = this.isNew ? this.$t('dataset.newTitle') : this.dataset.name;
 			const thirdTitle = this.$t('dataset.' + section + '.title');
 
 			this.$root.breadcrumbs = [
@@ -249,7 +243,7 @@ export default Vue.extend({
 				sectionTitle,
 				thirdTitle,
 			];
-			document.title = sectionTitle + ' | ' + this.$t('title.dataset');
+			document.title = this.dataset.name + ' | ' + this.$t('title.dataset');
 
 			this.isNew = this.$route.params.id === 'new';
 			this.id = this.isNew ? 'new' : parseInt(this.$route.params.id);
@@ -298,8 +292,8 @@ export default Vue.extend({
 						this.compareJsonJob(this.dataset, 0);
 					})
 					.catch(error => {
-						if (error.response.status === 404) {
-							this.$router.push('/404')
+						if (error.code === 203) {
+							return this.$router.replace('/404');
 						}
 						this.$handleError(this, error);
 					})
@@ -349,6 +343,7 @@ export default Vue.extend({
 		},
 
 		initializeValues() {
+			this.isDeleted = false;
 			this.dataset = new Dataset({
 				columns: [ new DatasetColumn() ],
 				rows: [ new DatasetRow({
@@ -365,6 +360,9 @@ export default Vue.extend({
 			this.$root.isLoading = true;
 			DatasetService.save.bind(this)(this.id !== 'new' ? this.id : null, this.dataset, transactions)
 				.then(([dataset, transactions] = response) => {
+
+					this.$root.$emit('DATASET_UPDATE');
+					this.$root.isSaved = true;
 
 					if (this.id !== dataset.data.id) {
 						return this.$router.push('/dataset/' + dataset.data.id);
@@ -390,6 +388,7 @@ export default Vue.extend({
 					.then(response => {
 						this.isDeleted = true;
 						this.$refs.deleteModal.hide();
+						this.$root.$emit('DATASET_UPDATE');
 					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
@@ -485,6 +484,15 @@ export default Vue.extend({
 
 				return transactions;
 			};
+
+			if (!this.dataset.id) {
+				transactions.push(new Transaction({
+					action: 'insert',
+					guid: this.dataset.guid,
+					collection: 'dataset',
+					data: new Model(this.dataset).flat(),
+				}));
+			}
 
 			const rowTransactions = getTransactions('dataset_row', this.dataset.rows, this.originalDataset.rows);
 			if (rowTransactions.length > 0) {

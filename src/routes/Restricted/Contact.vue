@@ -22,6 +22,6 @@ export default Vue.extend({
 <style lang="scss" scoped>
 	.contact-form {
 		width: 100%;
-		max-width: 600px;
+		max-width: 500px;
 	}
 </style>

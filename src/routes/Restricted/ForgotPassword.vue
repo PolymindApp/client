@@ -18,7 +18,7 @@
 					<v-text-field :error-messages="formErrors.email" ref="email" light solo v-model="email" :label="$t('restricted.email')" :rules="[rules.required, rules.email]" prepend-inner-icon="mdi-account-circle" :autofocus="$vuetify.breakpoint.lgAndUp" hide-details autocomplete="email"></v-text-field>
 				</div>
 
-				<v-btn type="submit" color="primary" style="width: 100%" dark large>
+				<v-btn type="submit" color="primary" :disabled="!formIsValid" style="width: 100%" dark large>
 					{{ $t("restricted.resetPassword") }}
 					<v-icon style="align-self: flex-end" right>mdi-lock-reset</v-icon>
 				</v-btn>

@@ -14,7 +14,7 @@
 			<v-card-actions>
 				<v-spacer></v-spacer>
 
-				<v-btn v-for="button in buttons" text @click="button.callback ? buttonCallback(button) : visible = false">
+				<v-btn v-for="(button, index) in buttons" :key="index" text @click="button.callback ? buttonCallback(button) : visible = false">
 					{{ button.text }}
 				</v-btn>
 

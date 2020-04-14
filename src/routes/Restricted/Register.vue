@@ -22,7 +22,7 @@
 					</v-text-field>
 				</div>
 
-				<v-btn type="submit" color="primary" large style="width: 100%" dark>
+				<v-btn type="submit" color="primary" :disabled="!formIsValid" large style="width: 100%" dark>
 					{{$t('restricted.registerBtn')}}
 				</v-btn>
 

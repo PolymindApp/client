@@ -90,7 +90,7 @@
 								<v-alert v-if="group.canAdd && group.getItems().length === 0" text tile type="warning" class="ma-0">
 									{{$t('sidebar.' + group.name + 'Empty')}}
 								</v-alert>
-								<v-list v-if="group.getItems().length > 0" shaped v-bind:class="group.className">
+								<v-list v-if="group.getItems().length > 0" shaped v-bind:class="group.className" dense>
 									<!--						<draggable :disabled="$vuetify.breakpoint.smAndDown" class="draggable-list" :list="decks" v-bind="{ disabled: !group.sortable, animation: 200, }" @end="group.sortable && group.sortable.onEnd()">-->
 									<v-list-item color="primary" :key="item.name || item.title" :to="item.link" :exact="item.exact" @click="item.signOut ? signOut() : null" :disabled="item.disabled" v-for="item in group.getItems()">
 										<v-list-item-icon>

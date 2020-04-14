@@ -1,39 +1,28 @@
 <template>
 	<div class="text-center fill-height align-center justify-center d-flex">
 
-		<div class="d-flex justify-center w-100" v-if="isActive === null">
-			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
-		</div>
-
-		<v-form v-else ref="form" v-model="formIsValid" @submit="validate" lazy-validation>
-			<div v-if="isActive === false">
-				<p>{{ $t("restricted.resetPasswordExpired") }}</p>
-
-				<v-btn color="primary" dark large to="/user/forgot-password">
-					{{ $t("restricted.resetPasswordAnotherOne") }}
-					<v-icon right>mdi-lock-reset</v-icon>
-				</v-btn>
-			</div>
+		<v-form ref="form" v-model="formIsValid" @submit="validate" lazy-validation>
 
 			<div v-if="isResetted === true">
+				<v-alert color="primary" style="background-color: rgba(0, 0, 0, 0.333) !important" outlined>
+					<v-icon class="mb-4" color="primary" size="64" left>mdi-shield-check</v-icon>
+					<h1 class="display-1 white--text">{{ $t("restricted.forceChangePasswordConfirmTitle") }}</h1>
+					<p class="mb-0">{{ $t("restricted.forceChangePasswordConfirmDesc") }}</p>
+				</v-alert>
 
-				<div>
-					<v-icon style="font-size: 4rem">mdi-shield-check</v-icon>
-				</div>
+				<v-progress-linear class="mb-4" v-model="progressBar" rounded></v-progress-linear>
 
-				<h1 class="my-4 display-1">{{ $t("restricted.resetPasswordResetted") }}</h1>
-
-				<v-btn color="primary" dark large to="/login">
-					{{ $t("restricted.backToLogin") }}
+				<v-btn color="primary" @click="goToDashboard()" class="w-100 d-block text-wrap py-3" style="height: auto">
+					<v-icon left>mdi-send</v-icon>
+					<span v-text="$t('restricted.goToDashboard')"></span>
 				</v-btn>
 			</div>
-
-			<div v-if="isActive === true && isResetted === false">
-				<h1 class="display-1">{{$t('restricted.resetPasswordTitle')}}</h1>
-				<p>{{$t('restricted.resetPasswordDesc')}}</p>
+			<div v-else>
+				<h1 class="display-1">{{$t('restricted.forceChangePasswordTitle')}}</h1>
+				<p>{{$t('restricted.forceChangePasswordDesc')}}</p>
 
 				<div class="my-4">
-					<v-text-field :error-messages="formErrors.password" v-model="password" loading :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword" autocomplete="new-password">
+					<v-text-field :error-messages="formErrors.password" v-model="password" loading :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword" autocomplete="new-password" autofocus>
 						<template v-slot:progress>
 							<v-progress-linear :value="progress" :color="color" absolute height="7"></v-progress-linear>
 						</template>
@@ -41,8 +30,8 @@
 					<v-text-field :error-messages="formErrors.confirmation" v-model="confirmation" :rules="[rules.required, rules.min, rules.identical]" :placeholder="$t('restricted.confirmationPlaceholder')" class="mt-2" light solo prepend-inner-icon="mdi-lock" :type="showConfirmPassword ? 'text' : 'password'" :append-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showConfirmPassword = !showConfirmPassword" autocomplete="new-password"></v-text-field>
 				</div>
 
-				<v-btn type="submit" color="primary" :disabled="!formIsValid" style="width: 100%" dark large>
-					{{ $t("restricted.resetPasswordBtn") }}
+				<v-btn type="submit" color="primary" style="width: 100%" :disabled="!formIsValid" dark large>
+					{{ $t("restricted.forceChangePasswordBtn") }}
 					<v-icon style="align-self: flex-end" right>mdi-lock-reset</v-icon>
 				</v-btn>
 			</div>
@@ -60,27 +49,26 @@ import Form from "../../utils/Form";
 export default Vue.extend({
 
 	mounted() {
-	    this.verify();
+		if (!this.$server.loggedIn) {
+			this.$router.push('/login');
+		}
 	},
 
 	methods: {
 
-	    verify () {
-	        UserService.verifyResetPasswordToken.bind(this)(this.token)
-				.then(response => this.isActive = true)
-				.catch(error => {
-                    this.isActive = false
-				    if (error.message) {
-				        switch (error.message) {
-							case 'BAD_TOKEN':
-							case 'USER_PASSWORD_REQUEST_TOKEN_EXPIRED':
-							case 'USER_PASSWORD_REQUEST_NOT_FOUND':
-							    break;
-							default:
-								this.$handleError(this, error);
-						}
-					}
-				});
+		initProgress() {
+			this.progressInterval = setInterval(() => {
+				this.progressBar++;
+
+				if(this.progressBar === 100) {
+					clearInterval(this.progressInterval);
+					this.goToDashboard();
+				}
+			}, 10000 / 100);
+		},
+
+		goToDashboard() {
+			window.location.href = '/';
 		},
 
 		validate (event) {
@@ -89,8 +77,11 @@ export default Vue.extend({
 
 			if (this.$refs.form.validate()) {
 				this.$root.isLoading = true;
-				UserService.resetPassword.bind(this)(this.token, this.password)
-					.then(response => this.isResetted = true)
+				UserService.loggedSetPassword.bind(this)(this.password)
+					.then(response => {
+						this.isResetted = true;
+						this.initProgress();
+					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
 			} else {
@@ -112,6 +103,8 @@ export default Vue.extend({
 
 	data() {
 		return {
+			progressInterval: null,
+			progressBar: 0,
 			isActive: null,
 			isResetted: false,
 			formIsValid: false,

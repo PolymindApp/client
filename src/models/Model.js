@@ -37,11 +37,14 @@ export default class Model {
 		for (let i = 0; i < keys.length; i++) {
 			const key = keys[i];
 			const value = this[key];
-			if ((!Array.isArray(value) && value instanceof Object) && value.id !== undefined) {
+
+			if (Array.isArray(value) && !includeArray) {
+				continue;
+			} else if (value === null && !includeNulls) {
+				continue;
+			} else if (value instanceof Object && value.id !== undefined) {
 				result[key] = value.id;
-			} else if (includeArray && Array.isArray(value)) {
-				result[key] = value;
-			} else if (includeNulls || value !== null) {
+			} else {
 				result[key] = value;
 			}
 		}

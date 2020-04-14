@@ -46,11 +46,11 @@ export default Vue.extend({
 				this.title = page.data.title;
 			})
 				.catch(error => {
-					if (error.response.status === 404) {
+					if (error.code === 203) {
 						return this.notFound = true;
 					}
-					if (error.data.message) {
-						switch(error.data.message) {
+					if (error.message) {
+						switch(error.message) {
 							case 'UNAUTHORIZED':
 								return this.isUnauthorized = true;
 								break;
