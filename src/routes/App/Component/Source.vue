@@ -105,7 +105,7 @@
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(hook, index) in component.hooks" :key="index">
 								<v-list-item-content>
-									<v-list-item-title v-text="hook.name"></v-list-item-title>
+									<v-list-item-title v-text="hook.name" :title="hook.name"></v-list-item-title>
 								</v-list-item-content>
 								<v-list-item-action>
 									<div>
@@ -157,7 +157,7 @@
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(parameter, index) in component.parameters" :key="index">
 								<v-list-item-content>
-									<v-list-item-title v-text="parameter.name"></v-list-item-title>
+									<v-list-item-title v-text="parameter.name" :title="parameter.name"></v-list-item-title>
 								</v-list-item-content>
 								<v-list-item-action>
 									<div>
@@ -209,7 +209,7 @@
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(func, index) in component.functions" :key="index">
 								<v-list-item-content>
-									<v-list-item-title v-text="func.name"></v-list-item-title>
+									<v-list-item-title v-text="func.name" :title="func.name"></v-list-item-title>
 								</v-list-item-content>
 								<v-list-item-action>
 									<div>
@@ -261,7 +261,7 @@
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(test, index) in component.tests" :key="index">
 								<v-list-item-content>
-									<v-list-item-title v-text="test.name"></v-list-item-title>
+									<v-list-item-title v-text="test.name" :title="test.name"></v-list-item-title>
 								</v-list-item-content>
 								<v-list-item-action>
 									<div>
