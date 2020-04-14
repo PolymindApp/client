@@ -1,5 +1,5 @@
 <template>
-	<v-sheet class="w-100" color="grey lighten-2" dark tile>
+	<v-sheet class="w-100" color="grey lighten-4" dark tile>
 
 		<v-sheet color="white" class="py-2 px-4" tile>
 			<v-row>
@@ -24,7 +24,7 @@
 				<v-col cols="12" md="6">
 
 					<!-- RADAR -->
-					<v-card light color="grey lighten-4">
+					<v-card light>
 						<v-list color="white">
 							<v-list-item>
 								<v-list-item-icon class="mr-4">

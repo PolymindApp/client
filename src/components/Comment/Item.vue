@@ -9,7 +9,7 @@
 			<!-- USERNAME -->
 			<v-list-item-title>
 				<span class="font-weight-medium">{{comment.action_by | userScreenName }}</span>
-				<span class="font-weight-light ml-0 ml-md-4 d-block d-md-inline">{{comment.action_on | timeAgo}}</span>
+				<span class="font-weight-light ml-0 ml-md-4 d-block d-md-inline caption">{{comment.action_on | timeAgo}}</span>
 			</v-list-item-title>
 
 			<div>

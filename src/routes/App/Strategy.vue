@@ -76,7 +76,7 @@
 		</v-dialog>
 
 		<div ref="header">
-			<v-tabs show-arrows style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
+			<v-tabs style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
 				<v-tab :to="'/strategy/' + id + '/settings'" exact>
 					<v-icon left>mdi-pencil-box-outline</v-icon>
 					{{$t('strategy.settings.title')}}
@@ -123,7 +123,7 @@
 			</v-alert>
 		</div>
 
-		<v-tabs-items touchless ref="items" style="flex: 1;" class="scrollable" v-model="tab">
+		<v-tabs-items touchless ref="items" style="flex: 1;" class="scrollable grey lighten-4" v-model="tab">
 			<v-tab-item :value="'/strategy/' + id + '/settings'" :style="tabStyle" class="fill-height">
 				<div style="height: 0">
 					<Settings @update="updateTab()" :strategy="strategy" :form-errors="formErrors" />

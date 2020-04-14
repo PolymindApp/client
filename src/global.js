@@ -2,6 +2,7 @@ import User from "./models/User";
 
 const globalVariables = {
 	user: new User(),
+	isMobile: false,
 	error: null,
 	languages: [],
 	breadcrumbs: [],
