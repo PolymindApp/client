@@ -232,12 +232,12 @@
 
 			commitsDay(value) {
 				if (value.data.length > 0) {
-					this.$emit('loadCommitsDay', value);
+					this.$emit('load-commits-day', value);
 				}
 			},
 
 			commitsDayDate(value) {
-				this.$emit('loadCommitsDayDate', value);
+				this.$emit('load-commits-day-date', value);
 			}
 		}
     });

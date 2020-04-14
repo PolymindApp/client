@@ -5,7 +5,7 @@
 				<v-card-title>
 					<span class="text-break">{{ $t('account.contributionLastYear', { total: commits.data.length }) }}</span>
 				</v-card-title>
-				<CommitGraph :user="user" @load="commits = arguments[0]" @loadCommitsDay="commitsDay = arguments[0]" @loadCommitsDayDate="commitsDayDate = arguments[0]"/>
+				<CommitGraph :user="user" @load="commits = arguments[0]" @load-commits-day="commitsDay = arguments[0]" @load-commits-day-date="commitsDayDate = arguments[0]"/>
 			</v-col>
 		</v-row>
 		<v-row>
