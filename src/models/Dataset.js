@@ -2,6 +2,7 @@ import DatasetColumn from "./DatasetColumn";
 import DatasetRow from "./DatasetRow";
 import DatasetCell from "./DatasetCell";
 import Model from "./Model";
+import Hash from "../utils/Hash";
 
 export default class Dataset extends Model {
 
@@ -22,6 +23,7 @@ return {
 
 		this.setDefaultValues({
 			id: null,
+			guid: Hash.guid(),
 			name: '',
 			description: '<p></p>',
 			is_private: true,

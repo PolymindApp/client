@@ -19,6 +19,7 @@ export default class User extends Model {
 			locale: null,
 			avatar: null,
 			wallpaper: null,
+			force_reset_password: true,
 			role: {
 				name: '',
 			},

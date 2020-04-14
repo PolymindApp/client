@@ -12,8 +12,8 @@ export default class StrategyService {
 		return Server.get.bind(this)('/items/strategy?filter[created_by]=' + this.$root.user.id + '&fields=' + defaultFields);
 	}
 
-	static get(id) {
-		return Server.get.bind(this)('/items/strategy/' + id);
+	static get(id, revisionOffset) {
+		return Server.get.bind(this)('/items/strategy/' + id + (revisionOffset !== undefined ? '/revisions/' + revisionOffset : ''));
 	}
 
 	static getRevisions(id) {

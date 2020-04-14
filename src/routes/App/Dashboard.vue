@@ -3,7 +3,7 @@
 
 		<v-sheet color="white" class="py-2 px-4" tile>
 			<v-row>
-				<v-col cols="12" :md="12 / objectives.length" v-for="(objective, objectiveIdx) in objectives">
+				<v-col cols="12" :md="12 / objectives.length" v-for="(objective, objectiveIdx) in objectives" :key="objectiveIdx">
 					<v-card class="pa-4 d-flex align-center" :color="objective.color">
 						<div class="shrink mr-4">
 							<v-progress-circular :rotate="-90" :size="80" :width="15" :value="objective.percentage" color="white">

@@ -108,18 +108,11 @@
 					{{$t('modal.publish')}}
 				</v-btn>
 			</v-tabs>
+		</div>
 
-			<v-alert v-if="isDeleted" style="flex: 0" class="ma-0" tile prominent type="error">
-				<v-row align="center">
-					<v-col class="grow">
-						<span v-text="$t('strategy.isDeleted')"></span>
-					</v-col>
-					<v-col class="shrink">
-						<v-btn @click="restore()">
-							<span v-text="$t('strategy.restore')"></span>
-						</v-btn>
-					</v-col>
-				</v-row>
+		<div v-if="isDeleted">
+			<v-alert dark prominent type="error" class="mb-0" tile>
+				<span v-text="$t('strategy.isDeleted')"></span>
 			</v-alert>
 		</div>
 
@@ -146,6 +139,29 @@
 			</v-btn>
 
 			<v-spacer></v-spacer>
+
+			<v-menu max-height="450" offset-y>
+				<template v-slot:activator="{ on }">
+					<v-btn :disabled="revisions.length === 0" class="float-right mr-4" v-on="on" text>
+						<v-icon :left="$vuetify.breakpoint.mdAndUp">mdi-history</v-icon>
+						<span v-if="$vuetify.breakpoint.mdAndUp">{{$t('revision.btnTitle')}}</span>
+						<v-icon right>mdi-chevron-up</v-icon>
+					</v-btn>
+				</template>
+				<v-list>
+					<v-list-item-group v-model="revisionOffset" color="primary">
+						<v-list-item v-for="(revision, index) in revisions" :key="index" @click="loadRevision(index)">
+							<v-list-item-avatar>
+								<UserAvatar :size="48" :user="revision.activity.action_by" />
+							</v-list-item-avatar>
+							<v-list-item-content>
+								<v-list-item-title>{{revision.activity.action_by | userScreenName }}</v-list-item-title>
+								<v-list-item-subtitle>{{ revision.data.modified_on }}</v-list-item-subtitle>
+							</v-list-item-content>
+						</v-list-item>
+					</v-list-item-group>
+				</v-list>
+			</v-menu>
 
 			<v-menu offset-y top>
 				<template v-slot:activator="{ on }">
@@ -174,14 +190,17 @@ import DeleteDialog from "../../components/DeleteDialog";
 import StrategyModel from "../../models/Strategy";
 import CommentService from "../../services/CommentService";
 import DeploymentService from "../../services/DeploymentService";
+import UserAvatar from "../../components/UserAvatar";
+import DatasetService from "../../services/DatasetService";
 
 export default Vue.extend({
 
-	components: { Source, Settings, Workflow, DeleteDialog },
+	components: { Source, Settings, Workflow, DeleteDialog, UserAvatar },
 
 	mounted() {
 		this.initializeValues();
 		this.load();
+		this.loadRevisions();
 		this.updateTab();
 		this.loadCommentCount();
 
@@ -239,13 +258,29 @@ export default Vue.extend({
 					.finally(() => this.$root.isLoading = false);
 		},
 
-		load() {
+		loadRevision(offset) {
+
+			this.load(offset);
+		},
+
+		loadRevisions() {
+
+			StrategyService.getRevisions.bind(this)(this.id)
+					.then(response => {
+						this.revisions = response.data.reverse();
+						this.revisionOffset = 0;
+					})
+					.catch(error => this.$handleError(this, error))
+					.finally(() => this.$root.isLoading = false);
+		},
+
+		load(revisionOffset) {
 
 			this.formErrors = [];
 
 			if (!this.isNew) {
 				this.$root.isLoading = true;
-				StrategyService.get.bind(this)(this.id)
+				StrategyService.get.bind(this)(this.id, revisionOffset)
 					.then(response => {
 						this.initializeValues();
 						this.id = response.data.id;
@@ -255,8 +290,8 @@ export default Vue.extend({
 						this.updateTab();
 					})
 					.catch(error => {
-						if (error.response.status === 404) {
-							this.$router.push('/404')
+						if (error.code === 203) {
+							return this.$router.replace('/404')
 						}
 						this.$handleError(this, error);
 					})
@@ -306,7 +341,7 @@ export default Vue.extend({
 		},
 
 		initializeValues() {
-
+			this.isDeleted = false;
 			this.strategy = new StrategyModel();
 		},
 
@@ -316,10 +351,20 @@ export default Vue.extend({
 			this.$root.isLoading = true;
 			StrategyService.save.bind(this)(this.id !== 'new' ? this.id : null, this.strategy)
 				.then(response => {
+
+					this.$root.$emit('STRATEGY_UPDATE');
+					this.$root.isSaved = true;
+
+					if (this.id !== response.data.id) {
+						return this.$router.push('/strategy/' + response.data.id);
+					}
+
 					this.id = response.data.id;
 					this.isNew = false;
 					this.updateOriginalData();
-					this.$root.isSaved = true;
+					this.loadRevisions();
+					this.updateTab();
+					this.revisionOffset = 0;
 				})
 				.catch(error => this.$handleError(this, error))
 				.finally(() => this.$root.isLoading = false);
@@ -333,6 +378,7 @@ export default Vue.extend({
 					.then(response => {
 						this.isDeleted = true;
 						this.$refs.deleteModal.hide();
+						this.$root.$emit('STRATEGY_UPDATE');
 					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
@@ -377,6 +423,8 @@ export default Vue.extend({
 				visible: false,
 				publied: false,
 			},
+			revisions: [],
+			revisionOffset: 0,
 			maxHeight: 500,
 			id: this.$route.params.id,
 			isNew: this.$route.params.id === 'new',

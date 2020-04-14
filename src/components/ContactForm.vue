@@ -5,7 +5,7 @@
 			{{$t('contact.success')}}
 		</v-alert>
 
-		<v-text-field solo :light="!inputDark" v-model="data.name" :disabled="disabled" :rules="[rules.required]" :label="$t('contact.name')" required />
+		<v-text-field solo :light="!inputDark" v-model="data.name" :disabled="disabled" :rules="[rules.required]" :label="$t('contact.name')" autofocus required />
 		<v-text-field solo :light="!inputDark" v-model="data.email" :disabled="disabled" :rules="[rules.required, rules.email]" :label="$t('contact.email')" required />
 		<v-select solo :light="!inputDark" v-model="data.subject" :disabled="disabled" :items="items" :rules="[rules.required]" :label="$t('contact.subject')" required />
 
@@ -50,6 +50,13 @@ export default Vue.extend({
 		}
 	},
 
+	created() {
+		const subject = this.$route.query.subject;
+		if (subject) {
+			this.data.subject = this.$t('contact.subjects.' + subject);
+		}
+	},
+
 	methods: {
 
 		validate () {
@@ -80,6 +87,7 @@ export default Vue.extend({
 		items() {
 
 			return [
+				{ text: this.$t('contact.subjects.invitation'), value: this.$t('contact.subjects.invitation') },
 				{ text: this.$t('contact.subjects.issue'), value: this.$t('contact.subjects.issue') },
 				{ text: this.$t('contact.subjects.feature'), value: this.$t('contact.subjects.feature') },
 				{ text: this.$t('contact.subjects.other'), value: 'other' },
@@ -96,6 +104,7 @@ export default Vue.extend({
 				name: null,
 				email: null,
 				subject: null,
+				otherSubject: null,
 				message: null,
 				sendCopy: false,
 			},

@@ -18,6 +18,7 @@ const literals = {
 		about: 'Acerca de',
 		error404: 'Página no encontrada',
 		register: 'Inscripción',
+		updateAccess: 'Actualizar acceso',
 	},
 	error404: {
 		desc: 'Un viento de misterio se levanta sobre nosotros...'
@@ -258,6 +259,7 @@ const literals = {
 		send: 'Enviar',
 		success: 'Gracias ! Su mensaje ha sido enviado y nos pondremos en contacto con usted a la brevedad.',
 		subjects: {
+			invitation: 'Obtener una invitación',
 			issue: 'Problema con la app',
 			feature: 'Nueva funcionalidad',
 			other: 'Otro',
@@ -290,6 +292,18 @@ const literals = {
 		loginBtn: 'Sign-In',
 		emailPlaceholder: 'Correo electrónico',
 		passwordPlaceholder: 'Contraseña',
+		actualPassPlaceholder: 'Contraseña actual',
+		confirmPlaceholder: 'Confirme su contraseña',
+		confirmationPlaceholder: 'Confirme su contraseña',
+		forceChangePasswordTitle: 'Actualice su contraseña',
+		forceChangePasswordDesc: 'Debe cambiar su contraseña para continuar con su cuenta Polymind',
+		forceChangePasswordBtn: 'Actualizar',
+		forceChangePasswordConfirmTitle: '¡Contraseña actualizada!',
+		forceChangePasswordConfirmDesc: 'Guarde su contraseña en un lugar seguro',
+		goToDashboard: 'Ir al salpicadero',
+		requestInvite: 'Solicitud de invitación',
+		loginConfirmTitle: '¡Este conectado!',
+		loginConfirmDesc: 'Será redirigido automáticamente a su cuenta en un instante',
 	},
 	rules: {
 		required: 'Este campo es obligatorio',

@@ -27,6 +27,7 @@ const literals = {
 		component: 'Composante',
 		dataset: 'Bases de données',
 		accountMessaging: 'Messagerie',
+		updateAccess: 'Mettre à jour les accès',
 	},
 	dashboard: {
 
@@ -1016,6 +1017,7 @@ const literals = {
 		send: 'Envoyez',
 		success: 'Merci ! Votre message a été envoyé et nous vous répondrons sous peu.',
 		subjects: {
+			invitation: 'Obtenir une invitation',
 			issue: 'Problème avec l\'application',
 			feature: 'Nouvelle fonctionnalitée',
 			other: 'Autre',
@@ -1073,6 +1075,15 @@ const literals = {
 		accountActivationResentTitle: 'Clé renvoyé !',
 		accountActivationResentDesc: 'Vérifiez votre boite courriel afin d\'activer votre compte. Si vous éprouvez toujours des difficultés, <a href="/contact">contactez notre équipe</a>.',
 		accessMyAccount: 'Accédez à mon compte',
+		forceChangePasswordTitle: 'Mettez à jour vos accès',
+		forceChangePasswordDesc: 'Vous devez changer votre mot de passe afin d\'accéder à votre compte Polymind.',
+		forceChangePasswordBtn: 'Mettre à jour',
+		forceChangePasswordConfirmTitle: 'Mot de passe à jour !',
+		forceChangePasswordConfirmDesc: 'Notez votre mot de passe dans un endroit sécuritaire.',
+		goToDashboard: 'Allez au tableau de bord',
+		requestInvite: 'Demander une invitation',
+		loginConfirmTitle: 'Vous êtes connecté !',
+		loginConfirmDesc: 'Vous serez automatiquement redirigé vers votre compte dans un instant.',
 	},
 	rules: {
 		required: 'Ce champ est requis',
