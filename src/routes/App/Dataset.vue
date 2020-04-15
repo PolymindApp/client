@@ -80,7 +80,7 @@
 				<v-icon left>mdi-pencil-box-outline</v-icon>
 				{{$t('dataset.settings.title')}}
 			</v-tab>
-			<v-tab :to="'/dataset/' + id + '/data'" exact>
+			<v-tab :to="'/dataset/' + id + '/data'" :disabled="dataset.is_remote" exact>
 				<v-icon left>mdi-database-edit</v-icon>
 				{{$t('dataset.data.title')}}
 			</v-tab>
@@ -102,10 +102,10 @@
 				{{$t('modal.fork')}}
 			</v-btn>
 
-			<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3 d-none" small>
+<!--		<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3" small>
 				<v-icon left>mdi-publish</v-icon>
 				{{$t('modal.publish')}}
-			</v-btn>
+			</v-btn>-->
 		</v-tabs>
 
 		<div v-if="isDeleted">
