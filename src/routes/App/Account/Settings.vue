@@ -31,9 +31,9 @@
 						</v-col>
 						<v-col cols="12" md="8">
 							<v-radio-group mandatory hide-details row class="mt-0" v-model="user.settings.externalMsg">
-								<v-radio value="public" color="primary" :label="$t('account.settings.externalMsgPublic')" />-->
-<!--								<v-radio value="friends" color="primary" :label="$t('account.settings.externalMsgFriends')" />-->
-<!--								<v-radio value="nobody" color="primary" :label="$t('account.settings.externalMsgNobody')" />
+								<v-radio value="public" color="primary" :label="$t('account.settings.externalMsgPublic')" />
+								<v-radio value="friends" color="primary" :label="$t('account.settings.externalMsgFriends')" />
+								<v-radio value="nobody" color="primary" :label="$t('account.settings.externalMsgNobody')" />
 							</v-radio-group>
 						</v-col>
 					</v-row>-->

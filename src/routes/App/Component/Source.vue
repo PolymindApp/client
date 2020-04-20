@@ -85,7 +85,7 @@
 					<!-- HOOKS -->
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
-							<v-icon class="mr-md-2">mdi-flash</v-icon>
+							<v-icon left>mdi-flash</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.hooks.title')"></span>
 								<span v-if="component.hooks.length > 0"> ({{ component.hooks.length }})</span>
@@ -137,7 +137,7 @@
 					<!-- PARAMETERS -->
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
-							<v-icon class="mr-md-2">mdi-code-parentheses-box</v-icon>
+							<v-icon left>mdi-code-parentheses-box</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.parameters.title')"></span>
 								<span v-if="component.parameters.length > 0"> ({{ component.parameters.length }})</span>
@@ -189,7 +189,7 @@
 					<!-- FUNCTIONS -->
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
-							<v-icon class="mr-md-2">mdi-function</v-icon>
+							<v-icon left>mdi-function</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.functions.title')"></span>
 								<span v-if="component.functions.length > 0"> ({{ component.functions.length }})</span>
@@ -241,7 +241,7 @@
 					<!-- TESTS -->
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
-							<v-icon class="mr-md-2">mdi-bug</v-icon>
+							<v-icon left>mdi-bug</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.tests.title')"></span>
 								<span v-if="component.tests.length > 0"> ({{ component.tests.length }})</span>
