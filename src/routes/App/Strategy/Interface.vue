@@ -230,7 +230,7 @@
 <script>
 import Vue from 'vue';
 import Page from "../../../components/Page";
-import Hash from "../../../utils/Hash";
+import { Hash}  from "@polymind/sdk-js";
 import EmptyView from "../../../components/EmptyView";
 
 export default Vue.extend({

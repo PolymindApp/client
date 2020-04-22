@@ -23,24 +23,47 @@
 			<v-row>
 				<v-col cols="12" md="6">
 
-					<!-- RADAR -->
-					<v-card light>
-						<v-list color="white">
-							<v-list-item>
-								<v-list-item-icon class="mr-4">
-									<v-icon>mdi-newspaper-variant-multiple-outline</v-icon>
-								</v-list-item-icon>
-								<v-list-item-content>
-									<v-list-item-title class="headline primary--text" v-text="$t('dashboard.objectives.title')"></v-list-item-title>
-								</v-list-item-content>
-							</v-list-item>
-						</v-list>
-						<v-divider></v-divider>
-						<div class="pa-4">
-							<Radar class="my-4" height="200" :labels="radar.labels" :datasets="radar.datasets" :colors="radar.colors" />
-							<Radar class="mt-12" height="200" :labels="radar2.labels" :datasets="radar2.datasets" :colors="radar2.colors" />
+					<!-- BARS -->
+					<v-card light color="white">
+						<div class="d-flex align-center pa-4">
+							<div class="shrink">
+								<v-btn :disabled="strategies.data.length < 2" icon>
+									<v-icon>mdi-chevron-left</v-icon>
+								</v-btn>
+							</div>
+							<div class="flex-md-grow-1">
+								<v-select class="pa-0 ma-0 mx-4" label="Strategie" item-text="name" :items="strategies.data" v-model="selectedStrategy" solo flat dense hide-details></v-select>
+							</div>
+							<div class="shrink">
+								<v-btn :disabled="strategies.data.length < 2" icon>
+									<v-icon>mdi-chevron-right</v-icon>
+								</v-btn>
+							</div>
+						</div>
+
+						<div class="pa-4 pt-0">
+							<bar-chart style="height: 350px" :chart-data="strategyData" :options="chartOptions"></bar-chart>
 						</div>
 					</v-card>
+
+					<!-- RADAR -->
+<!--					<v-card light>-->
+<!--						<v-list color="white">-->
+<!--							<v-list-item>-->
+<!--								<v-list-item-icon class="mr-4">-->
+<!--									<v-icon>mdi-newspaper-variant-multiple-outline</v-icon>-->
+<!--								</v-list-item-icon>-->
+<!--								<v-list-item-content>-->
+<!--									<v-list-item-title class="headline primary&#45;&#45;text" v-text="$t('dashboard.objectives.title')"></v-list-item-title>-->
+<!--								</v-list-item-content>-->
+<!--							</v-list-item>-->
+<!--						</v-list>-->
+<!--						<v-divider></v-divider>-->
+<!--						<div class="pa-4">-->
+<!--							<Radar class="my-4" height="200" :labels="radar.labels" :datasets="radar.datasets" :colors="radar.colors" />-->
+<!--							<Radar class="mt-12" height="200" :labels="radar2.labels" :datasets="radar2.datasets" :colors="radar2.colors" />-->
+<!--						</div>-->
+<!--					</v-card>-->
 				</v-col>
 				<v-col cols="12" md="6">
 
@@ -92,29 +115,6 @@
 							</v-slide-y-reverse-transition>
 						</v-list>
 					</v-card>
-
-					<!-- BARS -->
-					<v-card class="mt-4" light color="white">
-						<div class="d-flex align-center pa-4">
-							<div class="shrink">
-								<v-btn :disabled="strategies.data.length < 2" icon>
-									<v-icon>mdi-chevron-left</v-icon>
-								</v-btn>
-							</div>
-							<div class="flex-md-grow-1">
-								<v-select class="pa-0 ma-0 mx-4" label="Strategie" item-text="name" :items="strategies.data" v-model="selectedStrategy" solo flat dense hide-details></v-select>
-							</div>
-							<div class="shrink">
-								<v-btn :disabled="strategies.data.length < 2" icon>
-									<v-icon>mdi-chevron-right</v-icon>
-								</v-btn>
-							</div>
-						</div>
-
-						<div class="pa-4 pt-0">
-							<bar-chart style="height: 400px" :chart-data="strategyData" :options="chartOptions"></bar-chart>
-						</div>
-					</v-card>
 				</v-col>
 			</v-row>
 		</v-sheet>
@@ -159,21 +159,14 @@
 <script>
 import Vue from 'vue';
 import EmptyView from "../../components/EmptyView";
-import Deck from "../../components/Deck";
 import BarChart from "../../components/Chart/Bar";
-import Response from "../../models/Response";
-import NewsService from "../../services/NewsService";
-// import StrategyService from "../../services/StrategyService";
-// import ComponentService from "../../services/ComponentService";
-// import DocumentService from "../../services/DocumentService";
-// import DatasetService from "../../services/DatasetService";
-
+import { Response, NewsService } from "@polymind/sdk-js";
 import Radar from "../../components/Chart/Radar";
 import UserAvatar from "../../components/UserAvatar";
 
 export default Vue.extend({
 
-	components: { EmptyView, Deck, UserAvatar, BarChart, Radar },
+	components: { EmptyView, UserAvatar, BarChart, Radar },
 
 	mounted() {
 
@@ -190,11 +183,11 @@ export default Vue.extend({
 
             this.newsIsLoading = true;
             Promise.all([
-                NewsService.getAll.bind(this)(),
-                // StrategyService.getAllMine.bind(this)(),
-                // ComponentService.getAllMine.bind(this)(),
-                // DocumentService.getAllMine.bind(this)(),
-                // DatasetService.getAllMine.bind(this)()
+                NewsService.getAll(this.$i18n.locale),
+                // StrategyService.getAll(this.$root.user.id),
+                // ComponentService.getAll(this.$root.user.id),
+                // DocumentService.getAll(this.$root.user.id),
+                // DatasetService.getAll(this.$root.user.id)
             ])
                 .then(([news, strategies, components, documents, datasets]) => {
                 	this.news = news;
@@ -227,9 +220,9 @@ export default Vue.extend({
             fab: false,
 			selectedStrategy: [],
 			objectives: [
-				{ title: 'Réussis', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 10000), color: 'primary', },
-				{ title: 'Échoués', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'secondary', },
-				{ title: 'À étudier', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'third', },
+				{ title: 'Facile', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 10000), color: 'primary', },
+				{ title: 'Incertain', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'third', },
+				{ title: 'Difficile', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'secondary', },
 				// { title: 'Daily Objectives', percentage: 66, value: 12039, color: 'white', },
 			],
 			news: new Response(),
@@ -240,16 +233,16 @@ export default Vue.extend({
 				labels: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5],
 				datasets: [
 					{
-						label: 'Visuel',
+						label: 'Facile',
 						backgroundColor: this.$vuetify.theme.themes.light.primary,
 						data: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5]
 					}, {
-						label: 'Écoute',
-						backgroundColor: this.$vuetify.theme.themes.light.secondary,
+						label: 'Incertain',
+						backgroundColor: this.$vuetify.theme.themes.light.third,
 						data: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5]
 					}, {
-						label: 'Concentration',
-						backgroundColor: this.$vuetify.theme.themes.light.third,
+						label: 'Difficile',
+						backgroundColor: this.$vuetify.theme.themes.light.secondary,
 						data: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5]
 					}
 				]

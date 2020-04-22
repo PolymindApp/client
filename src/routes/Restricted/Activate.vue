@@ -61,10 +61,7 @@
 
 <script>
 import Vue from 'vue';
-import ErrorDialog from '../../components/ErrorDialog.vue';
-import Rules from "../../utils/Rules";
-import UserService from "../../services/UserService";
-import Form from "../../utils/Form";
+import { UserService } from "@polymind/sdk-js";
 
 export default Vue.extend({
 
@@ -77,7 +74,7 @@ export default Vue.extend({
 		verify () {
 
 			this.$root.isLoading = true;
-			UserService.activate.bind(this)(this.token)
+			UserService.activate(this.token)
 				.then(response => this.isActivated = true)
 				.catch(error => {
                     this.isActivated = false;
@@ -95,7 +92,7 @@ export default Vue.extend({
 		resendActivation() {
 
 			this.$root.isLoading = true;
-			UserService.resendActivation.bind(this)(this.lookup)
+			UserService.resendActivation(this.lookup)
 				.then(response => {
 					this.errorCode = null;
 					this.isResent = true;

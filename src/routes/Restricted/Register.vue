@@ -34,8 +34,7 @@
 
 <script>
 import Vue from 'vue';
-import Rules from "../../utils/Rules";
-import UserService from "../../services/UserService";
+import { Rules, UserService } from "@polymind/sdk-js";
 import Form from "../../utils/Form";
 
 export default Vue.extend({
@@ -48,7 +47,7 @@ export default Vue.extend({
 
 			if (this.$refs.form.validate()) {
 				this.$root.isLoading = true;
-				UserService.register.bind(this)(this.email, this.password)
+				UserService.register(this.email, this.password)
 					.then(response => this.hasSucceeded = true)
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);

@@ -28,10 +28,8 @@
 
 <script>
 import Vue from 'vue';
-import Rules from "../../utils/Rules";
-import UserService from "../../services/UserService";
+import { Rules, UserService, UserModel } from "@polymind/sdk-js";
 import UserAvatar from "../../components/UserAvatar";
-import UserModel from "../../models/User";
 
 export default Vue.extend({
 
@@ -64,7 +62,7 @@ export default Vue.extend({
 
 			if (this.$refs.form.validate()) {
 				this.$root.isLoading = true;
-				UserService.login.bind(this)(this.user.email, this.password)
+				this.$polymind.login(this.user.email, this.password)
 					.then(response => {
 						localStorage.removeItem('lockedUser');
 						window.location.href = localStorage.getItem('redirect_uri') || '/';

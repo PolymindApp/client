@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import moment from 'moment';
-import vuetify from './plugins/vuetify';
 import globalVariables from './global';
 import * as VueGoogleMaps from 'vue2-google-maps';
 import App, { routes as appRoutes } from './routes/App.vue';
@@ -10,33 +9,30 @@ import VueI18n from 'vue-i18n';
 import VueRouter from 'vue-router';
 import messages from './locales';
 import VueCookies from 'vue-cookies';
+import Vuetify from "vuetify/lib";
 import VueAnalytics from 'vue-analytics';
-import StatsService from './services/StatsService';
-import DirectusSDK from "@directus/sdk-js";
-import User from "./models/User";
+import PolymindSDK, { User, StatsService, EventBus, UserService } from "@polymind/sdk-js";
 import 'roboto-fontface/css/roboto/sass/roboto-fontface.scss';
 import '@mdi/font/scss/materialdesignicons.scss';
-import "./styles/index.scss";
+import "./index.scss";
 import './filters';
 import './loader';
-// import './registerServiceWorker';
 // import ab from 'autobahn';
 
 let router;
-let directusConfig = {
-	url: process.env.VUE_APP_API_URL,
-	project: 'polymind',
-	storage: window.localStorage,
-};
 
-const server = new DirectusSDK(directusConfig);
+const $polymind = new PolymindSDK(process.env.VUE_APP_API_URL);
 Object.defineProperties(Vue.prototype, {
-	$server: { value: server }
+	$polymind: { value: $polymind }
 });
 
-const $busView = new Vue();
-Object.defineProperties(Vue.prototype, {
-	$bus: { value: $busView }
+Vue.use(Vuetify);
+const vuetify = new Vuetify({
+	theme: {
+		themes: {
+			light: $polymind.theme
+		},
+	},
 });
 
 // const stats = JSON.parse(localStorage.getItem('statsQueue')) || { queue: [], };
@@ -83,7 +79,7 @@ const i18n = new VueI18n({
 	let component = Restricted;
 	let routes = restrictedRoutes;
 
-	if (server.loggedIn) {
+	if ($polymind.isLoggedIn()) {
 		component = App;
 		routes = appRoutes;
 		localStorage.removeItem('redirect_uri');
@@ -162,8 +158,10 @@ const i18n = new VueI18n({
 		}).$mount('#app');
 	};
 
-	$busView.$on('LOCK_USER', (user) => {
-		localStorage.setItem('lockedUser', JSON.stringify(user));
+	EventBus.subscribe('LOCK_USER', () => {
+		// TODO: VERIFY THIS REFACTORING
+		localStorage.setItem('redirect_uri', Vue.prototype.$route.fullPath);
+		localStorage.setItem('lockedUser', JSON.stringify(Vue.prototype.$root.user));
 		component = Restricted;
 		routes = restrictedRoutes;
 		callback();
@@ -177,12 +175,12 @@ const i18n = new VueI18n({
 	//
 	// conn.onopen = (session) => {
 
-		server.request('POST', '/custom/user/update-ws-token', undefined, {
+		UserService.updateWsToken({
 			// sessionId: session.id
 		})
 			.then(data => {
 				const user = new User(data.user);
-				if (!server.loggedIn || (data.user && user.force_reset_password !== true)) {
+				if (!$polymind.isLoggedIn() || (data.user && user.force_reset_password !== true)) {
 					callback();
 				} else {
 					component = Restricted;

@@ -67,19 +67,16 @@
 
 <script>
 import Vue from 'vue';
-import UserService from '../../services/UserService';
+import { UserService, User } from '@polymind/sdk-js';
 import Activities from './Account/Activities.vue';
 import Information from "./Account/Information";
 import Header from "./Account/Header";
-import User from "../../models/User";
 import Messaging from "./Account/Messaging";
 import Settings from "./Account/Settings";
 import Notifications from "./Account/Notifications";
-import Elements from "./Account/Elements";
-import ComponentService from "../../services/ComponentService";
 
 export default Vue.extend({
-	components: { Elements, Activities, Information, Header, Messaging, Notifications, Settings },
+	components: { Activities, Information, Header, Messaging, Notifications, Settings },
 
 	mounted() {
 	    this.load();
@@ -105,7 +102,7 @@ export default Vue.extend({
 				secondTitle,
 				thirdTitle,
 			];
-			document.title = thirdTitle + ' | ' + secondTitle + ' | ' + this.$t('title.account');
+			document.title = thirdTitle + ' - ' + secondTitle + ' - ' + this.$t('title.account');
 
 			this.id = parseInt(this.$route.params.id);
 		},
@@ -114,8 +111,8 @@ export default Vue.extend({
 
 			this.$root.isLoading = true;
 			Promise.all([
-                UserService.get.bind(this)(this.id),
-				// ComponentService.countByUser.bind(this)(this.id)
+                UserService.get(this.id),
+				// ComponentService.countByUser(this.id)
 			]).then(([user, component]) => {
                 this.user = new User(user.data);
                 this.originalUser = this.$deepClone(this.user);

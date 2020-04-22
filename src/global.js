@@ -1,4 +1,4 @@
-import User from "./models/User";
+import { User } from "@polymind/sdk-js";
 
 const globalVariables = {
 	user: new User(),

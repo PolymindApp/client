@@ -25,7 +25,7 @@
 
 <script>
     import Vue from 'vue';
-	import Hash from "../utils/Hash";
+	import { Hash } from "@polymind/sdk-js";
 
     export default Vue.extend({
 

@@ -212,13 +212,8 @@
 
 <script>
 	import Vue from 'vue';
-	import File from "../../../utils/File";
+	import { File, UserModel, FileService, UserService, FollowingService, MessagingService } from "@polymind/sdk-js";
 	import UserAvatar from "../../../components/UserAvatar";
-	import UserModel from "../../../models/User";
-	import FileService from "../../../services/FileService";
-	import UserService from "../../../services/UserService";
-	import FollowingService from "../../../services/FollowingService";
-	import MessagingService from "../../../services/MessagingService";
 
 	export default Vue.extend({
 
@@ -248,7 +243,7 @@
 			sendMessage() {
 
 				this.$root.isLoading = true;
-				MessagingService.sendMessage.bind(this)(this.user.id, this.newMessage.text)
+				MessagingService.sendMessage(this.user.id, this.newMessage.text)
 						.then(response => {
 							Object.assign(this.newMessage, {
 								visible: false,
@@ -263,9 +258,9 @@
 			loadFollowingCount() {
 
 				Promise.all([
-					FollowingService.countFollowers.bind(this)(this.user.id),
-					FollowingService.countFollowing.bind(this)(this.user.id),
-					FollowingService.isFollowing.bind(this)(this.user.id),
+					FollowingService.countFollowers(this.user.id),
+					FollowingService.countFollowing(this.user.id),
+					FollowingService.isFollowing(this.$root.user.id, this.user.id),
 				]).then(([followers, following, isFollowing]) => {
 					this.countFollowers = followers;
 					this.countFollowing = following;
@@ -277,7 +272,7 @@
 			loadFollowing() {
 
 				this.$root.isLoading = true;
-				FollowingService.getFollowings.bind(this)(this.user.id)
+				FollowingService.getFollowings(this.user.id)
 						.then(response => {
 							this.followingModal.list = response;
 							this.followingModal.loaded = true;
@@ -289,7 +284,7 @@
 			loadFollowers() {
 
 				this.$root.isLoading = true;
-				FollowingService.getFollowers.bind(this)(this.user.id)
+				FollowingService.getFollowers(this.user.id)
 						.then(response => {
 							this.followersModal.list = response;
 							this.followersModal.loaded = true;
@@ -301,7 +296,7 @@
 			toggleFollowing() {
 
 				this.$root.isLoading = true;
-				FollowingService.toggleFollowing.bind(this)(this.user.id)
+				FollowingService.toggleFollowing(this.user.id)
 						.then(response => {
 							this.isFollowing.meta.filter_count = response ? 1 : 0;
 							this.countFollowers.meta.filter_count = response ? 1 : 0
@@ -314,9 +309,9 @@
 				File.promptFileDialog(images => {
 					this.isUploading = true;
 					this.$crop(images, [1400, 350]).then(croppedImages => {
-						FileService.upload.bind(this)(croppedImages)
+						FileService.upload(croppedImages)
 								.then(filesResponse => {
-									UserService.update.bind(this)(this.$root.user.id, {
+									UserService.update(this.$root.user.id, {
 										wallpaper: filesResponse.data.id
 									})
 											.then(response => {

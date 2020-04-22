@@ -3,92 +3,24 @@
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
-		<!-- IS FORKED -->
-		<v-snackbar color="success" v-model="forkModal.forked">
-			<v-icon class="white--text" left>mdi-check</v-icon>
-			{{$t('snackbar.forked')}}
-			<v-btn text @click="forkModal.forked = false">
-				{{$t('modal.close')}}
-			</v-btn>
-		</v-snackbar>
-
-		<!-- IS PUBLIED -->
-		<v-snackbar color="success" v-model="publishModal.publied">
-			<v-icon class="white--text" left>mdi-check</v-icon>
-			{{$t('snackbar.forked')}}
-			<v-btn text @click="forkModal.publied = false">
-				{{$t('modal.close')}}
-			</v-btn>
-		</v-snackbar>
-
-		<!-- MODAL: PUBLISH -->
-		<v-dialog v-model="publishModal.visible" scrollable persistent max-width="500px">
-			<v-card>
-				<v-card-title>
-					<v-icon color="primary" slot="icon" size="36" left>mdi-publish</v-icon>
-					{{$t('strategy.publishModal.title')}}
-				</v-card-title>
-
-				<v-card-text>
-					TBD
-				</v-card-text>
-
-				<v-card-actions>
-					<v-spacer></v-spacer>
-
-					<v-btn color="primary" @click="publish()">
-						<v-icon left>mdi-publish</v-icon>
-						{{$t('modal.publish')}}
-					</v-btn>
-
-					<v-btn @click="publishModal.visible = false">
-						{{$t('modal.cancel')}}
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-
-		<!-- MODAL: FORK -->
-		<v-dialog v-model="forkModal.visible" scrollable persistent max-width="500px">
-			<v-card>
-				<v-card-title>
-					<v-icon color="primary" slot="icon" size="36" left>mdi-directions-fork</v-icon>
-					{{$t('strategy.forkModal.title')}}
-				</v-card-title>
-
-				<v-card-text>
-					<span v-text="$t('strategy.forkModal.forkDesc')"></span>
-				</v-card-text>
-
-				<v-card-actions>
-					<v-spacer></v-spacer>
-
-					<v-btn color="primary" @click="fork()">
-						<v-icon left>mdi-directions-fork</v-icon>
-						{{$t('modal.fork')}}
-					</v-btn>
-
-					<v-btn @click="forkModal.visible = false">
-						{{$t('modal.cancel')}}
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-
 		<div ref="header">
 			<v-tabs style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
 				<v-tab :to="'/strategy/' + id + '/settings'" exact>
 					<v-icon left>mdi-pencil-box-outline</v-icon>
 					{{$t('strategy.settings.title')}}
 				</v-tab>
-				<v-tab :to="'/strategy/' + id + '/interface'" exact>
-					<v-icon left>mdi-code-tags</v-icon>
-					{{$t('strategy.interface.title')}}
+				<v-tab :to="'/strategy/' + id + '/assembly'" exact>
+					<v-icon left>mdi-transit-connection-variant</v-icon>
+					{{$t('strategy.assembly.title')}}
 				</v-tab>
-				<v-tab :to="'/strategy/' + id + '/workflow'" exact>
-					<v-icon left>mdi-flash-outline</v-icon>
-					{{$t('strategy.workflow.title')}}
-				</v-tab>
+<!--				<v-tab :to="'/strategy/' + id + '/interface'" exact>-->
+<!--					<v-icon left>mdi-code-tags</v-icon>-->
+<!--					{{$t('strategy.interface.title')}}-->
+<!--				</v-tab>-->
+<!--				<v-tab :to="'/strategy/' + id + '/workflow'" exact>-->
+<!--					<v-icon left>mdi-flash-outline</v-icon>-->
+<!--					{{$t('strategy.workflow.title')}}-->
+<!--				</v-tab>-->
 
 				<v-spacer></v-spacer>
 
@@ -96,16 +28,6 @@
 					<v-icon left>mdi-comment</v-icon>
 					{{$t('comment.btnTitle')}}
 					<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
-				</v-btn>
-
-				<v-btn :disabled="isDeleted" @click="openFork()" color="grey darken-2 white--text" class="mt-3 mr-2" small>
-					<v-icon left>mdi-directions-fork</v-icon>
-					{{$t('modal.fork')}}
-				</v-btn>
-
-				<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3 d-none" small>
-					<v-icon left>mdi-publish</v-icon>
-					{{$t('modal.publish')}}
 				</v-btn>
 			</v-tabs>
 		</div>
@@ -122,12 +44,15 @@
 					<Settings @update="updateTab()" :strategy="strategy" :form-errors="formErrors" />
 				</div>
 			</v-tab-item>
-			<v-tab-item :value="'/strategy/' + id + '/interface'" :style="tabStyle" class="fill-height">
-				<Source :strategy="strategy" :form-errors="formErrors" />
+			<v-tab-item :value="'/strategy/' + id + '/assembly'" :style="tabStyle" class="fill-height">
+				<Assembly :strategy="strategy" :form-errors="formErrors" />
 			</v-tab-item>
-			<v-tab-item :value="'/strategy/' + id + '/workflow'" :style="tabStyle" class="fill-height">
-				<Workflow :strategy="strategy" :form-errors="formErrors" />
-			</v-tab-item>
+<!--			<v-tab-item :value="'/strategy/' + id + '/interface'" :style="tabStyle" class="fill-height">-->
+<!--				<Source :strategy="strategy" :form-errors="formErrors" />-->
+<!--			</v-tab-item>-->
+<!--			<v-tab-item :value="'/strategy/' + id + '/workflow'" :style="tabStyle" class="fill-height">-->
+<!--				<Workflow :strategy="strategy" :form-errors="formErrors" />-->
+<!--			</v-tab-item>-->
 		</v-tabs-items>
 
 		<v-toolbar ref="actions" style="flex: 0; border-top: #ccc solid 1px" flat tile>
@@ -183,19 +108,14 @@
 <script>
 import Vue from 'vue';
 import Settings from "./Strategy/Settings";
-import Source from "./Strategy/Interface";
-import Workflow from "./Strategy/Workflow";
-import StrategyService from "../../services/StrategyService";
+import { StrategyService, Strategy, CommentService, DeploymentService } from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
-import StrategyModel from "../../models/Strategy";
-import CommentService from "../../services/CommentService";
-import DeploymentService from "../../services/DeploymentService";
 import UserAvatar from "../../components/UserAvatar";
-import DatasetService from "../../services/DatasetService";
+import Assembly from "./Strategy/Assembly";
 
 export default Vue.extend({
 
-	components: { Source, Settings, Workflow, DeleteDialog, UserAvatar },
+	components: { Settings, Assembly, DeleteDialog, UserAvatar },
 
 	mounted() {
 		this.initializeValues();
@@ -233,7 +153,7 @@ export default Vue.extend({
 				sectionTitle,
 				thirdTitle,
 			];
-			document.title = sectionTitle + ' | ' + this.$t('title.strategy');
+			document.title = sectionTitle + ' - ' + this.$t('title.strategy');
 
 			this.isNew = this.$route.params.id === 'new';
 			this.id = this.isNew ? 'new' : parseInt(this.$route.params.id);
@@ -250,7 +170,7 @@ export default Vue.extend({
 
 		loadCommentCount() {
 
-			CommentService.count.bind(this)('strategy', this.id)
+			CommentService.count('strategy', this.id)
 					.then(response => {
 						this.commentCount = response.meta.filter_count;
 					})
@@ -265,7 +185,7 @@ export default Vue.extend({
 
 		loadRevisions() {
 
-			StrategyService.getRevisions.bind(this)(this.id)
+			StrategyService.getRevisions(this.id)
 					.then(response => {
 						this.revisions = response.data.reverse();
 						this.revisionOffset = 0;
@@ -280,12 +200,12 @@ export default Vue.extend({
 
 			if (!this.isNew) {
 				this.$root.isLoading = true;
-				StrategyService.get.bind(this)(this.id, revisionOffset)
+				StrategyService.get(this.id, revisionOffset)
 					.then(response => {
 						this.initializeValues();
 						this.id = response.data.id;
 						this.isNew = false;
-						this.strategy = new StrategyModel(response.data);
+						this.strategy = new Strategy(response.data);
 						this.updateOriginalData();
 						this.updateTab();
 					})
@@ -314,7 +234,7 @@ export default Vue.extend({
 
 			const revision = this.revisions[this.revisionOffset];
 
-			StrategyService.fork.bind(this)(revision.id)
+			StrategyService.fork(revision.id)
 					.then(response => {
 						this.forkModal.visible = false;
 						this.$router.push('/strategy/' + response.data.id);
@@ -331,7 +251,7 @@ export default Vue.extend({
 
 		publish(version, changelog) {
 
-			DeploymentService.fork.bind(this)('strategy', this.id, version, changelog)
+			DeploymentService.fork('strategy', this.id, version, changelog)
 					.then(response => {
 						this.publishModal.visible = false;
 						this.publishModal.publied = true;
@@ -342,14 +262,14 @@ export default Vue.extend({
 
 		initializeValues() {
 			this.isDeleted = false;
-			this.strategy = new StrategyModel();
+			this.strategy = new Strategy();
 		},
 
 		save() {
 
 			this.formErrors = [];
 			this.$root.isLoading = true;
-			StrategyService.save.bind(this)(this.id !== 'new' ? this.id : null, this.strategy)
+			StrategyService.save(this.id !== 'new' ? this.id : null, this.strategy)
 				.then(response => {
 
 					this.$root.$emit('STRATEGY_UPDATE');
@@ -374,7 +294,7 @@ export default Vue.extend({
 
 			if (force) {
 				this.$root.isLoading = true;
-				StrategyService.remove.bind(this)(this.id)
+				StrategyService.remove(this.id)
 					.then(response => {
 						this.isDeleted = true;
 						this.$refs.deleteModal.hide();
@@ -390,7 +310,7 @@ export default Vue.extend({
 		restore() {
 
 			this.$root.isLoading = true;
-			StrategyService.restore.bind(this)(this.id)
+			StrategyService.restore(this.id)
 					.then(response => {
 						this.isDeleted = false;
 						this.$root.$emit('STRATEGY_UPDATE');
@@ -404,7 +324,7 @@ export default Vue.extend({
 
 		tabStyle() {
 			return {
-				height: this.maxHeight + 'px',
+				height: (this.maxHeight - 1) + 'px',
 			};
 		},
 
@@ -415,14 +335,6 @@ export default Vue.extend({
 
 	data() {
 		return {
-			forkModal: {
-				visible: false,
-				forked: false,
-			},
-			publishModal: {
-				visible: false,
-				publied: false,
-			},
 			revisions: [],
 			revisionOffset: 0,
 			maxHeight: 500,
@@ -431,8 +343,8 @@ export default Vue.extend({
 			isDeleted: false,
 			formErrors: [],
 			tab: '/strategy/new/edit',
-			originalStrategy: new StrategyModel(),
-			strategy: new StrategyModel(),
+			originalStrategy: new Strategy(),
+			strategy: new Strategy(),
 			commentCount: 0,
 		}
 	},

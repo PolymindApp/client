@@ -52,10 +52,7 @@
 
 <script>
 import Vue from 'vue';
-import ErrorDialog from '../../components/ErrorDialog.vue';
-import Rules from "../../utils/Rules";
-import UserService from "../../services/UserService";
-import Form from "../../utils/Form";
+import { Rules, UserService } from "@polymind/sdk-js";
 
 export default Vue.extend({
 
@@ -66,7 +63,7 @@ export default Vue.extend({
 	methods: {
 
 	    verify () {
-	        UserService.verifyResetPasswordToken.bind(this)(this.token)
+	        UserService.verifyResetPasswordToken(this.token)
 				.then(response => this.isActive = true)
 				.catch(error => {
                     this.isActive = false
@@ -89,7 +86,7 @@ export default Vue.extend({
 
 			if (this.$refs.form.validate()) {
 				this.$root.isLoading = true;
-				UserService.resetPassword.bind(this)(this.token, this.password)
+				UserService.resetPassword(this.token, this.password)
 					.then(response => this.isResetted = true)
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);

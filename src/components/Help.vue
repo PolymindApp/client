@@ -74,7 +74,7 @@
 <script>
     import Vue from 'vue';
     import EmptyView from "./EmptyView";
-    import HelpService from "../services/HelpService";
+    import { HelpService } from "@polymind/sdk-js";
 
     export default Vue.extend({
 
@@ -117,7 +117,7 @@
             load() {
 
                 this.$root.isLoading = true;
-                HelpService.getAll.bind(this)()
+                HelpService.getAll(this.$i18n.locale)
 					.then(response => {
 						this.$help.items.splice(0, this.$help.items.length);
 						response.data.forEach(documentation => {

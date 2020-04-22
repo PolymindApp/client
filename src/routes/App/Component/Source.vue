@@ -476,20 +476,14 @@
 import Vue from 'vue';
 import CodeEditorField from "../../../components/CodeEditorField";
 import Console from "../../../components/Console";
-import interact from "interactjs";
 import VBtn from "vuetify/lib/components/VBtn/VBtn";
 import VIcon from "vuetify/lib/components/VIcon/VIcon";
 import VSheet from "vuetify/lib/components/VSheet/VSheet";
 import VCard from "vuetify/lib/components/VCard/VCard";
 import VProgressCircular from "vuetify/lib/components/VProgressCircular/VProgressCircular";
 import SettingsDevelopment from "../Account/SettingsDevelopment";
-import UserService from "../../../services/UserService";
-import User from "../../../models/User";
+import { UserService, User, ComponentHook, ComponentTest, ComponentFunction, ComponentParameter } from "@polymind/sdk-js";
 import DeleteDialog from "../../../components/DeleteDialog";
-import ComponentHook from "../../../models/Component.Hook";
-import ComponentTest from "../../../models/Component.Test";
-import ComponentFunction from "../../../models/Component.Function";
-import ComponentParameter from "../../../models/Component.Parameter";
 
 const pmConsole = {};
 // const originalConsoleLog = console.log;
@@ -666,7 +660,7 @@ export default Vue.extend({
 		applySettings() {
 
             this.$root.isLoading = true;
-            UserService.update.bind(this)(this.$root.user.id, {
+            UserService.update(this.$root.user.id, {
                 settings: this.user.settings,
             })
                 .then(response => {
@@ -761,7 +755,7 @@ export default Vue.extend({
 				structure.mounted = function() {
 
 					if (oldMounted) {
-						oldMounted.bind(this)();
+						oldMounted();
 					}
 
 					const cmpVm = this;
@@ -815,7 +809,7 @@ export default Vue.extend({
 				structure.destroyed = function() {
 
 					if (oldDestroyed) {
-						oldDestroyed.bind(this)();
+						oldDestroyed();
 					}
 
 					vm.$off('__PM_TEST');

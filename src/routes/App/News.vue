@@ -55,7 +55,7 @@
 <script>
 import Vue from 'vue';
 import Header from "./News/Header";
-import NewsService from "../../services/NewsService";
+import { NewsService } from "@polymind/sdk-js";
 import UserAvatar from "../../components/UserAvatar";
 import Comments from "../../components/Comments";
 import CommentForm from "../../components/Comment/Form";
@@ -80,7 +80,7 @@ export default Vue.extend({
 				title,
 			];
 
-			document.title = title + ' | ' + this.$t('title.news');
+			document.title = title + ' - ' + this.$t('title.news');
 		},
 
 	    load() {
@@ -90,7 +90,7 @@ export default Vue.extend({
 
 			this.$root.isLoading = true;
 			Promise.all([
-				NewsService.get.bind(this)(this.slug, this.locale),
+				NewsService.get(this.slug, this.locale),
 			]).then(([news]) => {
                 this.news = news;
                 this.isLoaded = true;

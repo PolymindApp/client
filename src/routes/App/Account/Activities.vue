@@ -89,8 +89,7 @@
 
 <script>
 import Vue from 'vue';
-import HistoryService from '../../../services/HistoryService';
-import CommentService from "../../../services/CommentService";
+import { HistoryService, CommentService } from '@polymind/sdk-js';
 import UserAvatar from "../../../components/UserAvatar";
 import CommitGraph from "../../../components/CommitGraph";
 
@@ -110,8 +109,8 @@ export default Vue.extend({
 
             this.$root.isLoading = true;
 	        Promise.all([
-                CommentService.getAll.bind(this)('directus_users', this.$route.params.id, '-id', 5),
-                HistoryService.fromUser.bind(this)(this.$route.params.id),
+                CommentService.getAll('directus_users', this.$route.params.id, '-id', 5),
+                HistoryService.fromUser(this.$route.params.id),
 			])
                 .then(([comments, histories]) => {
                     this.comments = comments;
@@ -153,7 +152,7 @@ export default Vue.extend({
             event.preventDefault();
 
             this.$root.isLoading = true;
-            CommentService.save.bind(this)(this.$route.params.id, 'directus_users', this.newComment.text)
+            CommentService.save(this.$route.params.id, 'directus_users', this.newComment.text)
                 .then(response => {
                     this.newComment.text = '';
                     this.comments.data.unshift(Object.assign(response.data, {

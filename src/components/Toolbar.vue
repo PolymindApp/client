@@ -237,7 +237,7 @@
 
 												<v-list-item-content>
 													<v-list-item-title>{{ component.name }}</v-list-item-title>
-													<v-list-item-subtitle v-html="$options.filters.plainExcerpt(component.description)"></v-list-item-subtitle>
+													<v-list-item-subtitle v-html="$options.filters.plainExcerpt(component.description, 100)"></v-list-item-subtitle>
 												</v-list-item-content>
 											</v-list-item>
 
@@ -282,8 +282,8 @@
 										<template v-for="(page, index) in searchResults.pages">
 											<v-list-item :key="index + '-item'" :to="'/' + page.slug">
 												<v-list-item-content class="text-truncate">
-													<v-list-item-title v-html="page.title"></v-list-item-title>
-													<v-list-item-subtitle v-html="$options.filters.plainExcerpt(page.content)"></v-list-item-subtitle>
+													<v-list-item-title v-text="page.title"></v-list-item-title>
+													<v-list-item-subtitle v-text="$options.filters.plainExcerpt(page.content, 100)"></v-list-item-subtitle>
 												</v-list-item-content>
 											</v-list-item>
 
@@ -376,10 +376,8 @@
 import Vue from 'vue';
 import moment from 'moment';
 import LanguageSwitcher from "../components/LanguageSwitcher.vue";
-import NotificationService from "../services/NotificationService";
-import MessagingService from "../services/MessagingService";
+import { NotificationService, SearchService } from "@polymind/sdk-js";
 import UserAvatar from "./UserAvatar";
-import SearchService from "../services/SearchService";
 import EmptyView from "./EmptyView";
 
 export default Vue.extend({
@@ -408,13 +406,13 @@ export default Vue.extend({
 
 	    init() {
 
-	        NotificationService.getAll.bind(this)()
+	        NotificationService.getAll(this.$root.user.id)
 				.then(response => {
 				    this.notifications = response.data;
 				})
 				.catch(error => this.$handleError(this, error));
 
-            // MessagingService.getUsers.bind(this)()
+            // MessagingService.getUsers()
 			// 	.then(response => {
 			// 	    this.messages = response.data;
 			// 	})
@@ -423,7 +421,7 @@ export default Vue.extend({
             // this.$ws.session.subscribe('activity', data => {
 			// 	switch(data[0].collection) {
 			// 		case 'messaging':
-			// 			MessagingService.get.bind(this)(data[0].item.data.id)
+			// 			MessagingService.get(data[0].item.data.id)
 			// 					.then(response => {
 			// 						response.data.acknowledged_on = null;
 			// 						this.messages.unshift(response.data);
@@ -436,7 +434,7 @@ export default Vue.extend({
 			// 			break;
 			//
 			// 		case 'directus_activity':
-			// 			NotificationService.get.bind(this)(data[0].item.id)
+			// 			NotificationService.get(this.$root.user.id, data[0].item.id)
 			// 					.then(response => {
 			// 						response.data.acknowledged_on = null;
 			// 						this.notifications.unshift(response.data);
@@ -461,7 +459,7 @@ export default Vue.extend({
 			});
 
 	        if (ids.length > 0) {
-				NotificationService.acknowledge.bind(this)(ids)
+				NotificationService.acknowledge(ids)
 					.then(response => {
 						this.notifications.map(notification => {
 						    if (ids.indexOf(notification.id) !== -1) {
@@ -483,7 +481,7 @@ export default Vue.extend({
 	        this.searchLastQuery = query.trim();
 
 	        this.searchIsLoading = true;
-	        SearchService.query.bind(this)(query, log)
+	        SearchService.query(query, this.$i18n.locale, log)
                 .then(response => {
                     let keys = Object.keys(response.data);
                     keys.forEach(key => {
@@ -522,7 +520,7 @@ export default Vue.extend({
 		},
 
         loadLatestSearchTerms() {
-            SearchService.getLatestSearchTerms.bind(this)(this.$root.user.id)
+            SearchService.getLatestSearchTerms(this.$root.user.id)
                 .then(response => this.latestSearchTerms = response)
                 .catch(error => this.$handleError(this, error));
 		}

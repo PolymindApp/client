@@ -34,8 +34,7 @@
 
 <script>
 import Vue from 'vue';
-import FormService from "../services/FormService";
-import Rules from "../utils/Rules";
+import { FormService, Rules } from "@polymind/sdk-js";
 
 export default Vue.extend({
 
@@ -70,7 +69,7 @@ export default Vue.extend({
 				    data.subject = data.otherSubject;
 				}
 
-				FormService.send.bind(this)('CONTACT', data).then(response => {
+				FormService.send('CONTACT', data).then(response => {
 					this.sent = true;
 				}).catch(error => {
 					this.$root.error = error;

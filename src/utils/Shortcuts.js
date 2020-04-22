@@ -1,4 +1,4 @@
-import Hash from "./Hash";
+import { Hash } from "@polymind/sdk-js";
 
 const $shortcuts = {};
 
@@ -29,7 +29,7 @@ $shortcuts.install = function (Vue, options) {
 
 		attach: function(rootElement) {
 			this.rootElement = rootElement;
-			this.rootElement.addEventListener('keydown', this.attachEvent.bind(this));
+			this.rootElement.addEventListener('keydown', this.attachEvent);
 		},
 
 		detach: function() {
@@ -38,7 +38,7 @@ $shortcuts.install = function (Vue, options) {
 				return;
 			}
 
-			this.rootElement.removeEventListener('keydown', this.attachEvent.bind(this));
+			this.rootElement.removeEventListener('keydown', this.attachEvent);
 		},
 
 		keysToString: function(keys) {

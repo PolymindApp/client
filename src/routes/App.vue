@@ -79,13 +79,12 @@ import Toolbar from '../components/Toolbar.vue';
 import Sidebar from '../components/Sidebar.vue';
 import Shortcuts from '../components/Shortcuts.vue';
 import Help from '../components/Help.vue';
-import UserService from "../services/UserService";
+import { UserService, User } from "@polymind/sdk-js";
 import ErrorDialog from '../components/ErrorDialog.vue';
 import About from './App/About.vue';
 import Component from "./App/Component";
 import Strategy from "./App/Strategy";
 import Dataset from "./App/Dataset";
-import User from "../models/User";
 import CommentDrawer from "../components/CommentDrawer";
 import Chat from "../components/Chat";
 
@@ -98,11 +97,17 @@ export const routes = [
 	{path: '/account/:id/:section/:key', component: Account, name: 'accountMessaging'},
 	{path: '/about', component: About, name: 'about'},
 	{path: '/about/:section', component: About},
-	{path: '/strategy/:id', redirect: '/strategy/:id/settings'},
+	{path: '/strategy/:id', redirect: to => {
+		return '/strategy/' + to.params.id + '/' + (to.params.id === 'new' ? 'settings' : 'assembly');
+	}},
 	{path: '/strategy/:id/:section', component: Strategy, name: 'strategy'},
-	{path: '/component/:id', redirect: '/component/:id/settings'},
+	{path: '/component/:id', redirect: to => {
+		return '/component/' + to.params.id + '/' + (to.params.id === 'new' ? 'settings' : 'settings');
+	}},
 	{path: '/component/:id/:section', component: Component, name: 'component'},
-	{path: '/dataset/:id', redirect: '/dataset/:id/settings'},
+	{path: '/dataset/:id', redirect: to => {
+		return '/dataset/' + to.params.id + '/' + (to.params.id === 'new' ? 'settings' : 'data');
+	}},
 	{path: '/dataset/:id/:section', component: Dataset, name: 'dataset'},
 	{path: '/contact', redirect: '/about/contact'},
 	{path: '/terms', redirect: '/about/terms'},
@@ -124,7 +129,7 @@ export default Vue.extend({
 	mounted() {
 
 		moment.locale(this.$i18n.locale);
-		UserService.me.bind(this)().then(response => {
+		UserService.me().then(response => {
 			this.$root.user = new User(response.data);
 
 			this.sidebar.permanent = this.$root.user.settings.sidebar.fixed;

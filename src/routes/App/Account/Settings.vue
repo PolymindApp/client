@@ -75,7 +75,7 @@
 
 <script>
     import Vue from 'vue';
-    import UserService from "../../../services/UserService";
+    import { UserService } from "@polymind/sdk-js";
     import LanguageSwitcher from "../../../components/LanguageSwitcher";
     import CodeEditorField from "../../../components/CodeEditorField";
     import SettingsDevelopment from "./SettingsDevelopment";
@@ -105,7 +105,7 @@
 				this.formErrors = {};
                 this.$refs.form.resetValidation();
                 this.$root.isLoading = true;
-                UserService.update.bind(this)(this.user.id, {
+                UserService.update(this.user.id, {
                     settings: this.user.settings,
 					locale: this.user.locale,
                 })

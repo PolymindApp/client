@@ -25,7 +25,7 @@
 
 <script>
     import Vue from 'vue';
-    import CommentService from "../services/CommentService";
+    import { CommentService } from "@polymind/sdk-js";
     import EmptyView from "./EmptyView";
     import UserAvatar from "./UserAvatar";
     import DeleteDialog from "./DeleteDialog";
@@ -50,8 +50,8 @@
 
                 this.isLoading = true;
                 Promise.all([
-					CommentService.count.bind(this)(collection, id, sort),
-					CommentService.getAll.bind(this)(collection, id, sort)
+					CommentService.count(collection, id, sort),
+					CommentService.getAll(collection, id, sort)
 				]).then(([count, comments]) => {
 					this.reset();
 					this.$emit('update:total', count.meta.filter_count);
@@ -80,7 +80,7 @@
                     this.deleteClaimant = id;
                     this.$refs.deleteModal.show();
 				} else {
-                    CommentService.delete.bind(this)(id)
+                    CommentService.delete(id)
                         .then(response => {
                             const comment = this.comments.find(comment => comment.id === id);
                             comment.comment_deleted_on = new Date();

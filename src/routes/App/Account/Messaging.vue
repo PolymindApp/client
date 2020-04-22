@@ -59,9 +59,8 @@
 <script>
     import Vue from 'vue';
     import UserAvatar from "../../../components/UserAvatar";
-    import MessagingService from "../../../services/MessagingService";
+    import { MessagingService, NotificationService } from "@polymind/sdk-js";
     import EmptyView from "../../../components/EmptyView";
-	import NotificationService from "../../../services/NotificationService";
 
     export default Vue.extend({
 
@@ -88,7 +87,7 @@
 
                 this.messages = [];
 
-                MessagingService.getUsers.bind(this)()
+                MessagingService.getUsers(this.$root.user.id)
                     .then(response => {
                         this.users = response.data;
                         this.hasLoaded = true;
@@ -102,7 +101,7 @@
 				// this.$ws.session.subscribe('activity', data => {
 				// 	switch(data[0].collection) {
 				// 		case 'messaging':
-				// 			MessagingService.get.bind(this)(data[0].item.data.id)
+				// 			MessagingService.get(this.$root.user.id, data[0].item.data.id)
 				// 					.then(response => {
 				// 						response.data.acknowledged_on = new Date();
 				// 						this.messages[this.userId].unshift(response.data);
@@ -116,7 +115,7 @@
 			getMessages(userId) {
 
                 this.$root.isLoading = true;
-                MessagingService.getMessages.bind(this)(userId)
+                MessagingService.getMessages(userId, this.$root.user.id)
 					.then(response => {
 					    this.messages[userId] = response.data;
 
@@ -139,7 +138,7 @@
 					this.isSending = true;
 
 				}
-				MessagingService.sendMessage.bind(this)(userId, this.newMessage.text.trim())
+				MessagingService.sendMessage(userId, this.newMessage.text.trim())
                     .then(response => {
                         this.messages[userId].push(response.data);
                         this.newMessage.text = '';

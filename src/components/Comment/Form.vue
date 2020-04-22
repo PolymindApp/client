@@ -7,7 +7,7 @@
 
 <script>
     import Vue from 'vue';
-	import CommentService from "../../services/CommentService";
+	import { CommentService } from "@polymind/sdk-js";
 	import UserAvatar from "../UserAvatar";
 
     export default Vue.extend({
@@ -42,7 +42,7 @@
 
 				const parentId = this.parent ? this.parent.id : undefined;
 
-				CommentService.save.bind(this)(this.id, this.collection, this.newComment.text, parentId)
+				CommentService.save(this.id, this.collection, this.newComment.text, parentId)
 						.then(response => {
 							this.newComment.text = '';
 

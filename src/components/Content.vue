@@ -18,7 +18,7 @@
 
 <script>
 import Vue from 'vue';
-import PageService from '../services/PageService';
+import { PageService } from '@polymind/sdk-js';
 
 export default Vue.extend({
 	name: 'Content',
@@ -32,7 +32,7 @@ export default Vue.extend({
 
 		load() {
 			this.isLoading = true;
-			PageService.get.bind(this)(this.slug).then(page => this.content = page.data.content)
+			PageService.get(this.$i18n.locale, this.slug).then(page => this.content = page.data.content)
 				.catch(error => {
 					if (error.code === 203) {
 						return this.notFound = true;

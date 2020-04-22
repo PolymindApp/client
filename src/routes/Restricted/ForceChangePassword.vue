@@ -41,10 +41,7 @@
 
 <script>
 import Vue from 'vue';
-import ErrorDialog from '../../components/ErrorDialog.vue';
-import Rules from "../../utils/Rules";
-import UserService from "../../services/UserService";
-import Form from "../../utils/Form";
+import { Rules, UserService } from "@polymind/sdk-js";
 
 export default Vue.extend({
 
@@ -77,7 +74,7 @@ export default Vue.extend({
 
 			if (this.$refs.form.validate()) {
 				this.$root.isLoading = true;
-				UserService.loggedSetPassword.bind(this)(this.password)
+				UserService.loggedSetPassword(this.password)
 					.then(response => {
 						this.isResetted = true;
 						this.initProgress();

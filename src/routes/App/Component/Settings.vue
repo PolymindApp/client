@@ -1,40 +1,69 @@
 <template>
 	<v-card color="transparent" flat tile>
 
-		<v-alert type="info" :prominent="!isMobile" border="left" text :icon="!isMobile ? 'mdi-help-circle' : false" class="mx-n4 mt-n4" tile>
-			<div class="d-block d-md-flex flex-md-row align-md-center">
-				<div style="flex: 1">
-					<div v-text="$t('component.settings.explanations')"></div>
-				</div>
-				<div class="text-center" style="flex: 0">
-					<v-btn :class="{ 'ml-0 ml-md-8 mt-4 mt-md-0': true, 'text-wrap d-block w-100': isMobile }" :large="isMobile" @click="$help.open('component-general')">
-						<v-icon left>mdi-book-search</v-icon>
-						<div v-text="$t('component.settings.readDoc')"></div>
-					</v-btn>
-				</div>
-			</div>
+		<v-alert type="info" border="left" text :icon="!isMobile ? 'mdi-information-outline' : false" class="mx-n4 mt-n4" dismissible tile>
+			<div v-text="$t('component.settings.explanations')"></div>
 		</v-alert>
 
 		<v-row>
 			<v-col cols="12" sm="6" class="py-0">
-				<v-text-field :error-messages="formErrors.name" :label="$t('component.settings.namePlaceholder')" v-model="component.name"></v-text-field>
-				<v-select :error-messages="formErrors.category" :label="$t('component.settings.categoryPlaceholder')" :items="categories" v-model="component.category"></v-select>
-				<HTMLEditorField :error-messages="formErrors.description" :label="$t('component.settings.descPlaceholder')" v-model="component.description"></HTMLEditorField>
-				<HTMLEditorField :error-messages="formErrors.instructions" :label="$t('component.settings.instructionsPlaceholder')" v-model="component.instructions"></HTMLEditorField>
+				<v-card class="mb-4" outlined>
+					<v-card-title class="d-flex justify-space-between">
+						<span v-text="$t('component.settings.informationSection')"></span>
+						<v-checkbox :error-messages="formErrors.is_private" :label="$t('component.settings.isPrivateLabel')" v-model="component.is_private" color="primary" class="ma-0" hide-details></v-checkbox>
+					</v-card-title>
+					<v-card-text>
+						<v-text-field :error-messages="formErrors.name" :label="$t('component.settings.namePlaceholder')" v-model="component.name"></v-text-field>
+						<v-text-field :error-messages="formErrors.icon" :label="$t('component.settings.iconPlaceholder')" v-model="component.icon"></v-text-field>
+						<!--				<v-select :error-messages="formErrors.category" :label="$t('component.settings.categoryPlaceholder')" :items="categories" v-model="component.category"></v-select>-->
+						<HTMLEditorField :error-messages="formErrors.description" :label="$t('component.settings.descPlaceholder')" v-model="component.description"></HTMLEditorField>
+						<!--				<HTMLEditorField :error-messages="formErrors.instructions" :label="$t('component.settings.instructionsPlaceholder')" v-model="component.instructions"></HTMLEditorField>-->
+					</v-card-text>
+				</v-card>
 			</v-col>
 			<v-col cols="12" sm="6" class="py-0">
-				<v-row>
-					<v-col cols="6" class="py-0">
-						<v-checkbox :error-messages="formErrors.is_invisible" :label="$t('component.settings.isInvisibleLabel')" v-model="component.is_invisible" color="primary"></v-checkbox>
-					</v-col>
-					<v-col cols="6" class="py-0">
-						<v-checkbox :error-messages="formErrors.is_private" :label="$t('component.settings.isPrivateLabel')" v-model="component.is_private" color="primary"></v-checkbox>
-					</v-col>
-				</v-row>
+				<v-card class="mb-4" outlined>
+					<v-card-title>
+						<span v-text="$t('component.settings.testSection')"></span>
+					</v-card-title>
+					<v-card-text>
+						<v-text-field :error-messages="formErrors.test_uri" :label="$t('component.settings.testURIPlaceholder')" v-model="component.test_uri"></v-text-field>
 
-				<IconListField :error-messages="formErrors.icon" :label="$t('component.settings.iconPlaceholder')" v-model="component.icon" :height="226"></IconListField>
+						<v-btn :href="testUri" target="_blank" color="warning" :disabled="!component.test_uri">
+							<v-icon left>mdi-launch</v-icon>
+							<span v-text="$t('component.settings.test')"></span>
+						</v-btn>
+					</v-card-text>
+				</v-card>
 
-<!--				<v-color-picker :error-messages="formErrors.color" :label="$t('component.settings.colorPlaceholder')" v-model="component.color"></v-color-picker>-->
+				<v-card class="mb-4" outlined>
+					<v-card-title v-text="$t('component.settings.gitRepoSection')"></v-card-title>
+					<v-card-text>
+						<v-text-field :error-messages="formErrors.repo_url" :label="$t('component.settings.repoURLPlaceholder')" v-model="component.repo_url"></v-text-field>
+
+						<v-radio-group v-model="component.repo_auth_type">
+							<v-radio :label="$t('component.settings.repoAuthNone')" value="none"></v-radio>
+							<v-radio :label="$t('component.settings.repoAuthUserPass')" value="user_pass"></v-radio>
+							<v-radio :label="$t('component.settings.repoAuthSSHKey')" value="ssh"></v-radio>
+						</v-radio-group>
+
+						<v-row v-if="component.repo_auth_type === 'user_pass'">
+							<v-col cols="12" md="6" class="py-0">
+								<v-text-field :error-messages="formErrors.repo_user" :label="$t('component.settings.repoUserPlaceholder')" v-model="component.repo_user"></v-text-field>
+							</v-col>
+							<v-col cols="12" md="6" class="py-0">
+								<v-text-field type="password" :error-messages="formErrors.repo_pass" :label="$t('component.settings.repoPassPlaceholder')" v-model="component.repo_pass"></v-text-field>
+							</v-col>
+						</v-row>
+
+						<v-textarea v-if="component.repo_auth_type === 'ssh'" :error-messages="formErrors.repo_ssh_key" :label="$t('component.settings.repoSSHKeyPlaceholder')" v-model="component.repo_ssh_key" outlined></v-textarea>
+
+						<v-btn color="primary" :disabled="!component.repo_url">
+							<v-icon left>mdi-play</v-icon>
+							<span v-text="$t('component.settings.build')"></span>
+						</v-btn>
+					</v-card-text>
+				</v-card>
 			</v-col>
 		</v-row>
 	</v-card>
@@ -60,7 +89,13 @@ export default Vue.extend({
 
 		isMobile() {
 			return this.$vuetify.breakpoint.smAndDown;
-		}
+		},
+
+		testUri() {
+			const directusStorage = window.localStorage.getItem('directus-sdk-js');
+			const directusJson = JSON.parse(directusStorage);
+			return process.env.VUE_APP_PLAYER_URL + '/test/component/' + this.component.id + '?token=' + directusJson.token
+		},
 	},
 
 	data() {

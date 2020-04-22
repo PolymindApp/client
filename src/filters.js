@@ -66,15 +66,39 @@ Vue.filter('shortcutKey', (key) => {
 		.toUpperCase();
 });
 
-Vue.filter('plainExcerpt', (value, limit = 250) => {
+Vue.filter('plainExcerpt', (value, limit = 250, stripTags = true) => {
 
 	let tmp = document.createElement('div');
 	tmp.innerText = value;
 	let excerpt = (tmp.textContent || tmp.innerText || "");
+
+	if (stripTags) {
+		const tmp = document.createElement("DIV");
+		tmp.innerHTML = excerpt;
+		excerpt = tmp.textContent || tmp.innerText || "";
+	}
 
 	if (excerpt.length > limit) {
 		return excerpt.substring(0, limit) + '...';
 	}
 
 	return excerpt;
+});
+
+Vue.filter('buildColor', (state) => {
+	switch (state) {
+		case 'completed': return 'success';
+		case 'failed': return 'error';
+		case 'running': return 'grey';
+	}
+	return null;
+});
+
+Vue.filter('buildIcon', (state) => {
+	switch (state) {
+		case 'completed': return 'mdi-check';
+		case 'failed': return 'mdi-close';
+		case 'running': return 'mdi-loading mdi-spin';
+	}
+	return null;
 });

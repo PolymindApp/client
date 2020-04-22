@@ -38,7 +38,7 @@
 <script>
     import Vue from 'vue';
 	import UserAvatar from "./UserAvatar";
-	import MessagingService from "../services/MessagingService";
+	import { MessagingService } from "@polymind/sdk-js";
 
     export default Vue.extend({
 
@@ -50,7 +50,7 @@
 
         mounted() {
 
-			// MessagingService.getUsers.bind(this)()
+			// MessagingService.getUsers(this.$root.user.id)
 			// 	.then(response => {
 			// 		response.data.forEach(user => {
 			// 			this.boxes.push({
@@ -90,7 +90,7 @@
 				}
 
 				this.isSending = true;
-				MessagingService.sendMessage.bind(this)(box.user.id, box.newMessage.text.trim())
+				MessagingService.sendMessage(box.user.id, box.newMessage.text.trim())
 					.then(response => {
 						box.messages.push(response.data);
 						box.newMessage.text = '';
