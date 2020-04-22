@@ -3,78 +3,6 @@
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
-		<!-- IS FORKED -->
-		<v-snackbar color="success" v-model="forkModal.forked">
-			<v-icon class="white--text" left>mdi-check</v-icon>
-			{{$t('snackbar.forked')}}
-			<v-btn text @click="forkModal.forked = false">
-				{{$t('modal.close')}}
-			</v-btn>
-		</v-snackbar>
-
-		<!-- IS PUBLIED -->
-		<v-snackbar color="success" v-model="publishModal.publied">
-			<v-icon class="white--text" left>mdi-check</v-icon>
-			{{$t('snackbar.forked')}}
-			<v-btn text @click="forkModal.publied = false">
-				{{$t('modal.close')}}
-			</v-btn>
-		</v-snackbar>
-
-		<!-- MODAL: PUBLISH -->
-		<v-dialog v-model="publishModal.visible" scrollable persistent max-width="500px">
-			<v-card>
-				<v-card-title>
-					<v-icon color="primary" slot="icon" size="36" left>mdi-publish</v-icon>
-					{{$t('dataset.publishModal.title')}}
-				</v-card-title>
-
-				<v-card-text>
-					TBD
-				</v-card-text>
-
-				<v-card-actions>
-					<v-spacer></v-spacer>
-
-					<v-btn color="primary" @click="publish()">
-						<v-icon left>mdi-publish</v-icon>
-						{{$t('modal.publish')}}
-					</v-btn>
-
-					<v-btn @click="publishModal.visible = false">
-						{{$t('modal.cancel')}}
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-
-		<!-- MODAL: FORK -->
-		<v-dialog v-model="forkModal.visible" scrollable persistent max-width="500px">
-			<v-card>
-				<v-card-title>
-					<v-icon color="primary" slot="icon" size="36" left>mdi-directions-fork</v-icon>
-					{{$t('dataset.forkModal.title')}}
-				</v-card-title>
-
-				<v-card-text>
-					<span v-text="$t('dataset.forkModal.forkDesc')"></span>
-				</v-card-text>
-
-				<v-card-actions>
-					<v-spacer></v-spacer>
-
-					<v-btn color="primary" @click="fork()">
-						<v-icon left>mdi-directions-fork</v-icon>
-						{{$t('modal.fork')}}
-					</v-btn>
-
-					<v-btn @click="forkModal.visible = false">
-						{{$t('modal.cancel')}}
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-
 		<v-tabs ref="tabs" style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
 			<v-tab :to="'/dataset/' + id + '/settings'" exact>
 				<v-icon left>mdi-pencil-box-outline</v-icon>
@@ -91,21 +19,16 @@
 
 			<v-spacer></v-spacer>
 
+			<template v-if="contextualComponent.component && !isDeleted">
+				<component :is="contextualComponent.component" v-bind="contextualComponent.props" v-on="contextualComponent.listeners"></component>
+				<v-divider class="mx-4" vertical inset></v-divider>
+			</template>
+
 			<v-btn :disabled="isDeleted" @click="$comments.open(id, 'dataset')" class="mt-3 mr-4" text small>
 				<v-icon left>mdi-comment</v-icon>
 				{{$t('comment.btnTitle')}}
 				<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
 			</v-btn>
-
-			<v-btn :disabled="isDeleted" @click="openFork()" color="grey darken-2 white--text" class="mt-3 mr-2" small>
-				<v-icon left>mdi-directions-fork</v-icon>
-				{{$t('modal.fork')}}
-			</v-btn>
-
-<!--		<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3" small>
-				<v-icon left>mdi-publish</v-icon>
-				{{$t('modal.publish')}}
-			</v-btn>-->
 		</v-tabs>
 
 		<div v-if="isDeleted">
@@ -122,14 +45,14 @@
 			</v-tab-item>
 			<v-tab-item :value="'/dataset/' + id + '/data'" class="fill-height">
 				<div style="height: 0">
-					<Data ref="data" :dataset.sync="dataset" :original-dataset.sync="originalDataset" :scrolling-ref="$refs.tabsItems" :form-errors="formErrors" @update:dataset="compareJsonJob" />
+					<Data ref="data" :dataset.sync="dataset" :original-dataset.sync="originalDataset" :scrolling-ref="$refs.tabsItems" :form-errors="formErrors" @context="setContext" @refresh="refresh()" @update:dataset="compareJsonJob" />
 				</div>
 			</v-tab-item>
-			<v-tab-item :value="'/dataset/' + id + '/view'" class="white fill-height">
-				<div style="height: 0">
-					<Views :dataset.sync="dataset" :form-errors="formErrors" />
-				</div>
-			</v-tab-item>
+<!--			<v-tab-item :value="'/dataset/' + id + '/view'" class="white fill-height">-->
+<!--				<div style="height: 0">-->
+<!--					<Views :dataset.sync="dataset" :form-errors="formErrors" />-->
+<!--				</div>-->
+<!--			</v-tab-item>-->
 		</v-tabs-items>
 
 		<v-toolbar ref="actions" style="flex: 0; border-top: #ccc solid 1px" flat tile>
@@ -190,17 +113,9 @@ import Vue from 'vue';
 import Data from "./Dataset/Data";
 import Views from "./Dataset/Views";
 import Settings from "./Dataset/Settings";
-import DatasetService from "../../services/DatasetService";
+import { Hash, DatasetService, Dataset, DeploymentService, DatasetColumn, DatasetRow, DatasetCell, Model, Transaction } from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
-import Dataset from "../../models/Dataset";
-import DeploymentService from "../../services/DeploymentService";
-import DatasetColumn from "../../models/DatasetColumn";
-import DatasetRow from "../../models/DatasetRow";
-import DatasetCell from "../../models/DatasetCell";
-import Model from "../../models/Model";
-import Transaction from "../../models/Transaction";
 import UserAvatar from "../../components/UserAvatar";
-import Hash from "../../utils/Hash";
 // import {VSkeletonLoader} from "vuetify";
 
 let jsonJobTimeout = null;
@@ -224,6 +139,12 @@ export default Vue.extend({
 
 	methods: {
 
+		setContext(component, props, listeners) {
+			this.contextualComponent.component = component;
+			this.contextualComponent.props = props;
+			this.contextualComponent.listeners = listeners;
+		},
+
 		shortcutSave(event) {
 			if (this.dataHasChanged) {
 				this.save();
@@ -234,6 +155,10 @@ export default Vue.extend({
 
 		updateTab() {
 
+			//this.contextualComponent.component = false;
+			//this.contextualComponent.props = null;
+			//this.contextualComponent.listeners = null;
+
 			const section = (this.$route.params.section ? this.$route.params.section : 'edit');
 			const sectionTitle = this.isNew ? this.$t('dataset.newTitle') : this.dataset.name;
 			const thirdTitle = this.$t('dataset.' + section + '.title');
@@ -243,7 +168,7 @@ export default Vue.extend({
 				sectionTitle,
 				thirdTitle,
 			];
-			document.title = this.dataset.name + ' | ' + this.$t('title.dataset');
+			document.title = this.dataset.name + ' - ' + this.$t('title.dataset');
 
 			this.isNew = this.$route.params.id === 'new';
 			this.id = this.isNew ? 'new' : parseInt(this.$route.params.id);
@@ -266,7 +191,7 @@ export default Vue.extend({
 
 		loadRevisions() {
 
-			DatasetService.getRevisions.bind(this)(this.id)
+			DatasetService.getRevisions(this.id)
 					.then(response => {
 						this.revisions = response.data.reverse();
 						this.revisionOffset = 0;
@@ -282,7 +207,7 @@ export default Vue.extend({
 			if (!this.isNew) {
 
 				this.$root.isLoading = true;
-				DatasetService.get.bind(this)(this.id, true, revisionOffset)
+				DatasetService.get(this.id, true, revisionOffset)
 					.then(response => {
 						this.id = response.data.id;
 						this.isNew = false;
@@ -308,40 +233,6 @@ export default Vue.extend({
 			this.$emit('cancel');
 		},
 
-		openFork() {
-			this.forkModal.visible = true;
-		},
-
-		fork() {
-
-			const revision = this.revisions[this.revisionOffset];
-
-			DatasetService.fork.bind(this)(revision.id)
-					.then(response => {
-						this.forkModal.visible = false;
-						this.$router.push('/dataset/' + response.data.id);
-						this.forkModal.forked = true;
-						this.$root.$emit('DATASET_UPDATE');
-					})
-					.catch(error => this.$handleError(this, error))
-					.finally(() => this.$root.isLoading = false);
-		},
-
-		openPublish() {
-			this.publishModal.visible = true;
-		},
-
-		publish(version, changelog) {
-
-			DeploymentService.fork.bind(this)('dataset', this.id, version, changelog)
-					.then(response => {
-						this.publishModal.visible = false;
-						this.publishModal.publied = true;
-					})
-					.catch(error => this.$handleError(this, error))
-					.finally(() => this.$root.isLoading = false);
-		},
-
 		initializeValues() {
 			this.isDeleted = false;
 			this.dataset = new Dataset({
@@ -358,20 +249,18 @@ export default Vue.extend({
 
 			this.formErrors = [];
 			this.$root.isLoading = true;
-			DatasetService.save.bind(this)(this.id !== 'new' ? this.id : null, this.dataset, transactions)
-				.then(([dataset, transactions] = response) => {
+			DatasetService.save(transactions)
+				.then(response => {
 
 					this.$root.$emit('DATASET_UPDATE');
 					this.$root.isSaved = true;
 
-					if (this.id !== dataset.data.id) {
-						return this.$router.push('/dataset/' + dataset.data.id);
+					if (this.isNew) {
+						return this.$router.push('/dataset/' + response.dataset[0].data.id);
 					}
 
-					this.id = parseInt(dataset.data.id);
 					this.isNew = false;
 					this.updateOriginalData();
-					// this.transactions.splice(0, this.transactions.length);
 					this.$root.isSaved = true;
 					this.loadRevisions();
 					this.updateTab();
@@ -384,7 +273,7 @@ export default Vue.extend({
 
 			if (force) {
 				this.$root.isLoading = true;
-				DatasetService.remove.bind(this)(this.id)
+				DatasetService.remove(this.id)
 					.then(response => {
 						this.isDeleted = true;
 						this.$refs.deleteModal.hide();
@@ -397,8 +286,8 @@ export default Vue.extend({
 			}
 		},
 
-		restore() {
-
+		refresh() {
+			this.load();
 		},
 
 		compareJsonJob(dataset, delay = 1000) {
@@ -494,12 +383,20 @@ export default Vue.extend({
 				}));
 			}
 
-			const rowTransactions = getTransactions('dataset_row', this.dataset.rows, this.originalDataset.rows);
+			const rowTransactions = getTransactions('dataset_row', this.dataset.rows, this.originalDataset.rows, (item, index) => {
+				return {
+					dataset: this.dataset.id ? ['id', 'dataset', this.dataset.id] : ['guid', 'dataset', this.dataset.guid],
+				};
+			});
 			if (rowTransactions.length > 0) {
 				transactions.push(...rowTransactions);
 			}
 
-			const columnTransactions = getTransactions('dataset_column', this.dataset.columns, this.originalDataset.columns);
+			const columnTransactions = getTransactions('dataset_column', this.dataset.columns, this.originalDataset.columns, (item, index) => {
+				return {
+					dataset: this.dataset.id ? ['id', 'dataset', this.dataset.id] : ['guid', 'dataset', this.dataset.guid],
+				};
+			});
 			if (columnTransactions.length > 0) {
 				transactions.push(...columnTransactions);
 			}
@@ -532,13 +429,10 @@ export default Vue.extend({
 
 	data() {
 		return {
-			forkModal: {
-				visible: false,
-				forked: false,
-			},
-			publishModal: {
-				visible: false,
-				publied: false,
+			contextualComponent: {
+				component: false,
+				props: null,
+				listeners: null,
 			},
 			revisions: [],
 			revisionOffset: 0,
@@ -569,8 +463,7 @@ export default Vue.extend({
 	watch: {
 		'$route.params.id': function() {
 			this.initializeValues();
-			this.updateTab();
-			this.load();
+			this.refresh();
 		},
 	}
 });

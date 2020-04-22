@@ -435,11 +435,7 @@
 
 <script>
 import Vue from 'vue';
-import Hash from "../../../utils/Hash";
-import File from "../../../utils/File";
-import DatasetRow from "../../../models/DatasetRow";
-import DatasetColumn from "../../../models/DatasetColumn";
-import DatasetCell from "../../../models/DatasetCell";
+import { Hash, File, DatasetRow, DatasetColumn, DatasetCell } from "@polymind/sdk-js";
 import Papa from "papaparse";
 import SimpleListBuilder from "../../../components/SimpleListBuilder";
 import DataType from "../../../components/DataType";

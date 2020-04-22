@@ -54,9 +54,9 @@
 
         mounted() {
 
-			this.$bus.$on('PLAY_AUDIO', () => {
-				this.stop();
-			});
+			// this.$bus.$on('PLAY_AUDIO', () => {
+			// 	this.stop();
+			// });
         },
 
         destroyed() {
@@ -86,13 +86,13 @@
             },
 
             play() {
-                this.$bus.$emit('PLAY_AUDIO', this.$refs.audio);
-				setTimeout(() => {
-					this.$refs.audio.addEventListener('ended', this.stop);
-					this.$refs.audio.ontimeupdate = this.setProgress;
-					this.isPlaying = true;
-                	this.$refs.audio.play();
-				})
+                // this.$bus.$emit('PLAY_AUDIO', this.$refs.audio);
+				// setTimeout(() => {
+				// 	this.$refs.audio.addEventListener('ended', this.stop);
+				// 	this.$refs.audio.ontimeupdate = this.setProgress;
+				// 	this.isPlaying = true;
+                // 	this.$refs.audio.play();
+				// })
             },
 
             toggle(event) {

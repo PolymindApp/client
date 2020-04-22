@@ -121,11 +121,8 @@
 
 <script>
 import Vue from 'vue';
-import Rules from "../../utils/Rules";
-import UserService from "../../services/UserService";
-import Form from "../../utils/Form";
+import { Rules, UserService, User } from "@polymind/sdk-js";
 import ServerError from "../../utils/ServerError";
-import User from "../../models/User";
 
 export default Vue.extend({
 
@@ -164,9 +161,9 @@ export default Vue.extend({
 
 			if (this.$refs.form.validate()) {
 				this.$root.isLoading = true;
-				UserService.login.bind(this)(this.email, this.password)
+				this.$polymind.login(this.email, this.password)
 					.then(response => {
-						UserService.me.bind(this)().then(response => {
+						UserService.me().then(response => {
 							this.$root.user = new User(response.data);
 							if (this.$root.user.force_reset_password) {
 								this.$router.push('/update-access');
@@ -183,7 +180,7 @@ export default Vue.extend({
 									buttons: [
 										{ text: this.$t('restricted.resendActivation'), callback: (modal) => {
 											this.$root.isLoading = true;
-											UserService.resendActivationLost.bind(this)(this.email).then(response => {
+											UserService.resendActivationLost(this.email).then(response => {
 												this.activationResent = true;
 												modal.close();
 											})

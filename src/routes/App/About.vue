@@ -62,7 +62,7 @@ export default Vue.extend({
 				this.$t('title.about'),
 				secondTitle,
 			];
-			document.title = secondTitle + ' | ' + this.$t('title.about');
+			document.title = secondTitle + ' - ' + this.$t('title.about');
 
 			this.about = this.states[section];
 		},

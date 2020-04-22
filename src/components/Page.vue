@@ -26,7 +26,7 @@
 
 <script>
 import Vue from 'vue';
-import PageService from '../services/PageService';
+import { PageService } from '@polymind/sdk-js';
 
 export default Vue.extend({
 	name: 'Page',
@@ -40,7 +40,7 @@ export default Vue.extend({
 
 		load() {
 			this.isLoading = true;
-			PageService.get.bind(this)(this.slug).then(page => {
+			PageService.get(this.$i18n.locale, this.slug).then(page => {
 				this.page = page.data;
 				this.content = page.data.content;
 				this.title = page.data.title;

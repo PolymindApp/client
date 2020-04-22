@@ -29,10 +29,7 @@
 
 <script>
 import Vue from 'vue';
-import ErrorDialog from '../../components/ErrorDialog.vue';
-import Rules from "../../utils/Rules";
-import UserService from "../../services/UserService";
-import Form from "../../utils/Form";
+import { Rules, UserService } from "@polymind/sdk-js";
 
 export default Vue.extend({
 
@@ -44,7 +41,7 @@ export default Vue.extend({
 
 			if (this.$refs.form.validate()) {
 				this.$root.isLoading = true;
-				UserService.forgotPassword.bind(this)(this.email)
+				UserService.forgotPassword(this.email)
 					.then(response => this.isSent = true)
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);

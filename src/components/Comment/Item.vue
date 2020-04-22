@@ -121,8 +121,7 @@
     import DeleteDialog from "../DeleteDialog";
     import CommentForm from "../Comment/Form";
     import CommentItem from "../Comment/Item";
-    import LikeService from "../../services/LikeService";
-	import CommentService from "../../services/CommentService";
+    import { LikeService, CommentService } from "@polymind/sdk-js";
 
     export default Vue.extend({
 
@@ -172,7 +171,7 @@
 
 			toggleLike(activityId, isPositive = true) {
 
-                LikeService.toggle.bind(this)(activityId, isPositive)
+                LikeService.toggle(activityId, isPositive)
                     .then(response => {
                     	const comment = this.$deepClone(this.comment);
                     	comment.comment_thumb_up = response.data.comment_thumb_up;
@@ -212,7 +211,7 @@
 				}
 
 				this.isLoading = true;
-				CommentService.update.bind(this)(this.comment.id, this.comment.comment)
+				CommentService.update(this.comment.id, this.comment.comment)
 					.then(response => {
 						const comment = this.$deepClone(this.comment);
 						comment.comment = response.data.comment;

@@ -369,14 +369,6 @@ const literals = {
 		isDeleted: 'Cette stratégie a été effacé. C\'est votre dernière chance de la récupérer.',
 		restore: 'Restaurer',
 
-		publishModal: {
-			title: 'Publier',
-		},
-		forkModal: {
-			title: 'Bifurquer',
-			forkDesc: 'Cette action créera une copie de la révision de la stratégie en cours. Êtes-vous certain de vouloir continuer ?',
-		},
-
 		settings: {
 			title: 'Réglages',
 			namePlaceholder: 'Nom de la stratégie',
@@ -386,6 +378,14 @@ const literals = {
 			instructionsPlaceholder: 'Instructions',
 			iconPlaceholder: 'Icône',
 			categoryPlaceholder: 'Catégorie',
+			explanations: 'Une stratégie est un programme d\'apprentissage que vous paramétrez en assemblant et en configurant une suite de composante.',
+			readDoc: 'Lire la documentation',
+			infoSection: 'Information',
+			testSection: 'Test',
+			test: 'Tester',
+		},
+		assembly: {
+			title: 'Assemblage',
 		},
 		interface: {
 			title: 'Interfaces',
@@ -458,8 +458,34 @@ const literals = {
 			iconPlaceholder: 'Icône',
 			categoryPlaceholder: 'Catégorie',
 			colorPlaceholder: 'Couleur',
-			explanations: 'Une composante est un élément visuel ou un groupe de méthode avec paramètres et évènements programmable, héritable et réutilisable que vous pouvez personnaliser et imbriquer dans des stratégies afin de conceptualiser des stratégies d\'apprentissage sur-mesure.',
+			explanations: 'Les stratégies utilisent vos composantes afin de générer des programmes d\'apprentissage.',
 			readDoc: 'Explorer la documentation',
+			repoURLPlaceholder: 'Adresse du dépôt GIT',
+			repoUserPlaceholder: 'Nom d\'utilisateur',
+			repoPassPlaceholder: 'Mot de passe',
+			repoSSHKeyPlaceholder: 'Clé d\'authentification SSH',
+			testURIPlaceholder: 'Adresse de l\'environnement locale',
+			repoAuthNone: 'Publique',
+			repoAuthUserPass: 'Utilisateur/Mot de passe',
+			repoAuthSSHKey: 'Clé SSH',
+			test: 'Tester',
+			build: 'Compiler',
+			informationSection: 'Information',
+			testSection: 'Test',
+			gitRepoSection: 'Dépôt GIT',
+		},
+		builds: {
+			title: 'Compilations',
+			launchedAt: 'Initialisé {timeAgo}',
+			logsBtn: 'Journaux',
+			logs: {
+				title: 'Journal des événements',
+			},
+			states: {
+				running: 'En cours d\'éxecution',
+				completed: 'Compilé avec succès',
+				failed: 'Compilation échouée',
+			}
 		},
 		source: {
 			title: 'Source',
@@ -594,10 +620,11 @@ const literals = {
 			descPlaceholder: 'Description',
 			iconPlaceholder: 'Icône',
 			remoteURIPlaceholder: 'URI du serveur distant',
-			explanations: 'Emmagasiner ou récupérer l\'information nécessaire à vos stratégies d\'apprentissage depuis une base de données qui pourra par la suite être utilisé par vos composantes ou filtré par un curateur.',
+			explanations: 'Les composantes se nourissent de vos bases de donnée afin de générer des interactivités éducatives.',
 			readDoc: 'Explorer la documentation',
 			testRemoteURI: 'Tester',
 			applyMapper: 'Appliquer un mappeur',
+			infoSection: 'Information',
 		},
 		data: {
 			title: 'Données',
@@ -608,16 +635,14 @@ const literals = {
 			noResults: 'Aucun résultat ne correspond à vos critères de recherches...',
 			noData: 'Aucune donnée disponible',
 			isLoading: 'Chargement en cours...',
-			bulkActions: 'Action en vrac',
+			addLines: 'Ajouter',
+			tools: 'Outils',
 			bulkAction: {
-				delete: 'Effacer',
-				restore: 'Restaurer',
-				reset: 'Réinitialiser',
-				modifyValue: 'Modifier',
+				refresh: 'Rafraîchir',
+				import: 'Importer',
+				export: 'Exporter',
 				moveTo: 'Déplacer vers...',
 				copyTo: 'Copier vers...',
-				activate: 'Désactiver',
-				deactivate: 'Activer',
 			},
 			tooltip: {
 				add: 'Ajouter une donnée',

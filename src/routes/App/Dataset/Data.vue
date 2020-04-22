@@ -4,26 +4,6 @@
 		<ContextualMenu :items="menuGroups[menu.group].items" :visible.sync="menu.visible" :position-x="menu.x" :position-y="menu.y" absolute offset-y />
 
 		<input ref="pasteInput" type="text" class="paste-input" @paste="handlePaste" />
-<!--		<div ref="dynamicStyle"></div>-->
-
-<!--		<div v-if="false" class="optimisationDebug">-->
-<!--			<div class="row":style="{-->
-<!--			width: `calc(${dataset.rows[0].cells.length} * 5rem)`,-->
-<!--			height: `calc(2rem)`,-->
-<!--		}" :key="rowIdx" v-for="(row, rowIdx) in dataset.rows">-->
-<!--				<div class="cell" :key="columnIdx" v-for="(column, columnIdx) in dataset.columns" :style="{-->
-<!--				top: `calc(${rowIdx} * 2rem)`,-->
-<!--				left: `calc(${columnIdx} * 5rem)`,-->
-<!--			 }" :class="{-->
-<!--				cell: true,-->
-<!--				grow: true,-->
-<!--			}" @contextmenu.stop.prevent="openMenu($event, 'cell', 'cell', rowIdx, columnIdx)" @dblclick.stop="editCell(rowIdx, columnIdx)" @mousedown="handleMouseDown($event, 'cell', rowIdx, columnIdx)" @mouseenter="handleMouseEnter($event, 'cell', rowIdx, columnIdx)" @mouseup="handleMouseUp($event, 'cell', rowIdx, columnIdx)" :ref="'td_' + rowIdx + '_' + columnIdx">-->
-<!--					test-->
-<!--					&lt;!&ndash;				<DataType :ref="'cell_' + rowIdx + '_' + columnIdx " :type="column.type" :items="dataset.columns[columnIdx].list_items" :value="row.cells[columnIdx][column.type]" :id="row.cells[columnIdx].id" collection="dataset_cell" @update="handleDataUpdate($event, (value) => { row.cells[columnIdx][column.type] = value })" @blur="handleBlurDataType" @tab="tabCell" />&ndash;&gt;-->
-<!--				</div>-->
-<!--			</div>-->
-<!--		</div>-->
-
 
 		<!-- ALL SELECTED -->
 		<v-snackbar v-model="isAllSelectedSnack">
@@ -34,7 +14,7 @@
 			</v-btn>
 		</v-snackbar>
 
-		<div v-if="true" class="table-container" ref="container">
+		<div class="table-container" ref="container">
 			<div class="move-handler" ref="moveHandler" v-show="dragState.enabled"></div>
 
 			<table ref="table" :class="{
@@ -57,13 +37,6 @@
 							<span v-text="$t('dataset.data.tooltip.selectAll')"></span>
 						</v-tooltip>
 					</th>
-					<th style="width: 6rem" class="shrink text-no-wrap default">
-						<v-icon x-small left>mdi-state-machine</v-icon>
-						<span @mousedown.stop="sort($event, 'status')" @mouseup.stop class="name" v-text="$t('dataset.data.status')"></span>
-						<v-icon v-if="sorting.status === 'desc'" class="mx-2" small>mdi-sort-descending</v-icon>
-						<v-icon v-else-if="sorting.status === 'asc'" class="mx-2" small>mdi-sort-ascending</v-icon>
-						<v-icon v-else class="mx-2" small>mdi-blank</v-icon>
-					</th>
 					<th :ref="'column_' + columnIdx" @dblclick="editColumn(columnIdx)" @contextmenu.stop.prevent="openMenu($event, 'column', 'column', null, columnIdx)" @mousedown="handleMouseDown($event, 'column', undefined, columnIdx)" @mouseenter="handleMouseEnter($event, 'column', firstSelected.rowIdx, columnIdx)" @mouseup="handleMouseUp($event, 'column', firstSelected.rowIdx, columnIdx)" :class="{
 						grow: true,
 						highlighted: selectedColumns.indexOf(columnIdx) !== -1,
@@ -72,7 +45,7 @@
 						droppable: dragState.dropIndex === columnIdx && dragState.type === 'column',
 					}" :style="{
 						width: 'calc(28rem - ' + (100 / dataset.columns.length) + '%)',
-					}" :key="columnIdx" v-for="(column, columnIdx) in dataset.columns">
+					}" :key="dataset.guid + column.guid" v-for="(column, columnIdx) in dataset.columns">
 
 						<div v-if="highlightedColumns[columnIdx]" :class="{
 							'highlight-selector top': true,
@@ -82,7 +55,7 @@
 
 						<div class="d-flex align-center">
 							<div class="d-flex align-center" style="flex: 1">
-								<DataType :class="{ 'w-100': editingColumnName === columnIdx }" :ref="'column_input_' + columnIdx" type="text" :value="column.name" @blur="handleBlurDataType" @tab="tabColumn" @update="handleDataUpdate($event, (value) => { column.name = value; })">
+								<DataType :class="{ 'w-100': editingColumnName === columnIdx }" :ref="'column_input_' + columnIdx" type="text" v-model="column.name" @blur="handleBlurDataType" @tab="tabColumn" @update="handleDataUpdate($event, (value) => { column.name = value; })">
 									<template slot="read">
 										<span @dblclick.stop @mousedown.stop="sort($event, columnIdx)" @mouseup.stop class="name" v-text="column.name"></span>
 									</template>
@@ -100,16 +73,7 @@
 							</v-btn>
 						</div>
 					</th>
-					<th style="width: 10rem" class="shrink text-no-wrap default">
-						<v-icon x-small left>mdi-account</v-icon>
-						<span @mousedown.stop="sort($event, 'created_by', (vm, created_by) => {
-							return vm.$options.filters.userScreenName(created_by);
-						})" @mouseup.stop class="name" v-text="$t('dataset.data.created_by')"></span>
-						<v-icon v-if="sorting.created_by === 'desc'" class="mx-2" small>mdi-sort-descending</v-icon>
-						<v-icon v-else-if="sorting.created_by === 'asc'" class="mx-2" small>mdi-sort-ascending</v-icon>
-						<v-icon v-else class="mx-2" small>mdi-blank</v-icon>
-					</th>
-					<th style="width: 10rem" class="shrink text-no-wrap default">
+					<th style="width: 8rem" class="shrink text-no-wrap default">
 						<v-icon x-small left>mdi-calendar-month</v-icon>
 						<span @mousedown.stop="sort($event, 'created_on')" @mouseup.stop class="name" v-text="$t('dataset.data.created_on')"></span>
 						<v-icon v-if="sorting.created_on === 'desc'" class="mx-2" small>mdi-sort-descending</v-icon>
@@ -123,7 +87,7 @@
 					highlighted: selectedRows.indexOf(rowIdx) !== -1,
 					'last-highlighted': lastSelected.type === 'row' && lastSelected.rowIdx === rowIdx && selectedRows.length !== 1,
 					droppable: dragState.dropIndex === rowIdx && dragState.type === 'row',
-				}" :key="rowIdx" v-for="(row, rowIdx) in dataset.rows">
+				}" :key="dataset.guid + row.guid" v-for="(row, rowIdx) in dataset.rows">
 					<th @contextmenu.stop.prevent="openMenu($event, 'row', 'row', rowIdx, null)" @mousedown="handleMouseDown($event, 'row', rowIdx)" @mouseenter="handleMouseEnter($event, 'row', rowIdx, firstSelected.columnIdx)" @mouseup="handleMouseUp($event, 'row', rowIdx, firstSelected.columnIdx)" :class="{
 						'default shrink text-center': true,
 						'has-cell': selectedCellsRows.indexOf(rowIdx) !== -1,
@@ -141,21 +105,13 @@
 							<v-icon color="primary" small>mdi-plus-circle</v-icon>
 						</span>
 					</th>
-					<td @contextmenu.stop.prevent="openMenu($event, 'row', 'row', rowIdx, null)" class="shrink default" @dblclick.stop="editStatus(rowIdx)" @mousedown="handleMouseDown($event, 'row', rowIdx)" @mouseenter="handleMouseEnter($event, 'row', rowIdx)" @mouseup="handleMouseUp($event, 'row', rowIdx)">
-						<div v-if="highlightedRows[rowIdx]" :class="{
-							'highlight-selector': true,
-							'top': highlightedRows[rowIdx].top,
-							'bottom': highlightedRows[rowIdx].bottom,
-						}"></div>
-						<DataType :ref="'row_status_' + rowIdx" type="list" :items="statuses" :value="row.status" @update="row.status = $event" />
-					</td>
 					<td @contextmenu.stop.prevent="openMenu($event, 'cell', 'cell', rowIdx, columnIdx)" @dblclick.stop="editCell(rowIdx, columnIdx)" @mousedown="handleMouseDown($event, 'cell', rowIdx, columnIdx)" @mouseenter="handleMouseEnter($event, 'cell', rowIdx, columnIdx)" @mouseup="handleMouseUp($event, 'cell', rowIdx, columnIdx)" :ref="'td_' + rowIdx + '_' + columnIdx" :class="{
 						grow: true,
 						droppable: dragState.dropIndex === columnIdx && dragState.type === 'column',
 						'last-highlighted': lastSelected.type === 'cell' && (lastSelected.rowIdx === rowIdx && lastSelected.columnIdx === columnIdx && selectedCells.length !== 1),
 						invalid: !isCellValid(rowIdx, columnIdx),
 						highlighted: selectedCells.indexOf(rowIdx + '_' + columnIdx) !== -1 || selectedColumns.indexOf(columnIdx) !== -1
-					}" :key="columnIdx" v-for="(column, columnIdx) in dataset.columns">
+					}" :key="dataset.guid + column.guid" v-for="(column, columnIdx) in dataset.columns">
 						<div v-if="highlightedCells[rowIdx + '_' + columnIdx]" :class="{
 							'highlight-selector': true,
 							'top': highlightedCells[rowIdx + '_' + columnIdx].top,
@@ -165,18 +121,7 @@
 						}">
 							<div class="highlight-extender" @mousedown.stop="handleMouseDown($event, 'cell', rowIdx, columnIdx, true)" v-if="lastSelected.rowIdx === rowIdx && lastSelected.columnIdx === columnIdx"></div>
 						</div>
-						<DataType :ref="'cell_' + rowIdx + '_' + columnIdx " :type="column.type" :items="dataset.columns[columnIdx].list_items" :value="row.cells[columnIdx][column.type]" :id="row.cells[columnIdx].id" collection="dataset_cell" @update="handleDataUpdate($event, (value) => { row.cells[columnIdx][column.type] = value })" @blur="handleBlurDataType" @tab="tabCell" />
-					</td>
-					<td @contextmenu.stop.prevent="openMenu($event, 'row', 'row', rowIdx, null)" class="default shrink text-no-wrap" @mousedown="handleMouseDown($event, 'row', rowIdx)" @mouseenter="handleMouseEnter($event, 'row', rowIdx)" @mouseup="handleMouseUp($event, 'row', rowIdx)">
-						<div v-if="highlightedRows[rowIdx]" :class="{
-							'highlight-selector': true,
-							'top': highlightedRows[rowIdx].top,
-							'bottom': highlightedRows[rowIdx].bottom,
-						}"></div>
-						<div class="d-flex align-center">
-							<UserAvatar :user="row.created_by" :size="24" />
-							<div class="text-truncate ml-1" v-text="$options.filters.userScreenName(row.created_by)"></div>
-						</div>
+						<DataType :ref="'cell_' + rowIdx + '_' + columnIdx " :type="column.type" :items="dataset.columns[columnIdx].list_items" v-model="row.cells[columnIdx][column.type]" :id="row.cells[columnIdx].id" collection="dataset_cell" @update="handleDataUpdate($event, (value) => { row.cells[columnIdx][column.type] = value })" @blur="handleBlurDataType" @tab="tabCell" />
 					</td>
 					<td @contextmenu.stop.prevent="openMenu($event, 'row', 'row', rowIdx, null)" class="default shrink text-no-wrap" @mousedown="handleMouseDown($event, 'row', rowIdx)" @mouseenter="handleMouseEnter($event, 'row', rowIdx)" @mouseup="handleMouseUp($event, 'row', rowIdx)">
 						<div v-if="highlightedRows[rowIdx]" :class="{
@@ -192,82 +137,6 @@
 				</tbody>
 			</table>
 		</div>
-
-		<div v-if="false" class="pa-2">
-			<v-row no-gutters>
-				<v-col cols="3">
-					<strong>Bugs:</strong>
-					<ul>
-						<li>(!!) very slow</li>
-						<li>while editing, stop moving between cells (keydown)</li>
-						<li>ctrl+move row/column</li>
-					</ul>
-					<br>
-					<strong>Nice to have:</strong>
-					<ul>
-						<li>boolean reordering animation glitch fix</li>
-					</ul>
-				</v-col>
-				<v-col cols="3">
-					<strong>To develop:</strong>
-					<ul>
-						<li>ESC => close comment panel</li>
-						<li>search</li>
-						<li>import/export file</li>
-						<li>multiselect typing</li>
-						<li>copy-paste</li>
-						<li>handler replicator</li>
-						<li>multiple drag & drop</li>
-						<li>resize</li>
-						<li>undo/redo</li>
-						<li>fixed header</li>
-						<li>move down from column -> select cell, move up from cell -> edit column (same behavior with rows)</li>
-					</ul>
-				</v-col>
-				<v-col cols="3">
-					<strong>To test:</strong>
-					<ul>
-						<li>transaction save/load</li>
-						<li>selectedCells must highlight column/row</li>
-						<li>row status => dblclick cell select field</li>
-						<li>mousehover row</li>
-						<li>on tab cell/column, select cell/column</li>
-						<li>move column sort index (other items)</li>
-						<li>close type nested menu</li>
-					</ul>
-					<br>
-					<strong>Projects:</strong>
-					<ul>
-						<li>Spread Sheet</li>
-						<li>Workflow Manager</li>
-						<li>Form Manager</li>
-						<li>Layout Manager</li>
-					</ul>
-				</v-col>
-				<v-col cols="3">
-					<strong>Debug:</strong>
-					<ul>
-						<li v-if="dataset.rows[0]">
-							<strong>Cells:</strong>
-							{{ dataset.rows.length * (dataset.rows[0].cells.length + 3) }} total
-							/ {{ dataset.rows.length * (dataset.rows[0].cells.length) }} editables
-							/ {{ selectedCells.length }} selected
-						</li>
-						<li>
-							<strong>First selected:</strong>
-							{{ firstSelected }}
-						</li>
-						<li>
-							<strong>Last selected:</strong>
-							{{ lastSelected }}
-						</li>
-					</ul>
-<!--					<br>-->
-<!--					<strong>Transactions ({{ calculateTransactions().length }}):</strong>-->
-<!--					<pre>{{ calculateTransactions() }}</pre>-->
-				</v-col>
-			</v-row>
-		</div>
 	</div>
 </template>
 
@@ -275,12 +144,8 @@
 	import Vue from 'vue';
 	import DataType from "../../../components/DataType";
 	import UserAvatar from "../../../components/UserAvatar";
-	import Dataset from "../../../models/Dataset";
-	import DatasetColumn from "../../../models/DatasetColumn";
-	import DatasetRow from "../../../models/DatasetRow";
-	import DatasetCell from "../../../models/DatasetCell";
-	import Transaction from "../../../models/Transaction";
-	import Model from "../../../models/Model";
+	import { Dataset, DatasetColumn, DatasetRow, DatasetCell } from "@polymind/sdk-js";
+	import DataActions from "./Data/Actions";
 	import ContextualMenu from "../../../components/ContextualMenu";
 
 	const dragState = {};
@@ -305,7 +170,7 @@
 			},
 		},
 
-		components: { DataType, UserAvatar, ContextualMenu },
+		components: { DataType, UserAvatar, ContextualMenu, DataActions },
 
 		mounted() {
 
@@ -316,17 +181,13 @@
 			window.addEventListener('resize', this.listenToResize);
 			this.listenToResize();
 
-			// FOR DEBUGGING PURPOSES..
-			// setTimeout(() => {
-			// 	if (this.dataset.columns.length < 5) {
-			// 		for (let i = 0; i < (30 - 3); i++) {
-			// 			this.insertColumn(0);
-			// 		}
-			// 		for (let i = 0; i < (50 - 2); i++) {
-			// 			this.insertRow(0);
-			// 		}
-			// 	}
-			// }, 3000);
+			this.$emit('context', DataActions, {
+				dataset: this.dataset,
+			}, {
+				refresh: () => {
+					this.$emit('refresh');
+				}
+			});
 		},
 
 		destroyed() {
@@ -1635,7 +1496,31 @@
 				const cellRef = this.$refs['cell_' + rowIdx + '_' + columnIdx][0];
 				cellRef.edit();
 
+                this.lastSelected.rowIdx = rowIdx;
+                this.lastSelected.columnIdx = columnIdx;
 				this.selectedCells = [rowIdx + '_' + columnIdx];
+			},
+
+			blurCell() {
+				this.selectedCellsColumns = [];
+				this.selectedCellsRows = [];
+				this.selectedColumns = [];
+				this.selectedRows = [];
+				this.selectedCells = [];
+			},
+
+			unselect() {
+				this.highlightedCells = [];
+				this.highlightedColumns = [];
+				this.highlightedRows = [];
+
+                this.firstSelected.rowIdx = null;
+				this.firstSelected.columnIdx = null;
+				this.firstSelected.type = null;
+
+				this.lastSelected.rowIdx = null;
+				this.lastSelected.columnIdx = null;
+				this.lastSelected.type = null;
 			},
 
 			setColumnType(columnIdx, type = 'text') {
@@ -1663,7 +1548,7 @@
 			},
 
 			isEditingCell(rowIdx, columnIdx) {
-				return this.$refs['cell_' + rowIdx + '_' + columnIdx][0].isEditing();
+				return this.$refs['cell_' + rowIdx + '_' + columnIdx][0].isEditing;
 			},
 
 			tabCell(event) {
@@ -1856,22 +1741,22 @@
 					column: {
 						items: !this.menu.visible ? [] : [
 							{ text: this.$t('dataset.data.columnMenu.isRequired' + (this.selectedColumns.length > 1 ? 'Plural' : ''), { total: this.selectedColumns.length }), icon: () => this.dataset.columns[this.firstSelected.columnIdx].is_required ? 'mdi-check' : 'mdi-blank', disabled: () => this.lastSelected.type === 'row', click: (event) => {
-									const wasSelected = this.dataset.columns[this.firstSelected.columnIdx].is_required;
-									this.selectedColumns.forEach(columnIdx => {
-										this.dataset.columns[columnIdx].is_required = !wasSelected;
-									});
-								} },
+								const wasSelected = this.dataset.columns[this.firstSelected.columnIdx].is_required;
+								this.selectedColumns.forEach(columnIdx => {
+									this.dataset.columns[columnIdx].is_required = !wasSelected;
+								});
+							} },
 							{ text: this.$t('dataset.data.columnMenu.type'), icon: 'mdi-widgets', disabled: () => this.menu.type !== 'column', childs: [
-									{ text: this.$t('dataset.data.columnMenu.types.text'), icon: 'mdi-cursor-text', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'text'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'text') },
-									{ text: this.$t('dataset.data.columnMenu.types.number'), icon: 'mdi-numeric-1-box-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'number'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'number') },
-									{ text: this.$t('dataset.data.columnMenu.types.date'), icon: 'mdi-calendar-month', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'date'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'date') },
-									{ text: this.$t('dataset.data.columnMenu.types.boolean'), icon: 'mdi-toggle-switch', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'boolean'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'boolean') },
-									/*{ text: this.$t('dataset.data.columnMenu.types.list'), icon: 'mdi-format-list-bulleted', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'list'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'list') },
-									{ text: this.$t('dataset.data.columnMenu.types.audio'), icon: 'mdi-file-music-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'audio'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'audio') },
-									{ text: this.$t('dataset.data.columnMenu.types.file'), icon: 'mdi-file-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'file'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'file') },
-									{ text: this.$t('dataset.data.columnMenu.types.image'), icon: 'mdi-file-image-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'image'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'image') },
-									{ text: this.$t('dataset.data.columnMenu.types.wysiwyg'), icon: 'mdi-format-textbox', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'wysiwyg'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'wysiwyg') },*/
-								] },
+								{ text: this.$t('dataset.data.columnMenu.types.text'), icon: 'mdi-cursor-text', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'text'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'text') },
+								{ text: this.$t('dataset.data.columnMenu.types.number'), icon: 'mdi-numeric-1-box-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'number'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'number') },
+								{ text: this.$t('dataset.data.columnMenu.types.date'), icon: 'mdi-calendar-month', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'date'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'date') },
+								{ text: this.$t('dataset.data.columnMenu.types.boolean'), icon: 'mdi-toggle-switch', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'boolean'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'boolean') },
+								/*{ text: this.$t('dataset.data.columnMenu.types.list'), icon: 'mdi-format-list-bulleted', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'list'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'list') },
+								{ text: this.$t('dataset.data.columnMenu.types.audio'), icon: 'mdi-file-music-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'audio'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'audio') },
+								{ text: this.$t('dataset.data.columnMenu.types.file'), icon: 'mdi-file-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'file'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'file') },
+								{ text: this.$t('dataset.data.columnMenu.types.image'), icon: 'mdi-file-image-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'image'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'image') },
+								{ text: this.$t('dataset.data.columnMenu.types.wysiwyg'), icon: 'mdi-format-textbox', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'wysiwyg'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'wysiwyg') },*/
+							] },
 							{},
 							{ text: this.$t('dataset.data.columnMenu.insertColumnLeft'), icon: 'mdi-table-column-plus-before', disabled: () => this.menu.type === 'row', click: (event) => this.insertColumn(this.lastSelected.columnIdx) },
 							{ text: this.$t('dataset.data.columnMenu.insertColumnRight'), icon: 'mdi-table-column-plus-after', disabled: () => this.menu.type === 'row', click: (event) => this.insertColumn(this.lastSelected.columnIdx + 1) },

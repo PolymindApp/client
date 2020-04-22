@@ -14,14 +14,10 @@
 						</v-flex>
 						<v-flex>
 							<v-layout align-end fill-height>
-								<v-list-item>
+								<v-list-item :href="'/account/' + this.$root.user.id">
 									<v-list-item-content>
-										<v-list-item-title class="title white--text">{{ $root.user | userScreenName }}</v-list-item-title>
-										<v-list-item-subtitle class="white--text mt-n1">
-											<a class="my-account" :href="'/account/' + this.$root.user.id">
-												{{ $t('sidebar.myAccount') }}
-											</a>
-										</v-list-item-subtitle>
+										<v-list-item-title class="white--text font-weight-bold">{{ $root.user | userScreenName }}</v-list-item-title>
+										<v-list-item-subtitle class="white--text font-italic font-weight-light">{{ $root.user.role.name }}</v-list-item-subtitle>
 									</v-list-item-content>
 								</v-list-item>
 							</v-layout>
@@ -127,15 +123,7 @@
 import Vue from 'vue';
 import UserAvatar from '../components/UserAvatar.vue';
 import draggable from "vuedraggable";
-import ComponentService from "../services/ComponentService";
-import StrategyService from "../services/StrategyService";
-import DatasetService from "../services/DatasetService";
-// import DocumentService from "../services/DocumentService";
-import UserService from "../services/UserService";
-import StrategyModel from "../models/Strategy";
-import ComponentModel from "../models/Component";
-import DatasetModel from "../models/Dataset";
-// import DocumentModel from "../models/Document";
+import { UserService, ComponentService, StrategyService, DatasetService, Strategy, Component, Dataset } from "@polymind/sdk-js";
 
 export default Vue.extend({
 	name: 'Sidebar',
@@ -181,7 +169,7 @@ export default Vue.extend({
 	    toggleSection(name) {
 
             this.$root.user.settings.sidebar[name] = !this.$root.user.settings.sidebar[name];
-            UserService.update.bind(this)(this.$root.user.id, {
+            UserService.update(this.$root.user.id, {
                 settings: this.$root.user.settings
             })
                 .catch(error => this.$handleError(this, error));
@@ -199,7 +187,7 @@ export default Vue.extend({
 
 	        this.sidebar.permanent = !this.sidebar.permanent;
 	        this.$root.user.settings.sidebar.fixed = this.sidebar.permanent;
-	        UserService.update.bind(this)(this.$root.user.id, {
+	        UserService.update(this.$root.user.id, {
 	            settings: this.$root.user.settings
 			})
 				.catch(error => this.$handleError(this, error));
@@ -224,25 +212,25 @@ export default Vue.extend({
 		},
 
 		loadStrategies() {
-			StrategyService.getAllMine.bind(this)().then(response => {
-				this.strategies = response.data.map(item => new StrategyModel(item));
+			StrategyService.getAll(this.$root.user.id).then(response => {
+				this.strategies = response.data.map(item => new Strategy(item));
 			})
 				.catch(error => this.$handleError(this, error))
 				// .finally(() => this.$root.isLoading = false);
 		},
 
 		loadComponents() {
-			ComponentService.getAllMine.bind(this)().then(response => {
-				this.components = response.data.map(item => new ComponentModel(item));
+			ComponentService.getAll(this.$root.user.id).then(response => {
+				this.components = response.data.map(item => new Component(item));
 			})
 				.catch(error => this.$handleError(this, error))
 				// .finally(() => this.$root.isLoading = false);
 		},
 
 		loadDatasets() {
-			DatasetService.getAllMine.bind(this)().then(response => {
+			DatasetService.getAll(this.$root.user.id).then(response => {
 				this.datasets = response.data.map(item => {
-					return new DatasetModel(item);
+					return new Dataset(item);
 				});
 			})
 				.catch(error => this.$handleError(this, error))
@@ -250,15 +238,15 @@ export default Vue.extend({
 		},
 
         // loadDocuments() {
-		// 	DocumentService.getAllMine.bind(this)().then(response => {
-		// 		this.documents = response.data.map(item => new DocumentModel(item));
+		// 	DocumentService.getAll(this.$root.user.id).then(response => {
+		// 		this.documents = response.data.map(item => new Document(item));
 		// 	})
 		// 		.catch(error => this.$handleError(this, error))
 		// 	// .finally(() => this.$root.isLoading = false);
 		// },
 
 		signOut() {
-		    UserService.logout.bind(this)()
+			this.$polymind.logout()
 				.then(() => {
                     this.$router.go(0);
 				});
@@ -445,8 +433,5 @@ export default Vue.extend({
 		background-size: cover;
 		background-repeat: no-repeat;
 		background-position: center center;
-	}
-	.my-account {
-		color: white;
 	}
 </style>

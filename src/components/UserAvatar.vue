@@ -30,10 +30,7 @@
 
 <script>
 import Vue from 'vue';
-import UserModel from "../models/User";
-import File from '../utils/File';
-import FileService from "../services/FileService";
-import UserService from "../services/UserService";
+import { UserModel, File, FileService, UserService } from "@polymind/sdk-js";
 import moment from "moment";
 
 export default Vue.extend({
@@ -84,12 +81,12 @@ export default Vue.extend({
 			File.promptFileDialog(images => {
 				this.isUploading = true;
 				this.$crop(images, [512, 512]).then(croppedImages => {
-					FileService.upload.bind(this)(croppedImages, progress => {
+					FileService.upload(croppedImages, progress => {
 						const percent = (progress.loaded * 100) / progress.total;
 						// this.percentUploaded = percent.toFixed(2) + '%';
 					})
 						.then(filesResponse => {
-                            UserService.update.bind(this)(this.$root.user.id, {
+                            UserService.update(this.$root.user.id, {
                                 avatar: filesResponse.data.id
                             })
                                 .then(response => {

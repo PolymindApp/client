@@ -67,9 +67,7 @@
 
 <script>
 import Vue from 'vue';
-import UserService from '../../../services/UserService';
-import Rules from "../../../utils/Rules";
-import LanguageService from "../../../services/LanguageService";
+import { UserService, Rules, LanguageService } from '@polymind/sdk-js';
 import HTMLEditorField from "../../../components/HTMLEditorField";
 import DirectUsSelect from "../../../components/DirectUsSelect";
 
@@ -87,7 +85,7 @@ export default Vue.extend({
 	    load() {
 
 	        this.$root.isLoading = true;
-	        LanguageService.getAll.bind(this)()
+	        LanguageService.getAll()
 				.then(response => this.languages = response.data)
 				.catch(error => this.$handleError(this, error))
 				.finally(() => this.$root.isLoading = false);
@@ -100,7 +98,7 @@ export default Vue.extend({
 	        this.formErrors = {};
 			this.$refs.generalForm.resetValidation();
 			this.$root.isLoading = true;
-			UserService.update.bind(this)(this.user.id, {
+			UserService.update(this.user.id, {
 			    screen_name: this.user.screen_name,
 			    first_name: this.user.first_name,
                 last_name: this.user.last_name,
@@ -124,7 +122,7 @@ export default Vue.extend({
 			this.formErrors = {};
 			this.$refs.passwordForm.resetValidation();
 			this.$root.isLoading = true;
-			UserService.setPassword.bind(this)(this.user.email, this.actual, this.password, this.confirmation)
+			UserService.setPassword(this.user.email, this.actual, this.password, this.confirmation)
 				.then(response => {
 				    this.$root.isSaved = true;
 				    this.$refs.passwordForm.resetValidation();

@@ -309,11 +309,7 @@
 	import Vue from 'vue';
 	import DataType from "../../../components/DataType";
 	import UserAvatar from "../../../components/UserAvatar";
-	import DatasetColumn from "../../../models/DatasetColumn";
-	import DatasetRow from "../../../models/DatasetRow";
-	import DatasetCell from "../../../models/DatasetCell";
-	import Transaction from "../../../models/Transaction";
-	import Model from "../../../models/Model";
+	import { DatasetColumn, DatasetRow, DatasetCell, Transaction, Model } from "@polymind/sdk-js";
 	import ContextualMenu from "../../../components/ContextualMenu";
 
 	const dragState = {};

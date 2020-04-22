@@ -114,8 +114,7 @@
 
 <script>
     import Vue from 'vue';
-    import File from '../utils/File';
-    import FileService from "../services/FileService";
+    import { File, FileService } from '@polymind/sdk-js';
 
     export default Vue.extend({
 
@@ -145,7 +144,7 @@
 
             load() {
                 this.$root.isLoading = true;
-                FileService.getAll.bind(this)().then(files => {
+                FileService.getAll().then(files => {
                     this.files = files.data;
                 })
 					.catch(error => this.$handleError(this, error))

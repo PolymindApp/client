@@ -28,7 +28,7 @@
 <script>
 import Vue from 'vue';
 import moment from 'moment';
-import LanguageService from "../services/LanguageService";
+import { LanguageService } from "@polymind/sdk-js";
 
 export default Vue.extend({
 	name: 'LanguageSwitcher',
@@ -38,7 +38,7 @@ export default Vue.extend({
 
 		if (this.$root.languages.length === 0) {
 		    this.isLoading = true;
-		    LanguageService.getAll.bind(this)().then(languages => {
+		    LanguageService.getAll().then(languages => {
 				this.isLoading = false;
 				this.$root.languages = this.$root.languages.concat(languages.data);
 			});

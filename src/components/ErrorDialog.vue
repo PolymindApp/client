@@ -87,8 +87,8 @@ export default Vue.extend({
 			buttons: [],
 			color: null,
 			env: process.env.NODE_ENV,
-			title: this.$t('general.defaultError.title'),
-			message: this.$t('general.defaultError.desc'),
+			title: '',
+			message: '',
 		};
 	},
 });

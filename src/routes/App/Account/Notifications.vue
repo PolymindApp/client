@@ -84,9 +84,7 @@
 
 <script>
     import Vue from 'vue';
-    import Response from "../../../models/Response";
-    import NotificationService from "../../../services/NotificationService";
-    import FollowingService from "../../../services/FollowingService";
+    import { Response, NotificationService, FollowingService } from "@polymind/sdk-js";
     import UserAvatar from "../../../components/UserAvatar";
     import EmptyView from "../../../components/EmptyView";
 
@@ -112,8 +110,8 @@
             init() {
 
                 Promise.all([
-                    NotificationService.getAll.bind(this)(),
-                    FollowingService.getFollowings.bind(this)(this.$root.user.id),
+                    NotificationService.getAll(this.$root.user.id),
+                    FollowingService.getFollowings(this.$root.user.id),
 				]).then(([notifications, followings]) => {
                     this.loaded = true;
                     this.notifications = notifications;
@@ -127,7 +125,7 @@
 				//
                 //         if (data[0].collection === 'directus_activity')  {
 				//
-                //             NotificationService.get.bind(this)(data[0].item.id)
+                //             NotificationService.get(this.$root.user.id, data[0].item.id)
                 //                 .then(response => {
                 //                     response.data.acknowledged_on = null;
                 //                     this.notifications.data.unshift(response.data);

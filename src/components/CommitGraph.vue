@@ -51,7 +51,7 @@
 
 <script>
     import Vue from 'vue';
-    import ActivityService from '../services/ActivityService';
+    import { ActivityService } from '@polymind/sdk-js';
     import moment from 'moment';
 
     export default Vue.extend({
@@ -82,7 +82,7 @@
             load() {
 
                 this.isLoading = true;
-                ActivityService.getLatestCommits.bind(this)(this.user.id)
+                ActivityService.getLatestCommits(this.user.id)
                     .then(response => this.commits = response)
                     .catch(error => this.$handleError(this, error))
                     .finally(() => this.isLoading = false);
@@ -97,7 +97,7 @@
                 const date = this.getDate(day, weekday).format('YYYY-MM-DD');
 
                 this.isLoading = true;
-                ActivityService.getCommitsByDate.bind(this)(this.user.id, date)
+                ActivityService.getCommitsByDate(this.user.id, date)
                     .then(response => {
                         // const data = response.data.reduce((r, a) => {
                         //     r[a.collection + '_' + a.id + '_' + a.action] = [...r[a.collection + '_' + a.id + '_' + a.action] || [], a];

@@ -76,7 +76,7 @@ export default Vue.extend({
 
 		save() {
 			this.$root.isLoading = true;
-			SettingService.set.bind(this)(this.$root.user.setting.id, this.value).then(result => {
+			SettingService.set(this.$root.user.setting.id, this.value).then(result => {
 				this.$root.isSaved = true;
 				this.applyTheme(result);
 			}).finally(() => {

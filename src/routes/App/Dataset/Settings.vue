@@ -1,50 +1,45 @@
 <template>
 	<v-card color="transparent" flat tile>
 
-		<v-alert type="info" :prominent="!isMobile" border="left" text :icon="!isMobile ? 'mdi-help-circle' : false" class="mx-n4 mt-n4" tile>
-			<div class="d-block d-md-flex flex-md-row align-md-center">
-				<div style="flex: 1">
-					<div v-text="$t('dataset.settings.explanations')"></div>
-				</div>
-				<div class="text-center" style="flex: 0">
-					<v-btn :class="{ 'ml-0 ml-md-8 mt-4 mt-md-0': true, 'text-wrap d-block w-100': isMobile }" :large="isMobile" @click="$help.open('dataset-general')">
-						<v-icon left>mdi-book-search</v-icon>
-						<div v-text="$t('dataset.settings.readDoc')"></div>
-					</v-btn>
-				</div>
-			</div>
+		<v-alert type="info" border="left" text :icon="!isMobile ? 'mdi-information-outline' : false" class="mx-n4 mt-n4" dismissible tile>
+			<div v-text="$t('dataset.settings.explanations')"></div>
 		</v-alert>
 
 		<v-row>
 			<v-col cols="12" sm="6" class="py-0">
-				<v-text-field :error-messages="formErrors.name" :label="$t('dataset.settings.namePlaceholder')" v-model="dataset.name"></v-text-field>
-				<HTMLEditorField :error-messages="formErrors.description" :label="$t('dataset.settings.descPlaceholder')" v-model="dataset.description"></HTMLEditorField>
-				<IconListField :error-messages="formErrors.icon" :label="$t('dataset.settings.iconPlaceholder')" v-model="dataset.icon" :height="226"></IconListField>
+				<v-card class="mb-4" outlined>
+					<v-card-title class="d-flex justify-space-between">
+						<span v-text="$t('dataset.settings.infoSection')"></span>
+						<v-checkbox :error-messages="formErrors.is_private" :label="$t('dataset.settings.isPrivateLabel')" v-model="dataset.is_private" color="primary" class="ma-0" hide-details></v-checkbox>
+					</v-card-title>
+					<v-card-text>
+						<v-text-field :error-messages="formErrors.name" :label="$t('dataset.settings.namePlaceholder')" v-model="dataset.name"></v-text-field>
+						<HTMLEditorField :error-messages="formErrors.description" :label="$t('dataset.settings.descPlaceholder')" v-model="dataset.description"></HTMLEditorField>
+					</v-card-text>
+				</v-card>
 			</v-col>
 			<v-col cols="12" sm="6" class="py-0">
-				<v-row>
-					<v-col cols="8" class="py-0">
-						<v-checkbox :error-messages="formErrors.is_remote" :label="$t('dataset.settings.isRemoteLabel')" v-model="dataset.is_remote" color="primary"></v-checkbox>
-					</v-col>
-					<v-col cols="4" class="py-0">
-						<v-checkbox :error-messages="formErrors.is_private" :label="$t('dataset.settings.isPrivateLabel')" v-model="dataset.is_private" color="primary"></v-checkbox>
-					</v-col>
-				</v-row>
 
-				<div class="mb-4">
-					<v-text-field :disabled="!dataset.is_remote" :error-messages="formErrors.remote_uri" :label="$t('dataset.settings.remoteURIPlaceholder')" v-model="dataset.remote_uri"></v-text-field>
-					<v-checkbox :disabled="!dataset.is_remote" :error-messages="formErrors.is_applying_mapper" :label="$t('dataset.settings.applyMapper')" v-model="dataset.is_applying_mapper" color="primary"></v-checkbox>
-					<CodeEditorField :disabled="!dataset.is_applying_mapper" :error-messages="formErrors.mapper" v-model="dataset.mapper" lang="javascript" :height="200"></CodeEditorField>
+				<v-card class="mb-4" outlined>
+					<v-card-title class="d-flex">
+						<v-checkbox :error-messages="formErrors.is_remote" v-model="dataset.is_remote" color="primary" class="ma-0" hide-details></v-checkbox>
+						<span v-text="$t('dataset.settings.isRemoteLabel')"></span>
+					</v-card-title>
+					<v-card-text>
+						<v-text-field :disabled="!dataset.is_remote" :error-messages="formErrors.remote_uri" :label="$t('dataset.settings.remoteURIPlaceholder')" v-model="dataset.remote_uri"></v-text-field>
+						<v-checkbox :disabled="!dataset.is_remote" :error-messages="formErrors.is_applying_mapper" :label="$t('dataset.settings.applyMapper')" v-model="dataset.is_applying_mapper" color="primary"></v-checkbox>
+						<CodeEditorField :disabled="!dataset.is_applying_mapper || !dataset.is_remote" :error-messages="formErrors.mapper" v-model="dataset.mapper" lang="javascript" :height="200"></CodeEditorField>
 
-					<v-btn @click="testRemoteURI()" :disabled="!dataset.is_remote">
-						<v-icon>mdi-play</v-icon>
-						<span v-text="$t('dataset.settings.testRemoteURI')"></span>
-					</v-btn>
+						<v-btn @click="testRemoteURI()" :disabled="!dataset.is_remote">
+							<v-icon>mdi-play</v-icon>
+							<span v-text="$t('dataset.settings.testRemoteURI')"></span>
+						</v-btn>
 
-					<v-expand-transition>
-						<pre class="mt-4" v-if="remoteTestResponse" v-text="remoteTestResponse"></pre>
-					</v-expand-transition>
-				</div>
+						<v-expand-transition>
+							<pre class="mt-4" v-if="remoteTestResponse" v-text="remoteTestResponse"></pre>
+						</v-expand-transition>
+					</v-card-text>
+				</v-card>
 			</v-col>
 		</v-row>
 	</v-card>
