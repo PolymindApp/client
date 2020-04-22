@@ -81,8 +81,11 @@
 		<v-expand-x-transition>
 			<v-card class="injection fill-height scrollable-y not-scrollable-x no-select" v-if="properties.opened" style="width: 20vw" :dark="dark" tile flat>
 				<div style="height: 0; min-width: 20vw">
+
+					<!-- HOOKS -->
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
+							<v-icon left>mdi-flash</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.hooks.title')"></span>
 								<span v-if="component.hooks.length > 0"> ({{ component.hooks.length }})</span>
@@ -103,31 +106,27 @@
 						</v-slide-x-transition>
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(hook, index) in component.hooks" :key="index">
-								<v-list-item-icon>
-									<v-icon>mdi-flash</v-icon>
-								</v-list-item-icon>
 								<v-list-item-content>
-									<v-list-item-title v-text="hook.name"></v-list-item-title>
+									<v-list-item-title v-text="hook.name" :title="hook.name"></v-list-item-title>
 								</v-list-item-content>
 								<v-list-item-action>
-									<div>
-										<v-tooltip bottom>
-											<template v-slot:activator="{ on }">
-												<v-btn class="mr-2" @click.stop="editInjector('hook', hook)" v-on="on" small icon>
-													<v-icon small>mdi-pencil</v-icon>
-												</v-btn>
-											</template>
-											<span v-text="$t('component.source.injection.edit')"></span>
-										</v-tooltip>
-										<v-tooltip bottom>
-											<template v-slot:activator="{ on }">
-												<v-btn @click.stop="removeInjector('hook', component.hooks, index)" v-on="on" small icon>
-													<v-icon small>mdi-delete</v-icon>
-												</v-btn>
-											</template>
-											<span v-text="$t('component.source.injection.remove')"></span>
-										</v-tooltip>
-									</div>
+									<v-menu offset-x offset-overflow bottom>
+										<template v-slot:activator="{ on }">
+											<v-btn v-on="on" icon>
+												<v-icon>mdi-dots-vertical</v-icon>
+											</v-btn>
+										</template>
+										<v-list>
+											<v-list-item @click.stop="editInjector('hook', hook)" small icon>
+												<v-list-item-icon><v-icon>mdi-pencil</v-icon></v-list-item-icon>
+												<v-list-item-title class="mr-4">{{$t('component.source.injection.edit')}}</v-list-item-title>
+											</v-list-item>
+											<v-list-item @click.stop="removeInjector('hook', component.hooks, index)" small icon>
+												<v-list-item-icon><v-icon>mdi-delete</v-icon></v-list-item-icon>
+												<v-list-item-title class="mr-4">{{$t('component.source.injection.remove')}}</v-list-item-title>
+											</v-list-item>
+										</v-list>
+									</v-menu>
 								</v-list-item-action>
 							</v-list-item>
 						</v-slide-x-transition>
@@ -135,8 +134,10 @@
 
 					<v-divider></v-divider>
 
+					<!-- PARAMETERS -->
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
+							<v-icon left>mdi-code-parentheses-box</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.parameters.title')"></span>
 								<span v-if="component.parameters.length > 0"> ({{ component.parameters.length }})</span>
@@ -157,31 +158,27 @@
 						</v-slide-x-transition>
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(parameter, index) in component.parameters" :key="index">
-								<v-list-item-icon>
-									<v-icon>mdi-code-parentheses-box</v-icon>
-								</v-list-item-icon>
 								<v-list-item-content>
-									<v-list-item-title v-text="parameter.name"></v-list-item-title>
+									<v-list-item-title v-text="parameter.name" :title="parameter.name"></v-list-item-title>
 								</v-list-item-content>
 								<v-list-item-action>
-									<div>
-										<v-tooltip bottom>
-											<template v-slot:activator="{ on }">
-												<v-btn class="mr-2" @click.stop="editInjector('parameter', parameter)" v-on="on" small icon>
-													<v-icon small>mdi-pencil</v-icon>
-												</v-btn>
-											</template>
-											<span v-text="$t('component.source.injection.edit')"></span>
-										</v-tooltip>
-										<v-tooltip bottom>
-											<template v-slot:activator="{ on }">
-												<v-btn @click.stop="removeInjector('parameter', component.parameters, index)" v-on="on" small icon>
-													<v-icon small>mdi-delete</v-icon>
-												</v-btn>
-											</template>
-											<span v-text="$t('component.source.injection.remove')"></span>
-										</v-tooltip>
-									</div>
+									<v-menu offset-x offset-overflow bottom>
+										<template v-slot:activator="{ on }">
+											<v-btn v-on="on" icon>
+												<v-icon>mdi-dots-vertical</v-icon>
+											</v-btn>
+										</template>
+										<v-list>
+											<v-list-item @click.stop="editInjector('parameter', parameter)" small icon>
+												<v-list-item-icon><v-icon>mdi-pencil</v-icon></v-list-item-icon>
+												<v-list-item-title class="mr-4">{{$t('component.source.injection.edit')}}</v-list-item-title>
+											</v-list-item>
+											<v-list-item @click.stop="removeInjector('parameter', component.parameters, index)" small icon>
+												<v-list-item-icon><v-icon>mdi-delete</v-icon></v-list-item-icon>
+												<v-list-item-title class="mr-4">{{$t('component.source.injection.remove')}}</v-list-item-title>
+											</v-list-item>
+										</v-list>
+									</v-menu>
 								</v-list-item-action>
 							</v-list-item>
 						</v-slide-x-transition>
@@ -189,8 +186,10 @@
 
 					<v-divider></v-divider>
 
+					<!-- FUNCTIONS -->
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
+							<v-icon left>mdi-function</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.functions.title')"></span>
 								<span v-if="component.functions.length > 0"> ({{ component.functions.length }})</span>
@@ -211,31 +210,27 @@
 						</v-slide-x-transition>
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(func, index) in component.functions" :key="index">
-								<v-list-item-icon>
-									<v-icon>mdi-function</v-icon>
-								</v-list-item-icon>
 								<v-list-item-content>
-									<v-list-item-title v-text="func.name"></v-list-item-title>
+									<v-list-item-title v-text="func.name" :title="func.name"></v-list-item-title>
 								</v-list-item-content>
 								<v-list-item-action>
-									<div>
-										<v-tooltip bottom>
-											<template v-slot:activator="{ on }">
-												<v-btn class="mr-2" @click.stop="editInjector('function', func)" v-on="on" small icon>
-													<v-icon small>mdi-pencil</v-icon>
-												</v-btn>
-											</template>
-											<span v-text="$t('component.source.injection.edit')"></span>
-										</v-tooltip>
-										<v-tooltip bottom>
-											<template v-slot:activator="{ on }">
-												<v-btn @click.stop="removeInjector('function', component.functions, index)" v-on="on" small icon>
-													<v-icon small>mdi-delete</v-icon>
-												</v-btn>
-											</template>
-											<span v-text="$t('component.source.injection.remove')"></span>
-										</v-tooltip>
-									</div>
+									<v-menu offset-x offset-overflow bottom>
+										<template v-slot:activator="{ on }">
+											<v-btn v-on="on" icon>
+												<v-icon>mdi-dots-vertical</v-icon>
+											</v-btn>
+										</template>
+										<v-list>
+											<v-list-item @click.stop="editInjector('function', func)" small icon>
+												<v-list-item-icon><v-icon>mdi-pencil</v-icon></v-list-item-icon>
+												<v-list-item-title class="mr-4">{{$t('component.source.injection.edit')}}</v-list-item-title>
+											</v-list-item>
+											<v-list-item @click.stop="removeInjector('function', component.functions, index)" small icon>
+												<v-list-item-icon><v-icon>mdi-delete</v-icon></v-list-item-icon>
+												<v-list-item-title class="mr-4">{{$t('component.source.injection.remove')}}</v-list-item-title>
+											</v-list-item>
+										</v-list>
+									</v-menu>
 								</v-list-item-action>
 							</v-list-item>
 						</v-slide-x-transition>
@@ -243,8 +238,10 @@
 
 					<v-divider></v-divider>
 
+					<!-- TESTS -->
 					<v-list color="transparent" class="pa-2">
 						<v-subheader>
+							<v-icon left>mdi-bug</v-icon>
 							<span style="flex: 1">
 								<span v-text="$t('component.source.tests.title')"></span>
 								<span v-if="component.tests.length > 0"> ({{ component.tests.length }})</span>
@@ -265,11 +262,8 @@
 						</v-slide-x-transition>
 						<v-slide-x-transition leave-absolute group>
 							<v-list-item v-for="(test, index) in component.tests" :key="index">
-								<v-list-item-icon>
-									<v-icon>mdi-bug</v-icon>
-								</v-list-item-icon>
 								<v-list-item-content>
-									<v-list-item-title v-text="test.name"></v-list-item-title>
+									<v-list-item-title v-text="test.name" :title="test.name"></v-list-item-title>
 								</v-list-item-content>
 								<v-list-item-action>
 									<div>
@@ -281,22 +275,23 @@
 											</template>
 											<span v-text="$t('component.source.injection.run')"></span>
 										</v-tooltip>
-										<v-tooltip bottom>
+										<v-menu offset-x offset-overflow bottom>
 											<template v-slot:activator="{ on }">
-												<v-btn class="mr-2" @click.stop="editInjector('test', test)" v-on="on" small icon>
-													<v-icon small>mdi-pencil</v-icon>
+												<v-btn v-on="on" icon>
+													<v-icon>mdi-dots-vertical</v-icon>
 												</v-btn>
 											</template>
-											<span v-text="$t('component.source.injection.edit')"></span>
-										</v-tooltip>
-										<v-tooltip bottom>
-											<template v-slot:activator="{ on }">
-												<v-btn @click.stop="removeInjector('test', component.tests, index)" v-on="on" small icon>
-													<v-icon small>mdi-delete</v-icon>
-												</v-btn>
-											</template>
-											<span v-text="$t('component.source.injection.remove')"></span>
-										</v-tooltip>
+											<v-list>
+												<v-list-item @click.stop="editInjector('test', test)" small icon>
+													<v-list-item-icon><v-icon>mdi-pencil</v-icon></v-list-item-icon>
+													<v-list-item-title class="mr-4">{{$t('component.source.injection.edit')}}</v-list-item-title>
+												</v-list-item>
+												<v-list-item @click.stop="removeInjector('test', component.tests, index)" small icon>
+													<v-list-item-icon><v-icon>mdi-delete</v-icon></v-list-item-icon>
+													<v-list-item-title class="mr-4">{{$t('component.source.injection.remove')}}</v-list-item-title>
+												</v-list-item>
+											</v-list>
+										</v-menu>
 									</div>
 								</v-list-item-action>
 							</v-list-item>

@@ -8,7 +8,7 @@
 				<v-icon left>mdi-pencil-box-outline</v-icon>
 				{{$t('dataset.settings.title')}}
 			</v-tab>
-			<v-tab :to="'/dataset/' + id + '/data'" exact>
+			<v-tab :to="'/dataset/' + id + '/data'" :disabled="dataset.is_remote" exact>
 				<v-icon left>mdi-database-edit</v-icon>
 				{{$t('dataset.data.title')}}
 			</v-tab>
