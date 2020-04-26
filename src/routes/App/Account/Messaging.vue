@@ -114,7 +114,6 @@
 
 			getMessages(userId) {
 
-                this.$root.isLoading = true;
                 MessagingService.getMessages(userId, this.$root.user.id)
 					.then(response => {
 					    this.messages[userId] = response.data;
@@ -125,8 +124,7 @@
 
 					    this.$forceUpdate();
 					})
-					.catch(error => this.$handleError(this, error))
-					.finally(() => this.$root.isLoading = false);
+					.catch(error => this.$handleError(this, error));
 			},
 
 			send(userId, event) {

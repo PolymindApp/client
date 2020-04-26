@@ -11,7 +11,7 @@
 		<!-- ITEMS -->
 		<draggable v-model="list" v-bind="dragOptions" handle=".handle" @start="dragStart()" @end="dragEnd()">
 			<transition-group type="transition" :name="!isDragging ? 'flip-list' : null">
-				<v-row :key="index" v-for="(item, index) in list">
+				<v-row :key="index + '_item'" v-for="(item, index) in list">
 					<v-col v-if="$attrs.sortable !== undefined && list.length > 1" class="py-0 d-flex align-center justify-start shrink">
 						<v-icon class="handle">mdi-drag</v-icon>
 					</v-col>
@@ -37,14 +37,12 @@
 		</draggable>
 
 		<!-- ADD BUTTON -->
-		<v-row v-if="!hideAddButton">
-			<v-col cols="12">
-				<v-btn @click="add()" :disabled="$attrs.disabled">
-					<v-icon>mdi-plus</v-icon>
-					<span v-text="$t('component.simpleListBuilder.add')"></span>
-				</v-btn>
-			</v-col>
-		</v-row>
+		<div class="mt-4" v-if="!hideAddButton">
+			<v-btn @click="add()" :disabled="$attrs.disabled">
+				<v-icon>mdi-plus</v-icon>
+				<span v-text="$t('component.simpleListBuilder.add')"></span>
+			</v-btn>
+		</div>
 	</div>
 </template>
 

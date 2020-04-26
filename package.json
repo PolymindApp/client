@@ -1,6 +1,6 @@
 {
 	"name": "@polymind/client",
-	"version": "0.1.5-beta",
+	"version": "0.1.6-beta",
 	"private": true,
 	"author": "Danny Coulombe <danny.coulombe@polymind.app>",
 	"engines": {
@@ -43,7 +43,7 @@
 		"vue2-ace-editor": "^0.0.13",
 		"vue2-google-maps": "^0.10.7",
 		"vuedraggable": "^2.23.0",
-	  	"vuetify": "^2.2.19",
+	  	"vuetify": "^2.2.25",
 		"vuex": "^3.0.1"
 	},
 	"devDependencies": {

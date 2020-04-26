@@ -28,7 +28,7 @@
 
 <script>
 import Vue from 'vue';
-import { Rules, UserService, UserModel } from "@polymind/sdk-js";
+import { Rules, UserService, User } from "@polymind/sdk-js";
 import UserAvatar from "../../components/UserAvatar";
 
 export default Vue.extend({
@@ -77,7 +77,7 @@ export default Vue.extend({
 
 	data() {
 		return {
-			user: new UserModel(),
+			user: new User(),
 			formIsValid: false,
 			formErrors: {},
 			password: '',

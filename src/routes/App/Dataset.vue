@@ -113,10 +113,39 @@ import Vue from 'vue';
 import Data from "./Dataset/Data";
 import Views from "./Dataset/Views";
 import Settings from "./Dataset/Settings";
-import { Hash, DatasetService, Dataset, DeploymentService, DatasetColumn, DatasetRow, DatasetCell, Model, Transaction } from "@polymind/sdk-js";
+import {
+	Hash,
+	DatasetService,
+	Dataset,
+	DeploymentService,
+	DatasetColumn,
+	DatasetRow,
+	DatasetCell,
+	Model,
+	Transaction,
+	Component
+} from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
-// import {VSkeletonLoader} from "vuetify";
+
+const beforeRoute = function(to, from, next) {
+
+	if (to.params.id === from.params.id) {
+		return next();
+	}
+
+	if (to.params.id === 'new') {
+		to.meta.dataset = new Dataset();
+		next();
+	} else {
+		DatasetService.get(to.params.id, true)
+			.then(response => {
+				to.meta.dataset = new Dataset(response.data);
+				next();
+			})
+			.catch(error => next('/404'));
+	}
+};
 
 let jsonJobTimeout = null;
 
@@ -124,12 +153,23 @@ export default Vue.extend({
 
 	components: { Views, Data, Settings, DeleteDialog, UserAvatar },
 
-	mounted() {
-		this.initializeValues();
-		this.load();
-		this.loadRevisions();
-		this.updateTab();
+	beforeRouteEnter: beforeRoute,
 
+	beforeRouteUpdate(to, from, next) {
+		beforeRoute(to, from, () => {
+			next();
+			this.$nextTick(() => {
+				this.init(to.params.id !== from.params.id);
+				this.$forceUpdate();
+			});
+		});
+	},
+
+	created() {
+		this.init();
+	},
+
+	mounted() {
 		this.$shortcuts.add(this.$t('shortcuts.dataset.save.title'), this.$t('shortcuts.dataset.save.desc'), 'dataset', ['ControlLeft', 'KeyS'], this.shortcutSave);
 	},
 
@@ -138,6 +178,17 @@ export default Vue.extend({
 	},
 
 	methods: {
+
+		init(load = true) {
+			this.originalDataset = this.$route.meta.dataset;
+			this.dataset = this.$route.meta.dataset;
+			this.tab = '/dataset/' + this.id + '/' + this.$route.params.section;
+			this.updateTab();
+
+			if (load) {
+				this.loadRevisions();
+			}
+		},
 
 		setContext(component, props, listeners) {
 			this.contextualComponent.component = component;
@@ -169,9 +220,6 @@ export default Vue.extend({
 				thirdTitle,
 			];
 			document.title = this.dataset.name + ' - ' + this.$t('title.dataset');
-
-			this.isNew = this.$route.params.id === 'new';
-			this.id = this.isNew ? 'new' : parseInt(this.$route.params.id);
 
 			setTimeout(() => {
 				const event = new Event('resize');
@@ -209,8 +257,6 @@ export default Vue.extend({
 				this.$root.isLoading = true;
 				DatasetService.get(this.id, true, revisionOffset)
 					.then(response => {
-						this.id = response.data.id;
-						this.isNew = false;
 						this.dataset = new Dataset(response.data);
 						this.updateOriginalData();
 						this.updateTab();
@@ -259,7 +305,6 @@ export default Vue.extend({
 						return this.$router.push('/dataset/' + response.dataset[0].data.id);
 					}
 
-					this.isNew = false;
 					this.updateOriginalData();
 					this.$root.isSaved = true;
 					this.loadRevisions();
@@ -422,6 +467,14 @@ export default Vue.extend({
 
 	computed: {
 
+		id() {
+			return this.$route.params.id;
+		},
+
+		isNew() {
+			return this.$route.params.id === 'new';
+		},
+
 		dataHasChanged() {
 			return this.datasetJson !== this.originalDatasetJson;// || this.transactions.length > 0;
 		},
@@ -438,11 +491,8 @@ export default Vue.extend({
 			revisionOffset: 0,
 			commentCount: 0,
 			worker: null,
-			id: this.$route.params.id,
-			isNew: this.$route.params.id === 'new',
 			isDeleted: false,
 			formErrors: [],
-			tab: '/dataset/new/edit',
 			originalDataset: new Dataset({
 				columns: [ new DatasetColumn() ],
 				rows: [ new DatasetRow({
@@ -459,13 +509,6 @@ export default Vue.extend({
 			}),
 		}
 	},
-
-	watch: {
-		'$route.params.id': function() {
-			this.initializeValues();
-			this.refresh();
-		},
-	}
 });
 </script>
 

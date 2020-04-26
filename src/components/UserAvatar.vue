@@ -30,7 +30,7 @@
 
 <script>
 import Vue from 'vue';
-import { UserModel, File, FileService, UserService } from "@polymind/sdk-js";
+import { User, File, FileService, UserService } from "@polymind/sdk-js";
 import moment from "moment";
 
 export default Vue.extend({
@@ -90,7 +90,7 @@ export default Vue.extend({
                                 avatar: filesResponse.data.id
                             })
                                 .then(response => {
-                                    Object.assign(this.$root.user, new UserModel(response.data));
+                                    Object.assign(this.$root.user, new User(response.data));
                                 })
                                 .catch(error => this.$handleError(this, error))
                                 .finally(() => this.isUploading = false);

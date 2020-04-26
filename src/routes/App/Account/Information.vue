@@ -84,11 +84,9 @@ export default Vue.extend({
 
 	    load() {
 
-	        this.$root.isLoading = true;
 	        LanguageService.getAll()
 				.then(response => this.languages = response.data)
-				.catch(error => this.$handleError(this, error))
-				.finally(() => this.$root.isLoading = false);
+				.catch(error => this.$handleError(this, error));
 		},
 
 		apply(event) {

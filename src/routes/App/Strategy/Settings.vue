@@ -22,18 +22,29 @@
 			</v-col>
 			<v-col cols="12" sm="6" class="py-0">
 				<v-card class="mb-4" outlined>
-					<v-card-title>
-						<span v-text="$t('strategy.settings.testSection')"></span>
+					<v-card-title class="d-flex justify-space-between">
+						<span v-text="$t('strategy.settings.reminder.title')"></span>
+						<ColorPicker v-model="strategy.color" />
 					</v-card-title>
 					<v-card-text>
-						<div>Essayez votre assemblage sans conséquence sur vos statistiques.</div>
+						<v-checkbox v-model="allDays" :label="$t('strategy.settings.reminder.allDays')" @change="handleAllDays()" hide-details></v-checkbox>
+						<v-row no-gutters>
+							<v-col cols="6" md="4" :key="day" v-for="day in days">
+								<v-checkbox v-model="strategy.reminder" :value="day" :label="$t('strategy.settings.reminder.' + day)" hide-details></v-checkbox>
+							</v-col>
+						</v-row>
 
-						<div class="mt-4">
-							<v-btn target="_blank" color="warning">
-								<v-icon left>mdi-launch</v-icon>
-								<span v-text="$t('strategy.settings.test')"></span>
-							</v-btn>
-						</div>
+						<v-divider class="my-8 mb-2"></v-divider>
+
+						<v-row>
+							<v-col cols="12" md="6">
+								<DateField v-model="strategy.start_date" @input="$event > strategy.end_date ? strategy.end_date = $event : null" :label="$t('strategy.settings.startDate')" clearable hide-details />
+							</v-col>
+							<v-col cols="12" md="6">
+								<DateField :min="strategy.start_date" v-model="strategy.end_date" :label="$t('strategy.settings.endDate')" clearable hide-details />
+							</v-col>
+						</v-row>
+
 					</v-card-text>
 				</v-card>
 			</v-col>
@@ -45,15 +56,39 @@
 import Vue from 'vue';
 import HTMLEditorField from "../../../components/HTMLEditorField";
 import IconListField from "../../../components/IconListField";
+import ColorPicker from "../../../components/ColorPicker";
+import DateField from "../../../components/DateField";
+import moment from "moment";
 
 export default Vue.extend({
 
 	props: ['strategy', 'formErrors'],
 
-	components: { HTMLEditorField, IconListField },
+	components: { HTMLEditorField, IconListField, ColorPicker, DateField },
 
 	methods: {
 
+		handleAllDays() {
+			if (this.allDays) {
+				this.checkAllDays();
+			} else {
+				this.uncheckAllDays();
+			}
+		},
+
+		updateAllDays() {
+			const allChecked = this.strategy.reminder.length === this.days.length;
+			this.allDays = allChecked;
+		},
+
+		uncheckAllDays() {
+			this.strategy.reminder = [];
+		},
+
+		checkAllDays() {
+			this.uncheckAllDays();
+			this.days.forEach(day => this.strategy.reminder.push(day));
+		},
 	},
 
 	computed: {
@@ -65,7 +100,27 @@ export default Vue.extend({
 
 	data() {
 		return {
+			allDays: false,
+			days: [
+				'monday',
+				'tuesday',
+				'wednesday',
+				'thursday',
+				'friday',
+				'saturday',
+				'sunday',
+			]
+		}
+	},
 
+	watch: {
+
+		strategy: {
+			deep: true,
+			handler: function(strategy) {
+				this.updateAllDays();
+				this.$emit('update:strategy', strategy);
+			}
 		}
 	}
 })

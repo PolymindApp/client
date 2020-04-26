@@ -90,7 +90,7 @@
 									<!--						<draggable :disabled="$vuetify.breakpoint.smAndDown" class="draggable-list" :list="decks" v-bind="{ disabled: !group.sortable, animation: 200, }" @end="group.sortable && group.sortable.onEnd()">-->
 									<v-list-item color="primary" :key="item.name || item.title" :to="item.link" :exact="item.exact" @click="item.signOut ? signOut() : null" :disabled="item.disabled" v-for="item in group.getItems()">
 										<v-list-item-icon>
-											<v-icon>{{ item.icon }}</v-icon>
+											<v-icon :color="item.iconColor">{{ item.icon }}</v-icon>
 										</v-list-item-icon>
 
 										<v-list-item-content>
@@ -340,6 +340,24 @@ export default Vue.extend({
 					],
 				},
 				{
+					name: 'dataset', canAdd: true, addTo: '/dataset/new', getItems: () => {
+						let items = [];
+						this.datasets.forEach(dataset => {
+							if (dataset.isArchived) {
+								return;
+							}
+							items.push({
+								title: dataset.name,
+								icon: dataset.is_remote ? 'mdi-cloud-download' : 'mdi-database',
+								link: '/dataset/' + dataset.id,
+								badge: dataset.totalItems,
+								badgeColor: 'transparent',
+							});
+						});
+						return items;
+					},
+				},
+				{
                 	name: 'strategies', canAdd: true, addTo: '/strategy/new', getItems: () => {
 						let items = [];
 						this.strategies.forEach(strategy => {
@@ -349,6 +367,7 @@ export default Vue.extend({
 							items.push({
 								title: strategy.name,
 								icon: 'mdi-strategy',
+								iconColor: strategy.color,
 								link: '/strategy/' + strategy.id,
 								badge: strategy.totalItems,
 								badgeColor: 'transparent',
@@ -391,24 +410,6 @@ export default Vue.extend({
 				// 		return items;
 				// 	},
 				// },
-				{
-                	name: 'dataset', canAdd: true, addTo: '/dataset/new', getItems: () => {
-						let items = [];
-						this.datasets.forEach(dataset => {
-							if (dataset.isArchived) {
-                            	return;
-							}
-							items.push({
-								title: dataset.name,
-								icon: dataset.is_remote ? 'mdi-cloud-download' : 'mdi-database',
-								link: '/dataset/' + dataset.id,
-								badge: dataset.totalItems,
-								badgeColor: 'transparent',
-							});
-						});
-						return items;
-					},
-				},
 				{
 					name: 'others', canAdd: false, getItems: () => [
 						{name: 'about', icon: 'mdi-information', link: '/about' },

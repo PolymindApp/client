@@ -154,21 +154,50 @@
 import Vue from 'vue';
 import Builds from "./Component/Builds";
 import Settings from "./Component/Settings";
-import { ComponentService, Component, CommentService, DeploymentService } from "@polymind/sdk-js";
+import {ComponentService, Component, CommentService, DeploymentService, Strategy} from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
+
+const beforeRoute = function(to, from, next) {
+
+	if (to.params.id === from.params.id) {
+		return next();
+	}
+
+	if (to.params.id === 'new') {
+		to.meta.component = new Component();
+		next();
+	} else {
+		ComponentService.get(to.params.id)
+			.then(response => {
+				to.meta.component = new Component(response.data);
+				next();
+			})
+			.catch(error => next('/404'));
+	}
+};
 
 export default Vue.extend({
 
 	components: { Builds, Settings, DeleteDialog, UserAvatar },
 
-	mounted() {
-		this.initializeValues();
-		this.load();
-		this.loadRevisions();
-		this.updateTab();
-		this.loadCommentCount();
+	beforeRouteEnter: beforeRoute,
 
+	beforeRouteUpdate(to, from, next) {
+		beforeRoute(to, from, () => {
+			next();
+			this.$nextTick(() => {
+				this.init(to.params.id !== from.params.id);
+				this.$forceUpdate();
+			});
+		});
+	},
+
+	created() {
+		this.init();
+	},
+
+	mounted() {
 		this.$shortcuts.add(this.$t('shortcuts.component.save.title'), this.$t('shortcuts.component.save.desc'), 'component', ['ControlLeft', 'KeyS'], this.shortcutSave);
 	},
 
@@ -177,6 +206,18 @@ export default Vue.extend({
 	},
 
 	methods: {
+
+		init(load = true) {
+			this.originalComponent = this.$route.meta.component;
+			this.component = this.$route.meta.component;
+			this.tab = '/component/' + this.id + '/' + this.$route.params.section;
+			this.updateTab();
+
+			if (load) {
+				this.loadRevisions();
+				this.loadCommentCount();
+			}
+		},
 
 		shortcutSave(event) {
 			this.save();
@@ -195,9 +236,6 @@ export default Vue.extend({
 				thirdTitle,
 			];
 			document.title = sectionTitle + ' - ' + this.$t('title.component');
-
-			this.isNew = this.$route.params.id === 'new';
-			this.id = this.isNew ? 'new' : parseInt(this.$route.params.id);
 
 			setTimeout(() => {
 				const event = new Event('resize');
@@ -244,14 +282,11 @@ export default Vue.extend({
 					.then(response => {
 
 					    if (revisionOffset !== undefined) {
-                            this.id = response.data.data.id;
                             this.component = new Component(response.data.data);
 						} else {
-                            this.id = response.data.id;
                             this.component = new Component(response.data);
 						}
 
-					    this.isNew = false;
 						this.updateOriginalData();
 						this.updateTab();
 					})
@@ -307,8 +342,6 @@ export default Vue.extend({
                         return this.$router.push('/component/' + response.data.id);
                     }
 
-					this.id = response.data.id;
-					this.isNew = false;
 					this.updateOriginalData();
 					this.loadRevisions();
 					this.updateTab();
@@ -350,6 +383,14 @@ export default Vue.extend({
 
 	computed: {
 
+		id() {
+			return this.$route.params.id;
+		},
+
+		isNew() {
+			return this.$route.params.id === 'new';
+		},
+
 		lastBuildState() {
 			return this.builds.length > 0 && this.builds[0].state;
 		},
@@ -370,13 +411,10 @@ export default Vue.extend({
                 visible: false,
                 publied: false,
             },
-			id: this.$route.params.id,
-			isNew: this.$route.params.id === 'new',
 			isDeleted: false,
 			formErrors: [],
             revisions: [],
             revisionOffset: 0,
-			tab: '/component/new/edit',
 			originalComponent: {},
 			component: {},
             commentCount: 0,
@@ -389,16 +427,6 @@ export default Vue.extend({
 			],
 		}
 	},
-
-	watch: {
-		'$route.params.id': function() {
-			this.initializeValues();
-			this.updateTab();
-			this.load();
-			this.loadRevisions();
-			this.loadCommentCount();
-		}
-	}
 });
 </script>
 

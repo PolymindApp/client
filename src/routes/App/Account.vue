@@ -75,14 +75,53 @@ import Messaging from "./Account/Messaging";
 import Settings from "./Account/Settings";
 import Notifications from "./Account/Notifications";
 
+const beforeRoute = function(to, from, next) {
+
+	if (to.params.id === from.params.id) {
+		return next();
+	}
+
+	if (to.params.id === 'new') {
+		to.meta.strategy = new User();
+		next();
+	} else {
+		UserService.get(to.params.id)
+			.then(response => {
+				to.meta.user = new User(response.data);
+				next();
+			})
+			.catch(error => next('/404'));
+	}
+};
+
 export default Vue.extend({
+
 	components: { Activities, Information, Header, Messaging, Notifications, Settings },
 
-	mounted() {
-	    this.load();
+	beforeRouteEnter: beforeRoute,
+
+	beforeRouteUpdate(to, from, next) {
+		beforeRoute(to, from, () => {
+			next();
+			this.$nextTick(() => {
+				this.init(to.params.id !== from.params.id);
+				this.$forceUpdate();
+			});
+		});
+	},
+
+	created() {
+		this.init();
 	},
 
 	methods: {
+
+		init(load = true) {
+			this.originalUser = this.$deepClone(this.$route.meta.user);
+			this.user = this.$route.meta.user;
+			this.tab = '/account/' + this.id + '/' + this.$route.params.section;
+			this.updateContext();
+		},
 
 	    updateValue(user) {
 	        this.user = new User(this.$deepClone(user));
@@ -103,8 +142,6 @@ export default Vue.extend({
 				thirdTitle,
 			];
 			document.title = thirdTitle + ' - ' + secondTitle + ' - ' + this.$t('title.account');
-
-			this.id = parseInt(this.$route.params.id);
 		},
 
 	    load() {
@@ -126,6 +163,10 @@ export default Vue.extend({
 
 	computed: {
 
+		id() {
+			return parseInt(this.$route.params.id);
+		},
+
 	    isCurrentUser() {
 	        return this.$root.user.id === this.id;
 		},
@@ -138,29 +179,11 @@ export default Vue.extend({
 	data: function() {
 
 		return {
-			tab: '/account/' + this.$route.params.id + '/' + this.$route.params.section,
-			id: parseInt(this.$route.params.id),
-			user: new User(),
-            originalUser: new User(),
+			user: null,
+            originalUser: null,
             elementCount: 0,
 		}
 	},
-
-	watch: {
-	    '$root.user': {
-	        deep: true,
-	        handler: function(user) {
-	            if (user.id === this.user.id) {
-                	this.user = new User(this.$deepClone(user));
-                	this.originalUser = new User(this.$deepClone(user));
-				}
-			},
-		},
-		'$route.params.id': function(id) {
-	        this.id = parseInt(id);
-			this.load();
-		}
-	}
 });
 </script>
 
