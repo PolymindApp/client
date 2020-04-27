@@ -15,7 +15,7 @@
 		"start": "node server.js"
 	},
 	"dependencies": {
-	  	"@directus/sdk-js": "^5.3.4",
+		"@directus/sdk-js": "^5.3.4",
 		"@mdi/font": "^4.9.95",
 		"autobahn": "^19.12.1",
 		"chart.js": "^2.9.3",
@@ -25,6 +25,7 @@
 		"eslint-plugin-editorconfig": "^2.1.2",
 		"express": "^4.17.1",
 		"jimp": "^0.8.4",
+		"js-yaml": "^3.13.1",
 		"moment": "^2.24.0",
 		"object-assign-deep": "^0.4.0",
 		"papaparse": "^5.1.0",
@@ -43,7 +44,7 @@
 		"vue2-ace-editor": "^0.0.13",
 		"vue2-google-maps": "^0.10.7",
 		"vuedraggable": "^2.23.0",
-	  	"vuetify": "^2.2.25",
+		"vuetify": "^2.2.25",
 		"vuex": "^3.0.1"
 	},
 	"devDependencies": {

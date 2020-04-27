@@ -45,6 +45,10 @@
 					<v-icon left>mdi-pencil-box-outline</v-icon>
 					{{$t('component.settings.title')}}
 				</v-tab>
+				<v-tab :disabled="isDeleted" :to="'/component/' + id + '/parameters'" exact>
+					<v-icon left>mdi-folder-settings-variant-outline</v-icon>
+					{{$t('component.parameters.title')}}
+				</v-tab>
 				<v-tab :disabled="isDeleted" :to="'/component/' + id + '/builds'" exact>
 					<v-icon left>mdi-bulldozer</v-icon>
 					<v-badge :value="builds.length > 0" :color="lastBuildState | buildColor" :icon="lastBuildState | buildIcon" inline>
@@ -58,23 +62,25 @@
 
 				<v-spacer></v-spacer>
 
-				<v-btn :disabled="isDeleted || !component.repo_url" :href="component.repo_url" target="_blank" class="mt-3 ml-2" small text>
-					<v-icon left>mdi-directions-fork</v-icon>
-					{{$t('modal.fork')}}
-				</v-btn>
+				<div class="d-flex align-center">
+					<v-btn :disabled="isDeleted || !component.repo_url" :href="component.repo_url" target="_blank" class="ml-2" small text>
+						<v-icon left>mdi-directions-fork</v-icon>
+						{{$t('modal.fork')}}
+					</v-btn>
 
-				<v-divider class="mx-4" vertical inset></v-divider>
+					<v-divider class="mx-4" vertical inset></v-divider>
 
-<!--				<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3" small>-->
-<!--					<v-icon left>mdi-publish</v-icon>-->
-<!--					{{$t('modal.publish')}}-->
-<!--				</v-btn>-->
+					<!--				<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3" small>-->
+					<!--					<v-icon left>mdi-publish</v-icon>-->
+					<!--					{{$t('modal.publish')}}-->
+					<!--				</v-btn>-->
 
-				<v-btn :disabled="isDeleted" @click="$comments.open(id, 'component')" class="mt-3 mr-2" text small>
-					<v-icon left>mdi-comment</v-icon>
-					{{$t('comment.btnTitle')}}
-					<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
-				</v-btn>
+					<v-btn :disabled="isDeleted" @click="$comments.open(id, 'component')" class="mr-2" text small>
+						<v-icon left>mdi-comment</v-icon>
+						{{$t('comment.btnTitle')}}
+						<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
+					</v-btn>
+				</div>
 			</v-tabs>
 		</div>
 
@@ -87,11 +93,14 @@
 		<v-tabs-items touchless :dark="$root.user.settings.theme === 'dark'" class="grey lighten-4" :style="{ flex: 1, overflow: (tab !== '/component/' + id + '/source') ? 'auto' : null }" v-model="tab">
 			<v-tab-item :value="'/component/' + id + '/settings'" class="pa-4 fill-height">
 				<div style="height: 0">
-					<Settings @update="updateTab()" :component="component" :form-errors="formErrors" />
+					<Settings @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :form-errors="formErrors" />
 				</div>
 			</v-tab-item>
+			<v-tab-item :value="'/component/' + id + '/parameters'" class="fill-height">
+				<Parameters @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :form-errors="formErrors" />
+			</v-tab-item>
 			<v-tab-item :value="'/component/' + id + '/builds'" class="fill-height">
-				<Builds :component="component" :builds="builds" :form-errors="formErrors" />
+				<Builds @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :builds="builds" :form-errors="formErrors" />
 			</v-tab-item>
 <!--			<v-tab-item :value="'/component/' + id + '/source'" class="fill-height">-->
 <!--				<Source :component="component" :form-errors="formErrors" />-->
@@ -154,9 +163,12 @@
 import Vue from 'vue';
 import Builds from "./Component/Builds";
 import Settings from "./Component/Settings";
-import {ComponentService, Component, CommentService, DeploymentService, Strategy} from "@polymind/sdk-js";
+import {ComponentService, Component, CommentService, DeploymentService} from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
+import Parameters from "./Component/Parameters";
+
+let jsonJobTimeout = null;
 
 const beforeRoute = function(to, from, next) {
 
@@ -179,7 +191,7 @@ const beforeRoute = function(to, from, next) {
 
 export default Vue.extend({
 
-	components: { Builds, Settings, DeleteDialog, UserAvatar },
+	components: { Parameters, Builds, Settings, DeleteDialog, UserAvatar },
 
 	beforeRouteEnter: beforeRoute,
 
@@ -208,15 +220,19 @@ export default Vue.extend({
 	methods: {
 
 		init(load = true) {
-			this.originalComponent = this.$route.meta.component;
-			this.component = this.$route.meta.component;
-			this.tab = '/component/' + this.id + '/' + this.$route.params.section;
-			this.updateTab();
 
 			if (load) {
+				this.originalComponent = this.$route.meta.component;
+				this.component = this.$route.meta.component;
+
+				this.updateOriginalData();
 				this.loadRevisions();
 				this.loadCommentCount();
 			}
+
+			this.tab = '/component/' + this.id + '/' + this.$route.params.section;
+			this.updateTab();
+			this.compareJsonJob(this.component);
 		},
 
 		shortcutSave(event) {
@@ -243,8 +259,18 @@ export default Vue.extend({
 			});
 		},
 
+		compareJsonJob(component, delay = 1000) {
+
+			clearTimeout(jsonJobTimeout);
+			jsonJobTimeout = setTimeout(() => {
+				this.componentJson = JSON.stringify(component);
+				this.dataHasChanged = this.componentJson !== this.originalComponentJson;
+			}, delay);
+		},
+
 		updateOriginalData() {
-			this.originalComponent = this.$deepClone(this.component);
+			this.originalComponent = new Component(this.$deepClone(this.component));
+			this.originalComponentJson = JSON.stringify(this.originalComponent);
 		},
 
         loadCommentCount() {
@@ -302,6 +328,8 @@ export default Vue.extend({
 
 		reset() {
 			this.component = new Component(this.$deepClone(this.originalComponent));
+			this.updateOriginalData();
+			this.compareJsonJob(this.component, 0);
 		},
 
         openPublish() {
@@ -325,10 +353,6 @@ export default Vue.extend({
 		},
 
 		save() {
-
-			if (!this.dataHasChanged) {
-				return;
-			}
 
 			this.formErrors = [];
 			this.$root.isLoading = true;
@@ -384,7 +408,7 @@ export default Vue.extend({
 	computed: {
 
 		id() {
-			return this.$route.params.id;
+			return parseInt(this.$route.params.id);
 		},
 
 		isNew() {
@@ -395,10 +419,6 @@ export default Vue.extend({
 			return this.builds.length > 0 && this.builds[0].state;
 		},
 
-		dataHasChanged() {
-			return JSON.stringify(this.component) !== JSON.stringify(this.originalComponent);
-		},
-
 		sourceDark() {
             return (this.tab === '/component/' + this.id + '/source')
 				&& this.$root.user.settings.development.theme === 'dark';
@@ -407,16 +427,15 @@ export default Vue.extend({
 
 	data() {
 		return {
-            publishModal: {
-                visible: false,
-                publied: false,
-            },
 			isDeleted: false,
 			formErrors: [],
             revisions: [],
             revisionOffset: 0,
-			originalComponent: {},
-			component: {},
+			dataHasChanged: false,
+			component: null,
+			originalComponent: null,
+			componentJson: null,
+			originalComponentJson: null,
             commentCount: 0,
 			builds: [
 				{ id: 1, state: 'running', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },

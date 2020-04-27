@@ -172,16 +172,17 @@ export default Vue.extend({
 	methods: {
 
 		init(load = true) {
-			this.strategy = this.$route.meta.strategy;
-			this.tab = '/strategy/' + this.id + '/' + this.$route.params.section;
-			this.updateTab();
-			this.updateOriginalData();
-			this.compareJsonJob(this.strategy);
 
 			if (load) {
+				this.strategy = this.$route.meta.strategy;
+				this.updateOriginalData();
 				this.loadRevisions();
 				this.loadCommentCount();
 			}
+
+			this.tab = '/strategy/' + this.id + '/' + this.$route.params.section;
+			this.updateTab();
+			this.compareJsonJob(this.strategy);
 		},
 
 		handleWindowResize() {
@@ -210,11 +211,6 @@ export default Vue.extend({
 				const event = new Event('resize');
 				window.dispatchEvent(event);
 			});
-		},
-
-		updateOriginalData() {
-			this.originalStrategy = new Strategy(this.$deepClone(this.strategy));
-			this.originalStrategyJson = JSON.stringify(this.originalStrategy);
 		},
 
 		loadCommentCount() {
@@ -272,10 +268,12 @@ export default Vue.extend({
 		reset() {
 			this.strategy = new Strategy(this.$deepClone(this.originalStrategy));
 			this.updateOriginalData();
+			this.compareJsonJob(this.strategy, 0);
 		},
 
-		openFork() {
-			this.forkModal.visible = true;
+		updateOriginalData() {
+			this.originalStrategy = new Strategy(this.$deepClone(this.strategy));
+			this.originalStrategyJson = JSON.stringify(this.originalStrategy);
 		},
 
 		compareJsonJob(strategy, delay = 1000) {
@@ -285,6 +283,10 @@ export default Vue.extend({
 				this.strategyJson = JSON.stringify(strategy);
 				this.dataHasChanged = this.strategyJson !== this.originalStrategyJson;
 			}, delay);
+		},
+
+		openFork() {
+			this.forkModal.visible = true;
 		},
 
 		fork() {
@@ -337,6 +339,7 @@ export default Vue.extend({
 					}
 
 					this.updateOriginalData();
+					this.compareJsonJob(this.strategy, 0);
 					this.loadRevisions();
 					this.updateTab();
 					this.revisionOffset = 0;
@@ -378,7 +381,7 @@ export default Vue.extend({
 	computed: {
 
 		id() {
-			return this.$route.params.id;
+			return parseInt(this.$route.params.id);
 		},
 
 		isNew() {
@@ -398,7 +401,7 @@ export default Vue.extend({
 		testUri() {
 			const directusStorage = window.localStorage.getItem('directus-sdk-js');
 			const directusJson = JSON.parse(directusStorage);
-			return process.env.VUE_APP_PLAYER_URL + '/test/strategy/' + this.strategy.id + '?token=' + directusJson.token
+			return process.env.VUE_APP_PLAYER_URL + '/test/strategy/' + this.strategy.id + '?token=' + directusJson.token;
 		},
 
 		canTest() {
@@ -420,10 +423,12 @@ export default Vue.extend({
 			isDeleted: false,
 			formErrors: [],
 			tab: null,
-			strategy: null,
-			strategyJson: null,
-			commentCount: 0,
 			dataHasChanged: false,
+			strategy: null,
+			originalStrategy: null,
+			strategyJson: null,
+			originalStrategyJson: null,
+			commentCount: 0,
 		}
 	},
 });

@@ -130,6 +130,16 @@ export default Vue.extend({
 				{ text: this.$t('component.categories.functions'), value: 'functions' },
 			],
 		}
+	},
+
+	watch: {
+
+		component: {
+			deep: true,
+			handler: function(component) {
+				this.$emit('update:component', component);
+			}
+		}
 	}
 })
 </script>

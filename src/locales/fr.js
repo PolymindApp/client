@@ -525,6 +525,23 @@ const literals = {
 			envVarValue: 'Valeur',
 			emptyEnvVar: 'Aucune variable d\'environnement ajoutée pour le moment.',
 		},
+		parameters: {
+			title: 'Paramètres',
+			yamlErr: 'Erreur à la ligne #{line}, colonne #{column}',
+			yamlValid: 'Voici un aperçu des paramètres générés par votre structure YAML :',
+			emptyTitle: 'Aucun paramètre',
+			emptyDesc: 'Complétez le schéma de paramètre ci-contre',
+			component: {
+				title: 'Composante',
+				selectPlaceholder: 'Sélectionner',
+				unknownType: 'Type inconnu',
+			},
+			dataset: {
+				title: 'Base de données',
+				columnPlaceholder: 'Sélectionner',
+				unknownType: 'Type inconnu',
+			}
+		},
 		builds: {
 			title: 'Compilations',
 			launchedAt: 'Initialisé {timeAgo}',

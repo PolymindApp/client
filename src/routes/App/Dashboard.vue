@@ -1,5 +1,5 @@
 <template>
-	<v-sheet class="w-100 add-padding" color="grey lighten-4" tile>
+	<v-sheet class="w-100" color="grey lighten-4" tile>
 
 		<v-card color="white" class="py-2 px-4" dark tile>
 
@@ -41,12 +41,16 @@
 					:events="events"
 					:event-color="getEventColor"
 					@change="getEvents"
+					@click:event="handleEventClick"
 					class="my-2"
 				>
 					<template v-slot:event="props">
-						<span class="pa-1">
+						<span :class="{ 'pa-1': true, 'black--text': props.event.start !== today }">
 							<template v-if="props.event.start === today">
 								<v-icon color="white" small left>mdi-play</v-icon>
+							</template>
+							<template v-else>
+								<v-icon :color="props.event.color" small left>mdi-circle</v-icon>
 							</template>
 
 							<span v-text="props.event.name"></span>
@@ -156,26 +160,6 @@
 				</v-col>
 			</v-row>
 		</v-sheet>
-
-		<!-- SPEED DIAL -->
-		<v-speed-dial fixed right bottom v-model="fab" direction="top">
-			<template v-slot:activator>
-				<v-btn v-model="fab" color="primary" fab>
-					<v-icon v-if="fab">mdi-close</v-icon>
-					<v-icon v-else>mdi-plus</v-icon>
-				</v-btn>
-			</template>
-			<v-btn to="/dataset/new" dark small>
-				<v-icon>mdi-database</v-icon>
-			</v-btn>
-			<v-btn to="/component/new" dark small>
-				<v-icon>mdi-cube-outline</v-icon>
-			</v-btn>
-			<v-btn to="/strategy/new" dark small>
-				<v-icon>mdi-strategy</v-icon>
-			</v-btn>
-		</v-speed-dial>
-
 	</v-sheet>
 </template>
 
@@ -227,6 +211,28 @@ export default Vue.extend({
 			this.strategies = this.$route.meta.strategies;
 		},
 
+		handleEventClick(props) {
+			console.log(props);
+
+			if (props.event.start === this.today) {
+				console.log('today');
+
+				const directusStorage = window.localStorage.getItem('directus-sdk-js');
+				const directusJson = JSON.parse(directusStorage);
+				const link = process.env.VUE_APP_PLAYER_URL + '/strategy/' + props.event.strategy_id + '?token=' + directusJson.token;
+				const win = window.open(link, '_blank');
+				win.focus();
+
+			} else if (props.event.start > this.today) {
+				console.log('greater');
+
+				this.$modal.show();
+
+			} else if (props.event.start < this.today) {
+				console.log('lower');
+			}
+		},
+
 		getEvents ({ start, end }) {
 
 			const events = [];
@@ -234,6 +240,7 @@ export default Vue.extend({
 			this.strategies.data.forEach(item => {
 				const strategy = new Strategy(item);
 				strategy.getEvents({ start, end }).forEach(event => {
+					event.strategy_id = strategy.id;
 					events.push(event);
 				});
 			});
@@ -242,7 +249,12 @@ export default Vue.extend({
 		},
 
 		getEventColor (event) {
-			return event.color;
+
+			if (event.start === this.today) {
+				return event.color;
+			}
+
+			return 'grey lighten-2';
 		},
 	},
 

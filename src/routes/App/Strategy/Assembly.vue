@@ -105,23 +105,23 @@
 					</v-card>
 				</v-col>
 				<v-col cols="12" md="4">
-					<v-card class="fill-height" :disabled="!selected.component.id">
-						<EmptyView v-if="!selected.component.id" :title="$t('strategy.assembly.component.emptyTitle')" :desc="$t('strategy.assembly.component.emptyDesc')" />
+					<v-card class="fill-height" :disabled="!parameters">
+						<EmptyView v-if="!parameters" :title="$t('strategy.assembly.component.emptyTitle')" :desc="$t('strategy.assembly.component.emptyDesc')" />
 						<template v-else>
 							<v-card-title class="primary--text">{{ $t('strategy.assembly.component.title') }}</v-card-title>
 							<v-card-text>
-								TBD
+								<ComponentParameters v-model="parameters.component.parameters" type="component" />
 							</v-card-text>
 						</template>
 					</v-card>
 				</v-col>
 				<v-col cols="12" md="4">
-					<v-card class="fill-height" :disabled="!selected.dataset.id">
-						<EmptyView v-if="!selected.dataset.id" :title="$t('strategy.assembly.dataset.emptyTitle')" :desc="$t('strategy.assembly.dataset.emptyDesc')" />
+					<v-card class="fill-height" :disabled="!parameters || !columns">
+						<EmptyView v-if="!parameters || !columns" :title="$t('strategy.assembly.dataset.emptyTitle')" :desc="$t('strategy.assembly.dataset.emptyDesc')" />
 						<template v-else>
 							<v-card-title class="primary--text">{{ $t('strategy.assembly.dataset.title') }}</v-card-title>
 							<v-card-text>
-								<v-select v-model="selected.component" label="Colonne à épeller" item-text="name" :items="selected.dataset.columns" return-object></v-select>
+								<ComponentParameters v-model="parameters.dataset.parameters" type="dataset" :columns="columns" />
 							</v-card-text>
 						</template>
 					</v-card>
@@ -136,6 +136,7 @@
 	import EmptyView from "../../../components/EmptyView";
 	import draggable from "vuedraggable";
 	import {StrategyAssembly, ComponentService, DatasetService, Hash} from "@polymind/sdk-js";
+	import ComponentParameters from "../../../components/ComponentParameters";
 
     export default Vue.extend({
 
@@ -143,14 +144,19 @@
 
         props: ['strategy'],
 
-        components: { EmptyView, draggable },
+        components: { EmptyView, draggable, ComponentParameters },
 
         created() {
 
-			ComponentService.getByUser(this.$root.user.id)
-					.then(response => this.components = response.data);
-			DatasetService.getByUser(this.$root.user.id)
-					.then(response => this.datasets = response.data);
+        	Promise.all([
+				ComponentService.getByUser(this.$root.user.id),
+				DatasetService.getByUser(this.$root.user.id),
+			]).then(([components, datasets]) => {
+				this.components = components.data;
+				this.datasets = datasets.data
+			}).finally(() => {
+				this.updateParameters();
+			});
 
 			this.init();
         },
@@ -174,7 +180,9 @@
         		const newAssembly = new StrategyAssembly();
 				this.strategy.assemblies.push(newAssembly);
 
-				this.select(newAssembly);
+				this.select(this.strategy.assemblies.indexOf(newAssembly));
+
+				this.$emit('update:strategy', this.strategy);
 			},
 
 			select(index) {
@@ -182,8 +190,29 @@
 				this.selected = this.strategy.assemblies[index];
 			},
 
+			updateParameters() {
+
+				this.parameters = null;
+				this.columns = null;
+
+				const component = this.components.find(component => this.selected.component.id === component.id);
+				if (component) {
+					this.parameters = component.compiled_parameters;
+				}
+				const dataset = this.datasets.find(dataset => this.selected.dataset.id === dataset.id);
+				if (dataset) {
+					this.columns = dataset.columns;
+				}
+			},
+
 			remove(index) {
 				this.strategy.assemblies.splice(index, 1);
+				this.$emit('update:strategy', this.strategy);
+
+				const maxIndex = this.strategy.assemblies.length - 1;
+				if (this.selectedIdx > maxIndex) {
+					this.select(maxIndex);
+				}
 			},
 
 			getAttributes(assembly, index) {
@@ -199,6 +228,7 @@
 
 			dragEnd() {
 				this.select(this.strategy.assemblies.indexOf(this.selected));
+				this.$emit('update:strategy', this.strategy);
 			},
 		},
 
@@ -216,13 +246,30 @@
 
         data() {
             return {
+            	parameters: null,
 				components: [],
 				datasets: [],
+				columns: null,
 				minWidth: '15rem',
 				selectedIdx: null,
 				selected: null,
 			};
         },
+
+		watch: {
+
+        	'selected.dataset.id'() {
+        		this.updateParameters();
+			},
+
+        	'selected.component.id'() {
+        		this.updateParameters();
+			},
+
+        	strategy() {
+        		this.init();
+			}
+		}
     });
 </script>
 

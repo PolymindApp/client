@@ -19,16 +19,18 @@
 
 			<v-spacer></v-spacer>
 
-			<template v-if="contextualComponent.component && !isDeleted">
-				<component :is="contextualComponent.component" v-bind="contextualComponent.props" v-on="contextualComponent.listeners"></component>
-				<v-divider class="mx-4" vertical inset></v-divider>
-			</template>
+			<div class="d-flex align-center">
+				<template v-if="contextualComponent.component && !isDeleted">
+					<component :is="contextualComponent.component" v-bind="contextualComponent.props" v-on="contextualComponent.listeners"></component>
+					<v-divider class="mx-4" vertical inset></v-divider>
+				</template>
 
-			<v-btn :disabled="isDeleted" @click="$comments.open(id, 'dataset')" class="mt-3 mr-4" text small>
-				<v-icon left>mdi-comment</v-icon>
-				{{$t('comment.btnTitle')}}
-				<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
-			</v-btn>
+				<v-btn :disabled="isDeleted" @click="$comments.open(id, 'dataset')" class="mr-4" text small>
+					<v-icon left>mdi-comment</v-icon>
+					{{$t('comment.btnTitle')}}
+					<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
+				</v-btn>
+			</div>
 		</v-tabs>
 
 		<div v-if="isDeleted">
@@ -274,7 +276,6 @@ export default Vue.extend({
 
 		reset() {
 			this.dataset = new Dataset(this.$deepClone(this.originalDataset));
-			// this.transactions.splice(0, this.transactions.length);
 			this.compareJsonJob(this.dataset, 0);
 			this.$emit('cancel');
 		},
@@ -306,7 +307,7 @@ export default Vue.extend({
 					}
 
 					this.updateOriginalData();
-					this.$root.isSaved = true;
+					this.compareJsonJob(this.component, 0);
 					this.loadRevisions();
 					this.updateTab();
 				})
@@ -468,7 +469,7 @@ export default Vue.extend({
 	computed: {
 
 		id() {
-			return this.$route.params.id;
+			return parseInt(this.$route.params.id);
 		},
 
 		isNew() {
