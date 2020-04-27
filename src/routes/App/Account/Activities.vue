@@ -133,7 +133,6 @@ export default Vue.extend({
 
 	    load() {
 
-            this.$root.isLoading = true;
 	        Promise.all([
                 CommentService.getAll('directus_users', this.$route.params.id, '-id', 5),
                 HistoryService.fromUser(this.$route.params.id),
@@ -163,8 +162,7 @@ export default Vue.extend({
 						}
 					});
                 })
-                .catch(error => this.$handleError(this, error))
-                .finally(() => this.$root.isLoading = false);
+                .catch(error => this.$handleError(this, error));
 		},
 
         handleKeyDown(event) {
@@ -177,7 +175,6 @@ export default Vue.extend({
 
             event.preventDefault();
 
-            this.$root.isLoading = true;
             CommentService.save(this.$route.params.id, 'directus_users', this.newComment.text)
                 .then(response => {
                     this.newComment.text = '';
@@ -190,8 +187,7 @@ export default Vue.extend({
                         this.$playSound('send');
                     }
                 })
-                .catch(error => this.$handleError(this, error))
-                .finally(() => this.$root.isLoading = false);
+                .catch(error => this.$handleError(this, error));
         },
 
 		toContributions() {

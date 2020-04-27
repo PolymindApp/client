@@ -2,11 +2,14 @@
 	<div>
 		<DeleteDialog ref="deleteModal" :title="$t('comment.deleteTitle')" :desc="$t('comment.deleteDesc')" @delete="remove(deleteClaimant, true)" />
 
-		<v-overlay :absolute="false" :value="isLoading" z-index="10">
-			<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
-		</v-overlay>
-
 		<div style="flex: 1" class="fill-height">
+
+			<template>
+				<slot name="loading">
+					<v-progress-linear :size="50" color="primary" :active="!hasLoaded && isLoading" indeterminate></v-progress-linear>
+				</slot>
+			</template>
+
 			<template v-if="comments.length > 0">
 				<v-slide-y-transition group>
 					<div v-for="(comment, index) in comments" :key="index + '_item'">
@@ -14,7 +17,8 @@
 					</div>
 				</v-slide-y-transition>
 			</template>
-			<template v-else-if="hasLoaded && comments.length === 0">
+
+			<template v-else-if="comments.length === 0 && hasLoaded">
 				<slot name="empty">
 					<div v-text="$t('comment.emptyTitle')"></div>
 				</slot>
@@ -49,6 +53,7 @@
 			load(id, collection, sort) {
 
                 this.isLoading = true;
+                this.hasLoaded = false;
                 Promise.all([
 					CommentService.count(collection, id, sort),
 					CommentService.getAll(collection, id, sort)

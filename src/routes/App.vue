@@ -56,9 +56,9 @@
 					<v-sheet class="fill-height" :dark="$root.user.settings.theme === 'dark'" tile>
 						<Chat />
 						<v-layout fill-height>
-							<v-fade-transition mode="out-in">
+							<v-slide-x-transition mode="out-in">
 								<router-view></router-view>
-							</v-fade-transition>
+							</v-slide-x-transition>
 						</v-layout>
 					</v-sheet>
 				</v-content>
@@ -91,6 +91,7 @@ import Chat from "../components/Chat";
 export const routes = [
 	{path: '/', component: Dashboard, name: 'dashboard'},
 	{path: '/login', redirect: '/'},
+	{path: '/locked', redirect: '/'},
 	{path: '/news/:locale/:slug', component: News, name: 'news' },
 	{path: '/account/:id', redirect: '/account/:id/wall' },
 	{path: '/account/:id/:section', component: Account, name: 'account'},

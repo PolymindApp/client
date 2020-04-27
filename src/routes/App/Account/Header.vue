@@ -212,7 +212,7 @@
 
 <script>
 	import Vue from 'vue';
-	import { File, UserModel, FileService, UserService, FollowingService, MessagingService } from "@polymind/sdk-js";
+	import { File, User, FileService, UserService, FollowingService, MessagingService } from "@polymind/sdk-js";
 	import UserAvatar from "../../../components/UserAvatar";
 
 	export default Vue.extend({
@@ -242,7 +242,6 @@
 
 			sendMessage() {
 
-				this.$root.isLoading = true;
 				MessagingService.sendMessage(this.user.id, this.newMessage.text)
 						.then(response => {
 							Object.assign(this.newMessage, {
@@ -251,8 +250,7 @@
 								isSent: true,
 							});
 						})
-						.catch(error => this.$handleError(this, error))
-						.finally(() => this.$root.isLoading = false);
+						.catch(error => this.$handleError(this, error));
 			},
 
 			loadFollowingCount() {
@@ -271,38 +269,32 @@
 
 			loadFollowing() {
 
-				this.$root.isLoading = true;
 				FollowingService.getFollowings(this.user.id)
 						.then(response => {
 							this.followingModal.list = response;
 							this.followingModal.loaded = true;
 						})
-						.catch(error => this.$handleError(this, error))
-						.finally(response => this.$root.isLoading = false);
+						.catch(error => this.$handleError(this, error));
 			},
 
 			loadFollowers() {
 
-				this.$root.isLoading = true;
 				FollowingService.getFollowers(this.user.id)
 						.then(response => {
 							this.followersModal.list = response;
 							this.followersModal.loaded = true;
 						})
-						.catch(error => this.$handleError(this, error))
-						.finally(response => this.$root.isLoading = false);
+						.catch(error => this.$handleError(this, error));
 			},
 
 			toggleFollowing() {
 
-				this.$root.isLoading = true;
 				FollowingService.toggleFollowing(this.user.id)
 						.then(response => {
 							this.isFollowing.meta.filter_count = response ? 1 : 0;
 							this.countFollowers.meta.filter_count = response ? 1 : 0
 						})
-						.catch(error => this.$handleError(this, error))
-						.finally(() => this.$root.isLoading = false);
+						.catch(error => this.$handleError(this, error));
 			},
 
 			modify(param) {
@@ -315,8 +307,8 @@
 										wallpaper: filesResponse.data.id
 									})
 											.then(response => {
-												this.$root.user = Object.assign(this.$root.user, new UserModel(response.data));
-												this.user = Object.assign(this.user, new UserModel(response.data));
+												this.$root.user = Object.assign(this.$root.user, new User(response.data));
+												this.user = Object.assign(this.user, new User(response.data));
 											})
 											.catch(error => this.$handleError(this, error))
 											.finally(() => this.isUploading = false);

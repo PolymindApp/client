@@ -1,7 +1,9 @@
 <template>
-	<v-sheet class="w-100" color="grey lighten-4" dark tile>
+	<v-sheet class="w-100" color="grey lighten-4" tile>
 
-		<v-sheet color="white" class="py-2 px-4" tile>
+		<v-card color="white" class="py-2 px-4" dark tile>
+
+			<!-- OBJECTIVES -->
 			<v-row>
 				<v-col cols="12" :md="12 / objectives.length" v-for="(objective, objectiveIdx) in objectives" :key="objectiveIdx">
 					<v-card class="pa-4 d-flex align-center" :color="objective.color">
@@ -17,9 +19,49 @@
 					</v-card>
 				</v-col>
 			</v-row>
-		</v-sheet>
 
-		<v-sheet color="transparent" class="py-2 px-4" tile>
+			<!-- CALENDAR -->
+			<v-sheet height="400" class="relative" light>
+				<v-overlay absolute color="white" z-index="2" :value="events.length === 0">
+					<div class="text-center">
+						<EmptyView :title="$t('dashboard.emptyCalendarTitle')" :desc="$t('dashboard.emptyCalendarDesc')" light />
+						<v-btn to="/strategy/new" v-text="$t('dashboard.planStrategy')"></v-btn>
+					</div>
+				</v-overlay>
+				<v-calendar
+					ref="calendar"
+					type="week"
+					color="primary"
+					:now="today"
+					:value="today"
+					short-months
+					short-weekday
+					:first-interval="firstInterval"
+					:interval-count="intervalCount"
+					:events="events"
+					:event-color="getEventColor"
+					@change="getEvents"
+					@click:event="handleEventClick"
+					class="my-2"
+				>
+					<template v-slot:event="props">
+						<span :class="{ 'pa-1': true, 'black--text': props.event.start !== today }">
+							<template v-if="props.event.start === today">
+								<v-icon color="white" small left>mdi-play</v-icon>
+							</template>
+							<template v-else>
+								<v-icon :color="props.event.color" small left>mdi-circle</v-icon>
+							</template>
+
+							<span v-text="props.event.name"></span>
+							(<strong v-text="$t('strategy.assembly.duration', { duration: props.event.duration })"></strong>)
+						</span>
+					</template>
+				</v-calendar>
+			</v-sheet>
+		</v-card>
+
+		<v-sheet color="transparent" class="my-2 px-4" tile>
 			<v-row>
 				<v-col cols="12" md="6">
 
@@ -84,7 +126,7 @@
 
 							<!-- EMPTY -->
 							<v-slide-y-reverse-transition>
-								<EmptyView key="empty" v-if="!newsIsLoading && news.data.length === 0" desc="Aucune actualité" />
+								<EmptyView key="empty" v-if="news.data.length === 0" desc="Aucune actualité" />
 							</v-slide-y-reverse-transition>
 
 							<!-- HAS CONTENT -->
@@ -118,41 +160,6 @@
 				</v-col>
 			</v-row>
 		</v-sheet>
-
-		<v-speed-dial fixed right bottom v-model="fab" direction="top">
-			<template v-slot:activator>
-				<v-tooltip left>
-					<template v-slot:activator="{ tooltip }">
-						<v-btn v-on="tooltip" v-model="fab" color="primary" fab>
-							<v-icon v-if="fab">mdi-close</v-icon>
-							<v-icon v-else>mdi-plus</v-icon>
-						</v-btn>
-					</template>
-					<span>{{$t('toolbar.tooltip.adddecks')}}</span>
-				</v-tooltip>
-			</template>
-			<v-btn to="/dataset/new" dark small>
-				<v-icon>mdi-database</v-icon>
-<!--				<v-icon left>mdi-database</v-icon>-->
-<!--				<span v-text="$t('dashboard.new.dataset')"></span>-->
-			</v-btn>
-<!--			<v-btn to="/document/new" dark small>-->
-<!--				<v-icon>mdi-file-document-outline</v-icon>-->
-<!--&lt;!&ndash;				<v-icon left>mdi-file-document-outline</v-icon>&ndash;&gt;-->
-<!--&lt;!&ndash;				<span v-text="$t('dashboard.new.document')"></span>&ndash;&gt;-->
-<!--			</v-btn>-->
-			<v-btn to="/component/new" dark small>
-				<v-icon>mdi-cube-outline</v-icon>
-<!--				<v-icon left>mdi-cube-outline</v-icon>-->
-<!--				<span v-text="$t('dashboard.new.component')"></span>-->
-			</v-btn>
-			<v-btn to="/strategy/new" dark small>
-				<v-icon>mdi-strategy</v-icon>
-<!--				<v-icon left>mdi-arrow-decision</v-icon>-->
-<!--				<span v-text="$t('dashboard.new.strategy')"></span>-->
-			</v-btn>
-		</v-speed-dial>
-
 	</v-sheet>
 </template>
 
@@ -160,59 +167,142 @@
 import Vue from 'vue';
 import EmptyView from "../../components/EmptyView";
 import BarChart from "../../components/Chart/Bar";
-import { Response, NewsService } from "@polymind/sdk-js";
+import {Response, NewsService, StrategyService, Strategy} from "@polymind/sdk-js";
 import Radar from "../../components/Chart/Radar";
 import UserAvatar from "../../components/UserAvatar";
+import moment from "moment";
 
 export default Vue.extend({
 
 	components: { EmptyView, UserAvatar, BarChart, Radar },
 
-	mounted() {
+	beforeRouteEnter(to, from, next) {
 
-		this.load();
+		setTimeout(() => {
+			const vm = Vue.prototype.$help.$vue;
+			Promise.all([
+				NewsService.getAll(vm.$i18n.locale),
+				StrategyService.getAll(vm.$root.user.id),
+				// ComponentService.getAll(this.$root.user.id),
+				// DocumentService.getAll(this.$root.user.id),
+				// DatasetService.getAll(this.$root.user.id)
+			])
+					.then(([news, strategies, components, documents, datasets]) => {
+						to.meta.news = news;
+						to.meta.strategies = strategies;
+						next();
+					})
+					.catch(error => next('/404'));
+		})
 	},
 
-	destroyed() {
+	created() {
+		this.init();
+	},
 
+	mounted () {
+		this.$refs.calendar.scrollToTime(moment().format('HH:mm'));
 	},
 
 	methods: {
 
-	    load() {
-
-            this.newsIsLoading = true;
-            Promise.all([
-                NewsService.getAll(this.$i18n.locale),
-                // StrategyService.getAll(this.$root.user.id),
-                // ComponentService.getAll(this.$root.user.id),
-                // DocumentService.getAll(this.$root.user.id),
-                // DatasetService.getAll(this.$root.user.id)
-            ])
-                .then(([news, strategies, components, documents, datasets]) => {
-                	this.news = news;
-                    // this.strategies = strategies;
-                    // this.components = components;
-                    // this.documents = documents;
-                    // this.datasets = datasets;
-                })
-                .catch(error => this.$handleError(this, error))
-                .finally(() => this.newsIsLoading = false);
+		init() {
+			this.news = this.$route.meta.news;
+			this.strategies = this.$route.meta.strategies;
 		},
 
-		// getItems(category) {
-	    //     return this[category].data;
-		// },
+		handleEventClick(props) {
+			console.log(props);
+
+			if (props.event.start === this.today) {
+				console.log('today');
+
+				const directusStorage = window.localStorage.getItem('directus-sdk-js');
+				const directusJson = JSON.parse(directusStorage);
+				const link = process.env.VUE_APP_PLAYER_URL + '/strategy/' + props.event.strategy_id + '?token=' + directusJson.token;
+				const win = window.open(link, '_blank');
+				win.focus();
+
+			} else if (props.event.start > this.today) {
+				console.log('greater');
+
+				this.$modal.show();
+
+			} else if (props.event.start < this.today) {
+				console.log('lower');
+			}
+		},
+
+		getEvents ({ start, end }) {
+
+			const events = [];
+
+			this.strategies.data.forEach(item => {
+				const strategy = new Strategy(item);
+				strategy.getEvents({ start, end }).forEach(event => {
+					event.strategy_id = strategy.id;
+					events.push(event);
+				});
+			});
+
+			this.events = events
+		},
+
+		getEventColor (event) {
+
+			if (event.start === this.today) {
+				return event.color;
+			}
+
+			return 'grey lighten-2';
+		},
 	},
 
 	computed: {
 
-	    // hasItems() {
-	    //     return this.strategies.data.length > 0
-        //         || this.components.data.length > 0
-        //         || this.documents.data.length > 0
-        //         || this.datasets.data.length > 0;
-        // },
+		firstInterval() {
+			let firstInterval = -1;
+			this.events.forEach(event => {
+				const startHour = moment(event.start).hour();
+				const endHour = moment(event.end).hour();
+
+				if (startHour === 0 && endHour === 0) {
+					return;
+				}
+
+				if (startHour < firstInterval) {
+					firstInterval = startHour;
+				}
+			});
+
+			if (firstInterval === -1) {
+				firstInterval = moment().hour();
+			}
+
+			return firstInterval;
+		},
+
+		intervalCount() {
+			let intervalCount = -1;
+			this.events.forEach(event => {
+				const startHour = moment(event.start).hour();
+				const endHour = moment(event.end).hour();
+
+				if (startHour === 0 && endHour === 0) {
+					return;
+				}
+
+				if (endHour > intervalCount) {
+					intervalCount = endHour;
+				}
+			});
+
+			if (intervalCount === -1) {
+				intervalCount = moment().hour() + 5;
+			}
+
+			return intervalCount - this.firstInterval;
+		},
 	},
 
 	data() {
@@ -223,12 +313,9 @@ export default Vue.extend({
 				{ title: 'Facile', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 10000), color: 'primary', },
 				{ title: 'Incertain', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'third', },
 				{ title: 'Difficile', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'secondary', },
-				// { title: 'Daily Objectives', percentage: 66, value: 12039, color: 'white', },
 			],
-			news: new Response(),
-			newsIsLoading: false,
-			// categories: ['strategies', 'components', 'documents', 'datasets'],
-			// types: ['strategy', 'component', 'document', 'dataset'],
+			news: null,
+			strategies: null,
 			strategyData: {
 				labels: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5],
 				datasets: [
@@ -247,51 +334,48 @@ export default Vue.extend({
 					}
 				]
 			},
-			strategies: new Response(),
-			components: new Response(),
-			documents: new Response(),
-			datasets: new Response(),
 			chartOptions: {
 				responsive: true,
 				maintainAspectRatio: false,
 			},
-
-			radar: {
-				colors: [
-					this.$vuetify.theme.themes.light.primary,
-					this.$vuetify.theme.themes.light.third,
-					this.$vuetify.theme.themes.light.third,
-				],
-				labels: [
-					'Russe',
-					'Français',
-					'Anglais',
-					'Espagnol',
-					'Hindi',
-				],
-				datasets: [
-					{ data: [13, 10, 9, 8, 8] },
-					{ data: [12, 19, 16, 14, 17] },
-				]
-			},
-			radar2: {
-				colors: [
-					this.$vuetify.theme.themes.light.secondary,
-					this.$vuetify.theme.themes.light.third,
-					this.$vuetify.theme.themes.light.third,
-				],
-				labels: [
-					'Prononciation',
-					'Conjugaison',
-					'Grammaire',
-					'Autre',
-					'Vocabulaire',
-				],
-				datasets: [
-					{ data: [14, 2, 11, 6, 14] },
-					{ data: [8, 7, 12, 15, 19] },
-				]
-			}
+			events: [],
+			today: moment().format('YYYY-MM-DD'),
+			// radar: {
+			// 	colors: [
+			// 		this.$vuetify.theme.themes.light.primary,
+			// 		this.$vuetify.theme.themes.light.third,
+			// 		this.$vuetify.theme.themes.light.third,
+			// 	],
+			// 	labels: [
+			// 		'Russe',
+			// 		'Français',
+			// 		'Anglais',
+			// 		'Espagnol',
+			// 		'Hindi',
+			// 	],
+			// 	datasets: [
+			// 		{ data: [13, 10, 9, 8, 8] },
+			// 		{ data: [12, 19, 16, 14, 17] },
+			// 	]
+			// },
+			// radar2: {
+			// 	colors: [
+			// 		this.$vuetify.theme.themes.light.secondary,
+			// 		this.$vuetify.theme.themes.light.third,
+			// 		this.$vuetify.theme.themes.light.third,
+			// 	],
+			// 	labels: [
+			// 		'Prononciation',
+			// 		'Conjugaison',
+			// 		'Grammaire',
+			// 		'Autre',
+			// 		'Vocabulaire',
+			// 	],
+			// 	datasets: [
+			// 		{ data: [14, 2, 11, 6, 14] },
+			// 		{ data: [8, 7, 12, 15, 19] },
+			// 	]
+			// }
 		}
 	},
 });

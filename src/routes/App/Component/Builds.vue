@@ -111,9 +111,9 @@
 	code {
 		width: 100%;
 		padding: 1rem;
-		background-color: black;
+		background-color: black !important;
 		max-height: 10rem;
 		overflow: auto;
-		color: rgba(255, 255, 255, 0.7);
+		color: rgba(255, 255, 255, 0.7) !important;
 	}
 </style>

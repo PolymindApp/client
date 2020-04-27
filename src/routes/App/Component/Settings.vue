@@ -63,6 +63,28 @@
 							<span v-text="$t('component.settings.build')"></span>
 						</v-btn>
 					</v-card-text>
+
+					<v-divider class="my-4" />
+
+					<v-card-title>Variables d'environnement</v-card-title>
+
+					<v-card-text>
+						<SimpleListBuilder v-model="component.env_variables" :empty-item="emptyEnvVariables">
+							<template v-slot:empty>
+								<span v-text="$t('component.settings.emptyEnvVar')"></span>
+							</template>
+							<template v-slot:item="{ item }">
+								<v-row>
+									<v-col>
+										<v-text-field :label="$t('component.settings.envVarKey')" v-model="item.key" outlined hide-details></v-text-field>
+									</v-col>
+									<v-col>
+										<v-text-field :label="$t('component.settings.envVarValue')" v-model="item.value" outlined hide-details></v-text-field>
+									</v-col>
+								</v-row>
+							</template>
+						</SimpleListBuilder>
+					</v-card-text>
 				</v-card>
 			</v-col>
 		</v-row>
@@ -71,15 +93,16 @@
 
 <script>
 import Vue from 'vue';
-import Page from "../../../components/Page";
 import HTMLEditorField from "../../../components/HTMLEditorField";
 import IconListField from "../../../components/IconListField";
+import SimpleListBuilder from "../../../components/SimpleListBuilder";
+import { ComponentEnvVariable } from "@polymind/sdk-js";
 
 export default Vue.extend({
 
 	props: ['component', 'formErrors'],
 
-	components: { HTMLEditorField, IconListField },
+	components: { HTMLEditorField, IconListField, SimpleListBuilder },
 
 	methods: {
 
@@ -100,11 +123,22 @@ export default Vue.extend({
 
 	data() {
 		return {
+			emptyEnvVariables: new ComponentEnvVariable(),
             categories: [
 				{ text: this.$t('component.categories.general'), value: 'general' },
 				{ text: this.$t('component.categories.language'), value: 'language' },
 				{ text: this.$t('component.categories.functions'), value: 'functions' },
 			],
+		}
+	},
+
+	watch: {
+
+		component: {
+			deep: true,
+			handler: function(component) {
+				this.$emit('update:component', component);
+			}
 		}
 	}
 })

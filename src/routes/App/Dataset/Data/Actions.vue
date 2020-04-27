@@ -4,7 +4,7 @@
 		<!-- BULK ACTION -->
 		<v-menu offset-y>
 			<template v-slot:activator="{ on }">
-				<v-btn v-on="on" class="mt-3" text small>
+				<v-btn v-on="on" text small>
 					<v-icon left>mdi-tools</v-icon>
 					{{$t('dataset.data.tools')}}
 					<v-icon right>mdi-chevron-down</v-icon>
@@ -35,7 +35,7 @@
 					<div>{{$t('dataset.data.modal.importCSV.desc')}}</div>
 
 					<div class="pa-4">
-						<v-row v-for="(column, columnIdx) in dataset.columns">
+						<v-row :key="column.guid" v-for="(column, columnIdx) in dataset.columns">
 							<v-col cols="5" class="d-flex align-center">
 								{{ column.name }}
 							</v-col>
@@ -55,12 +55,12 @@
 							<template v-slot:default>
 								<thead>
 								<tr>
-									<th v-for="column in dataset.columns" v-text="column.name"></th>
+									<th :key="column.guid" v-for="column in dataset.columns" v-text="column.name"></th>
 								</tr>
 								</thead>
 								<tbody>
 								<tr v-for="(row, rowIdx) in importCsvPreview.slice(0, 3)" :key="rowIdx">
-									<td v-for="cell in row" v-text="cell"></td>
+									<td :key="cell.guid" v-for="cell in row" v-text="cell"></td>
 								</tr>
 								</tbody>
 								<tfoot v-if="importCsvPreview.length === 0">

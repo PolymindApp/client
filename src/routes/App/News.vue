@@ -2,10 +2,10 @@
 	<v-card flat tile class="fill-height grey lighten-2 w-100">
 
 		<!-- HEADER -->
-		<Header :news="news" v-if="isLoaded" />
+		<Header :news="news" />
 
 		<v-expand-transition>
-			<div v-if="isLoaded && !$root.isLoading" class="white pb-12">
+			<div class="white pb-12">
 				<v-container class="pa-4">
 
 					<!-- CONTENT -->
@@ -26,7 +26,7 @@
 		</v-expand-transition>
 
 		<v-expand-transition>
-			<v-container v-if="isLoaded && !$root.isLoading" class="pa-4">
+			<v-container class="pa-4">
 
 				<!-- COMMENTS -->
 				<div class="my-12 mb-4 mb-md-12">
@@ -55,18 +55,46 @@
 <script>
 import Vue from 'vue';
 import Header from "./News/Header";
-import { NewsService } from "@polymind/sdk-js";
+import {NewsService, Strategy, StrategyService} from "@polymind/sdk-js";
 import UserAvatar from "../../components/UserAvatar";
 import Comments from "../../components/Comments";
 import CommentForm from "../../components/Comment/Form";
 import CommentSorting from "../../components/Comment/Sorting";
 
+const beforeRoute = function(to, from, next) {
+
+	if (to.params.slug === from.params.slug
+	&& to.params.locale === from.params.locale) {
+		return next();
+	}
+
+	Promise.all([
+		NewsService.get(to.params.slug, to.params.locale),
+	]).then(([news]) => {
+		to.meta.news = news;
+		next();
+	})
+			.catch(error => next('/404'));
+};
+
 export default Vue.extend({
 
 	components: { Header, UserAvatar, Comments, CommentForm, CommentSorting, },
 
-	mounted() {
-	    this.load();
+	beforeRouteEnter: beforeRoute,
+
+	beforeRouteUpdate(to, from, next) {
+		beforeRoute(to, from, () => {
+			next();
+			this.$nextTick(() => {
+				this.init(to.params.id !== from.params.id);
+			});
+		});
+	},
+
+	created() {
+		this.news = this.$route.meta.news;
+		this.updateContext();
 	},
 
 	methods: {
@@ -82,36 +110,13 @@ export default Vue.extend({
 
 			document.title = title + ' - ' + this.$t('title.news');
 		},
-
-	    load() {
-
-			this.slug = this.$route.params.slug;
-			this.locale = this.$route.params.locale;
-
-			this.$root.isLoading = true;
-			Promise.all([
-				NewsService.get(this.slug, this.locale),
-			]).then(([news]) => {
-                this.news = news;
-                this.isLoaded = true;
-                this.updateContext();
-			})
-				.catch(error => {
-					return this.$router.replace('/404');
-				})
-				.finally(() => this.$root.isLoading = false);
-		},
-	},
-
-	computed: {
-
 	},
 
 	data() {
 
 		return {
 			isLoaded: false,
-			news: {},
+			news: null,
 			slug: null,
 			locale: null,
 			comments: [],

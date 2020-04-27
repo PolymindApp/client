@@ -1,5 +1,5 @@
 <template>
-	<v-card color="transparent" tile flat class="pa-4 d-flex align-center justify-center flex-column fill-height align-self-center text-center w-100">
+	<v-card color="transparent" v-bind="$attrs" tile flat class="pa-4 d-flex align-center justify-center flex-column fill-height align-self-center text-center w-100">
 		<v-img v-if="image" :src="image" max-height="128" transition="slide-y-reverse-transition" contain class="mb-2" />
 		<div v-if="title || desc" class="align-center d-flex flex-column">
 			<h2 class="title limited-content" v-if="title" v-text="title"></h2>

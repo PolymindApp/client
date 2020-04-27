@@ -26,7 +26,7 @@
 						<span v-text="$t('dataset.settings.isRemoteLabel')"></span>
 					</v-card-title>
 					<v-card-text>
-						<v-text-field :disabled="!dataset.is_remote" :error-messages="formErrors.remote_uri" :label="$t('dataset.settings.remoteURIPlaceholder')" v-model="dataset.remote_uri"></v-text-field>
+						<v-text-field :disabled="!dataset.is_remote" :error-messages="formErrors.remote_uri" :label="$t('dataset.settings.remoteURIPlaceholder')" v-model="dataset.remote_uri" hide-details></v-text-field>
 						<v-checkbox :disabled="!dataset.is_remote" :error-messages="formErrors.is_applying_mapper" :label="$t('dataset.settings.applyMapper')" v-model="dataset.is_applying_mapper" color="primary"></v-checkbox>
 						<CodeEditorField :disabled="!dataset.is_applying_mapper || !dataset.is_remote" :error-messages="formErrors.mapper" v-model="dataset.mapper" lang="javascript" :height="200"></CodeEditorField>
 

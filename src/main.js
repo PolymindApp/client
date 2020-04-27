@@ -159,9 +159,8 @@ const i18n = new VueI18n({
 	};
 
 	EventBus.subscribe('LOCK_USER', () => {
-		// TODO: VERIFY THIS REFACTORING
-		localStorage.setItem('redirect_uri', Vue.prototype.$route.fullPath);
-		localStorage.setItem('lockedUser', JSON.stringify(Vue.prototype.$root.user));
+        localStorage.setItem('redirect_uri', router.app.$route.fullPath);
+		localStorage.setItem('lockedUser', JSON.stringify(router.app.$root.user));
 		component = Restricted;
 		routes = restrictedRoutes;
 		callback();

@@ -1,6 +1,6 @@
 <template>
 	<v-input v-bind="$attrs" :class="{ 'editor': true }" :height="height ? height : null">
-		<fieldset style="width: 100%; height: 100%">
+		<fieldset>
 			<editor v-model="content" ref="editor" @init="editorInit" :lang="lang" :theme="theme"></editor>
 		</fieldset>
 	</v-input>
@@ -46,12 +46,13 @@ export default Vue.extend({
 
 		editorInit: function () {
 			require('brace/ext/language_tools');
-			require('brace/mode/html');
-			require('brace/mode/javascript');
-			require('brace/mode/less');
+			// require('brace/mode/html');
+			require('brace/mode/yaml');
+			// require('brace/mode/javascript');
+			// require('brace/mode/less');
 			require('brace/theme/twilight');
 			require('brace/theme/chrome');
-			require('brace/snippets/javascript');
+			// require('brace/snippets/javascript');
 
 			const config = this.$root.user.settings.development;
 
@@ -149,9 +150,11 @@ export default Vue.extend({
 
 		fieldset {
 			overflow: hidden;
-			border: rgba(0,0,0,.24) solid 1px;
+			border: 0;
 			transition: border .333s ease;
-			border-radius: 4px;
+			width: 100%;
+			height: 100%;
+			border-radius: 0;
 		}
 	}
 </style>
