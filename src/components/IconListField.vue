@@ -12,12 +12,12 @@
 		<template v-slot:selection="props">
 			<div>
 				<v-icon v-if="props.item" :color="props.item" class="mr-2">{{ props.item }}</v-icon>
-				<span>{{ props.item }}</span>
+				<span>{{ props.item | iconName }}</span>
 			</div>
 		</template>
 		<template v-slot:item="props">
 			<v-icon v-if="props.item" :color="props.item" class="mr-4" x-large>{{ props.item }}</v-icon>
-			<span>{{ props.item }}</span>
+			<span>{{ props.item | iconName }}</span>
 		</template>
 	</v-combobox>
 </template>

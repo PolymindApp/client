@@ -221,7 +221,7 @@
 		components: { UserAvatar },
 
 		mounted() {
-			this.loadFollowingCount();
+			// this.loadFollowingCount();
 		},
 
 		methods: {
@@ -357,19 +357,19 @@
 
 			'user.id'(id) {
 				if (id) {
-					this.loadFollowingCount();
+					// this.loadFollowingCount();
 				}
 			},
 
 			'followingModal.visible'(visible) {
 				if (visible) {
-					this.loadFollowing();
+					// this.loadFollowing();
 				}
 			},
 
 			'followersModal.visible'(visible) {
 				if (visible) {
-					this.loadFollowers();
+					// this.loadFollowers();
 				}
 			},
 		}

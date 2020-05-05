@@ -214,6 +214,7 @@ export default Vue.extend({
 		loadStrategies() {
 			return StrategyService.getAll(this.$root.user.id).then(response => {
 				this.strategies = response.data.map(item => new Strategy(item));
+				this.$root.strategies.splice(0, this.$root.strategies.length, ...this.strategies);
 				this.loaded['strategies'] = true;
 			}).catch(error => this.$handleError(this, error));
 		},
@@ -221,6 +222,7 @@ export default Vue.extend({
 		loadComponents() {
 			return ComponentService.getAll(this.$root.user.id).then(response => {
 				this.components = response.data.map(item => new Component(item));
+				this.$root.components.splice(0, this.$root.components.length, ...this.components);
 				this.loaded['components'] = true;
 			}).catch(error => this.$handleError(this, error));
 		},
@@ -228,6 +230,7 @@ export default Vue.extend({
 		loadDatasets() {
 			return DatasetService.getAll(this.$root.user.id).then(response => {
 				this.datasets = response.data.map(item => new Dataset(item));
+				this.$root.datasets.splice(0, this.$root.datasets.length, ...this.datasets);
 				this.loaded['dataset'] = true;
 			}).catch(error => this.$handleError(this, error));
 		},

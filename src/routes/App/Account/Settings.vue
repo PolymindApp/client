@@ -15,7 +15,7 @@
 								<label v-text="$t('account.settings.language')"></label>
 							</v-col>
 							<v-col cols="12" md="8">
-								<LanguageSwitcher v-model="user.locale" />
+								<LanguageSwitcher v-model="user.locale" btn-class="w-100" outlined />
 							</v-col>
 						</v-row>
 						<!--					<v-row>

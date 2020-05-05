@@ -10,7 +10,7 @@
 					<span v-text="$t('strategy.settings.title')"></span>
 				</v-tab>
 				<v-tab :to="'/strategy/' + id + '/assembly'" exact>
-					<v-icon v-if="strategy.isValid(components, datasets)" left>mdi-transit-connection-variant</v-icon>
+					<v-icon v-if="assemblyIsValid" left>mdi-transit-connection-variant</v-icon>
 					<v-icon v-else color="error" left>mdi-alert</v-icon>
 					<span v-text="$t('strategy.assembly.title')"></span>
 				</v-tab>
@@ -26,8 +26,13 @@
 						</v-chip>
 					</div>
 
-					<v-btn @click="test()" target="_blank" :loading="linkLoading" :disabled="!canTest" color="primary" small>
+					<v-btn @click="test()" target="_blank" :loading="linkLoading" :disabled="!canTest" color="success" class="mr-2" small>
 						<v-icon left>mdi-play</v-icon>
+						<span v-text="$t('strategy.assembly.accomplish')"></span>
+					</v-btn>
+
+					<v-btn @click="test()" target="_blank" :loading="linkLoading" :disabled="!canTest" text small>
+						<v-icon left>mdi-test-tube</v-icon>
 						<span v-text="$t('strategy.assembly.test')"></span>
 					</v-btn>
 
@@ -63,7 +68,7 @@
 
 		<v-toolbar ref="actions" style="flex: 0; border-top: #ccc solid 1px" flat tile>
 
-			<v-btn :disabled="!dataHasChanged" @click="save()" color="primary" class="mr-1">
+			<v-btn :disabled="!dataHasChanged || !assemblyIsValid" @click="save()" color="primary" class="mr-1">
 				{{$t('modal.save')}}
 			</v-btn>
 			<v-btn class="ml-2" :disabled="!dataHasChanged" @click="reset()" text>
@@ -134,12 +139,12 @@ const beforeRoute = function(to, from, callback) {
 	} else {
 		Promise.all([
 			StrategyService.get(to.params.id),
-			ComponentService.getByUser(localStorage.getItem('user_id')),
-			DatasetService.getByUser(localStorage.getItem('user_id')),
+			// ComponentService.getByUser(localStorage.getItem('user_id')),
+			// DatasetService.getByUser(localStorage.getItem('user_id')),
 		]).then(([strategy, components, datasets]) => {
 			to.meta.strategy = new Strategy(strategy.data);
-			to.meta.components = components.data;
-			to.meta.datasets = datasets.data;
+			// to.meta.components = components.data;
+			// to.meta.datasets = datasets.data;
 			callback();
 		})
 		.catch(error => callback('/404'));
@@ -185,8 +190,10 @@ export default Vue.extend({
 
 			if (load) {
 				this.strategy = this.$route.meta.strategy;
-				this.datasets = this.$route.meta.datasets;
-				this.components = this.$route.meta.components;
+				// this.datasets = this.$route.meta.datasets;
+				// this.components = this.$route.meta.components;
+				this.datasets = this.$root.datasets;
+				this.components = this.$root.components;
 				this.updateOriginalData();
 				// this.loadCommentCount();
 			}
@@ -426,7 +433,14 @@ export default Vue.extend({
 		},
 
 		canTest() {
+			if (this.isNew) {
+				return false;
+			}
 			return this.strategy.id && this.strategy.assemblies.length > 0 && this.strategy.isValid(this.components, this.datasets);
+		},
+
+		assemblyIsValid() {
+			return this.strategy.isValid(this.components, this.datasets);
 		},
 	},
 
@@ -445,8 +459,8 @@ export default Vue.extend({
 			link: new Link(),
 			linkLoading: false,
 			dataHasChanged: false,
-			datasets: null,
-			components: null,
+			datasets: this.$root.datasets,
+			components: this.$root.components,
 			strategy: null,
 			originalStrategy: null,
 			strategyJson: null,

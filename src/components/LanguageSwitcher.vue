@@ -3,7 +3,7 @@
 		<template v-slot:activator="{ on: menu }">
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on: tooltip }">
-					<v-btn v-on="{ ...tooltip, ...menu }" :disabled="$root.languages.length === 0" v-bind="$attrs">
+					<v-btn v-on="{ ...tooltip, ...menu }" :disabled="$root.languages.length === 0" :class="btnClass" v-bind="$attrs">
 						<v-icon left>mdi-translate</v-icon>
 						<span v-if="hideLang !== true">
 							<span v-if="!isLoading">{{ getSelectedLang() }}</span>
@@ -32,7 +32,7 @@ import { LanguageService } from "@polymind/sdk-js";
 
 export default Vue.extend({
 	name: 'LanguageSwitcher',
-	props: ['value', 'full', 'autoApply', 'hideLang'],
+	props: ['value', 'full', 'autoApply', 'hideLang','btnClass'],
 
 	mounted() {
 

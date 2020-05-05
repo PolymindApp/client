@@ -5,7 +5,7 @@
 				<v-card-title>
 					<span class="text-break">{{ $tc('account.sessionLastYear', sessions.data.length, { total: sessions.data.length }) }}</span>
 				</v-card-title>
-				<SessionGraph :user="user" @load="sessions = arguments[0]" @load-sessions-day="sessionsDay = arguments[0]" @load-sessions-day-date="sessionsDayDate = arguments[0]"/>
+				<SessionGraph :user="user" @load="sessions = arguments[0]" @sessions="handleSessions" @date="handleDate"/>
 			</v-col>
 		</v-row>
 		<v-row>
@@ -48,10 +48,10 @@
 							<v-timeline-item :icon="props.activity.strategy.icon || 'mdi-strategy'" :color="props.activity.strategy.color" large :key="props.index" label>
 								<v-card class="elevation-2">
 									<v-card-text class="d-flex align-center">
-										<div style="flex: 1">
-											A terminé une session <strong v-text="props.activity.strategy.name"></strong>
-											{{ props.activity.end_date | timeAgo }}
-										</div>
+										<span v-html="$t('account.activities.sessionCompleted', {
+											name: props.activity.strategy.name,
+											timeAgo: $options.filters.timeAgo(props.activity.end_date)
+										})"></span>
 									</v-card-text>
 								</v-card>
 							</v-timeline-item>
@@ -59,24 +59,16 @@
 					</AccountActivities>
 					<AccountActivities v-else activities-empty="$t('account.activities.sessionEmpty')" :activities="sessionsDay">
 						<template v-slot:title>
-							<span id="sessions_section" class="text-break" v-html="$t('sessionGraph.sessionsDay', { total: sessionsDay.data.length, date: moment(sessionsDayDate).format('ll') })"></span>
+							<span ref="activities" class="text-break" v-html="$tc('sessionGraph.sessionsDay', sessionsDay.data.length, { total: sessionsDay.data.length, date: moment(sessionsDayDate).format('ll') })"></span>
 						</template>>
 						<template v-slot:content="props">
-							<v-timeline-item :icon="props.activity.icon" :color="props.activity | activityColor" :key="props.index" large label>
-								<template v-slot:icon>
-									<v-icon dark>{{ props.activity | activityIcon }}</v-icon>
-								</template>
-								<v-card>
-									<v-card-title :class="{ 'pb-0': props.activity.action === 'comment' }">
-										<span class="font-weight-light text-break body-2 mr-4" v-html="$t('activity.' + props.activity.action + '.' + props.activity.collection + '.title', {
-											name: props.activity.relation.data.name
+							<v-timeline-item :icon="props.activity.strategy.icon || 'mdi-strategy'" :color="props.activity.strategy.color" large :key="props.index" label>
+								<v-card class="elevation-2">
+									<v-card-text class="d-flex align-center">
+										<span v-html="$t('account.activities.sessionCompleted', {
+											name: props.activity.strategy.name,
+											timeAgo: $options.filters.timeAgo(props.activity.end_date)
 										})"></span>
-										<span class="font-weight-medium body-2">{{props.activity.action_on | date('HH:mm:ss')}}</span>
-									</v-card-title>
-									<v-card-text v-if="props.activity.action === 'comment'">
-										<v-icon color="grey lighten-2">mdi-format-quote-open</v-icon>
-										<span class="font-italic font-weight-light body-1 mx-2" v-text="props.activity.comment"></span>
-										<v-icon color="grey lighten-2">mdi-format-quote-close</v-icon>
 									</v-card-text>
 								</v-card>
 							</v-timeline-item>
@@ -112,7 +104,7 @@ export default Vue.extend({
 
 	        Promise.all([
                 CommentService.getAll('directus_users', this.$route.params.id, '-id', 10),
-				StrategySessionService.getAll(this.$route.params.id, 5),
+				StrategySessionService.getAll(this.$route.params.id, 'live', 5),
 			])
                 .then(([comments, sessions]) => {
                     this.comments = comments;
@@ -125,6 +117,14 @@ export default Vue.extend({
 	        if (event.code === 'Enter' && !event.shiftKey) {
 	            this.send(event);
 			}
+		},
+
+		handleSessions(sessions) {
+			this.sessionsDay = sessions;
+		},
+
+		handleDate(date) {
+			this.sessionsDayDate = date;
 		},
 
         send(event) {
@@ -145,39 +145,20 @@ export default Vue.extend({
                 })
                 .catch(error => this.$handleError(this, error));
         },
-
-		toContributions() {
-			this.$vuetify.goTo(this.target, this.options);
-		},
 	},
 
 	data() {
 		return {
 			moment: moment,
             comments: { data: [] },
-            sessions: { data: [] },
 			sessionsDay: { data: [] },
 			sessionsDayDate: false,
 			sessionsLoaded: false,
 			sessions: { data: [] },
-			target: '#sessions_section',
-			duration: 300,
-			offset: 30,
-			easing: 'easeInOutCubic',
             newComment: {
 		        text: '',
 			}
 		}
-	},
-
-	computed: {
-		options() {
-			return {
-				duration: this.duration,
-				offset: this.offset,
-				easing: this.easing,
-			}
-		},
 	},
 
 	watch: {
@@ -188,7 +169,11 @@ export default Vue.extend({
 
 		sessionsDay(value) {
 			this.sessionsLoaded = true;
-			setTimeout(() => this.toContributions());
+			setTimeout(() => this.$vuetify.goTo(this.$refs.activities, {
+				duration: 300,
+				offset: 30,
+				easing: 'easeInOutCubic',
+			}));
 		}
 	}
 });

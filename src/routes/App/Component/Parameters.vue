@@ -34,10 +34,13 @@
 
 						<!-- DATASET -->
 						<v-card class="my-4">
-							<v-card-title v-text="$t('component.parameters.dataset.title')"></v-card-title>
+							<v-card-title class="d-flex justify-space-between">
+								<span v-text="$t('component.parameters.dataset.title')"></span>
+								<v-select v-model="selectedDataset" :items="$root.datasets" :label="$t('strategy.assembly.datasetPlaceholder')" item-text="name" style="max-width: 250px" dense outlined return-object hide-details></v-select>
+							</v-card-title>
 							<v-card-text>
 								<EmptyView v-if="preview.dataset.parameters.length === 0" :title="$t('strategy.assembly.dataset.noParameterTitle')" :desc="$t('strategy.assembly.dataset.noParameterDesc')" />
-								<ComponentParameters v-else v-model="value.dataset" :parameters="preview.dataset.parameters" type="dataset" :readonly="true" />
+								<ComponentParameters v-else v-model="value.dataset" :parameters="preview.dataset.parameters" type="dataset" :columns="dataset.columns" />
 							</v-card-text>
 						</v-card>
 					</div>
@@ -50,10 +53,11 @@
 <script>
     import Vue from 'vue';
     import yaml from 'js-yaml';
-    import { ComponentParameters as ComponentParametersModel } from '@polymind/sdk-js';
+    import { ComponentParameters as ComponentParametersModel, Dataset } from '@polymind/sdk-js';
 	import CodeEditorField from "../../../components/CodeEditorField";
 	import EmptyView from "../../../components/EmptyView";
 	import ComponentParameters from "../../../components/ComponentParameters";
+	import StrategyAssemblyParameters from "@polymind/sdk-js/src/models/StrategyAssemblyParameters";
 
 	let previewTimer;
 
@@ -61,7 +65,7 @@
 
         name: 'Parameters',
 
-        props: ['component'],
+        props: ['component', 'dataset'],
 
         components: { CodeEditorField, EmptyView, ComponentParameters },
 
@@ -91,16 +95,7 @@
 						this.component.compiled_parameters = new ComponentParametersModel(this.$deepClone(this.preview));
 					}
 
-					this.value = {
-						component: {},
-						dataset: {},
-					};
-					this.component.compiled_parameters.component.parameters.forEach(param => {
-						this.value.component[param.key] = param.default;
-					});
-					this.component.compiled_parameters.dataset.parameters.forEach(param => {
-						this.value.dataset[param.key] = param.default;
-					});
+					this.value = this.component.getDefaultParameters();
 				} catch (e) {
         			console.error(e);
         			this.error = e;
@@ -130,10 +125,8 @@
         data() {
             return {
 				error: null,
-				value: {
-					component: {},
-					dataset: {},
-				},
+				selectedDataset: this.dataset,
+				value: new StrategyAssemblyParameters(),
 				preview: new ComponentParametersModel(),
 			};
         },
@@ -142,6 +135,17 @@
 
         	'component.parameters'() {
         		this.previewYaml();
+			},
+
+			value(value) {
+				this.$emit('value', value);
+			},
+
+			'selectedDataset': {
+        		deep: true,
+				handler(dataset) {
+        			this.$emit('update:dataset', dataset);
+				}
 			}
 		}
     });

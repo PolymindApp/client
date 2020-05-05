@@ -15,9 +15,7 @@
 					<v-card-text>
 						<v-text-field :error-messages="formErrors.name" :label="$t('strategy.settings.namePlaceholder')" v-model="strategy.name"></v-text-field>
 						<IconListField :error-messages="formErrors.icon" :label="$t('strategy.settings.iconPlaceholder')" v-model="strategy.icon" />
-						<HTMLEditorField :error-messages="formErrors.description" :label="$t('strategy.settings.descPlaceholder')" v-model="strategy.description"></HTMLEditorField>
-						<v-checkbox :error-messages="formErrors.has_instructions" :label="$t('strategy.settings.hasInstructionsPlaceholder')" v-model="strategy.has_instructions" color="primary" class="ma-0" hide-details></v-checkbox>
-						<HTMLEditorField :error-messages="formErrors.instructions" :label="$t('strategy.settings.instructionsPlaceholder')" v-model="strategy.instructions" :disabled="!strategy.has_instructions"></HTMLEditorField>
+						<HTMLEditorField :error-messages="formErrors.description" :label="$t('strategy.settings.descPlaceholder')" v-model="strategy.description" hide-details></HTMLEditorField>
 					</v-card-text>
 				</v-card>
 			</v-col>

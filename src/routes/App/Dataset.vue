@@ -18,6 +18,13 @@
 			<div class="d-flex align-center">
 				<DataActions ref="actions" :dataset="dataset" @refresh="refresh()" />
 
+				<v-btn @click="test()" target="_blank" :loading="sessionLoading" :disabled="!canTest" class="ml-2" text small>
+					<v-icon left>mdi-test-tube</v-icon>
+					<span v-text="$t('component.test')"></span>
+				</v-btn>
+
+				<v-divider class="mx-4" vertical inset></v-divider>
+
 				<v-btn @click="$comments.open(id, 'dataset')" class="mr-2" text small>
 					<v-icon left>mdi-comment</v-icon>
 					{{$t('comment.btnTitle')}}
@@ -105,7 +112,7 @@
 import Vue from 'vue';
 import Data from "./Dataset/Data";
 import Settings from "./Dataset/Settings";
-import { DatasetService, Dataset, DatasetColumn, DatasetRow, DatasetCell, Model, Transaction } from "@polymind/sdk-js";
+import { DatasetService, Dataset, DatasetColumn, DatasetRow, DatasetCell, Model, Transaction, StrategySessionService, StrategySession } from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
 import DataActions from "./Dataset/Contextual/Actions";
@@ -501,6 +508,21 @@ export default Vue.extend({
 				});
 			}
 		},
+
+		test() {
+
+			this.sessionLoading = true;
+			StrategySessionService.generate({
+				type: 'test',
+				component: this.component.id,
+				parameters: {}
+			})
+					.then(session => {
+						this.session = session;
+						const win = window.open(this.generatedTestUri, '_blank');
+						win.focus();
+					}).finally(() => this.sessionLoading = false);
+		}
 	},
 
 	computed: {
@@ -516,10 +538,26 @@ export default Vue.extend({
 		dataHasChanged() {
 			return this.datasetJson !== this.originalDatasetJson;// || this.transactions.length > 0;
 		},
+
+		testUri() {
+			return this.playerHost + '/dataset/' + this.dataset.id + '/test';
+		},
+
+		generatedTestUri() {
+			return this.playerHost + '/dataset/' + this.session.hash + '/test';
+		},
+
+		canTest() {
+			if (this.isNew) {
+				return false;
+			}
+			return !this.dataHasChanged;
+		}
 	},
 
 	data() {
 		return {
+			playerHost: process.env.VUE_APP_PLAYER_URL,
 			revisions: [],
 			revisionOffset: 0,
 			revisionLoading: false,
@@ -529,6 +567,8 @@ export default Vue.extend({
 			worker: null,
 			isDeleted: false,
 			formErrors: [],
+			session: new StrategySession(),
+			sessionLoading: false,
 			originalDataset: new Dataset({
 				columns: [ new DatasetColumn() ],
 				rows: [ new DatasetRow({

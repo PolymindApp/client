@@ -89,15 +89,15 @@
 					<v-card light color="white">
 						<div class="d-flex align-center pa-4">
 							<div class="shrink">
-								<v-btn :disabled="strategies.data.length < 2" icon>
+								<v-btn :disabled="strategies.length < 2" icon>
 									<v-icon>mdi-chevron-left</v-icon>
 								</v-btn>
 							</div>
 							<div class="flex-md-grow-1">
-								<v-select class="pa-0 ma-0 mx-4" label="Strategie" item-text="name" :items="strategies.data" v-model="selectedStrategy" solo flat dense hide-details></v-select>
+								<v-select class="pa-0 ma-0 mx-4" label="Strategie" item-text="name" :items="strategies" v-model="selectedStrategy" solo flat dense hide-details></v-select>
 							</div>
 							<div class="shrink">
-								<v-btn :disabled="strategies.data.length < 2" icon>
+								<v-btn :disabled="strategies.length < 2" icon>
 									<v-icon>mdi-chevron-right</v-icon>
 								</v-btn>
 							</div>
@@ -183,18 +183,21 @@ export default Vue.extend({
 
 	beforeRouteEnter(to, from, next) {
 
+		const startDate = moment().startOf('week').subtract(1, 'day');
+		const endDate = moment().endOf('week').add(2, 'day');
+
 		Promise.all([
 			NewsService.getAll(Cookies.get('lang')),
-			StrategyService.getAll(localStorage.getItem('user_id')),
-			ComponentService.getAll(localStorage.getItem('user_id')),
-			DatasetService.getAll(localStorage.getItem('user_id')),
-			StrategySessionService.getAll(localStorage.getItem('user_id')),
+			// StrategyService.getAll(localStorage.getItem('user_id')),
+			// ComponentService.getAll(localStorage.getItem('user_id')),
+			// DatasetService.getAll(localStorage.getItem('user_id')),
+			StrategySessionService.getAllBetween(localStorage.getItem('user_id'), '*', startDate, endDate),
 		])
-				.then(([news, strategies, components, datasets, sessions]) => {
+				.then(([news, sessions]) => {
 					to.meta.news = news;
-					to.meta.strategies = strategies;
-					to.meta.components = components;
-					to.meta.datasets = datasets;
+					// to.meta.strategies = strategies;
+					// to.meta.components = components;
+					// to.meta.datasets = datasets;
 					to.meta.sessions = sessions;
 					next();
 				})
@@ -237,11 +240,11 @@ export default Vue.extend({
 
 			const events = [];
 
-			this.strategies.data.forEach(item => {
+			this.strategies.forEach(item => {
 				const strategy = new Strategy(item);
 				strategy.getEvents({ start, end }).forEach(event => {
 					event.strategy_id = strategy.id;
-					event.valid = strategy.isValid(this.components.data, this.datasets.data);
+					event.valid = strategy.isValid(this.components, this.datasets);
 					events.push(event);
 				});
 			});
@@ -335,9 +338,12 @@ export default Vue.extend({
 				{ title: 'Difficile', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'secondary', },
 			],
 			news: this.$route.meta.news,
-			strategies: this.$route.meta.strategies,
-			components: this.$route.meta.components,
-			datasets: this.$route.meta.datasets,
+			// strategies: this.$route.meta.strategies,
+			// components: this.$route.meta.components,
+			// datasets: this.$route.meta.datasets,
+			strategies: this.$root.strategies,
+			components: this.$root.components,
+			datasets: this.$root.datasets,
 			sessions: this.$route.meta.sessions,
 			strategyData: {
 				labels: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5],

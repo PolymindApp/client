@@ -19,17 +19,18 @@
 						<HTMLEditorField :error-messages="formErrors.description" :label="$t('component.settings.descPlaceholder')" v-model="component.description"></HTMLEditorField>
 
 						<v-checkbox :error-messages="formErrors.has_instructions" :label="$t('component.settings.hasInstructionsPlaceholder')" v-model="component.has_instructions" color="primary" class="ma-0" hide-details></v-checkbox>
-						<HTMLEditorField :error-messages="formErrors.instructions" :label="$t('component.settings.instructionsPlaceholder')" v-model="component.instructions" :disabled="!component.has_instructions"></HTMLEditorField>
+						<HTMLEditorField :error-messages="formErrors.instructions" :label="$t('component.settings.instructionsPlaceholder')" v-model="component.instructions" :disabled="!component.has_instructions" hide-details></HTMLEditorField>
 					</v-card-text>
 				</v-card>
 			</v-col>
 			<v-col cols="12" sm="6" class="py-0">
 				<v-card class="mb-4" outlined>
-					<v-card-title>
+					<v-card-title class="d-flex justify-space-between">
 						<span v-text="$t('component.settings.testSection')"></span>
+						<v-switch v-model="component.test_mode" color="primary" class="ma-0 mr-n2" inset hide-details></v-switch>
 					</v-card-title>
 					<v-card-text>
-						<v-text-field :error-messages="formErrors.test_uri" :label="$t('component.settings.testURIPlaceholder')" v-model="component.test_uri"></v-text-field>
+						<v-text-field :error-messages="formErrors.test_uri" :disabled="!component.test_mode" :label="$t('component.settings.testURIPlaceholder')" v-model="component.test_uri" :hint="$t('component.settings.testURIHint')" persistent-hint></v-text-field>
 					</v-card-text>
 				</v-card>
 

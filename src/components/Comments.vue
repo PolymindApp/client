@@ -6,7 +6,7 @@
 
 			<template>
 				<slot name="loading">
-					<v-progress-linear :size="50" color="primary" :active="!hasLoaded && isLoading" indeterminate></v-progress-linear>
+					<v-progress-linear :size="50" color="primary" :active="!hasLoaded && isLoading" :class="{ 'my-4': isLoading }" indeterminate></v-progress-linear>
 				</slot>
 			</template>
 

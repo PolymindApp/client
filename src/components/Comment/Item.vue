@@ -54,44 +54,44 @@
 				</div>
 
 				<!-- MESSAGE DELETED -->
-				<div v-else class="py-2" style="opacity: 0.5">
+				<div v-else style="opacity: 0.5">
 					<v-icon left small>mdi-close</v-icon>
 					<span v-text="$t('comment.commentDeleted')"></span>
 				</div>
 			</div>
 
-			<div class="mt-2" v-if="comment.comment_deleted_on === null">
+<!--			<div class="mt-2" v-if="comment.comment_deleted_on === null">-->
 
 				<!-- THUMB UP -->
-				<v-tooltip bottom>
-					<template v-slot:activator="{ on }">
-						<v-btn @click="toggleLike(comment.id)" :disabled="comment.comment_deleted_on !== null" :class="{ 'primary--text': totalThumbsUp > 0 }" v-on="on" small icon>
-							<v-icon v-if="comment.comment_user_has_liked" small>mdi-thumb-up</v-icon>
-							<v-icon v-else small>mdi-thumb-up-outline</v-icon>
-						</v-btn>
-					</template>
-					<span v-text="$t('comment.thumbUpTooltip')"></span>
-				</v-tooltip>
-				<span class="mx-1 primary--text" v-text="printTotalThumbsUp"></span>
+<!--				<v-tooltip bottom>-->
+<!--					<template v-slot:activator="{ on }">-->
+<!--						<v-btn @click="toggleLike(comment.id)" :disabled="comment.comment_deleted_on !== null" :class="{ 'primary&#45;&#45;text': totalThumbsUp > 0 }" v-on="on" small icon>-->
+<!--							<v-icon v-if="comment.comment_user_has_liked" small>mdi-thumb-up</v-icon>-->
+<!--							<v-icon v-else small>mdi-thumb-up-outline</v-icon>-->
+<!--						</v-btn>-->
+<!--					</template>-->
+<!--					<span v-text="$t('comment.thumbUpTooltip')"></span>-->
+<!--				</v-tooltip>-->
+<!--				<span class="mx-1 primary&#45;&#45;text" v-text="printTotalThumbsUp"></span>-->
 
 				<!-- THUMB DOWN -->
-				<v-tooltip bottom>
-					<template v-slot:activator="{ on }">
-						<v-btn @click="toggleLike(comment.id, false)" :disabled="comment.comment_deleted_on !== null" :class="{ 'ml-2': true, 'secondary--text': totalThumbsDown > 0 }" v-on="on" small icon>
-							<v-icon v-if="comment.comment_user_has_liked" small>mdi-thumb-down</v-icon>
-							<v-icon v-else small>mdi-thumb-down-outline</v-icon>
-						</v-btn>
-					</template>
-					<span v-text="$t('comment.thumbDownTooltip')"></span>
-				</v-tooltip>
-				<span class="mx-1 secondary--text" v-text="printTotalThumbsDown"></span>
+<!--				<v-tooltip bottom>-->
+<!--					<template v-slot:activator="{ on }">-->
+<!--						<v-btn @click="toggleLike(comment.id, false)" :disabled="comment.comment_deleted_on !== null" :class="{ 'ml-2': true, 'secondary&#45;&#45;text': totalThumbsDown > 0 }" v-on="on" small icon>-->
+<!--							<v-icon v-if="comment.comment_user_has_liked" small>mdi-thumb-down</v-icon>-->
+<!--							<v-icon v-else small>mdi-thumb-down-outline</v-icon>-->
+<!--						</v-btn>-->
+<!--					</template>-->
+<!--					<span v-text="$t('comment.thumbDownTooltip')"></span>-->
+<!--				</v-tooltip>-->
+<!--				<span class="mx-1 secondary&#45;&#45;text" v-text="printTotalThumbsDown"></span>-->
 
 				<!-- REPLY -->
-				<v-btn v-if="!isReplying" @click="reply()" :class="{ 'ml-4': true }" :disabled="comment.comment_deleted_on !== null" small text>
-					<v-icon small left>mdi-reply</v-icon>
-					<span v-text="$t('comment.replyBtn')"></span>
-				</v-btn>
-			</div>
+<!--				<v-btn v-if="!isReplying" @click="reply()" :class="{ 'ml-4': true }" :disabled="comment.comment_deleted_on !== null" small text>-->
+<!--					<v-icon small left>mdi-reply</v-icon>-->
+<!--					<span v-text="$t('comment.replyBtn')"></span>-->
+<!--				</v-btn>-->
+<!--			</div>-->
 
 			<v-expand-transition group>
 				<div class="mt-4" v-for="(comment, index) in replies" :key="index + '_item_' + comment.id">

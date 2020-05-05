@@ -44,6 +44,7 @@
 <script>
     import Vue from 'vue';
     import { LANGUAGES } from '@polymind/sdk-js';
+	import StrategyAssemblyParameters from "@polymind/sdk-js/src/models/StrategyAssemblyParameters";
 
     export default Vue.extend({
 
@@ -73,7 +74,7 @@
 		},
 
 		created() {
-			this.updateDefault();
+			this.model = this.getDefault();
 		},
 
 		methods: {
@@ -91,14 +92,14 @@
 				return !!(model[param.key]);
 			},
 
-			updateDefault() {
-				const model = this.model;
+			getDefault() {
+				const model = {};
 				this.parameters.forEach(param => {
-					if (param.default !== undefined && this.model[param.key] === undefined) {
+					if (param.default !== undefined) {
 						model[param.key] = param.default;
 					}
 				});
-				this.model = model;
+				return model;
 			}
 		},
 
@@ -114,30 +115,35 @@
 				})
 				return items;
 			},
+		},
 
-			model: {
-				get() {
-					return this.value;
-				},
-				set(val) {
-					this.$emit('input', val);
-				}
+		data() {
+        	return {
+        		model: null,
 			}
 		},
 
 		watch: {
 
+        	model: {
+        		deep: true,
+				handler(model) {
+					this.$emit('input', model);
+				}
+			},
+
         	parameters: {
 				deep: true,
 				handler(value) {
-					this.updateDefault();
+					Object.assign(this.getDefault(), this.model);
+					this.$emit('input', this.model);
 				}
 			},
 
         	value: {
         		deep: true,
 				handler(value) {
-        			this.updateDefault();
+        			Object.assign(this.model, value);
 				}
 			},
 		}

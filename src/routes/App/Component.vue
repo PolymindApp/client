@@ -23,13 +23,13 @@
 				<v-spacer></v-spacer>
 
 				<div class="d-flex align-center">
-					<v-btn v-if="!component.is_private" :disabled="!component.repo_url" :href="component.repo_url" target="_blank" class="ml-2" small text>
-						<v-icon left>mdi-directions-fork</v-icon>
-						{{$t('modal.fork')}}
-					</v-btn>
+<!--					<v-btn v-if="!component.is_private" :disabled="!component.repo_url" :href="component.repo_url" target="_blank" class="ml-2" small text>-->
+<!--						<v-icon left>mdi-directions-fork</v-icon>-->
+<!--						{{$t('modal.fork')}}-->
+<!--					</v-btn>-->
 
-					<v-btn @click="test()" target="_blank" :loading="linkLoading" :disabled="!canTest" color="primary" class="ml-2" small>
-						<v-icon left>mdi-play</v-icon>
+					<v-btn @click="test()" target="_blank" :loading="sessionLoading" :disabled="!canTest" class="ml-2" text small>
+						<v-icon left>mdi-test-tube</v-icon>
 						<span v-text="$t('component.test')"></span>
 					</v-btn>
 
@@ -57,7 +57,7 @@
 				</div>
 			</v-tab-item>
 			<v-tab-item :value="'/component/' + id + '/parameters'" class="fill-height">
-				<Parameters @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :form-errors="formErrors" />
+				<Parameters @value="updateParamValues" @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :dataset.sync="dataset" :form-errors="formErrors" />
 			</v-tab-item>
 			<v-tab-item :value="'/component/' + id + '/builds'" class="fill-height">
 				<Builds @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :builds="builds" :form-errors="formErrors" />
@@ -120,7 +120,7 @@
 import Vue from 'vue';
 import Builds from "./Component/Builds";
 import Settings from "./Component/Settings";
-import {ComponentService, Component, CommentService, LinkService, Link } from "@polymind/sdk-js";
+import {ComponentService, Component, CommentService, StrategySessionService, StrategySession, Dataset } from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
 import Parameters from "./Component/Parameters";
@@ -196,6 +196,10 @@ export default Vue.extend({
 		shortcutSave(event) {
 			this.save();
 			event.preventDefault();
+		},
+
+		updateParamValues(values) {
+			this.parametersValue = values;
 		},
 
 		updateTab() {
@@ -357,13 +361,18 @@ export default Vue.extend({
 
 		test() {
 
-			this.linkLoading = true;
-			LinkService.generate('TEST_COMPONENT', this.component.getDataForTest())
-					.then(link => {
-						this.link = link;
+			this.sessionLoading = true;
+			StrategySessionService.generate({
+				type: 'test',
+				component: this.component.id,
+				dataset: this.dataset.id,
+				parameters: this.parametersValue,
+			})
+					.then(session => {
+						this.session = session;
 						const win = window.open(this.generatedTestUri, '_blank');
 						win.focus();
-					}).finally(() => this.linkLoading = false);
+					}).finally(() => this.sessionLoading = false);
 		}
 	},
 
@@ -391,11 +400,42 @@ export default Vue.extend({
 		},
 
 		generatedTestUri() {
-			return this.playerHost + '/component/' + this.link.hash + '/test';
+			return this.playerHost + '/component/' + this.session.hash + '/test';
 		},
 
 		canTest() {
-			return this.component.test_uri;
+
+			if (this.isNew) {
+				return false;
+			}
+
+			const types = ['component', 'dataset'];
+			for (let y = 0; y < types.length; y++) {
+				const type = types[y];
+				for (let i = 0; i < this.component.compiled_parameters[type].parameters.length; i++) {
+					const param = this.component.compiled_parameters[type].parameters[i];
+					const model = this.parametersValue[type];
+
+					if (param.mandatory !== true) {
+						continue;
+					}
+
+					if (param.type === 'column') {
+						if (!!(this.dataset.columns.find(column => column.guid === model[param.key]))) {
+							continue
+						}
+						return false;
+					}
+
+					if (!!(model[param.key])) {
+						continue;
+					}
+
+					return false;
+				}
+			}
+
+			return this.component.getURL();
 		}
 	},
 
@@ -409,13 +449,15 @@ export default Vue.extend({
 			revisionLoading: false,
 			revisionLoaded: false,
 			revisionMenu: false,
-			link: new Link(),
-			linkLoading: false,
+			session: new StrategySession(),
+			sessionLoading: false,
 			dataHasChanged: false,
+			dataset: new Dataset(),
 			component: null,
 			originalComponent: null,
 			componentJson: null,
 			originalComponentJson: null,
+			parametersValue: this.$route.meta.component.getDefaultParameters(),
             commentCount: 0,
 			builds: [
 				{ id: 1, state: 'running', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },

@@ -2,7 +2,7 @@
 	<div class="fill-height">
 
 		<!-- LOGS -->
-		<v-dialog v-model="logsModal.visible" scrollable persistent max-width="750px">
+		<v-dialog v-model="logsModal.visible" scrollable persistent max-width="1000px">
 			<v-card>
 				<v-card-title class="headline">
 					<v-icon color="primary" slot="icon" size="36" left>mdi-format-list-bulleted-square</v-icon>
@@ -112,8 +112,6 @@
 		width: 100%;
 		padding: 1rem;
 		background-color: black !important;
-		max-height: 10rem;
-		overflow: auto;
 		color: rgba(255, 255, 255, 0.7) !important;
 	}
 </style>

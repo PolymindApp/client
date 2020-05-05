@@ -49,7 +49,7 @@
 			<v-scroll-y-transition>
 				<v-content class="main-content">
 					<v-card color="transparent" :disabled="$root.isLoading" class="fill-height" :dark="$root.user.settings.theme === 'dark'" tile>
-						<Chat />
+<!--						<Chat />-->
 						<v-layout fill-height>
 							<v-slide-x-transition mode="out-in">
 								<router-view></router-view>
@@ -65,7 +65,6 @@
 <script>
 import Vue from 'vue';
 import moment from 'moment';
-import Locked from './Restricted/Locked.vue';
 import Dashboard from './App/Dashboard.vue';
 import News from './App/News.vue';
 import Account from './App/Account.vue';
@@ -74,14 +73,13 @@ import Toolbar from '../components/Toolbar.vue';
 import Sidebar from '../components/Sidebar.vue';
 import Shortcuts from '../components/Shortcuts.vue';
 import Help from '../components/Help.vue';
-import { UserService, User } from "@polymind/sdk-js";
 import ErrorDialog from '../components/ErrorDialog.vue';
 import About from './App/About.vue';
 import Component from "./App/Component";
 import Strategy from "./App/Strategy";
 import Dataset from "./App/Dataset";
 import CommentDrawer from "../components/CommentDrawer";
-import Chat from "../components/Chat";
+// import Chat from "../components/Chat";
 
 export const routes = [
 	{path: '/', component: Dashboard, name: 'dashboard'},
@@ -118,7 +116,7 @@ export default Vue.extend({
 	name: 'App',
 
 	components: {
-		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help, CommentDrawer, Chat
+		Toolbar, Sidebar, ErrorDialog, Shortcuts, Help, CommentDrawer
 	},
 
 	created() {

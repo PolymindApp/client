@@ -1,9 +1,7 @@
 <template>
     <div class="graph">
-
 		<div class="scrollable mx-n4 px-4">
 			<div class="pr-4">
-
 				<table class="w-100 table">
 					<tbody>
 						<tr>
@@ -34,6 +32,14 @@
 							</td>
 						</tr>
 					</tbody>
+					<tfoot>
+					<tr>
+						<td></td>
+						<td colspan="52">
+							<v-progress-linear :active="isLoading" indeterminate></v-progress-linear>
+						</td>
+					</tr>
+					</tfoot>
 				</table>
 			</div>
 		</div>
@@ -73,9 +79,6 @@
         methods: {
 
             init() {
-
-                this.sessionsDay = { data: [] };
-                this.sessionsDayDate = false;
                 this.load();
 			},
 
@@ -97,10 +100,13 @@
                 const date = this.getDate(day, weekday).format('YYYY-MM-DD');
 
                 this.isLoading = true;
-				StrategySessionService.getAllByDate(this.user.id, date)
+				StrategySessionService.getAllByDate(this.user.id, 'live', date)
                     .then(response => {
                         this.sessionsDay = response;
                         this.sessionsDayDate = date;
+
+						this.$emit('sessions', response);
+						this.$emit('date', date);
                     })
                     .catch(error => this.$handleError(this, error))
                     .finally(() => this.isLoading = false);
@@ -190,7 +196,7 @@
             parsedSessions() {
                 let items = {};
                 this.sessions.data.forEach(session => {
-                    const date = moment(session.action_on).format('YYYY-MM-DD');
+                    const date = moment(session.start_date).format('YYYY-MM-DD');
                     const daysFromToday = this.$options.filters.daysFromToday(date);
                     if (!items[daysFromToday]) {
                         items[daysFromToday] = {
@@ -207,6 +213,7 @@
 
         data() {
             return {
+				isLoading: false,
                 moment: moment,
 				sessions: { data: [] },
                 sessionsDay: { data: [] },
@@ -223,16 +230,6 @@
 			sessions(value) {
 				this.$emit('load', value);
 			},
-
-			sessionsDay(value) {
-				if (value.data.length > 0) {
-					this.$emit('load-sessions-day', value);
-				}
-			},
-
-			sessionsDayDate(value) {
-				this.$emit('load-sessions-day-date', value);
-			}
 		}
     });
 </script>
@@ -251,6 +248,13 @@
 
 			div.clickable {
 				cursor: pointer;
+			}
+		}
+
+		tfoot {
+			td {
+				padding: 0;
+				height: 0;
 			}
 		}
 	}
