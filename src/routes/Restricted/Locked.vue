@@ -13,13 +13,13 @@
 				</div>
 			</div>
 
-			<v-btn type="submit" color="primary" large style="width: 100%" dark>
+			<v-btn type="submit" color="primary" :disabled="!formIsValid" large style="width: 100%" dark>
 				{{$t('restricted.unlockBtn')}}
 			</v-btn>
 
 			<v-divider class="my-4"></v-divider>
 
-			<v-btn class="white--text" :disabled="!formIsValid" @click="useOtherAccount()" text>
+			<v-btn class="white--text" @click="useOtherAccount()" text>
 				{{ $t("restricted.lockedOtherAccount") }}
 			</v-btn>
 		</v-form>
@@ -28,7 +28,7 @@
 
 <script>
 import Vue from 'vue';
-import { Rules, UserService, User } from "@polymind/sdk-js";
+import { Rules, UserService, User, EventBus } from "@polymind/sdk-js";
 import UserAvatar from "../../components/UserAvatar";
 
 export default Vue.extend({
@@ -65,7 +65,7 @@ export default Vue.extend({
 				this.$polymind.login(this.user.email, this.password)
 					.then(response => {
 						localStorage.removeItem('lockedUser');
-						window.location.href = localStorage.getItem('redirect_uri') || '/';
+						EventBus.publish('LOGIN');
 					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);

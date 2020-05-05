@@ -4,20 +4,21 @@
 			<v-col cols="12" md="6">
 
 				<!-- GENERAL -->
-				<h2 class="mb-4 mt-3 mt-md-0 title px-4 px-md-0">
-					<v-icon left>mdi-account-settings</v-icon>
-					<span v-text="$t('account.settings.generalSectionTitle')"></span>
-				</h2>
-				<v-card class="pa-4 px-md-8" :tile="isMobile" :flat="isMobile">
-					<v-row>
-						<v-col cols="12" md="4" class="d-flex align-center">
-							<label v-text="$t('account.settings.language')"></label>
-						</v-col>
-						<v-col cols="12" md="8">
-							<LanguageSwitcher v-model="user.locale" />
-						</v-col>
-					</v-row>
-<!--					<v-row>
+				<v-card class="mb-4" outlined>
+					<v-card-title>
+						<v-icon left>mdi-account-settings</v-icon>
+						<span v-text="$t('account.settings.generalSectionTitle')"></span>
+					</v-card-title>
+					<v-card-text>
+						<v-row>
+							<v-col cols="12" md="4" class="d-flex align-center">
+								<label v-text="$t('account.settings.language')"></label>
+							</v-col>
+							<v-col cols="12" md="8">
+								<LanguageSwitcher v-model="user.locale" />
+							</v-col>
+						</v-row>
+						<!--					<v-row>
 						<v-col cols="12" md="4" class="d-flex align-center">
 							<label v-text="$t('account.settings.theme.title')"></label>
 						</v-col>
@@ -37,30 +38,33 @@
 							</v-radio-group>
 						</v-col>
 					</v-row>-->
-				</v-card>
-
-				<!-- DEVELOPMENT -->
-				<h2 class="mb-4 mt-6 title px-4 px-md-0">
-					<v-icon left>mdi-coffee</v-icon>
-					<span v-text="$t('account.settings.ideSectionTitle')"></span>
-				</h2>
-				<v-card class="pa-4 px-md-8" :tile="isMobile" :flat="isMobile">
-					<SettingsDevelopment :user="user" />
+					</v-card-text>
 				</v-card>
 			</v-col>
 
 			<v-col cols="12" md="6">
 
-				<!-- NOTIFICATIONS -->
-				<h2 class="mb-4 title px-4 px-md-0">
-					<v-icon left>mdi-bell</v-icon>
-					<span v-text="$t('account.settings.notificationSectionTitle')"></span>
-				</h2>
-				<v-card class="pa-4 px-md-8" :tile="isMobile" :flat="isMobile">
-					<v-switch v-model="user.settings.newNotificationSound" inset :label="$t('account.settings.newNotificationSoundLabel')" color="primary"></v-switch>
-					<v-divider></v-divider>
-					<v-switch v-model="user.settings.newMessageSound" inset :label="$t('account.settings.newMessageSoundLabel')" color="primary"></v-switch>
+				<!-- DEVELOPMENT -->
+				<v-card class="mb-4" outlined>
+					<v-card-title>
+						<v-icon left>mdi-coffee</v-icon>
+						<span v-text="$t('account.settings.ideSectionTitle')"></span>
+					</v-card-title>
+					<v-card-text>
+						<SettingsDevelopment :user="user" />
+					</v-card-text>
 				</v-card>
+
+				<!-- NOTIFICATIONS -->
+<!--				<h2 class="mb-4 title px-4 px-md-0">-->
+<!--					<v-icon left>mdi-bell</v-icon>-->
+<!--					<span v-text="$t('account.settings.notificationSectionTitle')"></span>-->
+<!--				</h2>-->
+<!--				<v-card class="pa-4 px-md-8" :tile="isMobile" :flat="isMobile">-->
+<!--					<v-switch v-model="user.settings.newNotificationSound" inset :label="$t('account.settings.newNotificationSoundLabel')" color="primary"></v-switch>-->
+<!--					<v-divider></v-divider>-->
+<!--					<v-switch v-model="user.settings.newMessageSound" inset :label="$t('account.settings.newMessageSoundLabel')" color="primary"></v-switch>-->
+<!--				</v-card>-->
 			</v-col>
 		</v-row>
 

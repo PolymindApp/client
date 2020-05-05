@@ -92,8 +92,8 @@
 					</v-row>
 
 					<div class="my-4">
-						<v-text-field :error-messages="formErrors.email" ref="email" v-model="email" :rules="[rules.required]" :placeholder="$t('restricted.emailPlaceholder')" hide-details light solo prepend-inner-icon="mdi-account" :autofocus="$vuetify.breakpoint.lgAndUp" autocomplete="email"></v-text-field>
-						<v-text-field :error-messages="formErrors.password" v-model="password" :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" hide-details light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword" autocomplete="password"></v-text-field>
+						<v-text-field :error-messages="formErrors.email || formErrors.password" :hide-details="!formErrors.email" @input="formErrors = {}" ref="email" v-model="email" :rules="[rules.required]" :placeholder="$t('restricted.emailPlaceholder')" light solo prepend-inner-icon="mdi-account" :autofocus="$vuetify.breakpoint.lgAndUp" autocomplete="email"></v-text-field>
+						<v-text-field :error-messages="formErrors.password" :hide-details="!formErrors.password" @input="formErrors = {}" v-model="password" :rules="[rules.required, rules.min]" :placeholder="$t('restricted.passwordPlaceholder')" class="mt-2" light solo prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword" autocomplete="password"></v-text-field>
 					</div>
 
 					<v-btn type="submit" color="primary" :disabled="!formIsValid" large style="width: 100%" dark>
@@ -121,7 +121,7 @@
 
 <script>
 import Vue from 'vue';
-import { Rules, UserService, User } from "@polymind/sdk-js";
+import { Rules, UserService, User, EventBus } from "@polymind/sdk-js";
 import ServerError from "../../utils/ServerError";
 
 export default Vue.extend({
@@ -152,49 +152,55 @@ export default Vue.extend({
 		},
 
 		goToApp() {
-			window.location.href = localStorage.getItem('redirect_uri') || '/';
+			EventBus.publish('LOGIN', localStorage.getItem('redirect_uri') || '/')
 		},
 
 		validate (event) {
 
 			event.preventDefault();
+			this.formErrors = {};
 
 			if (this.$refs.form.validate()) {
 				this.$root.isLoading = true;
 				this.$polymind.login(this.email, this.password)
 					.then(response => {
 						UserService.me().then(response => {
-							this.$root.user = new User(response.data);
+							Object.assign(this.$root.user, new User(response.data));
 							if (this.$root.user.force_reset_password) {
 								this.$router.push('/update-access');
 							} else {
 								this.isLoggedIn = true;
-								this.initProgress();
+								this.goToApp();
 							}
-						});
+						}).finally(() => this.$root.isLoading = false);
 					})
 					.catch(error => {
-						switch (error.code) {
-							case 103:
-								return this.$root.error = new ServerError(this, error, {
-									buttons: [
-										{ text: this.$t('restricted.resendActivation'), callback: (modal) => {
-											this.$root.isLoading = true;
-											UserService.resendActivationLost(this.email).then(response => {
-												this.activationResent = true;
-												modal.close();
-											})
-												.catch(error => this.$handleError(this, error))
-												.finally(() => this.$root.isLoading = false);
-										} },
-										{ text: this.$t('modal.close') },
-									],
-								});
-								break;
+						this.$root.isLoading = false;
+						switch (parseInt(error.code)) {
+							case 100:
+								this.formErrors.password = error.message;
+								this.$forceUpdate();
+								return;
+							// case 103:
+							// 	this.$root.error = new ServerError(this, error, {
+							// 		buttons: [
+							// 			{ text: this.$t('restricted.resendActivation'), callback: (modal) => {
+							// 				this.$root.isLoading = true;
+							// 				UserService.resendActivationLost(this.email).then(response => {
+							// 					this.activationResent = true;
+							// 					modal.close();
+							// 				})
+							// 					.catch(error => this.$handleError(this, error))
+							// 					.finally(() => this.$root.isLoading = false);
+							// 			} },
+							// 			{ text: this.$t('modal.close') },
+							// 		],
+							// 	});
+							// 	break;
 						}
 						this.$handleError(this, error);
-					})
-					.finally(() => this.$root.isLoading = false);
+
+					});
 			} else {
 				this.$refs.email.focus();
 			}

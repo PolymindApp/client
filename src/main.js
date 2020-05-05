@@ -8,16 +8,14 @@ import Issue, { routes as issueRoutes } from './routes/Issue.vue';
 import VueI18n from 'vue-i18n';
 import VueRouter from 'vue-router';
 import messages from './locales';
-import VueCookies from 'vue-cookies';
 import Vuetify from "vuetify/lib";
 import VueAnalytics from 'vue-analytics';
-import PolymindSDK, { User, StatsService, EventBus, UserService } from "@polymind/sdk-js";
+import PolymindSDK, { User, StatsService, EventBus, UserService, ServerService, Cookies } from "@polymind/sdk-js";
 import 'roboto-fontface/css/roboto/sass/roboto-fontface.scss';
 import '@mdi/font/scss/materialdesignicons.scss';
 import "./index.scss";
 import './filters';
 import './loader';
-// import ab from 'autobahn';
 
 let router;
 
@@ -35,32 +33,10 @@ const vuetify = new Vuetify({
 	},
 });
 
-// const stats = JSON.parse(localStorage.getItem('statsQueue')) || { queue: [], };
-const stats = { queue: [], };
-const statsObj = {
-	push(action, meta) {
-		stats.queue.push({action, meta, user_date: moment().format('YYYY-MM-DD HH:mm:ss')});
-	},
-	process() {
-		StatsService.process.bind(Vue.prototype)(stats.queue)
-			.then(() => {
-				stats.queue = [];
-				// localStorage.removeItem('statsQueue');
-			})
-			.catch(err => {
-				// localStorage.setItem('statsQueue', JSON.stringify(stats));
-			});
-	}
-};
-Object.defineProperties(Vue.prototype, {
-	$stats: { value: statsObj }
-});
-
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 Vue.use(VueI18n);
-Vue.use(VueCookies);
 Vue.use(VueGoogleMaps, {
 	load: {
 		key: process.env.VUE_APP_GOOGLE_API_KEY,
@@ -69,23 +45,19 @@ Vue.use(VueGoogleMaps, {
 });
 
 const i18n = new VueI18n({
-	locale: VueCookies.get('lang') || 'en',
+	locale: Cookies.get('lang') || 'en',
 	fallbackLocale: 'en',
 	messages,
 });
+
+localStorage.setItem('redirect_uri', window.location.pathname);
 
 (async () => {
 
 	let component = Restricted;
 	let routes = restrictedRoutes;
 
-	if ($polymind.isLoggedIn()) {
-		component = App;
-		routes = appRoutes;
-		localStorage.removeItem('redirect_uri');
-	}
-
-	let callback = () => {
+	let callback = (path) => {
 
 		router = new VueRouter({
 			mode: 'history',
@@ -93,6 +65,10 @@ const i18n = new VueI18n({
 		});
 
 		router.beforeEach((to, from, next) => {
+
+			if (from.fullPath === to.fullPath && from.name === to.name) {
+				return;
+			}
 
 			if (to.name) {
 				const title = i18n.t('title.' + to.name);
@@ -103,18 +79,12 @@ const i18n = new VueI18n({
 				document.title = 'Polymind';
 			}
 
-			statsObj.push('ROUTE', {
-				from: from.fullPath,
-				to: to.fullPath,
-			});
+			if (component === App) {
+				localStorage.setItem('redirect_uri', to.fullPath);
+			}
 
 			Array.from(document.querySelectorAll('[data-vue-router-controlled]')).map((el) => el.parentNode.removeChild(el));
-
 			next();
-		});
-
-		router.afterEach((to, from) => {
-			statsObj.process();
 		});
 
 		Vue.use(VueAnalytics, {
@@ -145,8 +115,6 @@ const i18n = new VueI18n({
 			}
 		});
 
-		statsObj.push('APP_LOADED');
-
 		new Vue({
 			router,
 			vuetify,
@@ -156,54 +124,61 @@ const i18n = new VueI18n({
 			},
 			render: (h) => h(component),
 		}).$mount('#app');
+
+		if (path) {
+			router.replace(path);
+		}
 	};
 
-	EventBus.subscribe('LOCK_USER', () => {
-        localStorage.setItem('redirect_uri', router.app.$route.fullPath);
-		localStorage.setItem('lockedUser', JSON.stringify(router.app.$root.user));
+	const lockUser = () => {
+		if (!globalVariables.user.id || !router.app) {
+			return;
+		}
+
+		localStorage.setItem('redirect_uri', router.app.$route.fullPath);
+		localStorage.setItem('lockedUser', JSON.stringify(globalVariables.user));
 		component = Restricted;
 		routes = restrictedRoutes;
-		callback();
-		router.push('/locked');
-	});
+		callback('/locked');
+	};
 
-	// const conn = new ab.Connection({
-	// 	url: process.env.VUE_APP_WS_URI,
-	// 	realm: 'polymind',
-	// });
-	//
-	// conn.onopen = (session) => {
+	const gotoApp = (path) => {
+		component = App;
+		routes = appRoutes;
+		localStorage.removeItem('redirect_uri');
+		callback(path);
+	};
 
-		UserService.updateWsToken({
-			// sessionId: session.id
-		})
-			.then(data => {
-				const user = new User(data.user);
-				if (!$polymind.isLoggedIn() || (data.user && user.force_reset_password !== true)) {
-					callback();
+	const gotoRestricted = (path) => {
+		component = Restricted;
+		routes = restrictedRoutes;
+		callback(path);
+	};
+
+	EventBus.subscribe('LOCK_USER', lockUser);
+	EventBus.subscribe('LOGOUT', gotoRestricted);
+	EventBus.subscribe('LOGIN', gotoApp);
+
+	$polymind.isLoggedIn().then(isLoggedIn => {
+		if (isLoggedIn) {
+			UserService.me().then(response => {
+				const user = new User(response.data);
+				globalVariables.user = user;
+				localStorage.setItem('user_id', globalVariables.user.id);
+
+				if (user.force_reset_password === true) {
+					gotoRestricted('/update-access');
 				} else {
-					component = Restricted;
-					routes = restrictedRoutes;
-					callback();
-					router.push('/update-access');
+					gotoApp();
 				}
-			})
-			.catch(error => {
-				component = Issue;
-				routes = issueRoutes;
-				callback();
-				router.push('/issue/api');
 			});
-	// };
-	// conn.onclose = (session) => {
-	// 	component = Issue;
-	// 	routes = issueRoutes;
-	// 	callback();
-	// 	router.push('/issue/ws');
-	// };
-	// conn.open();
-	//
-	// Object.defineProperties(Vue.prototype, {
-	// 	$ws: { value: conn }
-	// });
+		} else {
+			gotoRestricted();
+		}
+	}).catch(error => {
+		component = Issue;
+		routes = issueRoutes;
+		callback();
+		router.push('/issue/api');
+	});
 })();

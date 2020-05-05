@@ -156,20 +156,20 @@
 									{{ $t('role.' + user.role.name.toLowerCase()) }}
 								</h4>
 
-								<v-divider class="d-none d-sm-inline-block mx-4" dark vertical inset></v-divider>
+<!--								<v-divider class="d-none d-sm-inline-block mx-4" dark vertical inset></v-divider>-->
 
-								<a class="white--text d-sm-inline d-none" @click="followersModal.visible = true">
-									<span v-text="$t('account.header.followers')"></span>
-									<v-chip class="ml-2" color="primary" x-small>
-										{{ countFollowers.meta.filter_count }}
-									</v-chip>
-								</a>
-								<a class="ml-sm-4 white--text d-sm-inline d-none" @click="followingModal.visible = true">
-									<span v-text="$t('account.header.following')"></span>
-									<v-chip class="ml-2" color="primary" x-small>
-										{{ countFollowing.meta.filter_count }}
-									</v-chip>
-								</a>
+<!--								<a class="white&#45;&#45;text d-sm-inline d-none" @click="followersModal.visible = true">-->
+<!--									<span v-text="$t('account.header.followers')"></span>-->
+<!--									<v-chip class="ml-2" color="primary" x-small>-->
+<!--										{{ countFollowers.meta.filter_count }}-->
+<!--									</v-chip>-->
+<!--								</a>-->
+<!--								<a class="ml-sm-4 white&#45;&#45;text d-sm-inline d-none" @click="followingModal.visible = true">-->
+<!--									<span v-text="$t('account.header.following')"></span>-->
+<!--									<v-chip class="ml-2" color="primary" x-small>-->
+<!--										{{ countFollowing.meta.filter_count }}-->
+<!--									</v-chip>-->
+<!--								</a>-->
 							</div>
 
 							<div v-if="user.id && $root.user.id !== user.id" class="mt-4">

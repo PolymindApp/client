@@ -178,10 +178,6 @@
                     	comment.comment_thumb_down = response.data.comment_thumb_down ;
 
 						this.$emit('update:comment', comment);
-						this.$stats.push('LIKE', {
-							activityId,
-							isPositive
-						});
                     })
                     .catch(error => this.$handleError(this, error))
                     .finally(() => this.isLoading = false);
@@ -218,10 +214,6 @@
 						comment.edited_on = response.data.edited_on;
 
 						this.$emit('update:comment', comment);
-						this.$stats.push('MODIFY_COMMENT', {
-							id: comment.id,
-							comment: comment.comment,
-						});
 
 						this.$root.isSaved = true;
 						this.isModifying = false;

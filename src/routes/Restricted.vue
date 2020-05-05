@@ -146,7 +146,7 @@
 				backgroundIdx: 0,
 				backgrounds: [
 					'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background.jpg',
-					'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-2.jpg',
+					// 'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-2.jpg',
 					'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-3.jpg',
 					'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-4.jpg',
 				],

@@ -24,12 +24,17 @@ const literals = {
 		forgotPassword: 'Oublie de mot de passe',
 		resetPassword: 'Réinitialisation de mot de passe',
 		strategy: 'Stratégie',
+		strategySection: 'Stratégie',
 		component: 'Composante',
+		componentSection: 'Composante',
 		dataset: 'Bases de données',
+		datasetSection: 'Bases de données',
 		accountMessaging: 'Messagerie',
 		updateAccess: 'Mettre à jour les accès',
 	},
 	dashboard: {
+
+		invalid: 'Invalide',
 
 		objectives: {
 			title: 'Votre cheminement',
@@ -130,124 +135,12 @@ const literals = {
 		deleteDesc: 'Êtes-vous certain de vouloir effacer ce commentaire ?',
 		commentDeleted: 'Commentaire effacé par l\'utilisateur',
 	},
-	commitGraph: {
-		noContribution: '<strong>Aucune contribution</strong> le {date}',
-		contributions: '<strong>{total} contributions</strong> le {date}',
-		noCommitsThisDay: '<strong>Aucune contribution</strong> le {date}',
-		contributionsDay: 'Les <strong>{total} contributions</strong> du {date} :',
+	sessionGraph: {
+		noSession: '<strong>Aucune session</strong> le {date}',
+		sessions: '<strong>{total} sessions</strong> le {date}',
+		noSessionsThisDay: '<strong>Aucune session</strong> le {date}',
+		sessionsDay: 'Les <strong>{total} sessions</strong> du {date} :',
 		view: 'Voir',
-	},
-	activity: {
-		comment: {
-			dataset: {
-				title: 'A commenté la base de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_column: {
-				title: 'A commenté la colonne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_row: {
-				title: 'A commenté la ligne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_cell: {
-				title: 'A commenté la donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			component: {
-				title: 'A commenté la composante <strong>{name}</strong>',
-				desc: 'A écrit : <em>{comment}</em>',
-			},
-		},
-		create: {
-			dataset: {
-				title: 'A créé une nouvelle base de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_column: {
-				title: 'A créé une nouvelle colonne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_row: {
-				title: 'A créé une nouvelle ligne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_cell: {
-				title: 'A créé une nouvelle donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			component: {
-				title: 'A créé une nouvelle composante <strong>{name}</strong>',
-				desc: '',
-			},
-		},
-		delete: {
-			dataset: {
-				title: 'A effacé la base de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_column: {
-				title: 'A effacé la colonne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_row: {
-				title: 'A effacé la ligne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_cell: {
-				title: 'A effacé la donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			component: {
-				title: 'A effacé la composante <strong>{name}</strong>',
-				desc: '',
-			},
-		},
-		'soft-delete': {
-			dataset: {
-				title: 'A effacé la base de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_column: {
-				title: 'A effacé la colonne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_row: {
-				title: 'A effacé la ligne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_cell: {
-				title: 'A effacé la donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			component: {
-				title: 'A effacé la composante <strong>{name}</strong>',
-				desc: '',
-			},
-		},
-		update: {
-			dataset: {
-				title: 'A mis à jour la base de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_column: {
-				title: 'A mis à jour la colonne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_row: {
-				title: 'A mis à jour la ligne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_cell: {
-				title: 'A mis à jour la donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			component: {
-				title: 'A mis à jour la composante <strong>{name}</strong>',
-				desc: '',
-			},
-		},
 	},
 	mediaBrowser: {
 		filterPlaceholder: 'Filtrer les étiquettes...',
@@ -266,7 +159,7 @@ const literals = {
 		thumbsDown: 'Plus de j\'aime pas',
 	},
 	account: {
-		contributionLastYear: '{total} contributions depuis un an',
+		sessionLastYear: 'Aucune session depuis un an | Une session depuis un an | {total} sessions depuis un an',
 		messages: 'Derniers messages',
 		recentActivities: 'Récentes activités',
 		header: {
@@ -284,12 +177,7 @@ const literals = {
 		},
 		activities: {
 			messagesEmpty: 'Aucun message pour le moment',
-			historyEmpty: 'Aucune historique pour le moment',
-			history: {
-				createPage: 'A écrit une nouvelle page <strong>{title}</strong>',
-				createComponent: 'A développé une nouvelle composante <strong>{name}</strong>',
-				createDocumentation: 'A documenté une nouvelle section <strong>{title}</strong>',
-			},
+			sessionEmpty: 'Aucune session pour le moment',
 			view: 'Voir',
 			publicItems: 'Éléments publiques',
 			publicItemsEmpty: 'Aucun élément n\'a été publié par cet utilisateur.',
@@ -370,7 +258,7 @@ const literals = {
 	strategy: {
 
 		newTitle: 'Nouvelle',
-		isDeleted: 'Cette stratégie a été effacé. C\'est votre dernière chance de la récupérer.',
+		isDeleted: 'Cette stratégie a été effacée.',
 		restore: 'Restaurer',
 
 		settings: {
@@ -380,6 +268,7 @@ const literals = {
 			isInvisibleLabel: 'Sans aspect visuel',
 			descPlaceholder: 'Description',
 			instructionsPlaceholder: 'Instructions',
+			hasInstructionsPlaceholder: 'Montrer les instructions à l\'exécution',
 			iconPlaceholder: 'Icône',
 			categoryPlaceholder: 'Catégorie',
 			explanations: 'Une stratégie est un programme d\'apprentissage que vous paramétrez en assemblant et en configurant une suite de composante.',
@@ -415,6 +304,7 @@ const literals = {
 			test: 'Tester',
 			general: {
 				title: 'Configuration',
+				name: 'Nom',
 				component: 'Composante',
 				dataset: 'Base de données',
 				duration: 'Durée',
@@ -423,17 +313,22 @@ const literals = {
 				title: 'Composante',
 				emptyTitle: 'Aucune composante',
 				emptyDesc: 'Veuillez en sélectionnez une ci-contre',
+				noParameterTitle: 'Aucun paramètre',
+				noParameterDesc: 'Rien a paramétrer pour le moment',
 			},
 			dataset: {
 				title: 'Base de données',
 				emptyTitle: 'Aucune base de données',
 				emptyDesc: 'Veuillez en sélectionnez une ci-contre',
+				noParameterTitle: 'Aucun paramètre',
+				noParameterDesc: 'Rien a paramétrer pour le moment',
 			},
 			options: {
 				title: 'Options',
 				remove: 'Enlever',
 			},
 			warningTooltip: 'Vérifier cette configuration',
+			testTooltip: 'Tester',
 		},
 		interface: {
 			title: 'Interfaces',
@@ -493,8 +388,9 @@ const literals = {
 	component: {
 
 		newTitle: 'Nouveau',
-		isDeleted: 'Cette composante a été effacé. C\'est votre dernière chance de la récupérer.',
+		isDeleted: 'Cette composante a été effacée.',
 		restore: 'Restaurer',
+		test: 'Tester',
 
 		settings: {
 			title: 'Réglages',
@@ -503,6 +399,7 @@ const literals = {
 			namePlaceholder: 'Nom de la composante',
 			descPlaceholder: 'Description',
 			instructionsPlaceholder: 'Instructions',
+			hasInstructionsPlaceholder: 'Montrer les instructions à l\'exécution',
 			iconPlaceholder: 'Icône',
 			categoryPlaceholder: 'Catégorie',
 			colorPlaceholder: 'Couleur',
@@ -524,6 +421,7 @@ const literals = {
 			envVarKey: 'Clé',
 			envVarValue: 'Valeur',
 			emptyEnvVar: 'Aucune variable d\'environnement ajoutée pour le moment.',
+			contentDiffersBuild: 'Des changements ont été détectés. Veuillez sauvegarder l\'état de votre composante afin de procéder à sa compilation.',
 		},
 		parameters: {
 			title: 'Paramètres',
@@ -533,12 +431,12 @@ const literals = {
 			emptyDesc: 'Complétez le schéma de paramètre ci-contre',
 			component: {
 				title: 'Composante',
-				selectPlaceholder: 'Sélectionner',
+				selectPlaceholder: '- Sélectionner -',
 				unknownType: 'Type inconnu',
 			},
 			dataset: {
 				title: 'Base de données',
-				columnPlaceholder: 'Sélectionner',
+				columnPlaceholder: '- Colonne -',
 				unknownType: 'Type inconnu',
 			}
 		},
@@ -671,6 +569,7 @@ const literals = {
 	dataset: {
 
 		newTitle: 'Nouveau',
+		isDeleted: 'Cette base de donnée a été effacée.',
 
 		publishModal: {
 			title: 'Publier',
@@ -1151,7 +1050,7 @@ const literals = {
 		newConfirmationPlaceholder: 'Confirmer le nouveau mot de passe',
 		passwordPlaceholder: 'Mot de passe',
 		resetPasswordExpired: 'Votre clé de réinitialisation de mot de passe a expiré.',
-		resetPasswordAnotherOne: 'Générez une autre',
+		resetPasswordAnotherOne: 'En générez une autre',
 		resetPasswordTitle: 'Réinitisalisation de mot de passe',
 		resetPasswordDesc: 'Fournissez et confirmer un nouveau mot de passe ci-dessous.',
 		resetPasswordBtn: 'Réinitialiser',
@@ -1195,7 +1094,7 @@ const literals = {
 	role: {
 		guest: 'Visiteur',
 		user: 'Utilisateur',
-		member: 'Utilisateur',
+		member: 'Membre',
 		admin: 'Administrateur',
 		administrator: 'Administrateur',
 		dev: 'Développeur',

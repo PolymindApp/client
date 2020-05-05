@@ -17,7 +17,7 @@
 			<div class="d-flex fill-height">
 
 				<!-- SIDEBAR -->
-				<v-navigation-drawer :permanent="isPermanent" :temporary="!isPermanent" v-model="sidebar.opened" class="fill-height" style="min-width: 300px" :absolute="!isPermanent">
+				<v-navigation-drawer ref="drawer" :permanent="isPermanent" :temporary="!isPermanent" v-model="sidebar.opened" class="fill-height" style="min-width: 300px" :absolute="!isPermanent">
 					<div :class="{ 'pa-4 fill-height grey lighten-4': true, 'grey lighten-2 inner-shadow': isPermanent }">
 
 						<!-- SEARCH -->
@@ -203,6 +203,7 @@
                     setTimeout(() => {
                     	this.$refs.search.focus();
 					});
+                    this.$refs.drawer.init();
 				}
 			},
 

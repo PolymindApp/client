@@ -1,5 +1,5 @@
 <template>
-	<v-sheet :disabled="isDeleted" class="panel-overflow d-flex flex-column w-100" tile>
+	<v-card :disabled="isDeleted" class="panel-overflow d-flex flex-column w-100" tile>
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
@@ -12,20 +12,13 @@
 				<v-icon left>mdi-database-edit</v-icon>
 				{{$t('dataset.data.title')}}
 			</v-tab>
-<!--			<v-tab :to="'/dataset/' + id + '/view'" exact>-->
-<!--				<v-icon left>mdi-view-module</v-icon>-->
-<!--				{{$t('dataset.view.title')}}-->
-<!--			</v-tab>-->
 
 			<v-spacer></v-spacer>
 
 			<div class="d-flex align-center">
-				<template v-if="contextualComponent.component && !isDeleted">
-					<component :is="contextualComponent.component" v-bind="contextualComponent.props" v-on="contextualComponent.listeners"></component>
-					<v-divider class="mx-4" vertical inset></v-divider>
-				</template>
+				<DataActions ref="actions" :dataset="dataset" @refresh="refresh()" />
 
-				<v-btn :disabled="isDeleted" @click="$comments.open(id, 'dataset')" class="mr-4" text small>
+				<v-btn @click="$comments.open(id, 'dataset')" class="mr-2" text small>
 					<v-icon left>mdi-comment</v-icon>
 					{{$t('comment.btnTitle')}}
 					<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
@@ -47,17 +40,15 @@
 			</v-tab-item>
 			<v-tab-item :value="'/dataset/' + id + '/data'" class="fill-height">
 				<div style="height: 0">
-					<Data ref="data" :dataset.sync="dataset" :original-dataset.sync="originalDataset" :scrolling-ref="$refs.tabsItems" :form-errors="formErrors" @context="setContext" @refresh="refresh()" @update:dataset="compareJsonJob" />
+					<Data ref="data" :dataset.sync="dataset" :scrolling-ref="$refs.tabsItems" :form-errors="formErrors" @update:dataset="compareJsonJob" />
 				</div>
 			</v-tab-item>
-<!--			<v-tab-item :value="'/dataset/' + id + '/view'" class="white fill-height">-->
-<!--				<div style="height: 0">-->
-<!--					<Views :dataset.sync="dataset" :form-errors="formErrors" />-->
-<!--				</div>-->
-<!--			</v-tab-item>-->
 		</v-tabs-items>
 
-		<v-toolbar ref="actions" style="flex: 0; border-top: #ccc solid 1px" flat tile>
+<!--		{{calculateTransactions().flat().length}}-->
+<!--		<pre style="max-height: 75px; overflow: auto" v-text="calculateTransactions().flat()"></pre>-->
+
+		<v-toolbar style="flex: 0; border-top: #ccc solid 1px" flat tile>
 
 			<v-btn :disabled="!dataHasChanged" @click="save()" color="primary" class="mr-1">
 				<v-icon left>mdi-content-save</v-icon>
@@ -70,9 +61,9 @@
 
 			<v-spacer></v-spacer>
 
-			<v-menu max-height="450" offset-y>
+			<v-menu max-height="450" v-model="revisionMenu" offset-y>
 				<template v-slot:activator="{ on }">
-					<v-btn :disabled="revisions.length === 0" class="float-right mr-4" v-on="on" text>
+					<v-btn :disabled="revisions.length === 0 && revisionLoaded" class="float-right mr-4" @click="loadRevisions()" :loading="revisionLoading" text>
 						<v-icon :left="$vuetify.breakpoint.mdAndUp">mdi-history</v-icon>
 						<span v-if="$vuetify.breakpoint.mdAndUp">{{$t('revision.btnTitle')}}</span>
 						<v-icon right>mdi-chevron-up</v-icon>
@@ -100,52 +91,51 @@
 					</v-btn>
 				</template>
 				<v-list>
-					<v-list-item :disabled="isDeleted || isNew" @click="remove()">
+					<v-list-item :disabled="isNew" @click="remove()">
 						<v-list-item-icon><v-icon>mdi-delete</v-icon></v-list-item-icon>
 						<v-list-item-title>{{$t('modal.delete')}}</v-list-item-title>
 					</v-list-item>
 				</v-list>
 			</v-menu>
 		</v-toolbar>
-	</v-sheet>
+	</v-card>
 </template>
 
 <script>
 import Vue from 'vue';
 import Data from "./Dataset/Data";
-import Views from "./Dataset/Views";
 import Settings from "./Dataset/Settings";
-import {
-	Hash,
-	DatasetService,
-	Dataset,
-	DeploymentService,
-	DatasetColumn,
-	DatasetRow,
-	DatasetCell,
-	Model,
-	Transaction,
-	Component
-} from "@polymind/sdk-js";
+import { DatasetService, Dataset, DatasetColumn, DatasetRow, DatasetCell, Model, Transaction } from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
+import DataActions from "./Dataset/Contextual/Actions";
 
-const beforeRoute = function(to, from, next) {
+const beforeRoute = function(to, from, callback) {
 
 	if (to.params.id === from.params.id) {
-		return next();
+		return callback();
 	}
 
 	if (to.params.id === 'new') {
-		to.meta.dataset = new Dataset();
-		next();
+		to.meta.dataset = new Dataset({
+			columns: [
+				new DatasetColumn()
+			],
+			rows: [
+				new DatasetRow()
+			],
+		});
+		callback();
 	} else {
 		DatasetService.get(to.params.id, true)
 			.then(response => {
 				to.meta.dataset = new Dataset(response.data);
-				next();
+				if (response.data.is_remote && to.params.section === 'data') {
+					callback('/dataset/' + to.params.id + '/settings');
+				}
+				callback();
 			})
-			.catch(error => next('/404'));
+			.catch(error => callback('/404'));
 	}
 };
 
@@ -153,13 +143,15 @@ let jsonJobTimeout = null;
 
 export default Vue.extend({
 
-	components: { Views, Data, Settings, DeleteDialog, UserAvatar },
+	components: { Data, Settings, DeleteDialog, UserAvatar, DataActions },
 
-	beforeRouteEnter: beforeRoute,
+	beforeRouteEnter(to, from, next) {
+		beforeRoute(to, from, (param) => next(param));
+	},
 
 	beforeRouteUpdate(to, from, next) {
-		beforeRoute(to, from, () => {
-			next();
+		beforeRoute(to, from, (param) => {
+			next(param);
 			this.$nextTick(() => {
 				this.init(to.params.id !== from.params.id);
 				this.$forceUpdate();
@@ -182,20 +174,11 @@ export default Vue.extend({
 	methods: {
 
 		init(load = true) {
-			this.originalDataset = this.$route.meta.dataset;
 			this.dataset = this.$route.meta.dataset;
 			this.tab = '/dataset/' + this.id + '/' + this.$route.params.section;
+			this.updateOriginalData();
+			this.compareJsonJob(this.dataset, 0);
 			this.updateTab();
-
-			if (load) {
-				this.loadRevisions();
-			}
-		},
-
-		setContext(component, props, listeners) {
-			this.contextualComponent.component = component;
-			this.contextualComponent.props = props;
-			this.contextualComponent.listeners = listeners;
 		},
 
 		shortcutSave(event) {
@@ -207,10 +190,6 @@ export default Vue.extend({
 		},
 
 		updateTab() {
-
-			//this.contextualComponent.component = false;
-			//this.contextualComponent.props = null;
-			//this.contextualComponent.listeners = null;
 
 			const section = (this.$route.params.section ? this.$route.params.section : 'edit');
 			const sectionTitle = this.isNew ? this.$t('dataset.newTitle') : this.dataset.name;
@@ -241,13 +220,16 @@ export default Vue.extend({
 
 		loadRevisions() {
 
+			this.revisionLoading = true;
 			DatasetService.getRevisions(this.id)
 					.then(response => {
 						this.revisions = response.data.reverse();
 						this.revisionOffset = 0;
+						this.revisionLoaded = true;
+						this.revisionMenu = true;
+						this.revisionLoading = false;
 					})
-					.catch(error => this.$handleError(this, error))
-					.finally(() => this.$root.isLoading = false);
+					.catch(error => this.$handleError(this, error));
 		},
 
 		load(revisionOffset) {
@@ -292,6 +274,8 @@ export default Vue.extend({
 
 		save() {
 
+			this.$refs.actions.exportCSV();
+
 			const transactions = this.calculateTransactions();
 
 			this.formErrors = [];
@@ -299,16 +283,17 @@ export default Vue.extend({
 			DatasetService.save(transactions)
 				.then(response => {
 
+					this.updateTransactions(response);
+
 					this.$root.$emit('DATASET_UPDATE');
 					this.$root.isSaved = true;
 
 					if (this.isNew) {
-						return this.$router.push('/dataset/' + response.dataset[0].data.id);
+						return this.$router.push('/dataset/' + response.dataset[0].result.data.id);
 					}
 
 					this.updateOriginalData();
-					this.compareJsonJob(this.component, 0);
-					this.loadRevisions();
+					this.compareJsonJob(this.dataset, 0);
 					this.updateTab();
 				})
 				.catch(error => this.$handleError(this, error))
@@ -420,15 +405,17 @@ export default Vue.extend({
 				return transactions;
 			};
 
-			if (!this.dataset.id) {
-				transactions.push(new Transaction({
-					action: 'insert',
-					guid: this.dataset.guid,
-					collection: 'dataset',
-					data: new Model(this.dataset).flat(),
-				}));
+			/**
+			 * Get dataset's transactions
+			 */
+			const datasetTransactions = getTransactions('dataset', [this.dataset], [this.originalDataset]);
+			if (datasetTransactions.length > 0) {
+				transactions.push(...datasetTransactions);
 			}
 
+			/**
+			 * Get rows' transactions
+			 */
 			const rowTransactions = getTransactions('dataset_row', this.dataset.rows, this.originalDataset.rows, (item, index) => {
 				return {
 					dataset: this.dataset.id ? ['id', 'dataset', this.dataset.id] : ['guid', 'dataset', this.dataset.guid],
@@ -438,6 +425,9 @@ export default Vue.extend({
 				transactions.push(...rowTransactions);
 			}
 
+			/**
+			 * Get columns' transactions
+			 */
 			const columnTransactions = getTransactions('dataset_column', this.dataset.columns, this.originalDataset.columns, (item, index) => {
 				return {
 					dataset: this.dataset.id ? ['id', 'dataset', this.dataset.id] : ['guid', 'dataset', this.dataset.guid],
@@ -447,6 +437,9 @@ export default Vue.extend({
 				transactions.push(...columnTransactions);
 			}
 
+			/**
+			 * Get cells' transactions
+			 */
 			const cells = this.dataset.rows.map(row => row.cells).flat();
 			const originalCells = this.originalDataset.rows.map(row => row.cells).flat();
 			const cellTransactions = getTransactions('dataset_cell', cells, originalCells, (item, index) => {
@@ -464,12 +457,56 @@ export default Vue.extend({
 
 			return transactions;
 		},
+
+		updateTransactions(updates) {
+
+			const updateTypes = ['insert', 'update'];
+
+			if (Array.isArray(updates.dataset_column)) {
+				updates.dataset_column.forEach(newColumn => {
+					this.dataset.columns = this.dataset.columns.map(oldColumn => {
+						if (updateTypes.indexOf(newColumn.type) !== -1 && oldColumn.guid === newColumn.result.data.guid) {
+							return new DatasetColumn(newColumn.result.data);
+						}
+						return oldColumn;
+					});
+				});
+			}
+
+			if (Array.isArray(updates.dataset_row)) {
+				updates.dataset_row.forEach(newRow => {
+					this.dataset.rows = this.dataset.rows.map(oldRow => {
+						if (updateTypes.indexOf(newRow.type) !== -1 && oldRow.guid === newRow.result.data.guid) {
+							const row = new DatasetRow(newRow.result.data);
+							row.cells = oldRow.cells;
+							return row;
+						}
+						return oldRow;
+					});
+				});
+			}
+
+			if (Array.isArray(updates.dataset_cell)) {
+				this.dataset.rows = this.dataset.rows.map(row => {
+					row.cells = row.cells.map(oldCell => {
+						for (let i = 0; i < updates.dataset_cell.length; i++) {
+							const newCell = updates.dataset_cell[i];
+							if (updateTypes.indexOf(newCell.type) !== -1 && oldCell.guid === newCell.result.data.guid) {
+								return new DatasetCell(newCell.result.data);
+							}
+						}
+						return oldCell;
+					});
+					return row;
+				});
+			}
+		},
 	},
 
 	computed: {
 
 		id() {
-			return parseInt(this.$route.params.id);
+			return this.isNew ? 'new' : parseInt(this.$route.params.id);
 		},
 
 		isNew() {
@@ -483,13 +520,11 @@ export default Vue.extend({
 
 	data() {
 		return {
-			contextualComponent: {
-				component: false,
-				props: null,
-				listeners: null,
-			},
 			revisions: [],
 			revisionOffset: 0,
+			revisionLoading: false,
+			revisionLoaded: false,
+			revisionMenu: false,
 			commentCount: 0,
 			worker: null,
 			isDeleted: false,

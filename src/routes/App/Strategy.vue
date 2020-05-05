@@ -1,5 +1,5 @@
 <template>
-	<v-sheet class="panel-overflow d-flex flex-column w-100" tile>
+	<v-card :disabled="isDeleted" class="panel-overflow d-flex flex-column w-100" tile>
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
@@ -7,11 +7,12 @@
 			<v-tabs style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
 				<v-tab :to="'/strategy/' + id + '/settings'" exact>
 					<v-icon left>mdi-pencil-box-outline</v-icon>
-					{{$t('strategy.settings.title')}}
+					<span v-text="$t('strategy.settings.title')"></span>
 				</v-tab>
 				<v-tab :to="'/strategy/' + id + '/assembly'" exact>
-					<v-icon left>mdi-transit-connection-variant</v-icon>
-					{{$t('strategy.assembly.title')}}
+					<v-icon v-if="strategy.isValid(components, datasets)" left>mdi-transit-connection-variant</v-icon>
+					<v-icon v-else color="error" left>mdi-alert</v-icon>
+					<span v-text="$t('strategy.assembly.title')"></span>
 				</v-tab>
 
 				<v-spacer></v-spacer>
@@ -25,14 +26,14 @@
 						</v-chip>
 					</div>
 
-					<v-btn :href="testUri" target="_blank" :disabled="!canTest" color="primary" small>
+					<v-btn @click="test()" target="_blank" :loading="linkLoading" :disabled="!canTest" color="primary" small>
 						<v-icon left>mdi-play</v-icon>
 						<span v-text="$t('strategy.assembly.test')"></span>
 					</v-btn>
 
 					<v-divider class="mx-4" vertical inset></v-divider>
 
-					<v-btn :disabled="isDeleted" @click="$comments.open(id, 'strategy')" class="mr-4" text small>
+					<v-btn @click="$comments.open(id, 'strategy')" class="mr-2" text small>
 						<v-icon left>mdi-comment</v-icon>
 						{{$t('comment.btnTitle')}}
 						<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
@@ -48,30 +49,32 @@
 		</div>
 
 		<v-tabs-items touchless ref="items" style="flex: 1;" class="scrollable grey lighten-4" v-model="tab">
-			<v-tab-item :value="'/strategy/' + id + '/settings'" :style="tabStyle" class="fill-height">
+			<v-tab-item :value="'/strategy/' + id + '/settings'" class="fill-height">
 				<div style="height: 0">
 					<Settings @update:strategy="compareJsonJob($event, 0)" @update="updateTab" :strategy.sync="strategy" :form-errors="formErrors" />
 				</div>
 			</v-tab-item>
-			<v-tab-item :value="'/strategy/' + id + '/assembly'" :style="tabStyle" class="fill-height">
-				<Assembly ref="assembly" @update:strategy="compareJsonJob($event, 0)" @update="updateTab" :strategy.sync="strategy" :form-errors="formErrors" />
+			<v-tab-item :value="'/strategy/' + id + '/assembly'" class="fill-height">
+				<div style="height: 0">
+					<Assembly ref="assembly" @update:strategy="compareJsonJob($event, 0)" @update="updateTab" :strategy.sync="strategy" :form-errors="formErrors" :components="components" :datasets="datasets" />
+				</div>
 			</v-tab-item>
 		</v-tabs-items>
 
 		<v-toolbar ref="actions" style="flex: 0; border-top: #ccc solid 1px" flat tile>
 
-			<v-btn :disabled="!dataHasChanged || isDeleted" @click="save()" color="primary" class="mr-1">
+			<v-btn :disabled="!dataHasChanged" @click="save()" color="primary" class="mr-1">
 				{{$t('modal.save')}}
 			</v-btn>
-			<v-btn class="ml-2" :disabled="!dataHasChanged || isDeleted" @click="reset()" text>
+			<v-btn class="ml-2" :disabled="!dataHasChanged" @click="reset()" text>
 				{{$t('modal.cancel')}}
 			</v-btn>
 
 			<v-spacer></v-spacer>
 
-			<v-menu max-height="450" offset-y>
+			<v-menu max-height="450" v-model="revisionMenu" offset-y>
 				<template v-slot:activator="{ on }">
-					<v-btn :disabled="revisions.length === 0" class="float-right mr-4" v-on="on" text>
+					<v-btn :disabled="revisions.length === 0 && revisionLoaded" @click="loadRevisions()" :loading="revisionLoading" class="float-right mr-4" text>
 						<v-icon :left="$vuetify.breakpoint.mdAndUp">mdi-history</v-icon>
 						<span v-if="$vuetify.breakpoint.mdAndUp">{{$t('revision.btnTitle')}}</span>
 						<v-icon right>mdi-chevron-up</v-icon>
@@ -99,42 +102,47 @@
 					</v-btn>
 				</template>
 				<v-list>
-					<v-list-item :disabled="isDeleted || isNew" @click="remove()">
+					<v-list-item :disabled="isNew" @click="remove()">
 						<v-list-item-icon><v-icon>mdi-delete</v-icon></v-list-item-icon>
 						<v-list-item-title>{{$t('modal.delete')}}</v-list-item-title>
 					</v-list-item>
 				</v-list>
 			</v-menu>
 		</v-toolbar>
-	</v-sheet>
+	</v-card>
 </template>
 
 <script>
 import Vue from 'vue';
 import Settings from "./Strategy/Settings";
-import {StrategyService, Strategy, CommentService, DeploymentService, Dataset} from "@polymind/sdk-js";
+import {StrategyService, Strategy, CommentService, DeploymentService, ComponentService, DatasetService, LinkService, Link } from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
 import Assembly from "./Strategy/Assembly";
 
 let jsonJobTimeout = null;
 
-const beforeRoute = function(to, from, next) {
+const beforeRoute = function(to, from, callback) {
 
 	if (to.params.id === from.params.id) {
-		return next();
+		return callback();
 	}
 
 	if (to.params.id === 'new') {
 		to.meta.strategy = new Strategy();
-		next();
+		callback();
 	} else {
-		StrategyService.get(to.params.id)
-			.then(response => {
-				to.meta.strategy = new Strategy(response.data);
-				next();
-			})
-			.catch(error => next('/404'));
+		Promise.all([
+			StrategyService.get(to.params.id),
+			ComponentService.getByUser(localStorage.getItem('user_id')),
+			DatasetService.getByUser(localStorage.getItem('user_id')),
+		]).then(([strategy, components, datasets]) => {
+			to.meta.strategy = new Strategy(strategy.data);
+			to.meta.components = components.data;
+			to.meta.datasets = datasets.data;
+			callback();
+		})
+		.catch(error => callback('/404'));
 	}
 };
 
@@ -142,11 +150,13 @@ export default Vue.extend({
 
 	components: { Settings, Assembly, DeleteDialog, UserAvatar },
 
-	beforeRouteEnter: beforeRoute,
+	beforeRouteEnter(to, from, next) {
+		beforeRoute(to, from, (param) => next(param));
+	},
 
 	beforeRouteUpdate(to, from, next) {
-		beforeRoute(to, from, () => {
-			next();
+		beforeRoute(to, from, (param) => {
+			next(param);
 			this.$nextTick(() => {
 				this.init(to.params.id !== from.params.id);
 				this.$nextTick(() => {
@@ -162,11 +172,11 @@ export default Vue.extend({
 	},
 
 	mounted() {
-		window.addEventListener('resize', this.handleWindowResize);
+		this.$shortcuts.add(this.$t('shortcuts.component.save.title'), this.$t('shortcuts.component.save.desc'), 'component', ['ControlLeft', 'KeyS'], this.shortcutSave);
 	},
 
 	destroyed() {
-		window.removeEventListener('resize', this.handleWindowResize);
+		this.$shortcuts.remove(this.shortcutSave);
 	},
 
 	methods: {
@@ -175,9 +185,10 @@ export default Vue.extend({
 
 			if (load) {
 				this.strategy = this.$route.meta.strategy;
+				this.datasets = this.$route.meta.datasets;
+				this.components = this.$route.meta.components;
 				this.updateOriginalData();
-				this.loadRevisions();
-				this.loadCommentCount();
+				// this.loadCommentCount();
 			}
 
 			this.tab = '/strategy/' + this.id + '/' + this.$route.params.section;
@@ -185,13 +196,9 @@ export default Vue.extend({
 			this.compareJsonJob(this.strategy);
 		},
 
-		handleWindowResize() {
-			if (this.$refs.header) {
-				const tabsBb = this.$refs.header.getBoundingClientRect();
-				const actionsBb = this.$refs.actions.$el.getBoundingClientRect();
-
-				this.maxHeight = window.innerHeight - tabsBb.bottom - actionsBb.height;
-			}
+		shortcutSave(event) {
+			this.save();
+			event.preventDefault();
 		},
 
 		updateTab() {
@@ -230,10 +237,14 @@ export default Vue.extend({
 
 		loadRevisions() {
 
+			this.revisionLoading = true;
 			StrategyService.getRevisions(this.id)
 					.then(response => {
 						this.revisions = response.data.reverse();
 						this.revisionOffset = 0;
+						this.revisionLoaded = true;
+						this.revisionMenu = true;
+						this.revisionLoading = false;
 					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
@@ -326,6 +337,10 @@ export default Vue.extend({
 
 		save() {
 
+			if (!this.dataHasChanged) {
+				return;
+			}
+
 			this.formErrors = [];
 			this.$root.isLoading = true;
 			StrategyService.save(this.id !== 'new' ? this.id : null, this.strategy)
@@ -340,7 +355,6 @@ export default Vue.extend({
 
 					this.updateOriginalData();
 					this.compareJsonJob(this.strategy, 0);
-					this.loadRevisions();
 					this.updateTab();
 					this.revisionOffset = 0;
 				})
@@ -375,23 +389,28 @@ export default Vue.extend({
 					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
+		},
+
+		test() {
+
+			this.linkLoading = true;
+			LinkService.generate('TEST_STRATEGY', this.strategy)
+					.then(link => {
+						this.link = link;
+						const win = window.open(this.generatedTestUri, '_blank');
+						win.focus();
+					}).finally(() => this.linkLoading = false);
 		}
 	},
 
 	computed: {
 
 		id() {
-			return parseInt(this.$route.params.id);
+			return this.isNew ? 'new' : parseInt(this.$route.params.id);
 		},
 
 		isNew() {
 			return this.$route.params.id === 'new';
-		},
-
-		tabStyle() {
-			return {
-				height: (this.maxHeight - 1) + 'px',
-			};
 		},
 
 		totalDuration() {
@@ -399,31 +418,35 @@ export default Vue.extend({
 		},
 
 		testUri() {
-			const directusStorage = window.localStorage.getItem('directus-sdk-js');
-			const directusJson = JSON.parse(directusStorage);
-			return process.env.VUE_APP_PLAYER_URL + '/test/strategy/' + this.strategy.id + '?token=' + directusJson.token;
+			return this.playerHost + '/strategy/' + this.strategy.id + '/test';
+		},
+
+		generatedTestUri() {
+			return this.playerHost + '/strategy/' + this.link.hash + '/test';
 		},
 
 		canTest() {
-			return this.strategy.id && !this.hasIssue;
+			return this.strategy.id && this.strategy.assemblies.length > 0 && this.strategy.isValid(this.components, this.datasets);
 		},
-
-		hasIssue() {
-			return this.strategy.assemblies.find(assembly => {
-				return !assembly.isValid();
-			}) !== undefined;
-		}
 	},
 
 	data() {
 		return {
+			playerHost: process.env.VUE_APP_PLAYER_URL,
 			revisions: [],
 			revisionOffset: 0,
+			revisionLoading: false,
+			revisionLoaded: false,
+			revisionMenu: false,
 			maxHeight: 500,
 			isDeleted: false,
 			formErrors: [],
 			tab: null,
+			link: new Link(),
+			linkLoading: false,
 			dataHasChanged: false,
+			datasets: null,
+			components: null,
 			strategy: null,
 			originalStrategy: null,
 			strategyJson: null,

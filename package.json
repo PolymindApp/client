@@ -1,6 +1,6 @@
 {
 	"name": "@polymind/client",
-	"version": "0.1.6-beta",
+	"version": "0.1.7-beta",
 	"private": true,
 	"author": "Danny Coulombe <danny.coulombe@polymind.app>",
 	"engines": {
@@ -15,9 +15,7 @@
 		"start": "node server.js"
 	},
 	"dependencies": {
-		"@directus/sdk-js": "^5.3.4",
 		"@mdi/font": "^4.9.95",
-		"autobahn": "^19.12.1",
 		"chart.js": "^2.9.3",
 		"cordova": "^8.1.2",
 		"cordova-android": "^8.0.0",
@@ -37,7 +35,6 @@
 		"vue": "^2.6.11",
 		"vue-analytics": "^5.17.2",
 		"vue-chartjs": "^3.5.0",
-		"vue-cookies": "^1.5.13",
 		"vue-i18n": "^8.13.0",
 		"vue-router": "^3.0.3",
 		"vue-socket.io": "^3.0.7",

@@ -39,28 +39,23 @@
 				</v-btn>
 			</v-snackbar>
 
-			<!-- IS LOADING -->
-			<v-overlay :absolute="false" :value="$root.isLoading" z-index="100">
-				<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
-			</v-overlay>
-
 			<v-scroll-x-transition>
-				<Sidebar ref="sidebar" v-if="$root.user.id" v-model="sidebar" class="no-select"></Sidebar>
+				<Sidebar ref="sidebar" v-model="sidebar" class="no-select"></Sidebar>
 			</v-scroll-x-transition>
 			<v-scroll-y-transition>
-				<Toolbar ref="toolbar" v-if="$root.user.id" :sidebar="sidebar" class="no-select"></Toolbar>
+				<Toolbar ref="toolbar" :sidebar="sidebar" class="no-select"></Toolbar>
 			</v-scroll-y-transition>
 
 			<v-scroll-y-transition>
-				<v-content v-if="$root.user.id" class="main-content">
-					<v-sheet class="fill-height" :dark="$root.user.settings.theme === 'dark'" tile>
+				<v-content class="main-content">
+					<v-card color="transparent" :disabled="$root.isLoading" class="fill-height" :dark="$root.user.settings.theme === 'dark'" tile>
 						<Chat />
 						<v-layout fill-height>
 							<v-slide-x-transition mode="out-in">
 								<router-view></router-view>
 							</v-slide-x-transition>
 						</v-layout>
-					</v-sheet>
+					</v-card>
 				</v-content>
 			</v-scroll-y-transition>
 		</v-app>
@@ -98,18 +93,21 @@ export const routes = [
 	{path: '/account/:id/:section/:key', component: Account, name: 'accountMessaging'},
 	{path: '/about', component: About, name: 'about'},
 	{path: '/about/:section', component: About},
-	{path: '/strategy/:id', redirect: to => {
-		return '/strategy/' + to.params.id + '/' + (to.params.id === 'new' ? 'settings' : 'assembly');
+	{path: '/strategy/:id', name: 'strategy', beforeEnter: (to, from, next) => {
+		let route = '/strategy/' + to.params.id + '/' + (to.params.id === 'new' ? 'settings' : (from.name && from.name.indexOf(to.name) === 0) ? from.params.section : 'assembly');
+		next(route);
 	}},
-	{path: '/strategy/:id/:section', component: Strategy, name: 'strategy'},
-	{path: '/component/:id', redirect: to => {
-		return '/component/' + to.params.id + '/' + (to.params.id === 'new' ? 'settings' : 'settings');
+	{path: '/strategy/:id/:section', name: 'strategySection', titleKey: 'strategy', component: Strategy},
+	{path: '/component/:id', name: 'component', beforeEnter: (to, from, next) => {
+		let route = '/component/' + to.params.id + '/' + (to.params.id === 'new' ? 'settings' : (from.name && from.name.indexOf(to.name) === 0) ? from.params.section : 'settings');
+		next(route);
 	}},
-	{path: '/component/:id/:section', component: Component, name: 'component'},
-	{path: '/dataset/:id', redirect: to => {
-		return '/dataset/' + to.params.id + '/' + (to.params.id === 'new' ? 'settings' : 'data');
+	{path: '/component/:id/:section', name: 'componentSection', titleKey: 'component', component: Component},
+	{path: '/dataset/:id', name: 'dataset', beforeEnter: (to, from, next) => {
+		let route = '/dataset/' + to.params.id + '/' + (to.params.id === 'new'? 'settings' : (from.name && from.name.indexOf(to.name) === 0) ? from.params.section : 'data');
+		next(route);
 	}},
-	{path: '/dataset/:id/:section', component: Dataset, name: 'dataset'},
+	{path: '/dataset/:id/:section', name: 'datasetSection', titleKey: 'dataset', component: Dataset},
 	{path: '/contact', redirect: '/about/contact'},
 	{path: '/terms', redirect: '/about/terms'},
 	{path: '/privacy', redirect: '/about/privacy'},
@@ -124,30 +122,25 @@ export default Vue.extend({
 	},
 
 	created() {
+		this.$help.setVueRef(this);
         this.$shortcuts.attach(document.body);
 	},
 
 	mounted() {
 
 		moment.locale(this.$i18n.locale);
-		UserService.me().then(response => {
-			this.$root.user = new User(response.data);
 
-			this.sidebar.permanent = this.$root.user.settings.sidebar.fixed;
-			this.sidebar.opened = this.$root.user.settings.sidebar.fixed;
-			// this.$i18n.locale = user.language_abbreviation;
-			// this.$vuetify.theme.themes.light.primary = user.setting.colorFrom;
-			this.$forceUpdate();
-		});
+		this.sidebar.permanent = this.$root.user.settings.sidebar.fixed;
+		this.sidebar.opened = this.$root.user.settings.sidebar.fixed;
+		// this.$i18n.locale = user.language_abbreviation;
 
         this.$shortcuts.add(this.$t('shortcuts.main.escape.title'), this.$t('shortcuts.main.escape.desc'), 'main', 'Escape', this.shortcutEscape);
         this.$shortcuts.add(this.$t('shortcuts.main.help.title'), this.$t('shortcuts.main.help.desc'), 'main', 'F1', this.shortcutHelp, true);
-        this.$shortcuts.add(this.$t('shortcuts.main.search.title'), this.$t('shortcuts.main.search.desc'), 'main', ['ControlLeft', 'KeyF'], this.shortcutSearch, true);
+        // this.$shortcuts.add(this.$t('shortcuts.main.search.title'), this.$t('shortcuts.main.search.desc'), 'main', ['ControlLeft', 'KeyF'], this.shortcutSearch, true);
         this.$shortcuts.add(this.$t('shortcuts.main.sidebar.title'), this.$t('shortcuts.main.sidebar.desc'), 'main', ['AltLeft', 'KeyS'], this.shortcutSidebar, true);
         this.$shortcuts.add(this.$t('shortcuts.navigation.dashboard.title'), this.$t('shortcuts.navigation.dashboard.desc'), 'navigation', ['AltLeft', 'KeyD'], this.shortcutDashboard, true);
         this.$shortcuts.add(this.$t('shortcuts.navigation.profile.title'), this.$t('shortcuts.navigation.profile.desc'), 'navigation', ['AltLeft', 'KeyP'], this.shortcutProfile, true);
 
-        this.$help.setVueRef(this);
         this.$help.setCompRef(this.$refs.help);
         this.$comments.setRef(this.$refs.comments);
 	},
@@ -156,7 +149,7 @@ export default Vue.extend({
 
 		this.$shortcuts.remove(this.shortcutEscape);
 		this.$shortcuts.remove(this.shortcutHelp);
-		this.$shortcuts.remove(this.shortcutSearch);
+		// this.$shortcuts.remove(this.shortcutSearch);
 		this.$shortcuts.remove(this.shortcutSidebar);
 		this.$shortcuts.remove(this.shortcutDashboard);
 		this.$shortcuts.remove(this.shortcutProfile);
@@ -196,7 +189,7 @@ export default Vue.extend({
 
 			};
 
-			if (!event.target.classList.contains('allow-contextual-menu') && !getClosest(event.target, '.allow-contextual-menu')) {
+			if (!event.target.classList.contains('allow-contextual-menu') && !getClosest(event.target, '.allow-contextual-menu') && ['textarea', 'input'].indexOf(event.target.nodeName.toLowerCase()) === -1 && !getClosest(event.target, '[contenteditable]')) {
 				event.preventDefault();
 			}
 		},
@@ -254,6 +247,11 @@ export default Vue.extend({
 	},
 
 	watch: {
+
+		'$root.isLoading'(value) {
+			document.body.style.cursor = value ? 'wait' : null;
+		},
+
 	    $route() {
 			this.$root.breadcrumbs = [];
 

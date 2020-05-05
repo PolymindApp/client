@@ -89,10 +89,6 @@
                         .then(response => {
                             const comment = this.comments.find(comment => comment.id === id);
                             comment.comment_deleted_on = new Date();
-
-							this.$stats.push('DELETE_COMMENT', {
-								id
-							});
                         })
                         .catch(error => this.$handleError(this, error))
                         .finally(() => this.isLoading = false);

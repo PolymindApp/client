@@ -1,6 +1,6 @@
 <template>
 	<v-input v-bind="$attrs" :class="{ 'focused primary--text': focused, noToolbar: !$vuetify.breakpoint.mdAndUp }">
-		<fieldset style="width: 100%">
+		<fieldset class="fill-height" style="width: 100%">
 			<legend class="v-label">{{label}}</legend>
 
 			<editor-menu-bar :editor="editor" v-slot="{ commands, isActive }">
@@ -220,6 +220,10 @@ export default {
 			}
 
 			color: inherit;
+		}
+
+		&.v-input--is-disabled fieldset {
+			opacity: 0.5;
 		}
 
 		.editor-content {

@@ -48,7 +48,7 @@ export default Vue.extend({
 			require('brace/ext/language_tools');
 			// require('brace/mode/html');
 			require('brace/mode/yaml');
-			// require('brace/mode/javascript');
+			require('brace/mode/javascript');
 			// require('brace/mode/less');
 			require('brace/theme/twilight');
 			require('brace/theme/chrome');

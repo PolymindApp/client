@@ -144,8 +144,7 @@
 	import Vue from 'vue';
 	import DataType from "../../../components/DataType";
 	import UserAvatar from "../../../components/UserAvatar";
-	import { Dataset, DatasetColumn, DatasetRow, DatasetCell } from "@polymind/sdk-js";
-	import DataActions from "./Data/Actions";
+	import { Dataset, DatasetColumn, DatasetRow, DatasetCell, LANGUAGES } from "@polymind/sdk-js";
 	import ContextualMenu from "../../../components/ContextualMenu";
 
 	const dragState = {};
@@ -154,10 +153,6 @@
 
 		props: {
 			dataset: {
-				type: Object,
-				default: new Dataset(),
-			},
-			originalDataset: {
 				type: Object,
 				default: new Dataset(),
 			},
@@ -170,7 +165,7 @@
 			},
 		},
 
-		components: { DataType, UserAvatar, ContextualMenu, DataActions },
+		components: { DataType, UserAvatar, ContextualMenu },
 
 		mounted() {
 
@@ -180,14 +175,6 @@
 
 			window.addEventListener('resize', this.listenToResize);
 			this.listenToResize();
-
-			this.$emit('context', DataActions, {
-				dataset: this.dataset,
-			}, {
-				refresh: () => {
-					this.$emit('refresh');
-				}
-			});
 		},
 
 		destroyed() {
@@ -1297,6 +1284,10 @@
 				// }
 			},
 
+			select(type, rowIdx, columnIdx) {
+
+			},
+
 			removeColumn(columnIdx) {
 
 				this.dataset.columns.splice(columnIdx, 1);
@@ -1711,6 +1702,21 @@
 
 		computed: {
 
+			languagesList() {
+				const items = [];
+				LANGUAGES.forEach(lang => {
+					items.push({
+						text: lang.english,
+						value: lang.abbr,
+						disabled: () => {},
+						click: () => {
+							this.dataset.columns[this.firstSelected.columnIdx].lang = lang.abbr;
+						},
+					});
+				});
+				return items;
+			},
+
 			selected() {
 				const rows = [this.firstSelected.rowIdx, this.lastSelected.rowIdx].sort((a, b) => a - b);
 				const columns = [this.firstSelected.columnIdx, this.lastSelected.columnIdx].sort((a, b) => a - b);
@@ -1727,6 +1733,10 @@
 			},
 
 			menuGroups() {
+				const lang = this.firstSelected.type === 'column'
+					? LANGUAGES.find(lang => lang.abbr === this.dataset.columns[this.firstSelected.columnIdx].lang).english
+					: this.$i18n.lang;
+
 				return {
 					row: {
 						items: !this.menu.visible ? [] : [
@@ -1734,48 +1744,55 @@
 							{ text: this.$t('dataset.data.rowMenu.insertRowBelow'), icon: 'mdi-table-row-plus-after', disabled: () => this.menu.type === 'column', click: (event) => this.insertRow(this.lastSelected.rowIdx + 1) },
 							{},
 							{ text: this.$t('dataset.data.rowMenu.removeRow' + (this.selectedRows.length > 1 ? 's' : ''), { total: this.selectedRows.length }), icon: 'mdi-table-row-remove', disabled: () => this.menu.type === 'column', click: (event) => this.removeSelectedRows() },
-							{},
-							{ text: this.$t('dataset.data.rowMenu.comment'), icon: 'mdi-comment-plus-outline', disabled: () => !this.canComment('row', this.lastSelected.rowIdx, this.lastSelected.columnIdx), click: (event) => this.comment('row', this.lastSelected.rowIdx, this.lastSelected.columnIdx) },
+							// {},
+							// { text: this.$t('dataset.data.rowMenu.comment'), icon: 'mdi-comment-plus-outline', disabled: () => !this.canComment('row', this.lastSelected.rowIdx, this.lastSelected.columnIdx), click: (event) => this.comment('row', this.lastSelected.rowIdx, this.lastSelected.columnIdx) },
 						],
 					},
 					column: {
 						items: !this.menu.visible ? [] : [
-							{ text: this.$t('dataset.data.columnMenu.isRequired' + (this.selectedColumns.length > 1 ? 'Plural' : ''), { total: this.selectedColumns.length }), icon: () => this.dataset.columns[this.firstSelected.columnIdx].is_required ? 'mdi-check' : 'mdi-blank', disabled: () => this.lastSelected.type === 'row', click: (event) => {
-								const wasSelected = this.dataset.columns[this.firstSelected.columnIdx].is_required;
-								this.selectedColumns.forEach(columnIdx => {
-									this.dataset.columns[columnIdx].is_required = !wasSelected;
-								});
-							} },
-							{ text: this.$t('dataset.data.columnMenu.type'), icon: 'mdi-widgets', disabled: () => this.menu.type !== 'column', childs: [
-								{ text: this.$t('dataset.data.columnMenu.types.text'), icon: 'mdi-cursor-text', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'text'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'text') },
-								{ text: this.$t('dataset.data.columnMenu.types.number'), icon: 'mdi-numeric-1-box-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'number'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'number') },
-								{ text: this.$t('dataset.data.columnMenu.types.date'), icon: 'mdi-calendar-month', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'date'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'date') },
-								{ text: this.$t('dataset.data.columnMenu.types.boolean'), icon: 'mdi-toggle-switch', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'boolean'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'boolean') },
-								/*{ text: this.$t('dataset.data.columnMenu.types.list'), icon: 'mdi-format-list-bulleted', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'list'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'list') },
-								{ text: this.$t('dataset.data.columnMenu.types.audio'), icon: 'mdi-file-music-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'audio'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'audio') },
-								{ text: this.$t('dataset.data.columnMenu.types.file'), icon: 'mdi-file-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'file'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'file') },
-								{ text: this.$t('dataset.data.columnMenu.types.image'), icon: 'mdi-file-image-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'image'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'image') },
-								{ text: this.$t('dataset.data.columnMenu.types.wysiwyg'), icon: 'mdi-format-textbox', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'wysiwyg'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'wysiwyg') },*/
-							] },
+							// { text: this.$t('dataset.data.columnMenu.isRequired' + (this.selectedColumns.length > 1 ? 'Plural' : ''), { total: this.selectedColumns.length }), icon: () => this.dataset.columns[this.firstSelected.columnIdx].is_required ? 'mdi-check' : 'mdi-blank', disabled: () => this.lastSelected.type === 'row', click: (event) => {
+							// 	const wasSelected = this.dataset.columns[this.firstSelected.columnIdx].is_required;
+							// 	this.selectedColumns.forEach(columnIdx => {
+							// 		this.dataset.columns[columnIdx].is_required = !wasSelected;
+							// 	});
+							// } },
+							{ text: lang, icon: 'mdi-translate', disabled: () => this.lastSelected.type === 'row', childs: this.languagesList },
+							// { text: this.$t('dataset.data.columnMenu.type'), icon: 'mdi-widgets', disabled: () => this.menu.type !== 'column', childs: [
+							// 	{ text: this.$t('dataset.data.columnMenu.types.text'), icon: 'mdi-cursor-text', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'text'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'text') },
+							// 	{ text: this.$t('dataset.data.columnMenu.types.number'), icon: 'mdi-numeric-1-box-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'number'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'number') },
+							// 	{ text: this.$t('dataset.data.columnMenu.types.date'), icon: 'mdi-calendar-month', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'date'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'date') },
+							// 	{ text: this.$t('dataset.data.columnMenu.types.boolean'), icon: 'mdi-toggle-switch', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'boolean'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'boolean') },
+								// { text: this.$t('dataset.data.columnMenu.types.list'), icon: 'mdi-format-list-bulleted', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'list'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'list') },
+								// { text: this.$t('dataset.data.columnMenu.types.audio'), icon: 'mdi-file-music-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'audio'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'audio') },
+								// { text: this.$t('dataset.data.columnMenu.types.file'), icon: 'mdi-file-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'file'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'file') },
+								// { text: this.$t('dataset.data.columnMenu.types.image'), icon: 'mdi-file-image-outline', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'image'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'image') },
+								// { text: this.$t('dataset.data.columnMenu.types.wysiwyg'), icon: 'mdi-format-textbox', isActive: () => this.columnIsType(this.lastSelected.columnIdx, 'wysiwyg'), disabled: () => this.menu.type !== 'column', click: (event) => this.setColumnType(this.lastSelected.columnIdx, 'wysiwyg') },
+							// ] },
 							{},
 							{ text: this.$t('dataset.data.columnMenu.insertColumnLeft'), icon: 'mdi-table-column-plus-before', disabled: () => this.menu.type === 'row', click: (event) => this.insertColumn(this.lastSelected.columnIdx) },
 							{ text: this.$t('dataset.data.columnMenu.insertColumnRight'), icon: 'mdi-table-column-plus-after', disabled: () => this.menu.type === 'row', click: (event) => this.insertColumn(this.lastSelected.columnIdx + 1) },
 							{},
 							{ text: this.$t('dataset.data.columnMenu.clearColumn' + (this.selectedColumns.length > 1 ? 's' : ''), { total: this.selectedColumns.length }), icon: 'mdi-close', disabled: () => this.menu.type === 'row', click: (event) => this.clearSelectedColumns() },
 							{ text: this.$t('dataset.data.columnMenu.removeColumn' + (this.selectedColumns.length > 1 ? 's' : ''), { total: this.selectedColumns.length }), icon: 'mdi-table-column-remove', disabled: () => this.menu.type === 'row', click: (event) => this.removeSelectedColumns() },
-							{},
-							{ text: this.$t('dataset.data.columnMenu.comment'), icon: 'mdi-comment-plus-outline', disabled: () => !this.canComment('column', this.lastSelected.rowIdx, this.lastSelected.columnIdx), click: (event) => this.comment('column', this.lastSelected.rowIdx, this.lastSelected.columnIdx) },
+							// {},
+							// { text: this.$t('dataset.data.columnMenu.comment'), icon: 'mdi-comment-plus-outline', disabled: () => !this.canComment('column', this.lastSelected.rowIdx, this.lastSelected.columnIdx), click: (event) => this.comment('column', this.lastSelected.rowIdx, this.lastSelected.columnIdx) },
 						],
 					},
 					cell: {
 						items: !this.menu.visible ? [] : [
+							{ text: this.$t('dataset.data.rowMenu.insertRowAbove'), icon: 'mdi-table-row-plus-before', disabled: () => this.menu.type === 'column', click: (event) => this.insertRow(this.lastSelected.rowIdx) },
+							{ text: this.$t('dataset.data.rowMenu.insertRowBelow'), icon: 'mdi-table-row-plus-after', disabled: () => this.menu.type === 'column', click: (event) => this.insertRow(this.lastSelected.rowIdx + 1) },
+							{},
+							{ text: this.$t('dataset.data.columnMenu.insertColumnLeft'), icon: 'mdi-table-column-plus-before', disabled: () => this.menu.type === 'row', click: (event) => this.insertColumn(this.lastSelected.columnIdx) },
+							{ text: this.$t('dataset.data.columnMenu.insertColumnRight'), icon: 'mdi-table-column-plus-after', disabled: () => this.menu.type === 'row', click: (event) => this.insertColumn(this.lastSelected.columnIdx + 1) },
+							{},
 							{ text: this.$t('dataset.data.cellMenu.copy'), icon: 'mdi-content-copy', disabled: () => this.menu.type !== 'cell', click: (event) => this.copy() },
 							{ text: this.$t('dataset.data.cellMenu.cut'), icon: 'mdi-content-cut', disabled: () => this.menu.type !== 'cell', click: (event) => this.cut() },
 							{ text: this.$t('dataset.data.cellMenu.paste'), icon: 'mdi-content-paste', disabled: () => this.menu.type !== 'cell', click: (event) => this.paste() },
 							{},
 							{ text: this.$t('dataset.data.cellMenu.clearCell' + (this.selectedCells.length > 1 ? 's' : ''), { total: this.selectedCells.length }), icon: 'mdi-close', disabled: () => this.menu.type === 'row', click: (event) => this.clearSelectedCells() },
-							{},
-							{ text: this.$t('dataset.data.cellMenu.comment'), icon: 'mdi-comment-plus-outline', disabled: () => !this.canComment('cell', this.lastSelected.rowIdx, this.lastSelected.columnIdx), click: (event) => this.comment('cell', this.lastSelected.rowIdx, this.lastSelected.columnIdx) },
+							// {},
+							// { text: this.$t('dataset.data.cellMenu.comment'), icon: 'mdi-comment-plus-outline', disabled: () => !this.canComment('cell', this.lastSelected.rowIdx, this.lastSelected.columnIdx), click: (event) => this.comment('cell', this.lastSelected.rowIdx, this.lastSelected.columnIdx) },
 						],
 					},
 				};

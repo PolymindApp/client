@@ -58,10 +58,6 @@
 								this.isLocked = false;
 							}, 5 * 1000);
 
-							this.$stats.push('POST_COMMENT', {
-								id: response.data.id
-							});
-
 							if (this.$root.user.settings.newMessageSound) {
 								this.$playSound('send');
 							}

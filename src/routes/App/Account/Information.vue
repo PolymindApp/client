@@ -1,65 +1,73 @@
 <template>
 	<v-row>
 		<v-col cols="12" :md="!isOwner ? 12 : 7" :lg="!isOwner ? 12 : 8" class="py-0 py-md-3">
-			<v-card class="pa-4 pa-md-8" :flat="isMobile" :tile="isMobile">
-				<h1 class="title">{{ $t('account.information.generalTitle') }}</h1>
 
-				<v-form ref="generalForm" @submit="apply" lazy-validation v-model="form.general">
-					<div class="mt-4">
-						<v-text-field :disabled="!isOwner" :error-messages="formErrors.screen_name" v-model="user.screen_name" :label="$t('account.information.screenNameLabel')" class="mt-2" type="text"></v-text-field>
-						<v-row>
-							<v-col cols="12" md="6" class="py-0">
-								<v-text-field :disabled="!isOwner" :error-messages="formErrors.first_name" v-model="user.first_name" :label="$t('account.information.firstNameLabel')" class="mt-2" type="text"></v-text-field>
-							</v-col>
-							<v-col cols="12" md="6" class="py-0">
-								<v-text-field :disabled="!isOwner" :error-messages="formErrors.last_name" v-model="user.last_name" :label="$t('account.information.lastNameLabel')" class="mt-2" type="text"></v-text-field>
-							</v-col>
-						</v-row>
-						<v-row>
-							<v-col cols="12" md="6" class="py-0">
-								<v-select :disabled="!isOwner" :error-messages="formErrors.gender" v-model="user.gender" :items="genders" :label="$t('account.information.genderLabel')" class="mt-2"></v-select>
-							</v-col>
-							<v-col cols="12" md="6" class="py-0">
-								<DirectUsSelect class="mt-0 mt-md-2" :disabled="!isOwner" @mapped="results => m2m.language = results" :error-messages="formErrors.language" v-model="user.language" root-key="language_id" return-object item-text="english_title" item-value="id" multiple :items="languages" :label="$t('account.information.languagesLabel')" />
-							</v-col>
-						</v-row>
+			<v-card class="mb-4" outlined>
+				<v-card-title>
+					<span v-text="$t('account.information.generalTitle')"></span>
+				</v-card-title>
+				<v-card-text>
+					<v-form ref="generalForm" @submit="apply" lazy-validation v-model="form.general">
+						<div class="mt-4">
+							<v-text-field :disabled="!isOwner" :error-messages="formErrors.screen_name" v-model="user.screen_name" :label="$t('account.information.screenNameLabel')" class="mt-2" type="text"></v-text-field>
+							<v-row>
+								<v-col cols="12" md="6" class="py-0">
+									<v-text-field :disabled="!isOwner" :error-messages="formErrors.first_name" v-model="user.first_name" :label="$t('account.information.firstNameLabel')" class="mt-2" type="text"></v-text-field>
+								</v-col>
+								<v-col cols="12" md="6" class="py-0">
+									<v-text-field :disabled="!isOwner" :error-messages="formErrors.last_name" v-model="user.last_name" :label="$t('account.information.lastNameLabel')" class="mt-2" type="text"></v-text-field>
+								</v-col>
+							</v-row>
+							<v-row>
+								<v-col cols="12" md="6" class="py-0">
+									<v-select :disabled="!isOwner" :error-messages="formErrors.gender" v-model="user.gender" :items="genders" :label="$t('account.information.genderLabel')" class="mt-2"></v-select>
+								</v-col>
+								<v-col cols="12" md="6" class="py-0">
+									<!--								<DirectUsSelect class="mt-0 mt-md-2" :disabled="!isOwner" @mapped="results => m2m.language = results" :error-messages="formErrors.language" v-model="user.language" root-key="language_id" return-object item-text="english_title" item-value="id" multiple :items="languages" :label="$t('account.information.languagesLabel')" />-->
+									<v-text-field :disabled="!isOwner" :error-messages="formErrors.quote" max v-model="user.quote" :label="$t('account.information.quoteLabel')" class="mt-2" type="text"></v-text-field>
+								</v-col>
+							</v-row>
 
-						<v-text-field :disabled="!isOwner" :error-messages="formErrors.quote" max v-model="user.quote" :label="$t('account.information.quoteLabel')" class="mt-2" type="text"></v-text-field>
 
-						<HTMLEditorField :disabled="!isOwner" :error-messages="formErrors.biography" :label="$t('account.information.biographyLabel')" class="mt-2" v-model="user.biography" />
-					</div>
+							<HTMLEditorField :disabled="!isOwner" :error-messages="formErrors.biography" :label="$t('account.information.biographyLabel')" class="mt-2" v-model="user.biography" />
+						</div>
 
-					<v-btn v-if="isOwner" class="mt-4" type="submit" color="primary" :disabled="!isDifferent" large>
-						<v-icon left>mdi-content-save</v-icon>
-						<span class="text-break">{{ $t("account.information.applyChanges") }}</span>
-					</v-btn>
-				</v-form>
-
+						<v-btn v-if="isOwner" class="mt-4" type="submit" color="primary" :disabled="!isDifferent" large>
+							<v-icon left>mdi-content-save</v-icon>
+							<span class="text-break">{{ $t("account.information.applyChanges") }}</span>
+						</v-btn>
+					</v-form>
+				</v-card-text>
 			</v-card>
 		</v-col>
 		<v-col v-if="isOwner" cols="12" md="5" lg="4" class="py-0 py-md-3">
-			<v-card class="pa-4 pa-md-8" :flat="isMobile" :tile="isMobile">
-				<h1 class="title">{{$t('restricted.resetPasswordTitle')}}</h1>
-				<p>{{$t('restricted.resetPasswordDesc')}}</p>
 
-				<v-form ref="passwordForm" @submit="resetPassword" lazy-validation v-model="form.password">
-					<div class="mt-4">
-						<v-text-field :error-messages="formErrors.actual" v-model="actual" :rules="[rules.required, rules.min]" :label="$t('restricted.actualPassPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showActualPassword ? 'text' : 'password'" :append-icon="showActualPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showActualPassword = !showActualPassword"></v-text-field>
-						<v-text-field :error-messages="formErrors.password" v-model="password" loading :rules="[rules.required, rules.min]" :label="$t('restricted.newPassPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword">
-							<template v-slot:progress>
-								<v-slide-y-transition>
-									<v-progress-linear :value="progress" :color="color" absolute height="7"></v-progress-linear>
-								</v-slide-y-transition>
-							</template>
-						</v-text-field>
-						<v-text-field :error-messages="formErrors.confirmation" v-model="confirmation" :rules="[rules.required, rules.min, rules.identical]" :label="$t('restricted.newConfirmationPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showConfirmPassword ? 'text' : 'password'" :append-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showConfirmPassword = !showConfirmPassword"></v-text-field>
-					</div>
+			<v-card class="mb-4" outlined>
+				<v-card-title>
+					<span v-text="$t('restricted.resetPasswordTitle')"></span>
+				</v-card-title>
+				<v-card-text>
+					<p>{{$t('restricted.resetPasswordDesc')}}</p>
 
-					<v-btn type="submit" class="mt-4" color="primary" style="width: 100%" :disabled="!isPasswordSectionDifferent" large>
-						{{ $t("restricted.resetPasswordBtn") }}
-						<v-icon style="align-self: flex-end" right>mdi-lock-reset</v-icon>
-					</v-btn>
-				</v-form>
+					<v-form ref="passwordForm" @submit="resetPassword" lazy-validation v-model="form.password">
+						<div class="mt-4">
+							<v-text-field :error-messages="formErrors.actual" v-model="actual" :rules="[rules.required, rules.min]" :label="$t('restricted.actualPassPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showActualPassword ? 'text' : 'password'" :append-icon="showActualPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showActualPassword = !showActualPassword"></v-text-field>
+							<v-text-field :error-messages="formErrors.password" v-model="password" loading :rules="[rules.required, rules.min]" :label="$t('restricted.newPassPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword">
+								<template v-slot:progress>
+									<v-slide-y-transition>
+										<v-progress-linear :value="progress" :color="color" absolute height="7"></v-progress-linear>
+									</v-slide-y-transition>
+								</template>
+							</v-text-field>
+							<v-text-field :error-messages="formErrors.confirmation" v-model="confirmation" :rules="[rules.required, rules.min, rules.identical]" :label="$t('restricted.newConfirmationPlaceholder')" class="mt-2" prepend-inner-icon="mdi-lock" :type="showConfirmPassword ? 'text' : 'password'" :append-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showConfirmPassword = !showConfirmPassword"></v-text-field>
+						</div>
+
+						<v-btn type="submit" class="mt-4" color="primary" style="width: 100%" :disabled="!isPasswordSectionDifferent" large>
+							{{ $t("restricted.resetPasswordBtn") }}
+							<v-icon style="align-self: flex-end" right>mdi-lock-reset</v-icon>
+						</v-btn>
+					</v-form>
+				</v-card-text>
 			</v-card>
 		</v-col>
 	</v-row>

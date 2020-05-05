@@ -1,11 +1,11 @@
 <template>
 	<v-sheet color="transparent">
-		<div class="mx-auto contact-form">
+		<div ref="page" class="mx-auto contact-form">
 			<h1 class="display-1 my-8">
 				{{$t('contact.title')}}
 			</h1>
 
-			<ContactForm :inputDark="false" />
+			<ContactForm @sent="$vuetify.goTo($refs.page)" :inputDark="false" />
 		</div>
 	</v-sheet>
 </template>

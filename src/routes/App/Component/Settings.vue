@@ -14,10 +14,12 @@
 					</v-card-title>
 					<v-card-text>
 						<v-text-field :error-messages="formErrors.name" :label="$t('component.settings.namePlaceholder')" v-model="component.name"></v-text-field>
-						<v-text-field :error-messages="formErrors.icon" :label="$t('component.settings.iconPlaceholder')" v-model="component.icon"></v-text-field>
+						<IconListField :error-messages="formErrors.icon" :label="$t('component.settings.iconPlaceholder')" v-model="component.icon" />
 						<!--				<v-select :error-messages="formErrors.category" :label="$t('component.settings.categoryPlaceholder')" :items="categories" v-model="component.category"></v-select>-->
 						<HTMLEditorField :error-messages="formErrors.description" :label="$t('component.settings.descPlaceholder')" v-model="component.description"></HTMLEditorField>
-						<!--				<HTMLEditorField :error-messages="formErrors.instructions" :label="$t('component.settings.instructionsPlaceholder')" v-model="component.instructions"></HTMLEditorField>-->
+
+						<v-checkbox :error-messages="formErrors.has_instructions" :label="$t('component.settings.hasInstructionsPlaceholder')" v-model="component.has_instructions" color="primary" class="ma-0" hide-details></v-checkbox>
+						<HTMLEditorField :error-messages="formErrors.instructions" :label="$t('component.settings.instructionsPlaceholder')" v-model="component.instructions" :disabled="!component.has_instructions"></HTMLEditorField>
 					</v-card-text>
 				</v-card>
 			</v-col>
@@ -28,11 +30,6 @@
 					</v-card-title>
 					<v-card-text>
 						<v-text-field :error-messages="formErrors.test_uri" :label="$t('component.settings.testURIPlaceholder')" v-model="component.test_uri"></v-text-field>
-
-						<v-btn :href="testUri" target="_blank" color="warning" :disabled="!component.test_uri">
-							<v-icon left>mdi-launch</v-icon>
-							<span v-text="$t('component.settings.test')"></span>
-						</v-btn>
 					</v-card-text>
 				</v-card>
 
@@ -58,10 +55,20 @@
 
 						<v-textarea v-if="component.repo_auth_type === 'ssh'" :error-messages="formErrors.repo_ssh_key" :label="$t('component.settings.repoSSHKeyPlaceholder')" v-model="component.repo_ssh_key" outlined></v-textarea>
 
-						<v-btn color="primary" :disabled="!component.repo_url">
+						<v-btn color="primary" :disabled="!component.repo_url || isDifferent">
 							<v-icon left>mdi-play</v-icon>
 							<span v-text="$t('component.settings.build')"></span>
 						</v-btn>
+
+						<v-expand-transition>
+							<div v-if="isDifferent">
+								<div class="pt-4">
+									<v-alert type="warning" class="ma-0" dense outlined>
+										<span v-text="$t('component.settings.contentDiffersBuild')"></span>
+									</v-alert>
+								</div>
+							</div>
+						</v-expand-transition>
 					</v-card-text>
 
 					<v-divider class="my-4" />
@@ -100,7 +107,7 @@ import { ComponentEnvVariable } from "@polymind/sdk-js";
 
 export default Vue.extend({
 
-	props: ['component', 'formErrors'],
+	props: ['component', 'formErrors', 'isDifferent'],
 
 	components: { HTMLEditorField, IconListField, SimpleListBuilder },
 
@@ -112,12 +119,6 @@ export default Vue.extend({
 
 		isMobile() {
 			return this.$vuetify.breakpoint.smAndDown;
-		},
-
-		testUri() {
-			const directusStorage = window.localStorage.getItem('directus-sdk-js');
-			const directusJson = JSON.parse(directusStorage);
-			return process.env.VUE_APP_PLAYER_URL + '/test/component/' + this.component.id + '?token=' + directusJson.token
 		},
 	},
 

@@ -27,10 +27,10 @@
 <!--						<v-icon left>mdi-email</v-icon>-->
 <!--						{{$t('account.messaging.title')}}-->
 <!--					</v-tab>-->
-					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/notifications'">
-						<v-icon left>mdi-bell</v-icon>
-						{{$t('account.notifications.title')}}
-					</v-tab>
+<!--					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/notifications'">-->
+<!--						<v-icon left>mdi-bell</v-icon>-->
+<!--						{{$t('account.notifications.title')}}-->
+<!--					</v-tab>-->
 					<v-tab v-if="isCurrentUser" :to="'/account/' + id + '/settings'">
 						<v-icon left>mdi-settings-outline</v-icon>
 						{{$t('account.settings.title')}}
@@ -54,9 +54,9 @@
 				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/messaging'" class="pa-0 pa-md-4">
 					<Messaging :user="user" />
 				</v-tab-item>
-				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/notifications'" class="pa-4">
-					<Notifications :user="user" />
-				</v-tab-item>
+<!--				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/notifications'" class="pa-4">-->
+<!--					<Notifications :user="user" />-->
+<!--				</v-tab-item>-->
 				<v-tab-item v-if="isCurrentUser" color="transparent" :value="'/account/' + id + '/settings'" class="pa-0 pa-md-4">
 					<Settings @update="updateValue($event)" :user="user" :is-different="isDifferent" />
 				</v-tab-item>
@@ -75,22 +75,22 @@ import Messaging from "./Account/Messaging";
 import Settings from "./Account/Settings";
 import Notifications from "./Account/Notifications";
 
-const beforeRoute = function(to, from, next) {
+const beforeRoute = function(to, from, callback) {
 
 	if (to.params.id === from.params.id) {
-		return next();
+		return callback();
 	}
 
 	if (to.params.id === 'new') {
 		to.meta.strategy = new User();
-		next();
+		callback();
 	} else {
 		UserService.get(to.params.id)
 			.then(response => {
 				to.meta.user = new User(response.data);
-				next();
+				callback();
 			})
-			.catch(error => next('/404'));
+			.catch(error => callback('/404'));
 	}
 };
 
@@ -98,11 +98,13 @@ export default Vue.extend({
 
 	components: { Activities, Information, Header, Messaging, Notifications, Settings },
 
-	beforeRouteEnter: beforeRoute,
+	beforeRouteEnter(to, from, next) {
+		beforeRoute(to, from, (param) => next(param));
+	},
 
 	beforeRouteUpdate(to, from, next) {
-		beforeRoute(to, from, () => {
-			next();
+		beforeRoute(to, from, (param) => {
+			next(param);
 			this.$nextTick(() => {
 				this.init(to.params.id !== from.params.id);
 				this.$forceUpdate();
