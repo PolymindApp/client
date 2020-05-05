@@ -20,7 +20,7 @@
 								<!-- TEST -->
 								<v-tooltip bottom>
 									<template v-slot:activator="{ on }">
-										<v-btn v-show="isValid(assembly)" class="ml-2" @mousedown.stop="test(assembly)" :loading="linkLoading[assembly.guid]" target="_blank" v-on="on" icon>
+										<v-btn v-show="isValid(assembly)" class="ml-2" @mousedown.stop="test(assembly)" :loading="sessionLoading[assembly.guid]" target="_blank" v-on="on" icon>
 											<v-icon>mdi-play</v-icon>
 										</v-btn>
 									</template>
@@ -171,7 +171,7 @@
     import Vue from 'vue';
 	import EmptyView from "../../../components/EmptyView";
 	import draggable from "vuedraggable";
-	import {StrategyAssembly, ComponentService, DatasetService, Hash, LinkService} from "@polymind/sdk-js";
+	import {Hash, StrategyAssembly, StrategySessionService} from "@polymind/sdk-js";
 	import ComponentParameters from "../../../components/ComponentParameters";
 
     export default Vue.extend({
@@ -274,12 +274,18 @@
 
 				const testUri = this.playerHost + '/assembly/' + assembly.guid + '/test';
 
-				this.linkLoading[assembly.guid] = true;
-				LinkService.generate('TEST_ASSEMBLY', assembly)
-						.then(link => {
-							this.linkLoading[assembly.guid] = false;
+				this.sessionLoading[assembly.guid] = true;
+				StrategySessionService.generate({
+					type: 'test',
+					strategy: this.strategy.id,
+					component: this.component.id,
+					dataset: this.dataset.id,
+					parameters: assembly.parameters,
+				})
+						.then(session => {
+							this.sessionLoading[assembly.guid] = false;
 							this.$forceUpdate();
-							const win = window.open(this.playerHost + '/assembly/' + link.hash + '/test', '_blank');
+							const win = window.open(this.playerHost + '/assembly/' + session.hash + '/test', '_blank');
 							win.focus();
 						});
 			}
@@ -314,7 +320,7 @@
             	playerHost: process.env.VUE_APP_PLAYER_URL,
             	parameters: null,
 				columns: null,
-				linkLoading: {},
+				sessionLoading: {},
 				minWidth: '15rem',
 				selectedIdx: null,
 				selected: new StrategyAssembly(),

@@ -15,7 +15,7 @@
 					<v-card-text>
 						<v-text-field :error-messages="formErrors.name" :label="$t('dataset.settings.namePlaceholder')" v-model="dataset.name"></v-text-field>
 						<IconListField :error-messages="formErrors.icon" :label="$t('dataset.settings.iconPlaceholder')" v-model="dataset.icon" />
-						<HTMLEditorField :error-messages="formErrors.description" :label="$t('dataset.settings.descPlaceholder')" v-model="dataset.description"></HTMLEditorField>
+						<HTMLEditorField :error-messages="formErrors.description" :label="$t('dataset.settings.descPlaceholder')" v-model="dataset.description" hide-details></HTMLEditorField>
 					</v-card-text>
 				</v-card>
 			</v-col>

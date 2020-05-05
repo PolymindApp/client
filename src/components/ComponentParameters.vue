@@ -74,7 +74,7 @@
 		},
 
 		created() {
-			this.model = this.getDefault();
+			this.model = this.getDefault(this.value);
 		},
 
 		methods: {
@@ -92,14 +92,14 @@
 				return !!(model[param.key]);
 			},
 
-			getDefault() {
+			getDefault(value) {
 				const model = {};
 				this.parameters.forEach(param => {
 					if (param.default !== undefined) {
 						model[param.key] = param.default;
 					}
 				});
-				return model;
+				return Object.assign(model, value);
 			}
 		},
 
@@ -135,15 +135,15 @@
         	parameters: {
 				deep: true,
 				handler(value) {
-					Object.assign(this.getDefault(), this.model);
-					this.$emit('input', this.model);
+					// this.model = Object.assign({}, this.getDefault(), this.model);
+					// this.$emit('input', this.model);
 				}
 			},
 
         	value: {
         		deep: true,
 				handler(value) {
-        			Object.assign(this.model, value);
+					this.model = value;
 				}
 			},
 		}

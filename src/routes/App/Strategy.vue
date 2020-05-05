@@ -3,6 +3,31 @@
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
+		<!-- ACCOMPLISH DIALOG -->
+		<v-dialog v-model="accomplishDialog.visible" scrollable persistent max-width="400px">
+			<v-card>
+				<v-card-title class="headline">
+					<v-icon color="primary" slot="icon" size="36" left>mdi-alert-decagram-outline</v-icon>
+					<span v-text="$t('strategy.accomplishDialogTitle')"></span>
+				</v-card-title>
+
+				<v-card-text class="my-4">
+					<span v-text="$t('strategy.accomplishDialogDesc')"></span>
+				</v-card-text>
+
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn @click="accomplish(true)" :loading="sessionAccomplishLoading" color="primary">
+						<v-icon left>mdi-play</v-icon>
+						<span v-text="$t('modal.start')"></span>
+					</v-btn>
+					<v-btn @click="accomplishDialog.visible = false" text>
+						<span v-text="$t('modal.cancel')"></span>
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
 		<div ref="header">
 			<v-tabs style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
 				<v-tab :to="'/strategy/' + id + '/settings'" exact>
@@ -21,17 +46,17 @@
 					<div class="mr-4 d-flex align-center">
 						<span v-text="$t('strategy.assembly.totalDuration')"></span>
 						<v-chip class="ml-4" label small dark>
-							<span v-if="totalDuration" v-text="$t('strategy.assembly.duration', { duration: totalDuration })"></span>
+							<span v-if="totalDuration" v-text="$t('strategy.assembly.duration', { duration: (isIndeterminate ? '+ ' : '') + totalDuration })"></span>
 							<span v-else v-text="$t('strategy.assembly.undefined')"></span>
 						</v-chip>
 					</div>
 
-					<v-btn @click="test()" target="_blank" :loading="linkLoading" :disabled="!canTest" color="success" class="mr-2" small>
+					<v-btn @click="accomplish()" target="_blank" :disabled="!canTest" color="success" class="mr-2" small>
 						<v-icon left>mdi-play</v-icon>
 						<span v-text="$t('strategy.assembly.accomplish')"></span>
 					</v-btn>
 
-					<v-btn @click="test()" target="_blank" :loading="linkLoading" :disabled="!canTest" text small>
+					<v-btn @click="test()" target="_blank" :loading="sessionTestLoading" :disabled="!canTest" text small>
 						<v-icon left>mdi-test-tube</v-icon>
 						<span v-text="$t('strategy.assembly.test')"></span>
 					</v-btn>
@@ -120,7 +145,7 @@
 <script>
 import Vue from 'vue';
 import Settings from "./Strategy/Settings";
-import {StrategyService, Strategy, CommentService, DeploymentService, ComponentService, DatasetService, LinkService, Link } from "@polymind/sdk-js";
+import {StrategyService, Strategy, CommentService, DeploymentService, ComponentService, DatasetService, StrategySessionService, Link } from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
 import Assembly from "./Strategy/Assembly";
@@ -398,15 +423,39 @@ export default Vue.extend({
 					.finally(() => this.$root.isLoading = false);
 		},
 
+		accomplish(force = false) {
+
+			if (force) {
+				this.sessionAccomplishLoading = true;
+				StrategySessionService.generate({
+					type: 'live',
+					strategy: this.strategy.id,
+					parameters: this.strategy.assemblies,
+				})
+						.then(session => {
+							this.session = session;
+							this.accomplishDialog.visible = false;
+							const win = window.open(this.generatedTestUri, '_blank');
+							win.focus();
+						}).finally(() => this.sessionAccomplishLoading = false);
+			} else {
+				this.accomplishDialog.visible = true;
+			}
+		},
+
 		test() {
 
-			this.linkLoading = true;
-			LinkService.generate('TEST_STRATEGY', this.strategy)
-					.then(link => {
-						this.link = link;
+			this.sessionTestLoading = true;
+			StrategySessionService.generate({
+				type: 'test',
+				strategy: this.strategy.id,
+				parameters: this.strategy.assemblies,
+			})
+					.then(session => {
+						this.session = session;
 						const win = window.open(this.generatedTestUri, '_blank');
 						win.focus();
-					}).finally(() => this.linkLoading = false);
+					}).finally(() => this.sessionTestLoading = false);
 		}
 	},
 
@@ -424,12 +473,19 @@ export default Vue.extend({
 			return this.strategy.totalDuration();
 		},
 
-		testUri() {
-			return this.playerHost + '/strategy/' + this.strategy.id + '/test';
+		isIndeterminate() {
+			for (let i = 0; i < this.strategy.assemblies.length; i++) {
+				const assembly = this.strategy.assemblies[i];
+				if (assembly.duration === 0) {
+					return true;
+				}
+			}
+
+			return false;
 		},
 
 		generatedTestUri() {
-			return this.playerHost + '/strategy/' + this.link.hash + '/test';
+			return this.playerHost + '/strategy/' + this.session.hash + '/test';
 		},
 
 		canTest() {
@@ -457,7 +513,8 @@ export default Vue.extend({
 			formErrors: [],
 			tab: null,
 			link: new Link(),
-			linkLoading: false,
+			sessionTestLoading: false,
+			sessionAccomplishLoading: false,
 			dataHasChanged: false,
 			datasets: this.$root.datasets,
 			components: this.$root.components,
@@ -466,6 +523,9 @@ export default Vue.extend({
 			strategyJson: null,
 			originalStrategyJson: null,
 			commentCount: 0,
+			accomplishDialog: {
+				visible: false,
+			},
 		}
 	},
 });
