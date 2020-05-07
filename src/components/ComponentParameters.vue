@@ -135,8 +135,9 @@
         	parameters: {
 				deep: true,
 				handler(value) {
-					// this.model = Object.assign({}, this.getDefault(), this.model);
-					// this.$emit('input', this.model);
+					const clone = this.$deepClone(this.value);
+					Object.assign(this.model, this.getDefault(), clone);
+					this.$emit('input', this.model);
 				}
 			},
 

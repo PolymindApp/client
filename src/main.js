@@ -26,6 +26,9 @@ Object.defineProperties(Vue.prototype, {
 
 Vue.use(Vuetify);
 const vuetify = new Vuetify({
+	options: {
+		customProperties: true
+	},
 	theme: {
 		themes: {
 			light: $polymind.theme
@@ -85,6 +88,10 @@ localStorage.setItem('redirect_uri', window.location.pathname);
 
 			Array.from(document.querySelectorAll('[data-vue-router-controlled]')).map((el) => el.parentNode.removeChild(el));
 			next();
+		});
+
+		router.afterEach((to, from) => {
+			Vue.prototype.$help.$comp.$vuetify.goTo('html');
 		});
 
 		Vue.use(VueAnalytics, {

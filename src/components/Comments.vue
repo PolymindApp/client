@@ -20,7 +20,7 @@
 
 			<template v-else-if="comments.length === 0 && hasLoaded">
 				<slot name="empty">
-					<div v-text="$t('comment.emptyTitle')"></div>
+					<div v-text="$t('comment.noCommentYet')"></div>
 				</slot>
 			</template>
 		</div>
@@ -55,11 +55,11 @@
                 this.isLoading = true;
                 this.hasLoaded = false;
                 Promise.all([
-					CommentService.count(collection, id, sort),
+					// CommentService.count(collection, id, sort),
 					CommentService.getAll(collection, id, sort)
-				]).then(([count, comments]) => {
+				]).then(([comments]) => {
 					this.reset();
-					this.$emit('update:total', count.meta.filter_count);
+					this.$emit('update:total', comments.meta.result_count);
 					this.$emit('update:comments', comments.data);
 					this.hasLoaded = true;
 				})

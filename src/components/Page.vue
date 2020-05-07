@@ -41,9 +41,10 @@ export default Vue.extend({
 		load() {
 			this.isLoading = true;
 			PageService.get(this.$i18n.locale, this.slug).then(page => {
-				this.page = page.data;
-				this.content = page.data.content;
-				this.title = page.data.title;
+				const content = page.getContent(this.$i18n.locale);
+				this.page = content;
+				this.title = content.title;
+				this.content = content.content;
 			})
 				.catch(error => {
 					if (error.code === 203) {

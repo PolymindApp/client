@@ -1,15 +1,16 @@
 <template>
 	<v-sheet class="w-100" color="grey lighten-4" tile>
 
-		<v-card color="white" class="py-2 px-4" dark tile>
+		<v-card color="white" class="pa-4" dark tile>
 
 			<!-- OBJECTIVES -->
-			<v-row>
+			<v-row v-if="hasStats" class="mt-n3">
 				<v-col cols="12" :md="12 / objectives.length" v-for="(objective, objectiveIdx) in objectives" :key="objectiveIdx">
-					<v-card class="pa-4 d-flex align-center" :color="objective.color">
+					<v-card class="pa-4 d-flex align-center fill-height" :color="objective.value > 0 ? objective.color : 'white'" :light="objective.value === 0">
 						<div class="shrink mr-4">
-							<v-progress-circular :rotate="-90" :size="80" :width="15" :value="objective.percentage" color="white">
-								{{ objective.percentage }} %
+							<v-progress-circular :rotate="-90" :size="80" :width="15" :value="objective.percentage">
+								<span v-if="objective.value > 0" class="overline">{{ objective.percentage }} %</span>
+								<v-icon v-else>mdi-thumb-up</v-icon>
 							</v-progress-circular>
 						</div>
 						<div class="grow">
@@ -18,10 +19,40 @@
 						</div>
 					</v-card>
 				</v-col>
+
 			</v-row>
+			<v-alert v-else type="info" class="mx-n4 mt-n4" text dismissible prominent tile>
+				<div><strong v-text="$t('dashboard.notSeeingStatsTitle')"></strong></div>
+				<div v-text="$t('dashboard.notSeeingStatsDesc')"></div>
+			</v-alert>
 
 			<!-- CALENDAR -->
 			<v-sheet class="relative" light>
+
+				<!-- ACCOMPLISH DIALOG -->
+				<AccomplishStrategy :visible.sync="accomplishDialog.visible" :strategy="accomplishStrategy" />
+
+				<!-- PAST/FUTURE DIALOG -->
+				<v-dialog v-model="accomplishDialog.pastFutureVisible" scrollable persistent max-width="400px">
+					<v-card>
+						<v-card-title class="headline">
+							<v-icon color="error" slot="icon" size="36" left>mdi-close</v-icon>
+							<span v-text="$t('strategy.accomplishDialogTitle')"></span>
+						</v-card-title>
+
+						<v-card-text class="my-4">
+							<span v-text="$t('strategy.accomplishDialogDesc')"></span>
+						</v-card-text>
+
+						<v-card-actions>
+							<v-spacer></v-spacer>
+							<v-btn @click="accomplishDialog.pastFutureVisible = false" text>
+								<span v-text="$t('modal.close')"></span>
+							</v-btn>
+						</v-card-actions>
+					</v-card>
+				</v-dialog>
+
 				<v-overlay absolute color="white" z-index="2" :value="events.length === 0">
 					<div class="text-center">
 						<EmptyView :title="$t('dashboard.emptyCalendarTitle')" :desc="$t('dashboard.emptyCalendarDesc')" light />
@@ -36,6 +67,7 @@
 					:value="today"
 					short-months
 					short-weekday
+					:locale="$i18n.locale"
 					:first-interval="firstInterval"
 					:interval-count="intervalCount"
 					:events="events"
@@ -45,7 +77,7 @@
 					class="v-calendar-session my-2"
 				>
 					<template v-slot:event="props">
-						<span :class="{ 'pa-1 black--text': true }">
+						<span :class="{ 'pa-1 black--text': props.event.startDay !== today && !props.timed }">
 							<span>
 								<template v-if="!props.event.valid">
 									<v-icon color="white" small left>mdi-alert</v-icon>
@@ -55,7 +87,7 @@
 										<v-icon color="error" small left>mdi-close-circle</v-icon>
 									</template>
 									<template v-else-if="props.event.startDay === today">
-										<v-icon small left>mdi-play</v-icon>
+										<v-icon color="white" small left>mdi-play</v-icon>
 									</template>
 									<template v-else>
 										<v-icon :color="props.event.color" small left>mdi-circle</v-icon>
@@ -70,10 +102,10 @@
 									<strong v-else v-text="$t('dashboard.invalid')"></strong><!--
 								-->)
 							</span>
-							<div v-if="props.timed" class="text-center">
-								<v-chip color="success" class="mr-2" x-small outlined>5</v-chip>
-								<v-chip color="warning" class="mr-2" x-small outlined>5</v-chip>
-								<v-chip color="error" x-small outlined>5</v-chip>
+							<div v-if="props.timed && props.event.duration >= 60" class="text-center">
+								<v-chip :color="getSessionCount(props.event.startDay,'easy', props.event.id) ? 'success' : null" class="mr-2" x-small outlined>{{ getSessionCount(props.event.startDay, 'easy', props.event.id) }}</v-chip>
+								<v-chip :color="getSessionCount(props.event.startDay,'unsure', props.event.id) ? 'warning' : null" class="mr-2" x-small outlined>{{ getSessionCount(props.event.startDay, 'unsure', props.event.id) }}</v-chip>
+								<v-chip :color="getSessionCount(props.event.startDay,'hard', props.event.id) ? 'error' : null" x-small outlined>{{ getSessionCount(props.event.startDay, 'hard', props.event.id) }}</v-chip>
 							</div>
 						</span>
 					</template>
@@ -85,45 +117,78 @@
 			<v-row>
 				<v-col cols="12" md="6">
 
-					<!-- BARS -->
-					<v-card light color="white">
-						<div class="d-flex align-center pa-4">
-							<div class="shrink">
-								<v-btn :disabled="strategies.length < 2" icon>
-									<v-icon>mdi-chevron-left</v-icon>
-								</v-btn>
-							</div>
-							<div class="flex-md-grow-1">
-								<v-select class="pa-0 ma-0 mx-4" label="Strategie" item-text="name" :items="strategies" v-model="selectedStrategy" solo flat dense hide-details></v-select>
-							</div>
-							<div class="shrink">
-								<v-btn :disabled="strategies.length < 2" icon>
-									<v-icon>mdi-chevron-right</v-icon>
-								</v-btn>
-							</div>
-						</div>
+					<!-- TENDENCIES -->
+					<v-card light>
+						<v-overlay v-if="!hasStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
+							<EmptyView title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
+						</v-overlay>
+						<v-card-title class="flex-column">
+							<div v-text="$t('dashboard.weeklyTendenciesTitle')"></div>
+							<div class="overline" v-text="$t('dashboard.weeklyTendenciesDesc')"></div>
+						</v-card-title>
+						<v-card-text class="pt-4">
+							<EmptyView v-if="!hasStats" style="height: 350px" title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
+							<line-stacked-chart v-else style="height: 350px" :chart-data="strategyData" :options="chartOptions"></line-stacked-chart>
+						</v-card-text>
+					</v-card>
+				</v-col>
+				<v-col cols="12" md="6">
 
-						<div class="pa-4 pt-0">
+					<!-- INTERVALS -->
+					<v-card light>
+						<v-overlay v-if="!hasStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
+							<EmptyView title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
+						</v-overlay>
+						<v-card-title class="flex-column">
+							<div v-text="$t('dashboard.avgIntervalsTitle')"></div>
+							<div class="overline" v-text="$t('dashboard.avgIntervalsDesc')"></div>
+						</v-card-title>
+						<v-card-text class="pt-4">
+							<EmptyView v-if="!hasStats" style="height: 350px" title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
+							<bar-chart v-else style="height: 350px" :chart-data="strategyData" :options="chartOptions"></bar-chart>
+						</v-card-text>
+					</v-card>
+				</v-col>
+				<v-col cols="12" md="6">
+
+					<!-- DATA ADDED -->
+					<v-card light>
+						<v-overlay v-if="!hasStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
+							<EmptyView title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
+						</v-overlay>
+						<v-card-title class="flex-column">
+							<div v-text="$t('dashboard.dataAddedTitle')"></div>
+							<div class="overline" v-text="$t('dashboard.dataAddedDesc')"></div>
+						</v-card-title>
+						<v-card-text class="pt-4">
 							<bar-chart style="height: 350px" :chart-data="strategyData" :options="chartOptions"></bar-chart>
-						</div>
+						</v-card-text>
+					</v-card>
+				</v-col>
+				<v-col cols="12" md="6">
+
+					<!-- STRATEGIES -->
+					<v-card light>
+						<v-overlay v-if="!hasStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
+							<EmptyView title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
+						</v-overlay>
+						<v-card-title class="flex-column">
+							<div v-text="$t('dashboard.strategyDivisionTitle')"></div>
+							<div class="overline" v-text="$t('dashboard.strategyDivisionDesc')"></div>
+						</v-card-title>
+						<v-card-text class="pt-4">
+							<pie-chart style="height: 350px" :chart-data="strategyData" :options="chartOptions"></pie-chart>
+						</v-card-text>
 					</v-card>
 				</v-col>
 				<v-col cols="12" md="6">
 
 					<!-- NEWS -->
-					<v-card light color="grey lighten-4">
-						<v-list color="white">
-							<v-list-item>
-								<v-list-item-icon class="mr-4">
-									<v-icon>mdi-newspaper-variant-multiple-outline</v-icon>
-								</v-list-item-icon>
-								<v-list-item-content>
-									<v-list-item-title class="headline primary--text" v-text="$t('dashboard.news.title')"></v-list-item-title>
-								</v-list-item-content>
-							</v-list-item>
-						</v-list>
-						<v-divider></v-divider>
-						<v-list color="transparent" max-height="400" class="scrollable" tile>
+					<v-card color="grey lighten-4" light>
+						<v-card-title class="white d-flex justify-space-between">
+							<span v-text="$t('dashboard.news.title')"></span>
+						</v-card-title>
+						<v-card-text class="pt-4">
 
 							<!-- EMPTY -->
 							<v-slide-y-reverse-transition>
@@ -132,7 +197,7 @@
 
 							<!-- HAS CONTENT -->
 							<v-slide-y-reverse-transition group>
-								<v-card class="mx-2" outlined v-for="(newsItem, newsIdx) in news.data" :key="newsIdx">
+								<v-card outlined v-for="(newsItem, newsIdx) in news.data" :key="newsIdx">
 									<v-list-item three-line>
 										<v-list-item-content>
 											<div class="overline mb-4" v-text="$t('dashboard.news.types.' + newsItem.type)"></div>
@@ -140,16 +205,12 @@
 												<span v-text="newsItem.content[0].title"></span>
 											</v-list-item-title>
 											<v-list-item-subtitle>
-												<span v-text="newsItem.content[0].abstract"></span>
+												<span v-text="newsItem.content[0].abstract" style="line-height: 1.25rem"></span>
 											</v-list-item-subtitle>
 										</v-list-item-content>
 
 										<v-list-item-avatar v-if="newsItem.thumbnail" tile size="80">
 											<v-img height="80" width="80" :src="$thumbnails(newsItem.thumbnail.private_hash, 200, 200)"></v-img>
-										</v-list-item-avatar>
-
-										<v-list-item-avatar v-else tile size="80">
-											<v-icon size="80">mdi-newspaper-variant-outline</v-icon>
 										</v-list-item-avatar>
 									</v-list-item>
 									<v-card-actions>
@@ -160,7 +221,7 @@
 									</v-card-actions>
 								</v-card>
 							</v-slide-y-reverse-transition>
-						</v-list>
+						</v-card-text>
 					</v-card>
 				</v-col>
 			</v-row>
@@ -171,15 +232,18 @@
 <script>
 import Vue from 'vue';
 import EmptyView from "../../components/EmptyView";
+import LineStackedChart from "../../components/Chart/LineStacked";
 import BarChart from "../../components/Chart/Bar";
-import {Response, NewsService, StrategyService, Strategy, ComponentService, DatasetService, Cookies, StrategySessionService, StrategySession} from "@polymind/sdk-js";
+import PieChart from "../../components/Chart/Pie";
+import { Color, NewsService, Strategy, StrategySessionStatsService, Cookies, StrategySessionService, StrategySession} from "@polymind/sdk-js";
 import Radar from "../../components/Chart/Radar";
 import UserAvatar from "../../components/UserAvatar";
 import moment from "moment";
+import AccomplishStrategy from "../../components/AccomplishStrategy";
 
 export default Vue.extend({
 
-	components: { EmptyView, UserAvatar, BarChart, Radar },
+	components: { EmptyView, UserAvatar, PieChart, BarChart, LineStackedChart, Radar, AccomplishStrategy },
 
 	beforeRouteEnter(to, from, next) {
 
@@ -188,17 +252,13 @@ export default Vue.extend({
 
 		Promise.all([
 			NewsService.getAll(Cookies.get('lang')),
-			// StrategyService.getAll(localStorage.getItem('user_id')),
-			// ComponentService.getAll(localStorage.getItem('user_id')),
-			// DatasetService.getAll(localStorage.getItem('user_id')),
-			StrategySessionService.getAllBetween(localStorage.getItem('user_id'), '*', startDate, endDate),
+			StrategySessionService.getAllBetween(localStorage.getItem('user_id'), 'live', startDate, endDate),
+			StrategySessionStatsService.getAll(),
 		])
-				.then(([news, sessions]) => {
+				.then(([news, sessions, stats]) => {
 					to.meta.news = news;
-					// to.meta.strategies = strategies;
-					// to.meta.components = components;
-					// to.meta.datasets = datasets;
 					to.meta.sessions = sessions;
+					to.meta.stats = stats;
 					next();
 				})
 				.catch(error => next('/404'));
@@ -215,24 +275,26 @@ export default Vue.extend({
 	methods: {
 
 		init() {
-
+			this.prepareStats();
 		},
 
 		handleEventClick(props) {
-			console.log(props);
 
 			if (!props.event.valid) {
-				this.$router.push('/strategy/' + props.event.strategy_id);
+				this.$router.push('/strategy/' + props.event.strategy.id);
+			}
+			else if (props.timed) {
+
 			}
 			else if (props.event.startDay === this.today) {
-				const link = process.env.VUE_APP_PLAYER_URL + '/strategy/' + props.event.strategy_id;
-				const win = window.open(link, '_blank');
-				win.focus();
-
+				this.accomplishStrategy = props.event.strategy;
+				this.accomplishDialog.visible = true;
 			} else if (props.event.startDay > this.today) {
-
+				this.accomplishStrategy = props.event.strategy;
+				this.accomplishDialog.pastFutureVisible = true;
 			} else if (props.event.startDay < this.today) {
-
+				this.accomplishStrategy = props.event.strategy;
+				this.accomplishDialog.pastFutureVisible = true;
 			}
 		},
 
@@ -243,7 +305,12 @@ export default Vue.extend({
 			this.strategies.forEach(item => {
 				const strategy = new Strategy(item);
 				strategy.getEvents({ start, end }).forEach(event => {
-					event.strategy_id = strategy.id;
+					event.strategy = strategy;
+
+					if (this.hasDoneSession(event.strategy.id, event.startDay)) {
+						return;
+					}
+
 					event.valid = strategy.isValid(this.components, this.datasets);
 					events.push(event);
 				});
@@ -251,7 +318,9 @@ export default Vue.extend({
 
 			this.sessions.data.forEach(item => {
 				const session = new StrategySession(item);
-				events.push(session.getEvent());
+				if (session.end_date) {
+					events.push(session.getEvent());
+				}
 			});
 
 			this.events = events
@@ -274,9 +343,84 @@ export default Vue.extend({
 
 			return 'grey lighten-2';
 		},
+
+		hasDoneSession(id, date) {
+			return this.sessions.data.find(session => moment(session.start_date).format('YYYY-MM-DD') === date && session.strategy.id === id);
+		},
+
+		getSessionCount(tag, date, id) {
+
+			const stat = this.stats.find(stat => {
+				if (date && stat.date !== date) {
+					return;
+				}
+				if (id && stat.strategy_session !== id) {
+					return;
+				}
+				return stat.tag === tag;
+			});
+
+			if (!stat) {
+				return 0;
+			}
+
+			return stat.count;
+		},
+
+		prepareStats() {
+
+			const tags = ['easy', 'unsure', 'hard'];
+			const colors = ['success', 'warning', 'error'];
+
+			let total = 0;
+			this.statsBySessionDate = {};
+			this.stats.forEach(stat => {
+				const index = tags.indexOf(stat.tag);
+				if (index >= 0) {
+					this.objectives[index].value += stat.count;
+					total += stat.count;
+				}
+			});
+			for (let i = 0; i < this.objectives.length; i++) {
+				const objective = this.objectives[i];
+				objective.percentage = parseFloat((objective.value / total * 100).toFixed(1));
+			}
+
+
+			this.strategyData.labels = [];
+			const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',];
+			for (let i = 0; i < 7; i++) {
+				this.strategyData.labels.push(this.$t('date.' + days[i]));
+			}
+
+			this.strategyData.datasets = [];
+			tags.forEach((tag, tagIdx) => {
+				const data = [];
+				days.forEach((day, dayIdx) => {
+					const date = moment().startOf('week').add(dayIdx, 'day').format('YYYY-MM-DD');
+					const count = this.getSessionCount(tag, date);
+					data.push(count);
+				});
+				const color = this.$vuetify.theme.themes.light[colors[tagIdx]];
+				this.strategyData.datasets.push({
+					label: this.$t('dashboard.objectives.' + tag),
+					backgroundColor: Color.hexToRgba(color),
+					data
+				});
+			});
+		},
 	},
 
 	computed: {
+
+		hasStats() {
+			let total = 0;
+			for (let i = 0; i < this.objectives.length; i++) {
+				const objective = this.objectives[i];
+				total += objective.value;
+			}
+			return total > 0;
+		},
 
 		firstInterval() {
 			let firstInterval = 24;
@@ -311,7 +455,7 @@ export default Vue.extend({
 				}
 
 				if (endHour > intervalCount) {
-					intervalCount = endHour;
+					intervalCount = endHour + 1;
 				}
 			});
 
@@ -332,36 +476,23 @@ export default Vue.extend({
 		return {
             fab: false,
 			selectedStrategy: [],
+			accomplishStrategy: null,
 			objectives: [
-				{ title: 'Facile', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 10000), color: 'primary', },
-				{ title: 'Incertain', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'third', },
-				{ title: 'Difficile', percentage: Math.ceil(Math.random() * 100), value: Math.ceil(Math.random() * 1000), color: 'secondary', },
+				{ title: this.$t('dashboard.objectives.easy'), percentage: 0, value: 0, color: 'primary', },
+				{ title: this.$t('dashboard.objectives.unsure'), percentage: 0, value: 0, color: 'third', },
+				{ title: this.$t('dashboard.objectives.hard'), percentage: 0, value: 0, color: 'secondary', },
 			],
+			accomplishDialog: { visible: false, pastFutureVisible: false, },
 			news: this.$route.meta.news,
-			// strategies: this.$route.meta.strategies,
-			// components: this.$route.meta.components,
-			// datasets: this.$route.meta.datasets,
 			strategies: this.$root.strategies,
 			components: this.$root.components,
 			datasets: this.$root.datasets,
 			sessions: this.$route.meta.sessions,
+			stats: this.$route.meta.stats,
+			statsBySessionDate: {},
 			strategyData: {
-				labels: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5],
-				datasets: [
-					{
-						label: 'Facile',
-						backgroundColor: this.$vuetify.theme.themes.light.primary,
-						data: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5]
-					}, {
-						label: 'Incertain',
-						backgroundColor: this.$vuetify.theme.themes.light.third,
-						data: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5]
-					}, {
-						label: 'Difficile',
-						backgroundColor: this.$vuetify.theme.themes.light.secondary,
-						data: [Math.floor(Math.random() * (50 - 5 + 1)) + 5, Math.floor(Math.random() * (50 - 5 + 1)) + 5]
-					}
-				]
+				labels: [],
+				datasets: []
 			},
 			chartOptions: {
 				responsive: true,
@@ -375,14 +506,10 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
-	.v-calendar-session {
+	.theme--light.v-calendar-session {
 		.v-calendar-daily__day.v-past,
 		.v-calendar-daily__day.v-future {
 			background-color: rgba(0, 0, 0, 0.05);
-		}
-		.v-calendar-daily__day.v-future .v-event-timed:not(:hover),
-		.v-calendar-daily__day.v-past .v-event-timed:not(:hover) {
-			opacity: 0.5;
 		}
 		.v-event-timed {
 			display: flex;
@@ -390,10 +517,14 @@ export default Vue.extend({
 			justify-content: center;
 			text-align: center;
 			transition: all ease 0.3s;
-			color: black !important;
 
 			&.white--text {
-				color: #777 !important;
+				color: black !important;
+				border-color: #ccc !important;
+			}
+
+			&.white--text:hover {
+				border-color: #666 !important;
 			}
 		}
 	}

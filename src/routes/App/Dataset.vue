@@ -18,10 +18,25 @@
 			<div class="d-flex align-center">
 				<DataActions ref="actions" :dataset="dataset" @refresh="refresh()" />
 
-				<v-btn @click="test()" target="_blank" :loading="sessionLoading" :disabled="!canTest" class="ml-2" text small>
-					<v-icon left>mdi-test-tube</v-icon>
-					<span v-text="$t('component.test')"></span>
-				</v-btn>
+				<v-menu offset-y>
+					<template v-slot:activator="{ on }">
+						<v-btn v-on="on" target="_blank" :loading="sessionLoading" :disabled="!canTest" class="ml-2" text small>
+							<v-icon left>mdi-test-tube</v-icon>
+							<span v-text="$t('dataset.test')"></span>
+							<v-icon right>mdi-chevron-down</v-icon>
+						</v-btn>
+					</template>
+					<v-list dense>
+						<template v-for="(component, componentIdx) in $root.components">
+							<v-list-item :key="component.guid" @click="test(component)">
+								<v-list-item-icon>
+									<v-icon>{{ component.icon }}</v-icon>
+								</v-list-item-icon>
+								<v-list-item-title>{{ component.name }}</v-list-item-title>
+							</v-list-item>
+						</template>
+					</v-list>
+				</v-menu>
 
 				<v-divider class="mx-4" vertical inset></v-divider>
 
@@ -186,6 +201,7 @@ export default Vue.extend({
 			this.updateOriginalData();
 			this.compareJsonJob(this.dataset, 0);
 			this.updateTab();
+			this.isDeleted = false;
 		},
 
 		shortcutSave(event) {
@@ -509,13 +525,13 @@ export default Vue.extend({
 			}
 		},
 
-		test() {
+		test(component) {
 
 			this.sessionLoading = true;
 			StrategySessionService.generate({
 				type: 'test',
-				component: this.component.id,
-				parameters: {}
+				component: component.id,
+				parameters: component.getDefaultParameters(this.dataset),
 			})
 					.then(session => {
 						this.session = session;

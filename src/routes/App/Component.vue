@@ -191,6 +191,7 @@ export default Vue.extend({
 			this.tab = '/component/' + this.id + '/' + this.$route.params.section;
 			this.updateTab();
 			this.compareJsonJob(this.component);
+			this.isDeleted = false;
 		},
 
 		shortcutSave(event) {

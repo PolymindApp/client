@@ -32,7 +32,10 @@ export default Vue.extend({
 
 		load() {
 			this.isLoading = true;
-			PageService.get(this.$i18n.locale, this.slug).then(page => this.content = page.data.content)
+			PageService.get(this.$i18n.locale, this.slug).then(page => {
+				const content = page.getContent(this.$i18n.locale);
+				this.content = content.content;
+			})
 				.catch(error => {
 					if (error.code === 203) {
 						return this.notFound = true;

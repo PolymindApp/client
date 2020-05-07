@@ -35,19 +35,17 @@ const literals = {
 	dashboard: {
 
 		invalid: 'Invalide',
+		notSeeingStatsTitle: 'Pourquoi je ne vois pas de statistique dans mon tableau de bord ?',
+		notSeeingStatsDesc: 'Les statistiques sont cumulées lorsque vous effectuez des tester des composantes, stratégies ou base de données. Par contre, seul celles exécutées en mode officiel seront affichées ci-dessous.',
+		weeklyTendenciesTitle: 'Tendances hebdomadaire',
+		weeklyTendenciesDesc: 'Rapport des efforts investis par journée.',
+		avgIntervalsTitle: 'Moyennes des intervalles',
+		avgIntervalsDesc: 'Temps moyen passé afin de répondre à une question.',
 
 		objectives: {
-			title: 'Votre cheminement',
-			label1: 'Russe',
-			label2: 'Français',
-			label3: 'Anglais',
-			label4: 'Espagnol',
-			label5: 'Hindi',
-			label6: 'Prononciation',
-			label7: 'Conjugaison',
-			label8: 'Grammaire',
-			label9: 'Autre',
-			label10: 'Vocabulaire',
+			easy: 'Facile',
+			unsure: 'Incertain',
+			hard: 'Difficile',
 		},
 
 		emptyCalendarTitle: 'Rien de prévu',
@@ -122,6 +120,7 @@ const literals = {
 		sortBy: 'Ordonner par',
 		viewCompleteMsg: 'Lire plus...',
 		unviewCompleteMsg: 'Réduire...',
+		noCommentYet: 'Soyez le premier à régiger un commentaire.',
 		emptyTitle: 'Aucun commentaire',
 		emptyDesc: 'Soyez le premier à commenter en utilisant le champs ci-dessous',
 		thumbUpTooltip: 'J\'aime',
@@ -279,13 +278,6 @@ const literals = {
 			reminder: {
 				title: 'Rappels',
 				allDays: 'Tous les jours',
-				monday: 'Lundi',
-				tuesday: 'Mardi',
-				wednesday: 'Mercredi',
-				thursday: 'Jeudi',
-				friday: 'Vendredi',
-				saturday: 'Samedi',
-				sunday: 'Dimanche',
 			},
 			startDate: 'Date de début',
 			endDate: 'Date de fin',
@@ -538,6 +530,7 @@ const literals = {
 
 		newTitle: 'Nouveau',
 		isDeleted: 'Cette base de donnée a été effacée.',
+		test: 'Tester',
 
 		publishModal: {
 			title: 'Publier',
@@ -1202,8 +1195,16 @@ const literals = {
 			component: 'Composante',
 			componentSource: 'Composante > Source',
 		},
+	},
+	date: {
+		monday: 'Lundi',
+		tuesday: 'Mardi',
+		wednesday: 'Mercredi',
+		thursday: 'Jeudi',
+		friday: 'Vendredi',
+		saturday: 'Samedi',
+		sunday: 'Dimanche',
 	}
 };
-
 
 export default literals;

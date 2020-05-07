@@ -29,7 +29,7 @@
 						<v-checkbox v-model="allDays" :label="$t('strategy.settings.reminder.allDays')" @change="handleAllDays()" hide-details></v-checkbox>
 						<v-row no-gutters>
 							<v-col cols="6" md="4" :key="day" v-for="day in days">
-								<v-checkbox v-model="strategy.reminder" :value="day" :label="$t('strategy.settings.reminder.' + day)" hide-details></v-checkbox>
+								<v-checkbox v-model="strategy.reminder" :value="day" :label="$t('date.' + day)" hide-details></v-checkbox>
 							</v-col>
 						</v-row>
 

@@ -126,7 +126,11 @@ export default Vue.extend({
 
 	mounted() {
 
-		moment.locale(this.$i18n.locale);
+		moment.locale(this.$i18n.locale, {
+			week: {
+				dow: 1
+			}
+		});
 
 		this.sidebar.permanent = this.$root.user.settings.sidebar.fixed;
 		this.sidebar.opened = this.$root.user.settings.sidebar.fixed;
@@ -229,10 +233,6 @@ export default Vue.extend({
         },
 	},
 
-	computed: {
-
-	},
-
 	data() {
 		return {
 			sidebar: {
@@ -252,10 +252,6 @@ export default Vue.extend({
 
 	    $route() {
 			this.$root.breadcrumbs = [];
-
-			// Scroll back to top
-			// ISSUE: Sometimes, we don't want to scroll about (tabs)
-            // this.$vuetify.goTo('html');
 		},
 	}
 });

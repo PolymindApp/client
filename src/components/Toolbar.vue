@@ -402,11 +402,11 @@ export default Vue.extend({
 
 	    init() {
 
-	        NotificationService.getAll(this.$root.user.id)
-				.then(response => {
-				    this.notifications = response.data;
-				})
-				.catch(error => this.$handleError(this, error));
+	        // NotificationService.getAll(this.$root.user.id)
+			// 	.then(response => {
+			// 	    this.notifications = response.data;
+			// 	})
+			// 	.catch(error => this.$handleError(this, error));
 
             // MessagingService.getUsers()
 			// 	.then(response => {

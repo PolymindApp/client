@@ -74,7 +74,7 @@
 <script>
     import Vue from 'vue';
     import EmptyView from "./EmptyView";
-    import { HelpService } from "@polymind/sdk-js";
+    import { DocumentationService } from "@polymind/sdk-js";
 
     export default Vue.extend({
 
@@ -117,11 +117,14 @@
             load() {
 
                 this.$root.isLoading = true;
-                HelpService.getAll(this.$i18n.locale)
-					.then(response => {
+				DocumentationService.getAll(this.$i18n.locale)
+					.then(documentations => {
 						this.$help.items.splice(0, this.$help.items.length);
-						response.data.forEach(documentation => {
-                        	this.$help.add(documentation.group, documentation.slug, documentation.title, documentation.content);
+						documentations.forEach(documentation => {
+							const content = documentation.getContent(this.$i18n.locale);
+							if (content) {
+                        		this.$help.add(documentation.group, content.slug, content.title, content.content);
+							}
 						});
 						this.itemsLoaded = true;
 					})
@@ -200,10 +203,12 @@
                 this.showModal = visible;
 
                 if (visible) {
-                    setTimeout(() => {
-                    	this.$refs.search.focus();
-					});
-                    this.$refs.drawer.init();
+                	if (this.$refs.drawer) {
+						setTimeout(() => {
+							this.$refs.search.focus();
+						});
+						this.$refs.drawer.init();
+					}
 				}
 			},
 

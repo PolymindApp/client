@@ -4,29 +4,7 @@
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
 		<!-- ACCOMPLISH DIALOG -->
-		<v-dialog v-model="accomplishDialog.visible" scrollable persistent max-width="400px">
-			<v-card>
-				<v-card-title class="headline">
-					<v-icon color="primary" slot="icon" size="36" left>mdi-alert-decagram-outline</v-icon>
-					<span v-text="$t('strategy.accomplishDialogTitle')"></span>
-				</v-card-title>
-
-				<v-card-text class="my-4">
-					<span v-text="$t('strategy.accomplishDialogDesc')"></span>
-				</v-card-text>
-
-				<v-card-actions>
-					<v-spacer></v-spacer>
-					<v-btn @click="accomplish(true)" :loading="sessionAccomplishLoading" color="primary">
-						<v-icon left>mdi-play</v-icon>
-						<span v-text="$t('modal.start')"></span>
-					</v-btn>
-					<v-btn @click="accomplishDialog.visible = false" text>
-						<span v-text="$t('modal.cancel')"></span>
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+		<AccomplishStrategy :visible.sync="accomplishDialog.visible" :strategy="strategy" />
 
 		<div ref="header">
 			<v-tabs style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
@@ -51,7 +29,7 @@
 						</v-chip>
 					</div>
 
-					<v-btn @click="accomplish()" target="_blank" :disabled="!canTest" color="success" class="mr-2" small>
+					<v-btn @click="accomplishDialog.visible = true" target="_blank" :disabled="!canTest" color="success" class="mr-2" small>
 						<v-icon left>mdi-play</v-icon>
 						<span v-text="$t('strategy.assembly.accomplish')"></span>
 					</v-btn>
@@ -149,6 +127,7 @@ import {StrategyService, Strategy, CommentService, DeploymentService, ComponentS
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
 import Assembly from "./Strategy/Assembly";
+import AccomplishStrategy from "../../components/AccomplishStrategy";
 
 let jsonJobTimeout = null;
 
@@ -178,7 +157,7 @@ const beforeRoute = function(to, from, callback) {
 
 export default Vue.extend({
 
-	components: { Settings, Assembly, DeleteDialog, UserAvatar },
+	components: { Settings, Assembly, DeleteDialog, UserAvatar, AccomplishStrategy },
 
 	beforeRouteEnter(to, from, next) {
 		beforeRoute(to, from, (param) => next(param));
@@ -226,6 +205,7 @@ export default Vue.extend({
 			this.tab = '/strategy/' + this.id + '/' + this.$route.params.section;
 			this.updateTab();
 			this.compareJsonJob(this.strategy);
+			this.isDeleted = false;
 		},
 
 		shortcutSave(event) {
@@ -423,26 +403,6 @@ export default Vue.extend({
 					.finally(() => this.$root.isLoading = false);
 		},
 
-		accomplish(force = false) {
-
-			if (force) {
-				this.sessionAccomplishLoading = true;
-				StrategySessionService.generate({
-					type: 'live',
-					strategy: this.strategy.id,
-					parameters: this.strategy.assemblies,
-				})
-						.then(session => {
-							this.session = session;
-							this.accomplishDialog.visible = false;
-							const win = window.open(this.generatedTestUri, '_blank');
-							win.focus();
-						}).finally(() => this.sessionAccomplishLoading = false);
-			} else {
-				this.accomplishDialog.visible = true;
-			}
-		},
-
 		test() {
 
 			this.sessionTestLoading = true;
@@ -514,7 +474,6 @@ export default Vue.extend({
 			tab: null,
 			link: new Link(),
 			sessionTestLoading: false,
-			sessionAccomplishLoading: false,
 			dataHasChanged: false,
 			datasets: this.$root.datasets,
 			components: this.$root.components,

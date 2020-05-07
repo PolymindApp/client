@@ -53,7 +53,7 @@
 <script>
     import Vue from 'vue';
     import yaml from 'js-yaml';
-    import { ComponentParameters as ComponentParametersModel, Dataset } from '@polymind/sdk-js';
+    import { ComponentParameters as ComponentParametersModel } from '@polymind/sdk-js';
 	import CodeEditorField from "../../../components/CodeEditorField";
 	import EmptyView from "../../../components/EmptyView";
 	import ComponentParameters from "../../../components/ComponentParameters";
@@ -95,7 +95,8 @@
 						this.component.compiled_parameters = new ComponentParametersModel(this.$deepClone(this.preview));
 					}
 
-					this.value = this.component.getDefaultParameters();
+					const clone = this.$deepClone(this.value);
+					Object.assign(this.value, this.component.getDefaultParameters(), clone);
 				} catch (e) {
         			console.error(e);
         			this.error = e;
@@ -137,8 +138,11 @@
         		this.previewYaml();
 			},
 
-			value(value) {
-				this.$emit('value', value);
+			value: {
+				deep: true,
+				handler(value) {
+					this.$emit('value', value);
+				}
 			},
 
 			'selectedDataset': {

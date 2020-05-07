@@ -119,7 +119,7 @@
 							'bottom': highlightedCells[rowIdx + '_' + columnIdx].bottom,
 							'left': highlightedCells[rowIdx + '_' + columnIdx].left,
 						}">
-							<div class="highlight-extender" @mousedown.stop="handleMouseDown($event, 'cell', rowIdx, columnIdx, true)" v-if="lastSelected.rowIdx === rowIdx && lastSelected.columnIdx === columnIdx"></div>
+<!--							<div class="highlight-extender" @mousedown.stop="handleMouseDown($event, 'cell', rowIdx, columnIdx, true)" v-if="lastSelected.rowIdx === rowIdx && lastSelected.columnIdx === columnIdx"></div>-->
 						</div>
 						<DataType :ref="'cell_' + rowIdx + '_' + columnIdx " :type="column.type" :items="dataset.columns[columnIdx].list_items" v-model="row.cells[columnIdx][column.type]" :id="row.cells[columnIdx].id" collection="dataset_cell" @update="handleDataUpdate($event, (value) => { row.cells[columnIdx][column.type] = value })" @blur="handleBlurDataType" @tab="tabCell" />
 					</td>
@@ -129,7 +129,7 @@
 							'top': highlightedRows[rowIdx].top,
 							'bottom': highlightedRows[rowIdx].bottom,
 						}">
-							<div class="highlight-extender" @mousedown.stop="handleMouseDown($event, 'row', rowIdx, undefined, true)" v-if="selected.row.last === rowIdx"></div>
+<!--							<div class="highlight-extender" @mousedown.stop="handleMouseDown($event, 'row', rowIdx, undefined, true)" v-if="selected.row.last === rowIdx"></div>-->
 						</div>
 						<DataType type="date" v-model="row.created_on" @input="$emit('update:dataset', dataset)" />
 					</td>
