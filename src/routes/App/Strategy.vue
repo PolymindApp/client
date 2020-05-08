@@ -143,12 +143,8 @@ const beforeRoute = function(to, from, callback) {
 	} else {
 		Promise.all([
 			StrategyService.get(to.params.id),
-			// ComponentService.getByUser(localStorage.getItem('user_id')),
-			// DatasetService.getByUser(localStorage.getItem('user_id')),
 		]).then(([strategy, components, datasets]) => {
 			to.meta.strategy = new Strategy(strategy.data);
-			// to.meta.components = components.data;
-			// to.meta.datasets = datasets.data;
 			callback();
 		})
 		.catch(error => callback('/404'));
@@ -194,8 +190,6 @@ export default Vue.extend({
 
 			if (load) {
 				this.strategy = this.$route.meta.strategy;
-				// this.datasets = this.$route.meta.datasets;
-				// this.components = this.$route.meta.components;
 				this.datasets = this.$root.datasets;
 				this.components = this.$root.components;
 				this.updateOriginalData();
@@ -362,7 +356,11 @@ export default Vue.extend({
 					this.$root.isSaved = true;
 
 					if (this.id !== response.data.id) {
+						this.$root.strategies.push(new Strategy(response.data));
 						return this.$router.push('/strategy/' + response.data.id);
+					} else {
+						const strategy = this.$root.strategies.find(strategy => strategy.id === response.data.id);
+						Object.assign(strategy, new Strategy(response.data));
 					}
 
 					this.updateOriginalData();
@@ -382,25 +380,15 @@ export default Vue.extend({
 					.then(response => {
 						this.isDeleted = true;
 						this.$refs.deleteModal.hide();
-						this.$root.$emit('STRATEGY_UPDATE');
+
+						const strategyIdx = this.$root.strategies.findIndex(strategy => strategy.id === this.id);
+						this.$root.strategies.splice(strategyIdx, 1);
 					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
 			} else {
 				this.$refs.deleteModal.show();
 			}
-		},
-
-		restore() {
-
-			this.$root.isLoading = true;
-			StrategyService.restore(this.id)
-					.then(response => {
-						this.isDeleted = false;
-						this.$root.$emit('STRATEGY_UPDATE');
-					})
-					.catch(error => this.$handleError(this, error))
-					.finally(() => this.$root.isLoading = false);
 		},
 
 		test() {

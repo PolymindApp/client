@@ -21,7 +21,7 @@
 						</v-flex>
 					</v-layout>
 					<v-list-item class="mt-5">
-						<v-text-field ref="search" v-model="filter" @keyup="handleKeyDown($event)" clearable solo-inverted dark :label="$t('sidebar.filterPlaceholder')" prepend-inner-icon="mdi-magnify" hide-details />
+						<v-text-field ref="search" v-model="filter" @keyup="handleKeyDown($event)" clearable solo-inverted dark :label="$t('sidebar.filterPlaceholder')" prepend-inner-icon="mdi-magnify" autocomplete="off" hide-details />
 					</v-list-item>
 
 					<v-tooltip bottom>
@@ -124,7 +124,7 @@
 import Vue from 'vue';
 import UserAvatar from '../components/UserAvatar.vue';
 import draggable from "vuedraggable";
-import { UserService, ComponentService, StrategyService, DatasetService, Strategy, Component, Dataset, EventBus } from "@polymind/sdk-js";
+import { UserService, EventBus } from "@polymind/sdk-js";
 
 export default Vue.extend({
 	name: 'Sidebar',
@@ -139,25 +139,10 @@ export default Vue.extend({
 	originalSidebar: null,
 
 	mounted() {
-		Promise.all([
-			this.loadComponents(),
-			this.loadDatasets(),
-			this.loadStrategies(),
-		]).then(([components, datasets, strategies]) => {
-
-		});
-
-	    this.$root.$on('COMPONENT_UPDATE', this.loadComponents);
-	    this.$root.$on('STRATEGY_UPDATE', this.loadStrategies);
-	    this.$root.$on('DATASET_UPDATE', this.loadDatasets);
 	    this.$root.$on('FULLSCREEN', this.fullScreenEvent);
 	},
 
 	destroyed() {
-
-        this.$root.$off('COMPONENT_UPDATE', this.loadComponents);
-        this.$root.$off('STRATEGY_UPDATE', this.loadStrategies);
-        this.$root.$off('DATASET_UPDATE', this.loadDatasets);
 	    this.$root.$off('FULLSCREEN', this.fullScreenEvent);
 	},
 
@@ -209,30 +194,6 @@ export default Vue.extend({
 				this.sidebar.opened = this.originalSidebar.opened;
 				this.originalSidebar = null;
 			}
-		},
-
-		loadStrategies() {
-			return StrategyService.getAll(this.$root.user.id).then(response => {
-				this.strategies = response.data.map(item => new Strategy(item));
-				this.$root.strategies.splice(0, this.$root.strategies.length, ...this.strategies);
-				this.loaded['strategies'] = true;
-			}).catch(error => this.$handleError(this, error));
-		},
-
-		loadComponents() {
-			return ComponentService.getAll(this.$root.user.id).then(response => {
-				this.components = response.data.map(item => new Component(item));
-				this.$root.components.splice(0, this.$root.components.length, ...this.components);
-				this.loaded['components'] = true;
-			}).catch(error => this.$handleError(this, error));
-		},
-
-		loadDatasets() {
-			return DatasetService.getAll(this.$root.user.id).then(response => {
-				this.datasets = response.data.map(item => new Dataset(item));
-				this.$root.datasets.splice(0, this.$root.datasets.length, ...this.datasets);
-				this.loaded['dataset'] = true;
-			}).catch(error => this.$handleError(this, error));
 		},
 
 		signOut() {
@@ -313,13 +274,10 @@ export default Vue.extend({
 			filter: '',
 			user: false,
 			version: process.env.VERSION,
-			strategies: [],
-			components: [],
-			datasets: [],
 			loaded: {
-				components: false,
-				dataset: false,
-				strategies: false,
+				components: true,
+				dataset: true,
+				strategies: true,
 			},
 			newItem: '',
 			menuItems: [
@@ -331,7 +289,7 @@ export default Vue.extend({
 				{
 					name: 'dataset', canAdd: true, addTo: '/dataset/new', getItems: () => {
 						let items = [];
-						this.datasets.forEach(dataset => {
+						this.$root.datasets.forEach(dataset => {
 							items.push({
 								title: dataset.name,
 								isPrivate: dataset.is_private,
@@ -347,7 +305,7 @@ export default Vue.extend({
 				{
                 	name: 'strategies', canAdd: true, addTo: '/strategy/new', getItems: () => {
 						let items = [];
-						this.strategies.forEach(strategy => {
+						this.$root.strategies.forEach(strategy => {
 							items.push({
 								title: strategy.name,
 								isPrivate: strategy.is_private,
@@ -356,7 +314,7 @@ export default Vue.extend({
 								link: '/strategy/' + strategy.id,
 								badge: strategy.totalItems,
 								badgeColor: 'transparent',
-								valid: strategy.isValid(this.components, this.datasets),
+								valid: strategy.isValid(this.$root.components, this.$root.datasets),
 							});
 						});
 						return items;
@@ -365,7 +323,7 @@ export default Vue.extend({
 				{
                 	name: 'components', canAdd: true, addTo: '/component/new', getItems: () => {
 						let items = [];
-						this.components.forEach(component => {
+						this.$root.components.forEach(component => {
 							items.push({
 								title: component.name,
 								isPrivate: component.is_private,

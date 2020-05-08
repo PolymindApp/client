@@ -314,13 +314,15 @@ export default Vue.extend({
 			this.$root.isLoading = true;
 			ComponentService.save(this.id !== 'new' ? this.id : null, this.component)
 				.then(response => {
-
-                    this.$root.$emit('COMPONENT_UPDATE');
                     this.$root.isSaved = true;
 
                     if (this.id !== response.data.id) {
+                    	this.$root.components.push(new Component(response.data));
                         return this.$router.push('/component/' + response.data.id);
-                    }
+                    } else {
+						const component = this.$root.components.find(component => component.id === response.data.id);
+						Object.assign(component, new Component(response.data));
+					}
 
 					this.updateOriginalData();
 					this.compareJsonJob(this.component, 0);
@@ -339,25 +341,15 @@ export default Vue.extend({
 					.then(response => {
 						this.isDeleted = true;
 						this.$refs.deleteModal.hide();
-                        this.$root.$emit('COMPONENT_UPDATE');
+
+						const componentIdx = this.$root.components.findIndex(component => component.id === this.id);
+						this.$root.components.splice(componentIdx, 1);
 					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
 			} else {
 				this.$refs.deleteModal.show();
 			}
-		},
-
-		restore() {
-
-            this.$root.isLoading = true;
-            ComponentService.restore(this.id)
-                .then(response => {
-                    this.isDeleted = false;
-                    this.$root.$emit('COMPONENT_UPDATE');
-                })
-                .catch(error => this.$handleError(this, error))
-                .finally(() => this.$root.isLoading = false);
 		},
 
 		test() {

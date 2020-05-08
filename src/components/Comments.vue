@@ -52,6 +52,10 @@
 
 			load(id, collection, sort) {
 
+				if (!id || !collection) {
+					return;
+				}
+
                 this.isLoading = true;
                 this.hasLoaded = false;
                 Promise.all([

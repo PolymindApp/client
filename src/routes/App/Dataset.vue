@@ -308,11 +308,14 @@ export default Vue.extend({
 
 					this.updateTransactions(response);
 
-					this.$root.$emit('DATASET_UPDATE');
 					this.$root.isSaved = true;
 
 					if (this.isNew) {
+						this.$root.datasets.push(new Dataset(response.dataset[0].result.data));
 						return this.$router.push('/dataset/' + response.dataset[0].result.data.id);
+					} else {
+						const dataset = this.$root.datasets.find(dataset => dataset.id === response.dataset[0].result.data.id);
+						Object.assign(dataset, new Dataset(response.dataset[0].result.data));
 					}
 
 					this.updateOriginalData();
@@ -331,7 +334,9 @@ export default Vue.extend({
 					.then(response => {
 						this.isDeleted = true;
 						this.$refs.deleteModal.hide();
-						this.$root.$emit('DATASET_UPDATE');
+
+						const datasetIdx = this.$root.datasets.findIndex(dataset => dataset.id === this.id);
+						this.$root.datasets.splice(datasetIdx, 1);
 					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);

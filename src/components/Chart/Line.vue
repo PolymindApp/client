@@ -14,7 +14,17 @@
         components: {},
 
         mounted() {
-			this.renderChart(this.chartData, this.options)
+			this.renderChart(this.chartData, Object.assign({}, {
+				responsive: true,
+				maintainAspectRatio: false,
+				legend: {
+					position: 'bottom',
+				},
+				tooltips: {
+					mode: 'index',
+					intersect: false,
+				},
+			}, this.options));
         },
 
         destroyed() {

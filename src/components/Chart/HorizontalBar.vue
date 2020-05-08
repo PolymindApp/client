@@ -1,13 +1,13 @@
 <script>
     import Vue from 'vue';
-	import { Line, mixins } from 'vue-chartjs';
+	import { HorizontalBar, mixins } from 'vue-chartjs';
 	const { reactiveProp } = mixins;
 
     export default Vue.extend({
 
-        name: 'LineStacked',
+        name: 'HorizontalBar',
 
-		extends: Line,
+		extends: HorizontalBar,
 		mixins: [reactiveProp],
 		props: ['options'],
 
@@ -24,11 +24,6 @@
 					mode: 'index',
 					intersect: false,
 				},
-				scales: {
-					yAxes: [{
-						stacked: true
-					}],
-				}
 			}, this.options));
         },
 

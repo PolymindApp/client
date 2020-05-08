@@ -1,25 +1,55 @@
 <template>
-	<v-sheet class="w-100" color="grey lighten-4" tile>
+	<v-sheet class="w-100 py-2" color="grey lighten-4" tile>
 
-		<v-card color="white" class="pa-4" dark tile>
+		<v-card color="transparent" class="px-4" flat tile>
 
-			<!-- OBJECTIVES -->
-			<v-row v-if="hasStats" class="mt-n3">
-				<v-col cols="12" :md="12 / objectives.length" v-for="(objective, objectiveIdx) in objectives" :key="objectiveIdx">
-					<v-card class="pa-4 d-flex align-center fill-height" :color="objective.value > 0 ? objective.color : 'white'" :light="objective.value === 0">
-						<div class="shrink mr-4">
-							<v-progress-circular :rotate="-90" :size="80" :width="15" :value="objective.percentage">
-								<span v-if="objective.value > 0" class="overline">{{ objective.percentage }} %</span>
-								<v-icon v-else>mdi-thumb-up</v-icon>
-							</v-progress-circular>
+			<!-- TOTALS -->
+			<v-row v-if="stats.totalCount > 0">
+				<v-col cols="12" md="6">
+					<v-card class="pa-4 d-flex align-center fill-height">
+						<div style="flex: 0">
+							<doughnut-chart :chart-data="reviewedChart" :options="reviewedChart.options" style="width: 100px; height: 100px"></doughnut-chart>
 						</div>
-						<div class="grow">
-							<div class="overline">{{ objective.title }}</div>
-							<div class="display-1">{{ objective.value | humanNumber }}</div>
+						<div class="ml-4" style="flex: 1">
+							<horizontal-bar-chart style="height: 100px" :chart-data="difficultyOverviewChart" :options="difficultyOverviewChart.options"></horizontal-bar-chart>
 						</div>
 					</v-card>
 				</v-col>
+				<v-col cols="12" md="6">
 
+					<!-- EMPTY -->
+					<v-slide-y-reverse-transition>
+						<EmptyView key="empty" v-if="!news.data" :desc="$t('dashboard.news.emptyDesc')" />
+					</v-slide-y-reverse-transition>
+
+					<!-- HAS CONTENT -->
+					<v-card :to="'/news/' + news.data.content[0].language + '/' + news.data.content[0].slug" class="fill-height">
+						<v-list-item three-line>
+							<v-list-item-avatar v-if="news.data.thumbnail" tile size="80">
+								<v-img height="80" width="80" :src="$thumbnails(news.data.thumbnail.private_hash, 'avatar')"></v-img>
+							</v-list-item-avatar>
+							<v-list-item-content>
+								<v-list-item-title class="headline mb-1 primary--text">
+									<span v-text="news.data.content[0].title"></span>
+								</v-list-item-title>
+								<v-list-item-subtitle>
+									<span v-text="news.data.content[0].abstract" style="line-height: 1.25rem"></span>
+								</v-list-item-subtitle>
+							</v-list-item-content>
+						</v-list-item>
+						<v-card-actions>
+							<v-btn color="primary" :to="'/news/' + news.data.content[0].language + '/' + news.data.content[0].slug" text>
+								<span v-text="$t('dashboard.news.seeMore')"></span>
+								<v-icon right>mdi-plus</v-icon>
+							</v-btn>
+
+							<v-spacer></v-spacer>
+
+							<v-icon left x-small>mdi-calendar</v-icon>
+							<span class="overline mr-4">{{ news.data.created_on | timeAgo }}</span>
+						</v-card-actions>
+					</v-card>
+				</v-col>
 			</v-row>
 			<v-alert v-else type="info" class="mx-n4 mt-n4" text dismissible prominent tile>
 				<div><strong v-text="$t('dashboard.notSeeingStatsTitle')"></strong></div>
@@ -27,7 +57,7 @@
 			</v-alert>
 
 			<!-- CALENDAR -->
-			<v-sheet class="relative" light>
+			<v-card class="relative my-2">
 
 				<!-- ACCOMPLISH DIALOG -->
 				<AccomplishStrategy :visible.sync="accomplishDialog.visible" :strategy="accomplishStrategy" />
@@ -74,7 +104,7 @@
 					:event-color="getEventColor"
 					@change="getEvents"
 					@click:event="handleEventClick"
-					class="v-calendar-session my-2"
+					class="v-calendar-session"
 				>
 					<template v-slot:event="props">
 						<span :class="{ 'pa-1 black--text': props.event.startDay !== today && !props.timed }">
@@ -103,32 +133,31 @@
 								-->)
 							</span>
 							<div v-if="props.timed && props.event.duration >= 60" class="text-center">
-								<v-chip :color="getSessionCount(props.event.startDay,'easy', props.event.id) ? 'success' : null" class="mr-2" x-small outlined>{{ getSessionCount(props.event.startDay, 'easy', props.event.id) }}</v-chip>
-								<v-chip :color="getSessionCount(props.event.startDay,'unsure', props.event.id) ? 'warning' : null" class="mr-2" x-small outlined>{{ getSessionCount(props.event.startDay, 'unsure', props.event.id) }}</v-chip>
-								<v-chip :color="getSessionCount(props.event.startDay,'hard', props.event.id) ? 'error' : null" x-small outlined>{{ getSessionCount(props.event.startDay, 'hard', props.event.id) }}</v-chip>
+								<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.easy > 0 ? 'success' : null" class="mr-2" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.easy || 0 }}</v-chip>
+								<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.unsure > 0 ? 'warning' : null" class="mr-2" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.unsure || 0 }}</v-chip>
+								<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.hard > 0 ? 'error' : null" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.hard || 0 }}</v-chip>
 							</div>
 						</span>
 					</template>
 				</v-calendar>
-			</v-sheet>
+			</v-card>
 		</v-card>
 
-		<v-sheet color="transparent" class="my-2 px-4" tile>
+		<v-sheet color="transparent" class="px-4" tile>
 			<v-row>
 				<v-col cols="12" md="6">
 
-					<!-- TENDENCIES -->
+					<!-- DIFFICULTY -->
 					<v-card light>
-						<v-overlay v-if="!hasStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-							<EmptyView title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
+						<v-overlay v-if="stats.totalCount === 0" color="white" absolute :dark="false" opacity="0.75" z-index="2">
+							<EmptyView :title="$t('dashboard.difficultyChartEmptyTitle')" :desc="$t('dashboard.difficultyChartEmptyDesc')" />
 						</v-overlay>
 						<v-card-title class="flex-column">
-							<div v-text="$t('dashboard.weeklyTendenciesTitle')"></div>
-							<div class="overline" v-text="$t('dashboard.weeklyTendenciesDesc')"></div>
+							<div v-text="$t('dashboard.difficultyChartTitle')"></div>
+							<div class="overline" v-text="$t('dashboard.difficultyChartDesc')"></div>
 						</v-card-title>
 						<v-card-text class="pt-4">
-							<EmptyView v-if="!hasStats" style="height: 350px" title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
-							<line-stacked-chart v-else style="height: 350px" :chart-data="strategyData" :options="chartOptions"></line-stacked-chart>
+							<line-stacked-chart style="height: 350px" :chart-data="difficultyChart" :options="difficultyChart.options"></line-stacked-chart>
 						</v-card-text>
 					</v-card>
 				</v-col>
@@ -136,91 +165,60 @@
 
 					<!-- INTERVALS -->
 					<v-card light>
-						<v-overlay v-if="!hasStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-							<EmptyView title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
+						<v-overlay v-if="stats.totalTime === 0" color="white" absolute :dark="false" opacity="0.75" z-index="2">
+							<EmptyView :title="$t('dashboard.intervalChartEmptyTitle')" :desc="$t('dashboard.intervalChartEmptyDesc')" />
 						</v-overlay>
 						<v-card-title class="flex-column">
-							<div v-text="$t('dashboard.avgIntervalsTitle')"></div>
-							<div class="overline" v-text="$t('dashboard.avgIntervalsDesc')"></div>
+							<div v-text="$t('dashboard.intervalChartTitle')"></div>
+							<div class="overline" v-text="$t('dashboard.intervalChartDesc')"></div>
 						</v-card-title>
 						<v-card-text class="pt-4">
-							<EmptyView v-if="!hasStats" style="height: 350px" title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
-							<bar-chart v-else style="height: 350px" :chart-data="strategyData" :options="chartOptions"></bar-chart>
+							<bar-stacked-chart style="height: 350px" :chart-data="intervalChart" :options="intervalChart.options"></bar-stacked-chart>
 						</v-card-text>
 					</v-card>
 				</v-col>
 				<v-col cols="12" md="6">
 
-					<!-- DATA ADDED -->
+					<!--  DATASET -->
 					<v-card light>
-						<v-overlay v-if="!hasStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-							<EmptyView title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
+						<v-overlay v-if="!hasDatasetStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
+							<EmptyView :title="$t('dashboard.datasetChartEmptyTitle')" :desc="$t('dashboard.datasetChartEmptyDesc')" />
 						</v-overlay>
 						<v-card-title class="flex-column">
-							<div v-text="$t('dashboard.dataAddedTitle')"></div>
-							<div class="overline" v-text="$t('dashboard.dataAddedDesc')"></div>
+							<div v-text="$t('dashboard.datasetChartTitle')"></div>
+							<div class="overline" v-text="$t('dashboard.datasetChartDesc')"></div>
 						</v-card-title>
 						<v-card-text class="pt-4">
-							<bar-chart style="height: 350px" :chart-data="strategyData" :options="chartOptions"></bar-chart>
+							<bar-stacked-chart style="height: 350px" :chart-data="datasetChart" :options="datasetChart.options"></bar-stacked-chart>
 						</v-card-text>
 					</v-card>
 				</v-col>
 				<v-col cols="12" md="6">
 
-					<!-- STRATEGIES -->
+					<!-- ENDEAVOURS DIVISION -->
 					<v-card light>
-						<v-overlay v-if="!hasStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-							<EmptyView title="Rien pour cette semaine" desc="Démarrer une session depuis une de vos strategies en barre latérale" />
+						<v-overlay v-if="!hasEndeavoursStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
+							<EmptyView :title="$t('dashboard.endeavoursDivisionChartEmptyTitle')" :desc="$t('dashboard.endeavoursDivisionChartEmptyDesc')" />
 						</v-overlay>
 						<v-card-title class="flex-column">
-							<div v-text="$t('dashboard.strategyDivisionTitle')"></div>
-							<div class="overline" v-text="$t('dashboard.strategyDivisionDesc')"></div>
+							<div v-text="$t('dashboard.endeavoursDivisionChartTitle')"></div>
+							<div class="overline" v-text="$t('dashboard.endeavoursDivisionChartDesc')"></div>
 						</v-card-title>
 						<v-card-text class="pt-4">
-							<pie-chart style="height: 350px" :chart-data="strategyData" :options="chartOptions"></pie-chart>
-						</v-card-text>
-					</v-card>
-				</v-col>
-				<v-col cols="12" md="6">
-
-					<!-- NEWS -->
-					<v-card color="grey lighten-4" light>
-						<v-card-title class="white d-flex justify-space-between">
-							<span v-text="$t('dashboard.news.title')"></span>
-						</v-card-title>
-						<v-card-text class="pt-4">
-
-							<!-- EMPTY -->
-							<v-slide-y-reverse-transition>
-								<EmptyView key="empty" v-if="news.data.length === 0" desc="Aucune actualité" />
-							</v-slide-y-reverse-transition>
-
-							<!-- HAS CONTENT -->
-							<v-slide-y-reverse-transition group>
-								<v-card outlined v-for="(newsItem, newsIdx) in news.data" :key="newsIdx">
-									<v-list-item three-line>
-										<v-list-item-content>
-											<div class="overline mb-4" v-text="$t('dashboard.news.types.' + newsItem.type)"></div>
-											<v-list-item-title class="headline mb-1">
-												<span v-text="newsItem.content[0].title"></span>
-											</v-list-item-title>
-											<v-list-item-subtitle>
-												<span v-text="newsItem.content[0].abstract" style="line-height: 1.25rem"></span>
-											</v-list-item-subtitle>
-										</v-list-item-content>
-
-										<v-list-item-avatar v-if="newsItem.thumbnail" tile size="80">
-											<v-img height="80" width="80" :src="$thumbnails(newsItem.thumbnail.private_hash, 200, 200)"></v-img>
-										</v-list-item-avatar>
-									</v-list-item>
-									<v-card-actions>
-										<v-btn color="primary" :to="'/news/' + newsItem.content[0].language + '/' + newsItem.content[0].slug" text>
-											<span v-text="$t('dashboard.news.seeMore')"></span>
-											<v-icon right>mdi-plus</v-icon>
-										</v-btn>
-									</v-card-actions>
-								</v-card>
-							</v-slide-y-reverse-transition>
+							<v-row no-gutters>
+								<v-col cols="12" md="6" class="pa-4 text-center">
+									<pie-chart :chart-data="endeavoursDivisionCharts.total" :options="endeavoursDivisionCharts.total.options" style="height: 143.25px"></pie-chart>
+								</v-col>
+								<v-col cols="12" md="6" class="pa-4 text-center">
+									<pie-chart :chart-data="endeavoursDivisionCharts.strategies" :options="endeavoursDivisionCharts.strategies.options" style="height: 143.25px"></pie-chart>
+								</v-col>
+								<v-col cols="12" md="6" class="pa-4 text-center">
+									<pie-chart :chart-data="endeavoursDivisionCharts.components" :options="endeavoursDivisionCharts.components.options" style="height: 143.25px"></pie-chart>
+								</v-col>
+								<v-col cols="12" md="6" class="pa-4 text-center">
+									<pie-chart :chart-data="endeavoursDivisionCharts.datasets" :options="endeavoursDivisionCharts.datasets.options" style="height: 143.25px"></pie-chart>
+								</v-col>
+							</v-row>
 						</v-card-text>
 					</v-card>
 				</v-col>
@@ -234,8 +232,11 @@ import Vue from 'vue';
 import EmptyView from "../../components/EmptyView";
 import LineStackedChart from "../../components/Chart/LineStacked";
 import BarChart from "../../components/Chart/Bar";
+import BarStackedChart from "../../components/Chart/BarStacked";
+import HorizontalBarChart from "../../components/Chart/HorizontalBar";
+import DoughnutChart from "../../components/Chart/Doughnut";
 import PieChart from "../../components/Chart/Pie";
-import { Color, NewsService, Strategy, StrategySessionStatsService, Cookies, StrategySessionService, StrategySession} from "@polymind/sdk-js";
+import { Color, NewsService, StrategySessionStatsService, Cookies, StrategySession } from "@polymind/sdk-js";
 import Radar from "../../components/Chart/Radar";
 import UserAvatar from "../../components/UserAvatar";
 import moment from "moment";
@@ -243,7 +244,7 @@ import AccomplishStrategy from "../../components/AccomplishStrategy";
 
 export default Vue.extend({
 
-	components: { EmptyView, UserAvatar, PieChart, BarChart, LineStackedChart, Radar, AccomplishStrategy },
+	components: { EmptyView, UserAvatar, DoughnutChart, PieChart, BarChart, BarStackedChart, HorizontalBarChart, LineStackedChart, Radar, AccomplishStrategy },
 
 	beforeRouteEnter(to, from, next) {
 
@@ -251,13 +252,11 @@ export default Vue.extend({
 		const endDate = moment().endOf('week').add(2, 'day');
 
 		Promise.all([
-			NewsService.getAll(Cookies.get('lang')),
-			StrategySessionService.getAllBetween(localStorage.getItem('user_id'), 'live', startDate, endDate),
-			StrategySessionStatsService.getAll(),
+			NewsService.getLatest(Cookies.get('lang')),
+			StrategySessionStatsService.getAll('live', startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD')),
 		])
-				.then(([news, sessions, stats]) => {
+				.then(([news, stats]) => {
 					to.meta.news = news;
-					to.meta.sessions = sessions;
 					to.meta.stats = stats;
 					next();
 				})
@@ -303,11 +302,12 @@ export default Vue.extend({
 			const events = [];
 
 			this.strategies.forEach(item => {
-				const strategy = new Strategy(item);
+				const strategy = item;
 				strategy.getEvents({ start, end }).forEach(event => {
 					event.strategy = strategy;
 
-					if (this.hasDoneSession(event.strategy.id, event.startDay)) {
+					const dayStats = this.stats.daily[event.startDay];
+					if (dayStats && dayStats.session[event.strategy_session]) {
 						return;
 					}
 
@@ -316,12 +316,28 @@ export default Vue.extend({
 				});
 			});
 
-			this.sessions.data.forEach(item => {
-				const session = new StrategySession(item);
-				if (session.end_date) {
-					events.push(session.getEvent());
+			for(let day in this.stats.daily) {
+				for(let ssKey in this.stats.daily[day].session) {
+					const session = this.stats.daily[day].session[ssKey];
+					const strategySession = new StrategySession(session);
+					if (strategySession.end_date) {
+						const id = parseInt(ssKey);
+						const element = session.strategy
+								? this.$root.strategies.find(strategy => strategy.id === id)
+								: this.$root.components.find(component => component.id === id);
+						if (element) {
+							const event = strategySession.getEvent();
+							Object.assign(event, {
+								id: element.id,
+								color: element.color,
+								icon: element.icon,
+								name: element.name,
+							});
+							events.push(event);
+						}
+					}
 				}
-			});
+			}
 
 			this.events = events
 		},
@@ -344,82 +360,145 @@ export default Vue.extend({
 			return 'grey lighten-2';
 		},
 
-		hasDoneSession(id, date) {
-			return this.sessions.data.find(session => moment(session.start_date).format('YYYY-MM-DD') === date && session.strategy.id === id);
-		},
-
-		getSessionCount(tag, date, id) {
-
-			const stat = this.stats.find(stat => {
-				if (date && stat.date !== date) {
-					return;
-				}
-				if (id && stat.strategy_session !== id) {
-					return;
-				}
-				return stat.tag === tag;
-			});
-
-			if (!stat) {
-				return 0;
-			}
-
-			return stat.count;
-		},
-
 		prepareStats() {
 
-			const tags = ['easy', 'unsure', 'hard'];
-			const colors = ['success', 'warning', 'error'];
-
-			let total = 0;
-			this.statsBySessionDate = {};
-			this.stats.forEach(stat => {
-				const index = tags.indexOf(stat.tag);
-				if (index >= 0) {
-					this.objectives[index].value += stat.count;
-					total += stat.count;
-				}
-			});
-			for (let i = 0; i < this.objectives.length; i++) {
-				const objective = this.objectives[i];
-				objective.percentage = parseFloat((objective.value / total * 100).toFixed(1));
-			}
-
-
-			this.strategyData.labels = [];
 			const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',];
+			const tags = ['easy', 'unsure', 'hard'];
+			const colors = [
+				this.$vuetify.theme.themes.light.success,
+				this.$vuetify.theme.themes.light.warning,
+				this.$vuetify.theme.themes.light.error
+			];
 			for (let i = 0; i < 7; i++) {
-				this.strategyData.labels.push(this.$t('date.' + days[i]));
+				colors.push(Color.randomHex());
 			}
 
-			this.strategyData.datasets = [];
-			tags.forEach((tag, tagIdx) => {
+			/**
+			 * Reviewed Doughnut Chart
+			 */
+			this.reviewedChart.datasets = [{
+				data: [3, 8, 1],
+				backgroundColor: [colors[0], '#eee', colors[2]]
+			}];
+
+			/**
+			 * Difficulty Overview Chart
+			 */
+			this.difficultyOverviewChart.datasets = [{
+				data: [
+					this.stats.totalTags.easy || 0,
+					this.stats.totalTags.unsure || 0,
+					this.stats.totalTags.hard || 0,
+					0, // Hack.. otherwise data won't show up
+				],
+				backgroundColor: [colors[0], colors[1], colors[2]]
+			}];
+
+			/**
+			 * Difficulty Details Chart
+			 */
+			for (let tagIdx = 0; tagIdx < tags.length; tagIdx++) {
+				const tag = tags[tagIdx];
 				const data = [];
-				days.forEach((day, dayIdx) => {
-					const date = moment().startOf('week').add(dayIdx, 'day').format('YYYY-MM-DD');
-					const count = this.getSessionCount(tag, date);
-					data.push(count);
+				for (let i = 0; i < days.length; i++) {
+					const day = moment().startOf('week').add(i, 'days').format('YYYY-MM-DD');
+					const dailyItem = this.stats.daily[day];
+					data.push(dailyItem ? dailyItem.totalTags[tag] || 0 : 0);
+				}
+
+				this.difficultyChart.datasets.push({
+					label: this.$t('dashboard.difficulties.' + tag),
+					backgroundColor: colors[tagIdx],
+					borderColor: 'transparent',
+					pointRadius: 0,
+					data,
 				});
-				const color = this.$vuetify.theme.themes.light[colors[tagIdx]];
-				this.strategyData.datasets.push({
-					label: this.$t('dashboard.objectives.' + tag),
-					backgroundColor: Color.hexToRgba(color),
-					data
+			}
+			for (let dayIdx in days) {
+				this.difficultyChart.labels.push(this.$t('date.' + days[dayIdx]));
+			}
+
+			/**
+			 * Interval Details Chart
+			 */
+			let data = [];
+			for (let i = 0; i < days.length; i++) {
+				const day = moment().startOf('week').add(i, 'days').format('YYYY-MM-DD');
+				const dailyItem = this.stats.daily[day];
+				data.push(dailyItem ? dailyItem.avgAnsweringTime || 0 : 0);
+			}
+			this.intervalChart.datasets.push({
+				label: this.$t('dashboard.avgTimeSpent'),
+				backgroundColor: Color.hexToRgba(colors[0]),
+				borderColor: Color.hexToRgba(colors[0]),
+				data,
+			});
+			for (let dayIdx in days) {
+				this.intervalChart.labels.push(this.$t('date.' + days[dayIdx]));
+			}
+
+			/**
+			 * Dataset Chart
+			 */
+			let datasetTypes = ['create', 'update', 'delete'];
+			datasetTypes.forEach((type, typeIdx) => {
+				let data = [];
+				for (let i = 0; i < days.length; i++) {
+					const day = moment().startOf('week').add(i, 'days').format('YYYY-MM-DD');
+					const dailyItem = this.stats.datasets.daily[day];
+					data.push(dailyItem ? dailyItem.total[type] || 0 : 0);
+				}
+				this.datasetChart.datasets.push({
+					label: this.$t('dashboard.datasetChartLabels.' + type),
+					backgroundColor: Color.hexToRgba(colors[typeIdx]),
+					borderColor: Color.hexToRgba(colors[typeIdx]),
+					data,
 				});
 			});
+			for (let dayIdx in days) {
+				this.datasetChart.labels.push(this.$t('date.' + days[dayIdx]));
+			}
+
+			/**
+			 * Endeavours Division Chart
+			 */
+			for(let type in this.stats.endeavours) {
+				const items = this.stats.endeavours[type];
+				if (type === 'total') {
+					this.endeavoursDivisionCharts[type].datasets[0].backgroundColor = [colors[0], colors[1], colors[2]];
+					this.endeavoursDivisionCharts[type].datasets[0].data = [
+						items.strategies,
+						items.components,
+						items.datasets,
+					];
+				} else {
+					let i = 0;
+					for(let key in items) {
+						const id = parseInt(key);
+						const item = this.$root[type].find(entry => entry.id === id);
+						if (item) {
+							const value = items[key];
+							this.endeavoursDivisionCharts[type].labels.push(item.name);
+							this.endeavoursDivisionCharts[type].datasets[0].backgroundColor.push(item.color || colors[i]);
+							this.endeavoursDivisionCharts[type].datasets[0].data.push(value);
+							i++;
+						}
+					}
+				}
+			}
 		},
 	},
 
 	computed: {
 
-		hasStats() {
-			let total = 0;
-			for (let i = 0; i < this.objectives.length; i++) {
-				const objective = this.objectives[i];
-				total += objective.value;
-			}
-			return total > 0;
+		hasDatasetStats() {
+			const total = this.stats.datasets.total;
+			return (total.create + total.delete + total.update) > 0;
+		},
+
+		hasEndeavoursStats() {
+			const total = this.stats.endeavours.total;
+			return (total.components + total.datasets + total.strategies) > 0;
 		},
 
 		firstInterval() {
@@ -473,30 +552,183 @@ export default Vue.extend({
 	},
 
 	data() {
+		const timeSpentTooltipsCallbacks = {
+			label(tooltipItem, data) {
+				let label = data.datasets[tooltipItem.datasetIndex].label || data.labels[tooltipItem.index];
+				const value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+				if (label) {
+					label += ': ';
+				}
+				let format = 's[s]';
+				if (value >= 10 * 60 * 60) {
+					format = 'HH[h]mm[m]ss[s]';
+				} else if (value >= 60 * 60) {
+					format = 'H[h]mm[m]ss[s]';
+				} else if (value >= 10 * 60) {
+					format = 'mm[m]ss[s]';
+				} else if (value >= 60) {
+					format = 'm[m]ss[s]';
+				} else if (value >= 10) {
+					format = 'ss[s]';
+				}
+
+				return label + moment().startOf('day').add(value, 'seconds').format(format);
+			}
+		};
 		return {
             fab: false,
 			selectedStrategy: [],
 			accomplishStrategy: null,
-			objectives: [
-				{ title: this.$t('dashboard.objectives.easy'), percentage: 0, value: 0, color: 'primary', },
-				{ title: this.$t('dashboard.objectives.unsure'), percentage: 0, value: 0, color: 'third', },
-				{ title: this.$t('dashboard.objectives.hard'), percentage: 0, value: 0, color: 'secondary', },
-			],
 			accomplishDialog: { visible: false, pastFutureVisible: false, },
 			news: this.$route.meta.news,
 			strategies: this.$root.strategies,
 			components: this.$root.components,
 			datasets: this.$root.datasets,
-			sessions: this.$route.meta.sessions,
 			stats: this.$route.meta.stats,
 			statsBySessionDate: {},
-			strategyData: {
-				labels: [],
-				datasets: []
+			reviewedChart: {
+				labels: [
+					this.$t('dashboard.reviews.completed'),
+					this.$t('dashboard.reviews.todo'),
+					this.$t('dashboard.reviews.skipped')
+				],
+				datasets: [],
+				options: {
+					legend: false
+				},
 			},
-			chartOptions: {
-				responsive: true,
-				maintainAspectRatio: false,
+			difficultyOverviewChart: {
+				labels: [
+					this.$t('dashboard.difficulties.easy'),
+					this.$t('dashboard.difficulties.unsure'),
+					this.$t('dashboard.difficulties.hard')
+				],
+				datasets: [],
+				options: {
+					legend: false,
+					scales: {
+						xAxes: [{
+							display: false,
+							gridLines: {
+								display:false
+							}
+						}],
+						yAxes: [{
+							gridLines: {
+								display:false
+							}
+						}]
+					},
+				},
+			},
+			difficultyChart: {
+				labels: [],
+				datasets: [],
+				options: {
+
+				},
+			},
+			intervalChart: {
+				labels: [],
+				datasets: [],
+				options: {
+					tooltips: {
+						callbacks: timeSpentTooltipsCallbacks
+					},
+				},
+			},
+			datasetChart: {
+				labels: [],
+				datasets: [],
+				options: {
+
+				},
+			},
+			endeavoursDivisionCharts: {
+            	total: {
+					labels: [
+						this.$t('app.menuGroup.strategies'),
+						this.$t('app.menuGroup.components'),
+						this.$t('app.menuGroup.dataset'),
+					],
+					datasets: [{
+						backgroundColor: [],
+						data: [],
+					}],
+					options: {
+						title: {
+							display: true,
+							text: this.$t('dashboard.endeavoursDivisionChartTotal'),
+							position: 'bottom',
+						},
+						tooltips: {
+							callbacks: timeSpentTooltipsCallbacks
+						},
+						legend: {
+							position: 'right',
+						},
+					},
+				},
+            	strategies: {
+					labels: [],
+					datasets: [{
+						backgroundColor: [],
+						data: [],
+					}],
+					options: {
+						title: {
+							display: true,
+							text: this.$t('dashboard.endeavoursDivisionChartByStrategies'),
+							position: 'bottom',
+						},
+						tooltips: {
+							callbacks: timeSpentTooltipsCallbacks
+						},
+						legend: {
+							position: 'right',
+						},
+					},
+				},
+            	components: {
+					labels: [],
+					datasets: [{
+						backgroundColor: [],
+						data: [],
+					}],
+					options: {
+						title: {
+							display: true,
+							text: this.$t('dashboard.endeavoursDivisionChartByComponents'),
+							position: 'bottom',
+						},
+						tooltips: {
+							callbacks: timeSpentTooltipsCallbacks
+						},
+						legend: {
+							position: 'right',
+						},
+					},
+				},
+            	datasets: {
+					labels: [],
+					datasets: [{
+						backgroundColor: [],
+						data: [],
+					}],
+					options: {
+						title: {
+							display: true,
+							text: this.$t('dashboard.endeavoursDivisionChartByDatasets'),
+							position: 'bottom',
+						},
+						tooltips: {
+							callbacks: timeSpentTooltipsCallbacks
+						},
+						legend: {
+							position: 'right',
+						},
+					},
+				},
 			},
 			events: [],
 			today: moment().format('YYYY-MM-DD'),
@@ -507,6 +739,11 @@ export default Vue.extend({
 
 <style lang="scss">
 	.theme--light.v-calendar-session {
+
+		.v-calendar-daily_head-day-label {
+			pointer-events: none;
+		}
+
 		.v-calendar-daily__day.v-past,
 		.v-calendar-daily__day.v-future {
 			background-color: rgba(0, 0, 0, 0.05);

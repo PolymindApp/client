@@ -124,11 +124,20 @@ export default Vue.extend({
         this.$shortcuts.attach(document.body);
 	},
 
+	destroyed() {
+		this.$shortcuts.remove(this.shortcutEscape);
+		this.$shortcuts.remove(this.shortcutHelp);
+		// this.$shortcuts.remove(this.shortcutSearch);
+		this.$shortcuts.remove(this.shortcutSidebar);
+		this.$shortcuts.remove(this.shortcutDashboard);
+		this.$shortcuts.remove(this.shortcutProfile);
+	},
+
 	mounted() {
 
-		moment.locale(this.$i18n.locale, {
+		moment.updateLocale(this.$i18n.locale, {
 			week: {
-				dow: 1
+				dow: 0
 			}
 		});
 
@@ -145,16 +154,6 @@ export default Vue.extend({
 
         this.$help.setCompRef(this.$refs.help);
         this.$comments.setRef(this.$refs.comments);
-	},
-
-	destroyed() {
-
-		this.$shortcuts.remove(this.shortcutEscape);
-		this.$shortcuts.remove(this.shortcutHelp);
-		// this.$shortcuts.remove(this.shortcutSearch);
-		this.$shortcuts.remove(this.shortcutSidebar);
-		this.$shortcuts.remove(this.shortcutDashboard);
-		this.$shortcuts.remove(this.shortcutProfile);
 	},
 
 	methods: {
@@ -235,6 +234,7 @@ export default Vue.extend({
 
 	data() {
 		return {
+			assetsLoaded: false,
 			sidebar: {
 				opened: false,
 				permanent: false,

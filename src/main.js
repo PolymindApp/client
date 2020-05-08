@@ -10,7 +10,7 @@ import VueRouter from 'vue-router';
 import messages from './locales';
 import Vuetify from "vuetify/lib";
 import VueAnalytics from 'vue-analytics';
-import PolymindSDK, { User, StatsService, EventBus, UserService, ServerService, Cookies } from "@polymind/sdk-js";
+import PolymindSDK, { User, EventBus, UserService, Cookies, StrategyService, ComponentService, DatasetService, Strategy, Component, Dataset } from "@polymind/sdk-js";
 import 'roboto-fontface/css/roboto/sass/roboto-fontface.scss';
 import '@mdi/font/scss/materialdesignicons.scss';
 import "./index.scss";
@@ -91,7 +91,9 @@ localStorage.setItem('redirect_uri', window.location.pathname);
 		});
 
 		router.afterEach((to, from) => {
-			Vue.prototype.$help.$comp.$vuetify.goTo('html');
+			if (Vue.prototype.$help.$comp) {
+				Vue.prototype.$help.$comp.$vuetify.goTo('html');
+			}
 		});
 
 		Vue.use(VueAnalytics, {
@@ -122,18 +124,36 @@ localStorage.setItem('redirect_uri', window.location.pathname);
 			}
 		});
 
-		new Vue({
-			router,
-			vuetify,
-			i18n,
-			data: {
-				...globalVariables
-			},
-			render: (h) => h(component),
-		}).$mount('#app');
+		const injectVue = function() {
+			new Vue({
+				router,
+				vuetify,
+				i18n,
+				data: {
+					...globalVariables
+				},
+				render: (h) => h(component),
+			}).$mount('#app');
 
-		if (path) {
-			router.replace(path);
+			if (path) {
+				router.replace(path);
+			}
+		}
+
+		if (globalVariables.user.id) {
+
+			Promise.all([
+				StrategyService.getAll(globalVariables.user.id),
+				ComponentService.getAll(globalVariables.user.id),
+				DatasetService.getAll(globalVariables.user.id)
+			]).then(([strategies, components, datasets]) => {
+				globalVariables.strategies.splice(0, globalVariables.strategies.length, ...strategies.data.map(item => new Strategy(item)));
+				globalVariables.components.splice(0, globalVariables.components.length, ...components.data.map(item => new Component(item)));
+				globalVariables.datasets.splice(0, globalVariables.datasets.length, ...datasets.data.map(item => new Dataset(item)));
+				injectVue();
+			}).catch(error => Vue.prototype.$handleError(Vue.prototype, error));
+		} else {
+			injectVue();
 		}
 	};
 

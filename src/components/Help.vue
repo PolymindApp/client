@@ -21,7 +21,7 @@
 					<div :class="{ 'pa-4 fill-height grey lighten-4': true, 'grey lighten-2 inner-shadow': isPermanent }">
 
 						<!-- SEARCH -->
-						<v-text-field ref="search" v-model="filter" :disabled="items.length === 0" clearable solo :label="$t('help.filterPlaceholder')" prepend-inner-icon="mdi-magnify" hide-details />
+						<v-text-field ref="search" v-model="filter" :disabled="items.length === 0" clearable solo :label="$t('help.filterPlaceholder')" prepend-inner-icon="mdi-magnify" autocomplete="off" hide-details />
 
 						<!-- ALERNO ITEMS -->
 						<v-alert v-if="items.length === 0" type="warning" text tile colored-border border="bottom" class="mt-4 white">

@@ -37,16 +37,51 @@ const literals = {
 		invalid: 'Invalide',
 		notSeeingStatsTitle: 'Pourquoi je ne vois pas de statistique dans mon tableau de bord ?',
 		notSeeingStatsDesc: 'Les statistiques sont cumulées lorsque vous effectuez des tester des composantes, stratégies ou base de données. Par contre, seul celles exécutées en mode officiel seront affichées ci-dessous.',
-		weeklyTendenciesTitle: 'Tendances hebdomadaire',
-		weeklyTendenciesDesc: 'Rapport des efforts investis par journée.',
-		avgIntervalsTitle: 'Moyennes des intervalles',
-		avgIntervalsDesc: 'Temps moyen passé afin de répondre à une question.',
 
-		objectives: {
+		difficultyChartEmptyTitle: 'Rien pour cette semaine',
+		difficultyChartEmptyDesc: 'Démarrer une session depuis une de vos strategies en barre latérale',
+		difficultyChartTitle: 'Indicateurs de difficultés',
+		difficultyChartDesc: 'Progression de la difficulté sur une plage de temps',
+
+		intervalChartEmptyTitle: 'Rien pour cette semaine',
+		intervalChartEmptyDesc: 'Démarrer une session depuis une de vos strategies en barre latérale',
+		intervalChartTitle: 'Moyennes des intervalles',
+		intervalChartDesc: 'Temps moyen passé afin de répondre à une question.',
+
+		datasetChartEmptyTitle: 'Rien pour cette semaine',
+		datasetChartEmptyDesc: 'Ajouter ou modifier des données existantes depuis la section bases de données dans la barre latérale',
+		datasetChartTitle: 'Alimentation des données',
+		datasetChartDesc: 'Les ajouts, modifications et effacement effectués',
+
+		datasetChartLabels: {
+			create: 'Ajoutées',
+			update: 'Modifiées',
+			delete: 'Nettoyées',
+		},
+
+		endeavoursDivisionChartEmptyTitle: 'Rien pour cette semaine',
+		endeavoursDivisionChartEmptyDesc: 'Démarrer une session depuis une de vos strategies en barre latérale',
+		endeavoursDivisionChartTitle: 'Répartition des efforts',
+		endeavoursDivisionChartDesc: 'Temps total investi par type catégorie d\'élément',
+
+		endeavoursDivisionChartTotal: 'Dans l\'ensemble',
+		endeavoursDivisionChartByStrategies: 'Par stratégie',
+		endeavoursDivisionChartByComponents: 'Par composante',
+		endeavoursDivisionChartByDatasets: 'Par base de données',
+
+		difficulties: {
 			easy: 'Facile',
 			unsure: 'Incertain',
 			hard: 'Difficile',
 		},
+
+		reviews: {
+			completed: 'Complété',
+			todo: 'À faire',
+			skipped: 'Manqué',
+		},
+
+		avgTimeSpent: 'Temps moyen passé',
 
 		emptyCalendarTitle: 'Rien de prévu',
 		emptyCalendarDesc: 'Vous êtes libre cette semaine',
@@ -65,6 +100,8 @@ const literals = {
 		news: {
 			title: 'Dernières actualités',
 			seeMore: 'En savoir plus',
+			emptyDesc: 'Aucune actualité',
+			type: 'Type :',
 			types: {
 				general: 'Générale',
 				issue: 'Problème',
