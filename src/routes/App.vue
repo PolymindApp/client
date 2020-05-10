@@ -137,7 +137,7 @@ export default Vue.extend({
 
 		moment.updateLocale(this.$i18n.locale, {
 			week: {
-				dow: 0
+				dow: 1
 			}
 		});
 

@@ -7,6 +7,11 @@
 
 						<!-- ASSEMBLY CARD -->
 						<v-card @mousedown="select(assemblyIdx)" :min-width="minWidth" class="pa-4 text-center fill-height d-flex align-center justify-center" v-bind="getAttributes(assembly, assemblyIdx)">
+
+							<div v-if="selectedIdx === assemblyIdx" class="absolute d-flex align-center" style="left: 0.75rem; top: 0.75rem">
+								<v-chip color="primary" class="overline" x-small>Selected</v-chip>
+							</div>
+
 							<div class="absolute d-flex align-center" style="right: 0.25rem; top: 0.25rem">
 
 								<!-- WARNING -->
@@ -51,13 +56,13 @@
 							<!-- CONTENT -->
 							<div>
 								<div class="mb-2">
-									<v-icon :class="assemblyIdx === selectedIdx ? null : 'primary--text'" v-if="assembly.component" size="64">{{ getComponent(assembly.component).icon }}</v-icon>
+									<v-icon :class="assemblyIdx === selectedIdx ? 'primary--text' : null" v-if="assembly.component" size="64">{{ getComponent(assembly.component).icon }}</v-icon>
 									<v-icon v-else size="64">mdi-selection-ellipse mdi-dark mdi-inactive</v-icon>
 								</div>
 
 								<div class="title">
-									<span :class="assemblyIdx === selectedIdx ? null : 'primary--text'" v-if="assembly.name" v-text="assembly.name"></span>
-									<span :class="assemblyIdx === selectedIdx ? null : 'primary--text'" v-else-if="assembly.component" v-text="(getComponent(assembly.component) || {}).name"></span>
+									<span :class="assemblyIdx === selectedIdx ? 'primary--text' : null" v-if="assembly.name" v-text="assembly.name"></span>
+									<span :class="assemblyIdx === selectedIdx ? 'primary--text' : null" v-else-if="assembly.component" v-text="(getComponent(assembly.component) || {}).name"></span>
 									<span v-else v-text="$t('strategy.assembly.noComponent')"></span>
 								</div>
 
@@ -67,7 +72,7 @@
 								</div>
 
 								<div class="mt-4 overline">
-									<span :class="assemblyIdx === selectedIdx ? null : 'primary--text'" v-if="assembly.duration" v-text="$t('strategy.assembly.duration', { duration: assembly.duration })"></span>
+									<span :class="assemblyIdx === selectedIdx ? 'primary--text' : null" v-if="assembly.duration" v-text="$t('strategy.assembly.duration', { duration: assembly.duration })"></span>
 									<span v-else v-text="$t('strategy.assembly.noDuration')"></span>
 								</div>
 							</div>
@@ -245,8 +250,10 @@
 
 			getAttributes(assembly, index) {
         		return {
-        			color: index === this.selectedIdx ? 'primary' : 'white',
-        			dark: index === this.selectedIdx,
+					// flat: index !== this.selectedIdx,
+					color: index !== this.selectedIdx ? 'grey lighten-4' : null,
+        			// color: index === this.selectedIdx ? 'primary' : 'white',
+        			// dark: index === this.selectedIdx,
 				};
 			},
 
@@ -272,7 +279,7 @@
 
 			test(assembly) {
 
-				const testUri = this.playerHost + '/assembly/' + assembly.guid + '/test';
+				const testUri = this.playerHost + '/assembly/' + assembly.guid;
 
 				this.sessionLoading[assembly.guid] = true;
 				StrategySessionService.generate({
@@ -285,7 +292,7 @@
 						.then(session => {
 							this.sessionLoading[assembly.guid] = false;
 							this.$forceUpdate();
-							const win = window.open(this.playerHost + '/assembly/' + session.hash + '/test', '_blank');
+							const win = window.open(this.playerHost + '/a/' + session.hash, '_blank');
 							win.focus();
 						});
 			}

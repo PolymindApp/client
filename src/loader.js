@@ -6,6 +6,7 @@ import Thumbnails from './utils/Thumbnails';
 import Crop from './utils/Crop';
 import Error from './utils/Error';
 import Comments from './utils/Comments';
+import Toolbar from './utils/Toolbar';
 
 Vue.use(Modal);
 Vue.use(Crop);
@@ -14,6 +15,7 @@ Vue.use(Comments);
 Vue.use(Error);
 Vue.use(Shortcuts);
 Vue.use(Thumbnails);
+Vue.use(Toolbar);
 
 Vue.prototype.$deepClone = function(obj) {
 	return JSON.parse(JSON.stringify(obj));

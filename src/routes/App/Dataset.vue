@@ -535,6 +535,7 @@ export default Vue.extend({
 			this.sessionLoading = true;
 			StrategySessionService.generate({
 				type: 'test',
+				dataset: this.id,
 				component: component.id,
 				parameters: component.getDefaultParameters(this.dataset),
 			})
@@ -561,11 +562,11 @@ export default Vue.extend({
 		},
 
 		testUri() {
-			return this.playerHost + '/dataset/' + this.dataset.id + '/test';
+			return this.playerHost + '/d/' + this.dataset.id;
 		},
 
 		generatedTestUri() {
-			return this.playerHost + '/dataset/' + this.session.hash + '/test';
+			return this.playerHost + '/d/' + this.session.hash;
 		},
 
 		canTest() {

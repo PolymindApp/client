@@ -11,38 +11,42 @@
 		mixins: [reactiveProp],
 		props: ['options'],
 
-		components: {},
-
 		mounted() {
-			this.renderChart(this.chartData, Object.assign({}, {
-				responsive: true,
-				maintainAspectRatio: false,
-				legend: {
-					position: 'bottom',
-				},
-				tooltips: {
-					mode: 'index',
-					intersect: false,
-				},
-			}, this.options));
-		},
-
-		destroyed() {
-
+			this.updateChart();
 		},
 
 		methods: {
 
-		},
-
-		computed: {
-
+			updateChart() {
+				this.renderChart(this.chartData, Object.assign({}, this.defaultOptions, this.options));
+			}
 		},
 
 		data() {
 			return {
+				defaultOptions: {
+					responsive: true,
+					maintainAspectRatio: false,
+					cutoutPercentage: 50,
+					legend: {
+						position: 'bottom',
+					},
+					tooltips: {
+						mode: 'index',
+						intersect: false,
+					},
+				}
+			}
+		},
 
-			};
+		watch: {
+
+			chartData: {
+				deep: true,
+				handler(options) {
+					this.updateChart();
+				}
+			}
 		}
 	});
 </script>

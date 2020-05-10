@@ -19,7 +19,7 @@
 			</v-btn>
 		</v-snackbar>
 
-		<v-app-bar dark :src="backgroundImage" app :class="collapse ? 'fullscreen' : null" :flat="collapse" :color="collapse ? 'transparent' : null" :collapse="collapse" :clipped-right="sidebar.permanent">
+		<v-app-bar dark :src="backgroundImage" app :class="collapse ? 'fullscreen' : null" :flat="collapse" :color="collapse ? 'transparent' : 'primary'" :collapse="collapse" :clipped-right="sidebar.permanent">
 
 			<template v-slot:img="{ props }">
 				<v-img v-bind="props" gradient="to bottom, rgba(86, 190, 187, 0.75), rgba(27, 142, 138, 0.75)"></v-img>
@@ -53,11 +53,6 @@
 							<span v-if="index === 0" :key="index + '_item'">{{ breadcrumb }}</span>
 							<span v-if="index > 0" :key="index + '_item'" class="font-weight-light">{{ breadcrumb }}</span>
 						</span>
-
-						<template v-if="typeof breadcrumb !== 'string'">
-							<component class="d-inline" :is="breadcrumb[0]" v-bind="breadcrumb[1]" v-if="typeof breadcrumb === 'object'"></component>
-							<component class="d-inline" :is="breadcrumb" v-else></component>
-						</template>
 					</div>
 
 					<v-icon v-if="index + 1 < $root.breadcrumbs.length" :key="index + '_chevron'" class="separator">mdi-chevron-right</v-icon>
@@ -67,10 +62,16 @@
 			<v-spacer></v-spacer>
 
 			<template v-if="$vuetify.breakpoint.mdAndUp">
-				<template v-if="contextualComponent.component">
-					<component :is="contextualComponent.component"></component>
-					<v-divider v-if="!collapse" inset vertical class="ml-8"></v-divider>
-				</template>
+				<v-slide-y-transition>
+					<div v-if="$toolbar.state.hasItem" class="d-flex align-center">
+						<component :is="$toolbar.state.ref" v-bind="$toolbar.state.props" v-on="$toolbar.state.listeners"></component>
+					</div>
+				</v-slide-y-transition>
+
+				<v-btn to="/about/contact" class="ml-4" text>
+					<v-icon left>mdi-email-check-outline</v-icon>
+					<span v-text="$t('toolbar.feedback')"></span>
+				</v-btn>
 
 				<!-- MESSAGING -->
 <!--				<v-menu v-model="messagingMenu" v-if="!collapse" transition="slide-y-transition" max-width="450" min-width="450">-->
@@ -332,10 +333,6 @@
 					</v-tooltip>
 				</template>
 				<v-list>
-					<template v-if="contextualComponent.component">
-						<component :is="contextualComponent.component"></component>
-						<v-divider class="my-4"></v-divider>
-					</template>
 
 					<!-- MESSAGING -->
 <!--					<v-list-item :to="'/account/' + $root.user.id + '/messaging'">-->
@@ -560,9 +557,6 @@ export default Vue.extend({
             notificationMenu: false,
 			collapse: false,
 			options: [],
-			contextualComponent: {
-				component: false,
-			},
 			notifications: [],
             messages: [],
             searchLastQuery: '',
@@ -580,18 +574,9 @@ export default Vue.extend({
 	},
 
 	watch: {
-		'$root.toolbarOptions': function(options) {
-			this.options = options;
-		},
-		'$root.toolbarContextual.component': function(component) {
-			this.contextualComponent.component = component;
-		},
 		$route(to, from) {
 		    this.searchMenuOpened = false;
-			this.$root.toolbarOptions = [];
-			this.$root.toolbarContextual = {
-				component: false,
-			};
+		    this.$toolbar.clear();
 		},
         searchMenuOpened() {
 		    this.loadLatestSearchTerms();

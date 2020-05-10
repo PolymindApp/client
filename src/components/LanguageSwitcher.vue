@@ -28,7 +28,7 @@
 <script>
 import Vue from 'vue';
 import moment from 'moment';
-import { LanguageService } from "@polymind/sdk-js";
+import { LanguageService, Cookies } from "@polymind/sdk-js";
 
 export default Vue.extend({
 	name: 'LanguageSwitcher',
@@ -75,7 +75,7 @@ export default Vue.extend({
 
 			const cookieDate = new Date();
 			cookieDate.setMonth(cookieDate.getMonth() + 12);
-			this.$cookies.set("lang", lang, cookieDate, '/', process.env.VUE_APP_COOKIE_DOMAIN);
+			Cookies.set("lang", lang, cookieDate, '/', process.env.VUE_APP_COOKIE_DOMAIN);
 
 			this.$i18n.locale = lang;
 			moment.locale(lang);

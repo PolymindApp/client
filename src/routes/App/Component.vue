@@ -389,11 +389,11 @@ export default Vue.extend({
 		},
 
 		testUri() {
-			return this.playerHost + '/component/' + this.component.id + '/test';
+			return this.playerHost + '/c/' + this.component.id;
 		},
 
 		generatedTestUri() {
-			return this.playerHost + '/component/' + this.session.hash + '/test';
+			return this.playerHost + '/c/' + this.session.hash;
 		},
 
 		canTest() {

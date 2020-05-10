@@ -433,7 +433,7 @@ export default Vue.extend({
 		},
 
 		generatedTestUri() {
-			return this.playerHost + '/strategy/' + this.session.hash + '/test';
+			return this.playerHost + '/s/' + this.session.hash;
 		},
 
 		canTest() {

@@ -45,7 +45,7 @@
 		</div>
 
 		<v-expand-transition group>
-			<div key="empty" v-if="sessionsDayDate && sessionsDay.data.length === 0">
+			<div key="empty" v-if="sessionsDayDate && sessionsDay.length === 0">
 				<v-card-title>{{ $t('sessionGraph.sessionsDay') }}</v-card-title>
 				<v-alert type="info" border="left" colored-border light elevation="2">
 					<span class="text-break" v-html="$t('sessionGraph.noSessionsThisDay', { date: moment(sessionsDayDate).format('ll') })"></span>
@@ -195,7 +195,7 @@
 
             parsedSessions() {
                 let items = {};
-                this.sessions.data.forEach(session => {
+                this.sessions.forEach(session => {
                     const date = moment(session.start_date).format('YYYY-MM-DD');
                     const daysFromToday = this.$options.filters.daysFromToday(date);
                     if (!items[daysFromToday]) {
@@ -215,8 +215,8 @@
             return {
 				isLoading: false,
                 moment: moment,
-				sessions: { data: [] },
-                sessionsDay: { data: [] },
+				sessions: [],
+                sessionsDay: [],
 				sessionsDayDate: false,
 			};
         },

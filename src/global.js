@@ -13,10 +13,6 @@ const globalVariables = {
 	isSaved: false,
 	copiedToClipboard: false,
 	isDeleted: false,
-	toolbarOptions: [],
-	toolbarContextual: {
-		component: false
-	},
 	shortcuts: {
 		visible: false,
 	},

@@ -11,46 +11,49 @@
 		mixins: [reactiveProp],
 		props: ['options'],
 
-        components: {},
+		mounted() {
+			this.updateChart();
+		},
 
-        mounted() {
-			this.renderChart(this.chartData, Object.assign({}, {
-				responsive: true,
-				maintainAspectRatio: false,
-				legend: {
-					position: 'bottom',
-				},
-				tooltips: {
-					mode: 'index',
-					intersect: false,
-				},
-				scales: {
-					xAxes: [{
-						stacked: true
-					}],
-					yAxes: [{
-						stacked: true
-					}],
+		methods: {
+
+			updateChart() {
+				this.renderChart(this.chartData, Object.assign({}, this.defaultOptions, this.options));
+			}
+		},
+
+		data() {
+			return {
+				defaultOptions: {
+					responsive: true,
+					maintainAspectRatio: false,
+					legend: {
+						position: 'bottom',
+					},
+					tooltips: {
+						mode: 'index',
+						intersect: false,
+					},
+					scales: {
+						xAxes: [{
+							stacked: true
+						}],
+						yAxes: [{
+							stacked: true
+						}],
+					}
 				}
-			}, this.options));
-        },
-
-        destroyed() {
-
-        },
-
-        methods: {
-
+			}
 		},
 
-        computed: {
+		watch: {
 
-		},
-
-        data() {
-            return {
-
-			};
-        }
+			chartData: {
+				deep: true,
+				handler(options) {
+					this.updateChart();
+				}
+			}
+		}
     });
 </script>

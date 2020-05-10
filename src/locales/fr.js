@@ -34,24 +34,28 @@ const literals = {
 	},
 	dashboard: {
 
+		nextEventToday: 'Aujourd\'hui :',
+		nextEventTomorrow: 'Demain :',
+		nextEventLater: 'Prochainement :',
+
 		invalid: 'Invalide',
-		notSeeingStatsTitle: 'Pourquoi je ne vois pas de statistique dans mon tableau de bord ?',
-		notSeeingStatsDesc: 'Les statistiques sont cumulées lorsque vous effectuez des tester des composantes, stratégies ou base de données. Par contre, seul celles exécutées en mode officiel seront affichées ci-dessous.',
+		noStrategySoonTitle: 'Aucune session prévue prochainement',
+		noStrategySoonDesc: 'Mieux vaut jouer de la guitare 15 minutes par jour pendant une semaine que 6 heures en une journée.',
 
-		difficultyChartEmptyTitle: 'Rien pour cette semaine',
-		difficultyChartEmptyDesc: 'Démarrer une session depuis une de vos strategies en barre latérale',
-		difficultyChartTitle: 'Indicateurs de difficultés',
-		difficultyChartDesc: 'Progression de la difficulté sur une plage de temps',
+		difficultyChartEmptyTitle: 'Aucune donnée',
+		difficultyChartEmptyDesc: 'Rien n\'a été capturé pour cette plage de temps',
+		difficultyChartTitle: 'Inflexion de la difficulté',
+		difficultyChartDesc: 'Basé sur l\'ensemble des réponses fournis',
 
-		intervalChartEmptyTitle: 'Rien pour cette semaine',
-		intervalChartEmptyDesc: 'Démarrer une session depuis une de vos strategies en barre latérale',
-		intervalChartTitle: 'Moyennes des intervalles',
-		intervalChartDesc: 'Temps moyen passé afin de répondre à une question.',
+		intervalChartEmptyTitle: 'Aucune donnée',
+		intervalChartEmptyDesc: 'Rien n\'a été capturé pour cette plage de temps',
+		intervalChartTitle: 'Délais de réflexion',
+		intervalChartDesc: 'Basé sur le temps moyen passé afin de répondre à une question',
 
-		datasetChartEmptyTitle: 'Rien pour cette semaine',
-		datasetChartEmptyDesc: 'Ajouter ou modifier des données existantes depuis la section bases de données dans la barre latérale',
+		datasetChartEmptyTitle: 'Aucune donnée',
+		datasetChartEmptyDesc: 'Rien n\'a été capturé pour cette plage de temps',
 		datasetChartTitle: 'Alimentation des données',
-		datasetChartDesc: 'Les ajouts, modifications et effacement effectués',
+		datasetChartDesc: 'Les ajouts, modifications et effacements effectués',
 
 		datasetChartLabels: {
 			create: 'Ajoutées',
@@ -59,10 +63,10 @@ const literals = {
 			delete: 'Nettoyées',
 		},
 
-		endeavoursDivisionChartEmptyTitle: 'Rien pour cette semaine',
-		endeavoursDivisionChartEmptyDesc: 'Démarrer une session depuis une de vos strategies en barre latérale',
-		endeavoursDivisionChartTitle: 'Répartition des efforts',
-		endeavoursDivisionChartDesc: 'Temps total investi par type catégorie d\'élément',
+		endeavoursDivisionChartEmptyTitle: 'Aucune donnée',
+		endeavoursDivisionChartEmptyDesc: 'Rien n\'a été capturé pour cette plage de temps',
+		endeavoursDivisionChartTitle: 'Répartition de l\'effort',
+		endeavoursDivisionChartDesc: 'Basé sur le temps total investi par type de session',
 
 		endeavoursDivisionChartTotal: 'Dans l\'ensemble',
 		endeavoursDivisionChartByStrategies: 'Par stratégie',
@@ -83,8 +87,8 @@ const literals = {
 
 		avgTimeSpent: 'Temps moyen passé',
 
-		emptyCalendarTitle: 'Rien de prévu',
-		emptyCalendarDesc: 'Vous êtes libre cette semaine',
+		emptyCalendarTitle: 'Rien de prévu !',
+		emptyCalendarDesc: 'Vous avez congé pour cette semaine',
 		planStrategy: 'Planifier une stratégie',
 
 		strategies: 'Strategies ({total})',
@@ -109,11 +113,11 @@ const literals = {
 		},
 
 		contextual: {
-			filters: 'Filtres',
-			archived: 'Archivé',
-			favourite: 'Favoris',
-			public: 'Publique',
-			andMore: '+{total} autres',
+			rangePlaceholder: 'Plage de temps',
+			last7days: 'Hebdomadaire',
+			thisMonth: 'Mensuel',
+			lastMonth: 'Le mois dernier',
+			custom: 'Personnaliser',
 		},
 		new: {
 			dataset: 'Base de donnée',
@@ -297,8 +301,8 @@ const literals = {
 		newTitle: 'Nouvelle',
 		isDeleted: 'Cette stratégie a été effacée.',
 		restore: 'Restaurer',
-		accomplishDialogTitle: 'Accomplir une stratégie',
-		accomplishDialogDesc: 'Vous sentez-vous prêt à compléter cette stratégie ? Des statistiques seront récupérées et comptabilisées dans vos résultats finaux. Vous vous apprétez à démarrer une véritable scéance !',
+		accomplishDialogTitle: 'Démarrer une session',
+		accomplishDialogDesc: 'Vous sentez-vous prêt à compléter cette session ? Des statistiques seront récupérées et comptabilisées dans vos résultats finaux. Vous vous apprétez à démarrer une véritable scéance !',
 
 		settings: {
 			title: 'Réglages',
@@ -747,6 +751,7 @@ const literals = {
 	},
 	toolbar: {
 		help: 'Aide',
+		feedback: 'Votre avis',
 		seeAllNotif: 'Voir toutes les notifications',
 		seeAllMessages: 'Voir tous les messages',
 		searchPlaceholder: 'Entrez vos termes de recherche...',

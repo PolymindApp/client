@@ -47,11 +47,15 @@ Vue.use(VueGoogleMaps, {
 	},
 });
 
+const lang = Cookies.get('lang') || 'en';
 const i18n = new VueI18n({
-	locale: Cookies.get('lang') || 'en',
+	locale: lang,
 	fallbackLocale: 'en',
 	messages,
 });
+const cookieDate = new Date();
+cookieDate.setMonth(cookieDate.getMonth() + 12);
+Cookies.set("lang", lang, cookieDate, '/', process.env.VUE_APP_COOKIE_DOMAIN);
 
 localStorage.setItem('redirect_uri', window.location.pathname);
 

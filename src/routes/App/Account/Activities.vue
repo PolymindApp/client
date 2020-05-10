@@ -3,7 +3,7 @@
 		<v-row>
 			<v-col cols="12">
 				<v-card-title>
-					<span class="text-break">{{ $tc('account.sessionLastYear', sessions.data.length, { total: sessions.data.length }) }}</span>
+					<span class="text-break">{{ $tc('account.sessionLastYear', sessions.length, { total: sessions.length }) }}</span>
 				</v-card-title>
 				<SessionGraph :user="user" @load="sessions = arguments[0]" @sessions="handleSessions" @date="handleDate"/>
 			</v-col>
@@ -45,11 +45,11 @@
 							{{ $t('account.recentActivities') }}
 						</template>>
 						<template v-slot:content="props">
-							<v-timeline-item :icon="props.activity.strategy.icon || 'mdi-strategy'" :color="props.activity.strategy.color" large :key="props.index" label>
+							<v-timeline-item :icon="props.activity.getIcon()" :color="props.activity.getColor()" large :key="props.index" label>
 								<v-card class="elevation-2">
 									<v-card-text class="d-flex align-center">
 										<span v-html="$t('account.activities.sessionCompleted', {
-											name: props.activity.strategy.name,
+											name: props.activity.getName(),
 											timeAgo: $options.filters.timeAgo(props.activity.end_date)
 										})"></span>
 									</v-card-text>
@@ -59,14 +59,14 @@
 					</AccountActivities>
 					<AccountActivities v-else activities-empty="$t('account.activities.sessionEmpty')" :activities="sessionsDay">
 						<template v-slot:title>
-							<span ref="activities" class="text-break" v-html="$tc('sessionGraph.sessionsDay', sessionsDay.data.length, { total: sessionsDay.data.length, date: moment(sessionsDayDate).format('ll') })"></span>
+							<span ref="activities" class="text-break" v-html="$tc('sessionGraph.sessionsDay', sessionsDay.length, { total: sessionsDay.length, date: moment(sessionsDayDate).format('ll') })"></span>
 						</template>>
 						<template v-slot:content="props">
-							<v-timeline-item :icon="props.activity.strategy.icon || 'mdi-strategy'" :color="props.activity.strategy.color" large :key="props.index" label>
+							<v-timeline-item :icon="props.activity.getIcon()" :color="props.activity.getColor()" large :key="props.index" label>
 								<v-card class="elevation-2">
 									<v-card-text class="d-flex align-center">
 										<span v-html="$t('account.activities.sessionCompleted', {
-											name: props.activity.strategy.name,
+											name: props.activity.getName(),
 											timeAgo: $options.filters.timeAgo(props.activity.end_date)
 										})"></span>
 									</v-card-text>
@@ -151,10 +151,10 @@ export default Vue.extend({
 		return {
 			moment: moment,
             comments: { data: [] },
-			sessionsDay: { data: [] },
+			sessionsDay: [],
 			sessionsDayDate: false,
 			sessionsLoaded: false,
-			sessions: { data: [] },
+			sessions: [],
             newComment: {
 		        text: '',
 			}

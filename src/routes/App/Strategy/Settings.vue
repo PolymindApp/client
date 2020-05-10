@@ -37,10 +37,10 @@
 
 						<v-row>
 							<v-col cols="12" md="6">
-								<DateField v-model="strategy.start_date" @input="$event > strategy.end_date ? strategy.end_date = $event : null" :label="$t('strategy.settings.startDate')" clearable hide-details />
+								<DateField v-model="strategy.start_date" @input="$event > strategy.end_date ? strategy.end_date = $event : null" prepend-icon="mdi-calendar-month-outline" :label="$t('strategy.settings.startDate')" clearable hide-details />
 							</v-col>
 							<v-col cols="12" md="6">
-								<DateField :min="strategy.start_date" v-model="strategy.end_date" :label="$t('strategy.settings.endDate')" clearable hide-details />
+								<DateField :min="strategy.start_date" v-model="strategy.end_date" prepend-icon="mdi-calendar-month-outline" :label="$t('strategy.settings.endDate')" clearable hide-details />
 							</v-col>
 						</v-row>
 

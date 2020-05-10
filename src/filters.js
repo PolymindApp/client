@@ -31,6 +31,10 @@ Vue.filter('userScreenName', (user) => {
 	return user.screen_name || (user.first_name + ' ' + user.last_name).trim();
 });
 
+Vue.filter('ucfirst', str => {
+	return str.charAt(0).toUpperCase() + str.slice(1);
+});
+
 Vue.filter('iconName', (iconName) => {
 	const name = iconName.substring(4).replace(/-/gim, ' ');
 	// return name.charAt(0).toUpperCase() + name.slice(1);

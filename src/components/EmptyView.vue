@@ -6,7 +6,7 @@
 
 		<div v-if="title || desc" class="align-center d-flex flex-column">
 			<h2 class="title limited-content" v-if="title" v-text="title"></h2>
-			<p class="overline very-limited-content" v-if="desc" v-text="desc"></p>
+			<p class="overline very-limited-content mb-0" v-if="desc" v-text="desc"></p>
 		</div>
 	</v-card>
 </template>
