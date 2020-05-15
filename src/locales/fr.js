@@ -127,6 +127,7 @@ const literals = {
 		},
 		filteredNoResults: 'Aucun résultat...',
 		filteredNoResultsDesc: 'Vos critères de recherches n\'ont retournés aucun résultat',
+		noData: 'Aucune donnée',
 	},
 	news: {
 		writtenBy: 'Rédigé par <strong>{screenName}</strong>',

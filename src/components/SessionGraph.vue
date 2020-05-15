@@ -57,7 +57,7 @@
 
 <script>
     import Vue from 'vue';
-    import { StrategySessionService } from '@polymind/sdk-js';
+    import { SessionService } from '@polymind/sdk-js';
     import moment from 'moment';
 
     export default Vue.extend({
@@ -85,7 +85,7 @@
             load() {
 
                 this.isLoading = true;
-                StrategySessionService.getAll(this.user.id)
+                SessionService.getAll(this.user.id, null)
                     .then(response => this.sessions = response)
                     .catch(error => this.$handleError(this, error))
                     .finally(() => this.isLoading = false);
@@ -100,7 +100,7 @@
                 const date = this.getDate(day, weekday).format('YYYY-MM-DD');
 
                 this.isLoading = true;
-				StrategySessionService.getAllByDate(this.user.id, 'live', date)
+				SessionService.getAllByDate(this.user.id, null, date)
                     .then(response => {
                         this.sessionsDay = response;
                         this.sessionsDayDate = date;

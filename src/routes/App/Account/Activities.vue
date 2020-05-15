@@ -82,7 +82,7 @@
 
 <script>
 import Vue from 'vue';
-import { StrategySessionService, CommentService } from '@polymind/sdk-js';
+import { SessionService, CommentService } from '@polymind/sdk-js';
 import UserAvatar from "../../../components/UserAvatar";
 import SessionGraph from "../../../components/SessionGraph";
 import AccountActivities from "./AccountActivities";
@@ -104,7 +104,7 @@ export default Vue.extend({
 
 	        Promise.all([
                 CommentService.getAll('directus_users', this.$route.params.id, '-id', 10),
-				StrategySessionService.getAll(this.$route.params.id, 'live', 5),
+				SessionService.getAll(this.$route.params.id, null, 5),
 			])
                 .then(([comments, sessions]) => {
                     this.comments = comments;

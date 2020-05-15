@@ -2,7 +2,7 @@
 	<v-dialog v-model="open" scrollable persistent max-width="400px">
 		<v-card>
 			<v-card-title class="headline">
-				<v-icon color="primary" slot="icon" size="36" left>mdi-alert-decagram-outline</v-icon>
+				<v-icon color="primary" slot="icon" size="36" left>mdi-timetable</v-icon>
 				<span v-text="$t('strategy.accomplishDialogTitle')"></span>
 			</v-card-title>
 
@@ -26,7 +26,7 @@
 
 <script>
     import Vue from 'vue';
-    import { Strategy, StrategySessionService } from '@polymind/sdk-js';
+    import { Strategy, SessionStructureService } from '@polymind/sdk-js';
 
     export default Vue.extend({
 
@@ -60,8 +60,7 @@
 
 				if (force) {
 					this.sessionAccomplishLoading = true;
-					StrategySessionService.generate({
-						type: 'live',
+					SessionStructureService.generate({
 						strategy: this.strategy.id,
 						parameters: this.strategy.assemblies,
 					})
@@ -89,7 +88,7 @@
 			},
 
 			generatedTestUri() {
-				return this.playerHost + '/strategy/' + this.session.hash + '/test';
+				return this.playerHost + '/s/' + this.session.hash + '/test';
 			},
 		},
 

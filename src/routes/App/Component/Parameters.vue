@@ -57,7 +57,7 @@
 	import CodeEditorField from "../../../components/CodeEditorField";
 	import EmptyView from "../../../components/EmptyView";
 	import ComponentParameters from "../../../components/ComponentParameters";
-	import StrategyAssemblyParameters from "@polymind/sdk-js/src/models/StrategyAssemblyParameters";
+	import AssemblyParameters from "@polymind/sdk-js/src/models/AssemblyParameters";
 
 	let previewTimer;
 
@@ -127,7 +127,7 @@
             return {
 				error: null,
 				selectedDataset: this.dataset,
-				value: new StrategyAssemblyParameters(),
+				value: new AssemblyParameters(),
 				preview: new ComponentParametersModel(),
 			};
         },

@@ -120,7 +120,7 @@
 import Vue from 'vue';
 import Builds from "./Component/Builds";
 import Settings from "./Component/Settings";
-import {ComponentService, Component, CommentService, StrategySessionService, StrategySession, Dataset } from "@polymind/sdk-js";
+import {ComponentService, Component, CommentService, SessionStructureService, Session, Dataset } from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
 import Parameters from "./Component/Parameters";
@@ -355,8 +355,7 @@ export default Vue.extend({
 		test() {
 
 			this.sessionLoading = true;
-			StrategySessionService.generate({
-				type: 'test',
+			SessionStructureService.generate({
 				component: this.component.id,
 				dataset: this.dataset.id,
 				parameters: this.parametersValue,
@@ -388,12 +387,8 @@ export default Vue.extend({
 				&& this.$root.user.settings.development.theme === 'dark';
 		},
 
-		testUri() {
-			return this.playerHost + '/c/' + this.component.id;
-		},
-
 		generatedTestUri() {
-			return this.playerHost + '/c/' + this.session.hash;
+			return this.playerHost + '/c/' + this.session.hash + '/test';
 		},
 
 		canTest() {
@@ -442,7 +437,7 @@ export default Vue.extend({
 			revisionLoading: false,
 			revisionLoaded: false,
 			revisionMenu: false,
-			session: new StrategySession(),
+			session: new Session(),
 			sessionLoading: false,
 			dataHasChanged: false,
 			dataset: new Dataset(),

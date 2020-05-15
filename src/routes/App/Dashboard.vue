@@ -117,59 +117,61 @@
 						<v-progress-circular color="primary" indeterminate></v-progress-circular>
 					</v-overlay>
 				</v-fade-transition>
-				<v-calendar
-					ref="calendar"
-					:type="calendarType"
-					color="primary"
-					:now="today"
-					:value="calendarValue"
-					short-months
-					short-weekday
-					:start="calendarStartDate"
-					:end="calendarEndDate"
-					:locale="$i18n.locale"
-					:first-interval="firstInterval"
-					:interval-count="intervalCount"
-					:events="events"
-					:event-color="getEventColor"
-					@change="setEvents"
-					@click:event="handleEventClick"
-					class="v-calendar-session"
-				>
-					<template v-slot:event="props">
-						<span :class="{ 'pa-1 black--text': props.event.startDay !== today && !props.timed }">
-							<span>
-								<template v-if="!props.event.valid">
-									<v-icon color="white" small left>mdi-alert</v-icon>
-								</template>
-								<template v-else-if="!props.timed">
-									<template v-if="props.event.startDay < today">
-										<v-icon color="error" small left>mdi-close-circle</v-icon>
+				<v-sheet :height="calendarType === 'custom-daily' ? 350 : null">
+					<v-calendar
+						ref="calendar"
+						:type="calendarType"
+						color="primary"
+						:now="today"
+						:value="calendarValue"
+						short-months
+						short-weekday
+						:start="calendarStartDate"
+						:end="calendarEndDate"
+						:locale="$i18n.locale"
+						:first-interval="firstInterval"
+						:interval-count="intervalCount"
+						:events="events"
+						:event-color="getEventColor"
+						@change="setEvents"
+						@click:event="handleEventClick"
+						class="v-calendar-session"
+					>
+<!--						<template v-slot:day-header="props">-->
+<!--							<div class="text-center">-->
+<!--								<span v-text="$t('strategy.assembly.duration', { duration: totalTimePerDate[props.date] })"></span>-->
+<!--							</div>-->
+<!--						</template>-->
+						<template v-slot:event="props">
+							<span :class="{ 'pa-1 black--text': props.event.startDay !== today && !props.timed }">
+								<span>
+									<template v-if="!props.event.valid">
+										<v-icon color="white" small left>mdi-alert</v-icon>
 									</template>
-									<template v-else-if="props.event.startDay === today">
-										<v-icon color="white" small left>mdi-play</v-icon>
+									<template v-else-if="props.event.startDay > today">
+										<v-icon :color="props.event.color" small left>mdi-calendar-clock</v-icon>
+									</template>
+									<template v-else-if="!props.timed && props.event.startDay === today">
+										<v-icon :color="props.event.color" small left>mdi-play</v-icon>
 									</template>
 									<template v-else>
-										<v-icon :color="props.event.color" small left>mdi-circle</v-icon>
+										<v-icon :color="props.event.color" small left>mdi-check-circle</v-icon>
 									</template>
-								</template>
-								<template v-else>
-									<v-icon :color="props.event.color" small left>mdi-circle</v-icon>
-								</template>
-								<span v-text="props.event.name"></span>
-								(<!--
-									--><strong v-if="props.event.valid" v-text="$t('strategy.assembly.duration', { duration: props.event.duration || '~' })"></strong>
-									<strong v-else v-text="$t('dashboard.invalid')"></strong><!--
-								-->)
+									<span v-text="props.event.name"></span>
+									(<!--
+										--><strong v-if="props.event.valid" v-text="$t('strategy.assembly.duration', { duration: props.event.duration || '~' })"></strong>
+										<strong v-else v-text="$t('dashboard.invalid')"></strong><!--
+									-->)
+								</span>
+								<div v-if="props.timed && props.event.duration >= 60" class="text-center">
+									<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.easy > 0 ? 'success' : null" class="mr-2" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.easy || 0 }}</v-chip>
+									<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.unsure > 0 ? 'warning' : null" class="mr-2" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.unsure || 0 }}</v-chip>
+									<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.hard > 0 ? 'error' : null" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.hard || 0 }}</v-chip>
+								</div>
 							</span>
-							<div v-if="props.timed && props.event.duration >= 60" class="text-center">
-								<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.easy > 0 ? 'success' : null" class="mr-2" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.easy || 0 }}</v-chip>
-								<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.unsure > 0 ? 'warning' : null" class="mr-2" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.unsure || 0 }}</v-chip>
-								<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.hard > 0 ? 'error' : null" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.hard || 0 }}</v-chip>
-							</div>
-						</span>
-					</template>
-				</v-calendar>
+						</template>
+					</v-calendar>
+				</v-sheet>
 			</v-card>
 		</v-card>
 
@@ -257,16 +259,20 @@
 						<v-card-text class="pt-4">
 							<v-row no-gutters>
 								<v-col cols="12" md="6" class="pa-4 text-center">
-									<pie-chart :chart-data="endeavoursDivisionCharts.total" :options="endeavoursDivisionCharts.total.options" style="height: 143.25px"></pie-chart>
+									<EmptyView v-if="endeavoursDivisionCharts.total.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />
+									<pie-chart v-else :chart-data="endeavoursDivisionCharts.total" :options="endeavoursDivisionCharts.total.options" style="height: 143.25px"></pie-chart>
 								</v-col>
 								<v-col cols="12" md="6" class="pa-4 text-center">
-									<doughnut-chart :chart-data="endeavoursDivisionCharts.strategies" :options="endeavoursDivisionCharts.strategies.options" style="height: 143.25px"></doughnut-chart>
+									<EmptyView v-if="endeavoursDivisionCharts.strategies.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />
+									<doughnut-chart v-else :chart-data="endeavoursDivisionCharts.strategies" :options="endeavoursDivisionCharts.strategies.options" style="height: 143.25px"></doughnut-chart>
 								</v-col>
 								<v-col cols="12" md="6" class="pa-4 text-center">
-									<doughnut-chart :chart-data="endeavoursDivisionCharts.components" :options="endeavoursDivisionCharts.components.options" style="height: 143.25px"></doughnut-chart>
+									<EmptyView v-if="endeavoursDivisionCharts.datasets.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />
+									<pie-chart v-else :chart-data="endeavoursDivisionCharts.datasets" :options="endeavoursDivisionCharts.datasets.options" style="height: 143.25px"></pie-chart>
 								</v-col>
 								<v-col cols="12" md="6" class="pa-4 text-center">
-									<doughnut-chart :chart-data="endeavoursDivisionCharts.datasets" :options="endeavoursDivisionCharts.datasets.options" style="height: 143.25px"></doughnut-chart>
+									<EmptyView v-if="endeavoursDivisionCharts.components.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />
+									<doughnut-chart v-else :chart-data="endeavoursDivisionCharts.components" :options="endeavoursDivisionCharts.components.options" style="height: 143.25px"></doughnut-chart>
 								</v-col>
 							</v-row>
 						</v-card-text>
@@ -287,7 +293,7 @@ import BarStackedChart from "../../components/Chart/BarStacked";
 import HorizontalBarChart from "../../components/Chart/HorizontalBar";
 import DoughnutChart from "../../components/Chart/Doughnut";
 import PieChart from "../../components/Chart/Pie";
-import { Color, NewsService, StrategySessionStatsService, Cookies, StrategySession } from "@polymind/sdk-js";
+import { Color, NewsService, SessionStatsService, Cookies, Session } from "@polymind/sdk-js";
 import Radar from "../../components/Chart/Radar";
 import UserAvatar from "../../components/UserAvatar";
 import moment from "moment";
@@ -304,7 +310,7 @@ export default Vue.extend({
 
 		Promise.all([
 			NewsService.getLatest(Cookies.get('lang')),
-			StrategySessionStatsService.getAll(null, startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD')),
+			SessionStatsService.getAll(null, startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD')),
 		])
 				.then(([news, stats]) => {
 					to.meta.news = news;
@@ -373,7 +379,7 @@ export default Vue.extend({
 			const [ start, end ] = this.dataRange;
 
 			this.isLoading = true;
-			StrategySessionStatsService.getAll(null, start.format('YYYY-MM-DD'), moment(end).add(1, 'day').format('YYYY-MM-DD'))
+			SessionStatsService.getAll(null, start.format('YYYY-MM-DD'), moment(end).add(1, 'day').format('YYYY-MM-DD'))
 					.then(stats => {
 						this.stats = stats;
 						this.updateDates();
@@ -385,9 +391,22 @@ export default Vue.extend({
 
 		setEvents ({ start, end }) {
 			this.events = this.getEvents(start.date, end.date, true);
+			this.setTotalTimeByDate(events);
 		},
 
-		getPlannedEvents(start, end, excludeSessions = false) {
+		setTotalTimeByDate(events) {
+			this.totalTimePerDate = {};
+			events.forEach(event => {
+				if (!event.planned) {
+					if (!this.totalTimePerDate[event.startDay]) {
+						this.totalTimePerDate[event.startDay] = 0;
+					}
+					this.totalTimePerDate[event.startDay] += event.duration;
+				}
+			});
+		},
+
+		getPlannedEvents(start, end, excludeSessions = false, exclusePassedSession = true) {
 
 			const events = [];
 
@@ -401,11 +420,16 @@ export default Vue.extend({
 						icon: strategy.getIcon(),
 						name: strategy.name,
 						desc: strategy.description,
+						planned: true,
 					});
 
 					const dayStats = this.stats.daily[event.startDay];
-					if (excludeSessions && dayStats && dayStats.session[event.strategy_session]) {
+					if (excludeSessions && dayStats && dayStats.session[event.session]) {
 						return;
+					}
+
+					if (exclusePassedSession && event.startDay < this.today) {
+						return
 					}
 
 					event.valid = strategy.isValid(this.components, this.datasets);
@@ -422,24 +446,24 @@ export default Vue.extend({
 
 			for(let day in this.stats.daily) {
 				for(let ssKey in this.stats.daily[day].session) {
-					const session = this.stats.daily[day].session[ssKey];
-					const strategySession = new StrategySession(session);
-					if (strategySession.end_date) {
-						const id = parseInt(ssKey);
-						const element = session.strategy
-								? this.$root.strategies.find(strategy => strategy.id === id)
-								: this.$root.components.find(component => component.id === id);
-						if (element) {
-							const event = strategySession.getEvent();
-							Object.assign(event, {
-								id: element.id,
-								color: element.getColor(),
-								icon: element.getIcon(),
-								name: element.name,
-								desc: element.description,
-							});
-							events.push(event);
-						}
+					const id = parseInt(ssKey);
+					const stat = this.stats.daily[day].session[ssKey];
+					const element = stat.strategy
+							? this.$root.strategies.find(strategy => strategy.id === stat.strategy)
+							: this.$root.components.find(component => component.id === stat.component);
+					const dataset = this.$root.datasets.find(dataset => dataset.id === stat.dataset);
+					if (element && dataset) {
+						const session = new Session(stat);
+						const event = session.getEvent(element, dataset);
+						Object.assign(event, {
+							id,
+							color: element.getColor(),
+							icon: element.getIcon(),
+							name: stat.strategy ? element.name : dataset.name,
+							desc: stat.strategy ? element.description : dataset.description,
+							planned: false,
+						});
+						events.push(event);
 					}
 				}
 			}
@@ -448,7 +472,6 @@ export default Vue.extend({
 		},
 
 		getEvents (start, end, excludeSessions = false) {
-
 			return this.getPlannedEvents(start, end, excludeSessions).concat(this.getTimedSessions(start, end));
 		},
 
@@ -493,7 +516,7 @@ export default Vue.extend({
 				this.$vuetify.theme.themes.light.error
 			];
 			for (let i = 0; i < 7; i++) {
-				colors.push(Color.randomHex());
+				colors.push('#' + Color.randomHex());
 			}
 
 			/**
@@ -629,9 +652,7 @@ export default Vue.extend({
 				return this.statsStartDate;
 			}
 
-			console.log(moment().endOf('week').format('YYYY-MM-DD'));
-
-			return moment().endOf('week').subtract(3, 'days').format('YYYY-MM-DD');
+			return moment().subtract(3, 'days').format('YYYY-MM-DD');
 		},
 
 		getCalendarEndDate() {
@@ -640,7 +661,7 @@ export default Vue.extend({
 				return this.statsEndDate;
 			}
 
-			return moment().endOf('week').add(3, 'days').format('YYYY-MM-DD');
+			return moment().add(3, 'days').format('YYYY-MM-DD');
 		},
 	},
 
@@ -918,6 +939,7 @@ export default Vue.extend({
 			today: moment().format('YYYY-MM-DD'),
 			tomorrow: moment().add(1, 'day').format('YYYY-MM-DD'),
 			calendarValue: moment().format('YYYY-MM-DD'),
+			totalTimePerDate: {},
 		}
 	},
 
@@ -942,13 +964,12 @@ export default Vue.extend({
 		.v-calendar-daily__day.v-future {
 			background-color: rgba(0, 0, 0, 0.05);
 		}
+
+		.v-calendar-weekly__week .v-event,
 		.v-event-timed {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			text-align: center;
 			transition: all ease 0.3s;
 
+			.white--text,
 			&.white--text {
 				color: black !important;
 				border-color: #ccc !important;

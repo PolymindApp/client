@@ -127,7 +127,7 @@
 import Vue from 'vue';
 import Data from "./Dataset/Data";
 import Settings from "./Dataset/Settings";
-import { DatasetService, Dataset, DatasetColumn, DatasetRow, DatasetCell, Model, Transaction, StrategySessionService, StrategySession } from "@polymind/sdk-js";
+import { DatasetService, Dataset, DatasetColumn, DatasetRow, DatasetCell, Model, Transaction, SessionStructureService, Session } from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
 import DataActions from "./Dataset/Contextual/Actions";
@@ -533,8 +533,7 @@ export default Vue.extend({
 		test(component) {
 
 			this.sessionLoading = true;
-			StrategySessionService.generate({
-				type: 'test',
+			SessionStructureService.generate({
 				dataset: this.id,
 				component: component.id,
 				parameters: component.getDefaultParameters(this.dataset),
@@ -561,12 +560,8 @@ export default Vue.extend({
 			return this.datasetJson !== this.originalDatasetJson;// || this.transactions.length > 0;
 		},
 
-		testUri() {
-			return this.playerHost + '/d/' + this.dataset.id;
-		},
-
 		generatedTestUri() {
-			return this.playerHost + '/d/' + this.session.hash;
+			return this.playerHost + '/d/' + this.session.hash + '/test';
 		},
 
 		canTest() {
@@ -589,7 +584,7 @@ export default Vue.extend({
 			worker: null,
 			isDeleted: false,
 			formErrors: [],
-			session: new StrategySession(),
+			session: new Session(),
 			sessionLoading: false,
 			originalDataset: new Dataset({
 				columns: [ new DatasetColumn() ],

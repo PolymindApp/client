@@ -44,7 +44,7 @@
 <script>
     import Vue from 'vue';
     import { LANGUAGES } from '@polymind/sdk-js';
-	import StrategyAssemblyParameters from "@polymind/sdk-js/src/models/StrategyAssemblyParameters";
+	import AssemblyParameters from "@polymind/sdk-js/src/models/AssemblyParameters";
 
     export default Vue.extend({
 

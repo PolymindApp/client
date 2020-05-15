@@ -176,7 +176,7 @@
     import Vue from 'vue';
 	import EmptyView from "../../../components/EmptyView";
 	import draggable from "vuedraggable";
-	import {Hash, StrategyAssembly, StrategySessionService} from "@polymind/sdk-js";
+	import {Hash, Assembly, SessionStructureService} from "@polymind/sdk-js";
 	import ComponentParameters from "../../../components/ComponentParameters";
 
     export default Vue.extend({
@@ -210,7 +210,7 @@
 			},
 
 			add(assembly) {
-        		const newAssembly = new StrategyAssembly();
+        		const newAssembly = new Assembly();
 				this.assemblies.push(newAssembly);
 
 				this.select(this.assemblies.indexOf(newAssembly));
@@ -278,13 +278,8 @@
 			},
 
 			test(assembly) {
-
-				const testUri = this.playerHost + '/assembly/' + assembly.guid;
-
 				this.sessionLoading[assembly.guid] = true;
-				StrategySessionService.generate({
-					type: 'test',
-					strategy: this.strategy.id,
+				SessionStructureService.generate({
 					component: this.component.id,
 					dataset: this.dataset.id,
 					parameters: assembly.parameters,
@@ -292,7 +287,7 @@
 						.then(session => {
 							this.sessionLoading[assembly.guid] = false;
 							this.$forceUpdate();
-							const win = window.open(this.playerHost + '/a/' + session.hash, '_blank');
+							const win = window.open(this.playerHost + '/a/' + session.hash + '/test', '_blank');
 							win.focus();
 						});
 			}
@@ -330,7 +325,7 @@
 				sessionLoading: {},
 				minWidth: '15rem',
 				selectedIdx: null,
-				selected: new StrategyAssembly(),
+				selected: new Assembly(),
 			};
         },
 

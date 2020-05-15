@@ -27,7 +27,6 @@
 				defaultOptions: {
 					responsive: true,
 					maintainAspectRatio: false,
-					cutoutPercentage: 50,
 					legend: {
 						position: 'bottom',
 					},
