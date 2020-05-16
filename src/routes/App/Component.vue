@@ -1,81 +1,41 @@
 <template>
-	<v-sheet class="panel-overflow d-flex flex-column w-100" tile>
+	<v-card class="panel-overflow d-flex flex-column w-100" :disabled="isDeleted" tile>
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
-		<!-- IS PUBLIED -->
-<!--		<v-snackbar color="success" v-model="publishModal.publied">-->
-<!--			<v-icon class="white&#45;&#45;text" left>mdi-check</v-icon>-->
-<!--			{{$t('snackbar.forked')}}-->
-<!--			<v-btn text @click="forkModal.publied = false">-->
-<!--				{{$t('modal.close')}}-->
-<!--			</v-btn>-->
-<!--		</v-snackbar>-->
-
-		<!-- MODAL: PUBLISH -->
-<!--		<v-dialog v-model="publishModal.visible" scrollable persistent max-width="500px">-->
-<!--			<v-card>-->
-<!--				<v-card-title>-->
-<!--					<v-icon color="primary" slot="icon" size="36" left>mdi-publish</v-icon>-->
-<!--					{{$t('component.source.publishModal.title')}}-->
-<!--				</v-card-title>-->
-
-<!--				<v-card-text>-->
-<!--					TBD-->
-<!--				</v-card-text>-->
-
-<!--				<v-card-actions>-->
-<!--					<v-spacer></v-spacer>-->
-
-<!--					<v-btn color="primary" @click="publish()">-->
-<!--						<v-icon left>mdi-publish</v-icon>-->
-<!--						{{$t('modal.publish')}}-->
-<!--					</v-btn>-->
-
-<!--					<v-btn @click="publishModal.visible = false">-->
-<!--						{{$t('modal.cancel')}}-->
-<!--					</v-btn>-->
-<!--				</v-card-actions>-->
-<!--			</v-card>-->
-<!--		</v-dialog>-->
-
 		<div ref="header">
 			<v-tabs style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
-				<v-tab :disabled="isDeleted" :to="'/component/' + id + '/settings'" exact>
+				<v-tab :to="'/component/' + id + '/settings'" exact>
 					<v-icon left>mdi-pencil-box-outline</v-icon>
 					{{$t('component.settings.title')}}
 				</v-tab>
-				<v-tab :disabled="isDeleted" :to="'/component/' + id + '/parameters'" exact>
+				<v-tab :to="'/component/' + id + '/parameters'" exact>
 					<v-icon left>mdi-folder-settings-variant-outline</v-icon>
 					{{$t('component.parameters.title')}}
 				</v-tab>
-				<v-tab :disabled="isDeleted" :to="'/component/' + id + '/builds'" exact>
+				<v-tab :to="'/component/' + id + '/builds'" exact>
 					<v-icon left>mdi-bulldozer</v-icon>
-					<v-badge :value="builds.length > 0" :color="lastBuildState | buildColor" :icon="lastBuildState | buildIcon" inline>
+					<v-badge :value="builds.length > 0" :color="lastBuildStatus | buildColor" :icon="lastBuildStatus | buildIcon" inline>
 						<span :class="{ 'mr-2': builds.length > 0 }">{{$t('component.builds.title')}}</span>
 					</v-badge>
 				</v-tab>
-<!--				<v-tab :disabled="isDeleted" :to="'/component/' + id + '/source'" exact>-->
-<!--					<v-icon left>mdi-code-tags</v-icon>-->
-<!--					{{$t('component.source.title')}}-->
-<!--				</v-tab>-->
 
 				<v-spacer></v-spacer>
 
 				<div class="d-flex align-center">
-					<v-btn :disabled="isDeleted || !component.repo_url" :href="component.repo_url" target="_blank" class="ml-2" small text>
-						<v-icon left>mdi-directions-fork</v-icon>
-						{{$t('modal.fork')}}
+<!--					<v-btn v-if="!component.is_private" :disabled="!component.repo_url" :href="component.repo_url" target="_blank" class="ml-2" small text>-->
+<!--						<v-icon left>mdi-directions-fork</v-icon>-->
+<!--						{{$t('modal.fork')}}-->
+<!--					</v-btn>-->
+
+					<v-btn @click="test()" target="_blank" :loading="sessionLoading" :disabled="!canTest" class="ml-2" text small>
+						<v-icon left>mdi-test-tube</v-icon>
+						<span v-text="$t('component.test')"></span>
 					</v-btn>
 
 					<v-divider class="mx-4" vertical inset></v-divider>
 
-					<!--				<v-btn :disabled="!dataHasChanged || isDeleted" @click="openPublish()" color="info" class="mt-3 mr-3" small>-->
-					<!--					<v-icon left>mdi-publish</v-icon>-->
-					<!--					{{$t('modal.publish')}}-->
-					<!--				</v-btn>-->
-
-					<v-btn :disabled="isDeleted" @click="$comments.open(id, 'component')" class="mr-2" text small>
+					<v-btn @click="$comments.open(id, 'component')" class="mr-2" text small>
 						<v-icon left>mdi-comment</v-icon>
 						{{$t('comment.btnTitle')}}
 						<v-chip v-if="commentCount > 0" class="ml-2" color="primary" x-small v-text="commentCount" />
@@ -93,18 +53,15 @@
 		<v-tabs-items touchless :dark="$root.user.settings.theme === 'dark'" class="grey lighten-4" :style="{ flex: 1, overflow: (tab !== '/component/' + id + '/source') ? 'auto' : null }" v-model="tab">
 			<v-tab-item :value="'/component/' + id + '/settings'" class="pa-4 fill-height">
 				<div style="height: 0">
-					<Settings @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :form-errors="formErrors" />
+					<Settings @update:component="compareJsonJob($event, 0)" @update="updateTab" @build="fetchBuildInfo()" :component.sync="component" :builds="builds" :form-errors="formErrors" :is-different="dataHasChanged" />
 				</div>
 			</v-tab-item>
 			<v-tab-item :value="'/component/' + id + '/parameters'" class="fill-height">
-				<Parameters @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :form-errors="formErrors" />
+				<Parameters @value="updateParamValues" @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :dataset.sync="dataset" :form-errors="formErrors" />
 			</v-tab-item>
 			<v-tab-item :value="'/component/' + id + '/builds'" class="fill-height">
 				<Builds @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :builds="builds" :form-errors="formErrors" />
 			</v-tab-item>
-<!--			<v-tab-item :value="'/component/' + id + '/source'" class="fill-height">-->
-<!--				<Source :component="component" :form-errors="formErrors" />-->
-<!--			</v-tab-item>-->
 		</v-tabs-items>
 
 		<v-toolbar :dark="sourceDark" ref="actions" style="flex: 0; border-top: #ccc solid 1px" flat tile>
@@ -119,9 +76,9 @@
 
 			<v-spacer></v-spacer>
 
-			<v-menu max-height="450" offset-y>
+			<v-menu max-height="450" v-model="revisionMenu" offset-y>
 				<template v-slot:activator="{ on }">
-					<v-btn :disabled="revisions.length === 0" class="float-right mr-4" v-on="on" text>
+					<v-btn :disabled="revisions.length === 0 && revisionLoaded" class="float-right mr-4" @click="loadRevisions()" :loading="revisionLoading" text>
 						<v-icon :left="$vuetify.breakpoint.mdAndUp">mdi-history</v-icon>
 						<span v-if="$vuetify.breakpoint.mdAndUp">{{$t('revision.btnTitle')}}</span>
 						<v-icon right>mdi-chevron-up</v-icon>
@@ -149,43 +106,43 @@
 					</v-btn>
 				</template>
 				<v-list>
-					<v-list-item :disabled="isDeleted || isNew" @click="remove()">
+					<v-list-item :disabled="isNew" @click="remove()">
 						<v-list-item-icon><v-icon>mdi-delete</v-icon></v-list-item-icon>
 						<v-list-item-title>{{$t('modal.delete')}}</v-list-item-title>
 					</v-list-item>
 				</v-list>
 			</v-menu>
 		</v-toolbar>
-	</v-sheet>
+	</v-card>
 </template>
 
 <script>
 import Vue from 'vue';
 import Builds from "./Component/Builds";
 import Settings from "./Component/Settings";
-import {ComponentService, Component, CommentService, DeploymentService} from "@polymind/sdk-js";
+import {ComponentService, Component, CommentService, SessionStructureService, Session, Dataset } from "@polymind/sdk-js";
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
 import Parameters from "./Component/Parameters";
 
 let jsonJobTimeout = null;
 
-const beforeRoute = function(to, from, next) {
+const beforeRoute = function(to, from, callback) {
 
 	if (to.params.id === from.params.id) {
-		return next();
+		return callback();
 	}
 
 	if (to.params.id === 'new') {
 		to.meta.component = new Component();
-		next();
+		callback();
 	} else {
 		ComponentService.get(to.params.id)
 			.then(response => {
 				to.meta.component = new Component(response.data);
-				next();
+				callback();
 			})
-			.catch(error => next('/404'));
+			.catch(error => callback('/404'));
 	}
 };
 
@@ -193,11 +150,13 @@ export default Vue.extend({
 
 	components: { Parameters, Builds, Settings, DeleteDialog, UserAvatar },
 
-	beforeRouteEnter: beforeRoute,
+	beforeRouteEnter(to, from, next) {
+		beforeRoute(to, from, (param) => next(param));
+	},
 
 	beforeRouteUpdate(to, from, next) {
-		beforeRoute(to, from, () => {
-			next();
+		beforeRoute(to, from, (param) => {
+			next(param);
 			this.$nextTick(() => {
 				this.init(to.params.id !== from.params.id);
 				this.$forceUpdate();
@@ -206,6 +165,7 @@ export default Vue.extend({
 	},
 
 	created() {
+		clearInterval(this.lookupInterval);
 		this.init();
 	},
 
@@ -214,6 +174,7 @@ export default Vue.extend({
 	},
 
 	destroyed() {
+		clearInterval(this.lookupInterval);
 		this.$shortcuts.remove(this.shortcutSave);
 	},
 
@@ -226,18 +187,23 @@ export default Vue.extend({
 				this.component = this.$route.meta.component;
 
 				this.updateOriginalData();
-				this.loadRevisions();
-				this.loadCommentCount();
+				// this.loadCommentCount();
+				this.fetchBuildInfo();
 			}
 
 			this.tab = '/component/' + this.id + '/' + this.$route.params.section;
 			this.updateTab();
 			this.compareJsonJob(this.component);
+			this.isDeleted = false;
 		},
 
 		shortcutSave(event) {
 			this.save();
 			event.preventDefault();
+		},
+
+		updateParamValues(values) {
+			this.parametersValue = values;
 		},
 
 		updateTab() {
@@ -289,10 +255,14 @@ export default Vue.extend({
 
 		loadRevisions() {
 
+			this.revisionLoading = true;
             ComponentService.getRevisions(this.id)
                 .then(response => {
                     this.revisions = response.data.reverse();
                     this.revisionOffset = 0;
+					this.revisionLoaded = true;
+					this.revisionMenu = true;
+					this.revisionLoading = false;
 				})
                 .catch(error => this.$handleError(this, error));
 		},
@@ -332,21 +302,6 @@ export default Vue.extend({
 			this.compareJsonJob(this.component, 0);
 		},
 
-        openPublish() {
-            this.publishModal.visible = true;
-        },
-
-        publish(version, changelog) {
-
-            DeploymentService.fork('component', this.id, version, changelog)
-                .then(response => {
-                    this.publishModal.visible = false;
-                    this.publishModal.publied = true;
-                })
-                .catch(error => this.$handleError(this, error))
-                .finally(() => this.$root.isLoading = false);
-        },
-
 		initializeValues() {
             this.isDeleted = false;
 			this.component = new Component();
@@ -354,20 +309,26 @@ export default Vue.extend({
 
 		save() {
 
+			if (!this.dataHasChanged) {
+				return;
+			}
+
 			this.formErrors = [];
 			this.$root.isLoading = true;
 			ComponentService.save(this.id !== 'new' ? this.id : null, this.component)
 				.then(response => {
-
-                    this.$root.$emit('COMPONENT_UPDATE');
                     this.$root.isSaved = true;
 
                     if (this.id !== response.data.id) {
+                    	this.$root.components.push(new Component(response.data));
                         return this.$router.push('/component/' + response.data.id);
-                    }
+                    } else {
+						const component = this.$root.components.find(component => component.id === response.data.id);
+						Object.assign(component, new Component(response.data));
+					}
 
 					this.updateOriginalData();
-					this.loadRevisions();
+					this.compareJsonJob(this.component, 0);
 					this.updateTab();
 					this.revisionOffset = 0;
 				})
@@ -383,7 +344,9 @@ export default Vue.extend({
 					.then(response => {
 						this.isDeleted = true;
 						this.$refs.deleteModal.hide();
-                        this.$root.$emit('COMPONENT_UPDATE');
+
+						const componentIdx = this.$root.components.findIndex(component => component.id === this.id);
+						this.$root.components.splice(componentIdx, 1);
 					})
 					.catch(error => this.$handleError(this, error))
 					.finally(() => this.$root.isLoading = false);
@@ -392,60 +355,126 @@ export default Vue.extend({
 			}
 		},
 
-		restore() {
+		test() {
 
-            this.$root.isLoading = true;
-            ComponentService.restore(this.id)
-                .then(response => {
-                    this.isDeleted = false;
-                    this.$root.$emit('COMPONENT_UPDATE');
-                })
-                .catch(error => this.$handleError(this, error))
-                .finally(() => this.$root.isLoading = false);
+			this.sessionLoading = true;
+			SessionStructureService.generate({
+				component: this.component.id,
+				dataset: this.dataset.id,
+				parameters: this.parametersValue,
+			})
+					.then(session => {
+						this.session = session;
+						const win = window.open(this.generatedTestUri, '_blank');
+						win.focus();
+					}).finally(() => this.sessionLoading = false);
+		},
+
+		fetchBuildInfo() {
+
+			ComponentService.buildList(this.component.id)
+				.then(response => {
+					this.builds = response.map(item => {
+						item.status = item.status.toLowerCase();
+						return item;
+					});
+				});
 		}
 	},
 
 	computed: {
 
 		id() {
-			return parseInt(this.$route.params.id);
+			return this.isNew ? 'new' : parseInt(this.$route.params.id);
 		},
 
 		isNew() {
 			return this.$route.params.id === 'new';
 		},
 
-		lastBuildState() {
-			return this.builds.length > 0 && this.builds[0].state;
+		lastBuildStatus() {
+			return this.builds.length > 0 && this.builds[0].status;
 		},
 
 		sourceDark() {
             return (this.tab === '/component/' + this.id + '/source')
 				&& this.$root.user.settings.development.theme === 'dark';
+		},
+
+		generatedTestUri() {
+			return this.playerHost + '/c/' + this.session.hash + '/test';
+		},
+
+		canTest() {
+
+			if (this.isNew) {
+				return false;
+			}
+
+			const types = ['component', 'dataset'];
+			for (let y = 0; y < types.length; y++) {
+				const type = types[y];
+				for (let i = 0; i < this.component.compiled_parameters[type].parameters.length; i++) {
+					const param = this.component.compiled_parameters[type].parameters[i];
+					const model = this.parametersValue[type];
+
+					if (param.mandatory !== true) {
+						continue;
+					}
+
+					if (param.type === 'column') {
+						if (!!(this.dataset.columns.find(column => column.guid === model[param.key]))) {
+							continue
+						}
+						return false;
+					}
+
+					if (!!(model[param.key])) {
+						continue;
+					}
+
+					return false;
+				}
+			}
+
+			return this.component.getURL();
 		}
 	},
 
 	data() {
 		return {
+			playerHost: process.env.VUE_APP_PLAYER_URL,
 			isDeleted: false,
 			formErrors: [],
             revisions: [],
             revisionOffset: 0,
+			revisionLoading: false,
+			revisionLoaded: false,
+			revisionMenu: false,
+			session: new Session(),
+			sessionLoading: false,
 			dataHasChanged: false,
+			dataset: new Dataset(),
 			component: null,
 			originalComponent: null,
 			componentJson: null,
 			originalComponentJson: null,
+			parametersValue: this.$route.meta.component.getDefaultParameters(),
             commentCount: 0,
-			builds: [
-				{ id: 1, state: 'running', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },
-				{ id: 2, state: 'completed', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },
-				{ id: 3, state: 'completed', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },
-				{ id: 4, state: 'failed', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },
-				{ id: 5, state: 'completed', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },
-			],
+			builds: [],
+			lookupInterval: null,
 		}
 	},
+
+	watch: {
+
+		lastBuildStatus(status) {
+			clearInterval(this.lookupInterval);
+			if (status === 'inprogress') {
+				setInterval(this.fetchBuildInfo, 30 * 1000);
+			}
+		}
+	}
 });
 </script>
 

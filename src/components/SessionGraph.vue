@@ -1,9 +1,7 @@
 <template>
     <div class="graph">
-
 		<div class="scrollable mx-n4 px-4">
 			<div class="pr-4">
-
 				<table class="w-100 table">
 					<tbody>
 						<tr>
@@ -21,28 +19,36 @@
 								<v-fade-transition group>
 									<v-tooltip :key="'day_' + dayIdx" v-if="day < 52 || currentDay >= weekday" bottom>
 										<template v-slot:activator="{ on }">
-											<div v-ripple @click="viewContributions(day, weekday)" v-on="on" :class="getClasses(day, weekday)">
+											<div v-ripple @click="viewSessions(day, weekday)" v-on="on" :class="getClasses(day, weekday)">
 												<!--									<span v-if="getDate(day, weekday).format('DD') == 1">{{((day - 1) * 7) + weekday}}</span>-->
 											</div>
 										</template>
 										<span>
-											<span v-if="!getCommits(day, weekday)" v-html="$t('commitGraph.noContribution', { date: getDate(day, weekday).format('ll') })"></span>
-											<span v-else v-html="$t('commitGraph.contributions', { total: getCommits(day, weekday).total, date: getCommits(day, weekday).cleanDate })"></span>
+											<span v-if="!getSessions(day, weekday)" v-html="$t('sessionGraph.noSession', { date: getDate(day, weekday).format('ll') })"></span>
+											<span v-else v-html="$t('sessionGraph.sessions', { total: getSessions(day, weekday).total, date: getSessions(day, weekday).cleanDate })"></span>
 										</span>
 									</v-tooltip>
 								</v-fade-transition>
 							</td>
 						</tr>
 					</tbody>
+					<tfoot>
+					<tr>
+						<td></td>
+						<td colspan="52">
+							<v-progress-linear :active="isLoading" indeterminate></v-progress-linear>
+						</td>
+					</tr>
+					</tfoot>
 				</table>
 			</div>
 		</div>
 
 		<v-expand-transition group>
-			<div key="empty" v-if="commitsDayDate && commitsDay.data.length === 0">
-				<v-card-title>{{ $t('commitGraph.contributionsDay') }}</v-card-title>
+			<div key="empty" v-if="sessionsDayDate && sessionsDay.length === 0">
+				<v-card-title>{{ $t('sessionGraph.sessionsDay') }}</v-card-title>
 				<v-alert type="info" border="left" colored-border light elevation="2">
-					<span class="text-break" v-html="$t('commitGraph.noCommitsThisDay', { date: moment(commitsDayDate).format('ll') })"></span>
+					<span class="text-break" v-html="$t('sessionGraph.noSessionsThisDay', { date: moment(sessionsDayDate).format('ll') })"></span>
 				</v-alert>
 			</div>
 		</v-expand-transition>
@@ -51,7 +57,7 @@
 
 <script>
     import Vue from 'vue';
-    import { ActivityService } from '@polymind/sdk-js';
+    import { SessionService } from '@polymind/sdk-js';
     import moment from 'moment';
 
     export default Vue.extend({
@@ -73,40 +79,34 @@
         methods: {
 
             init() {
-
-                this.commitsDay = { data: [] };
-                this.commitsDayDate = false;
                 this.load();
 			},
 
             load() {
 
                 this.isLoading = true;
-                ActivityService.getLatestCommits(this.user.id)
-                    .then(response => this.commits = response)
+                SessionService.getAll(this.user.id, null)
+                    .then(response => this.sessions = response)
                     .catch(error => this.$handleError(this, error))
                     .finally(() => this.isLoading = false);
 			},
 
-            viewContributions(day, weekday) {
+            viewSessions(day, weekday) {
 
-                if (!this.getCommits(day, weekday)) {
+                if (!this.getSessions(day, weekday)) {
                     return;
 				}
 
                 const date = this.getDate(day, weekday).format('YYYY-MM-DD');
 
                 this.isLoading = true;
-                ActivityService.getCommitsByDate(this.user.id, date)
+				SessionService.getAllByDate(this.user.id, null, date)
                     .then(response => {
-                        // const data = response.data.reduce((r, a) => {
-                        //     r[a.collection + '_' + a.id + '_' + a.action] = [...r[a.collection + '_' + a.id + '_' + a.action] || [], a];
-                        //     return r;
-                        // }, {});
-                        // this.commitsDay = {data};
-                        this.commitsDay = response;
-                        this.commitsDayDate = date;
-                        //setTimeout(() => this.$vuetify.goTo(this.$refs.timelineTitle));
+                        this.sessionsDay = response;
+                        this.sessionsDayDate = date;
+
+						this.$emit('sessions', response);
+						this.$emit('date', date);
                     })
                     .catch(error => this.$handleError(this, error))
                     .finally(() => this.isLoading = false);
@@ -116,29 +116,29 @@
                 return moment().subtract(this.maxDays, 'day').add(((day) * 7) + weekday, 'day');
 			},
 
-            getCommits(day, weekday) {
+            getSessions(day, weekday) {
                 const date = this.getDate(day, weekday);
                 const daysFromToday = this.$options.filters.daysFromToday(date);
-				return this.parsedCommits[daysFromToday];
+				return this.parsedSessions[daysFromToday];
 			},
 
 			getClasses(day, weekday) {
                 let classes = ['fill-height'];
-                const commit = this.getCommits(day, weekday);
+                const session = this.getSessions(day, weekday);
 
-                if (commit) {
+                if (session) {
 
                     classes.push('green clickable');
 
-                    if (commit.total === 1) {
+                    if (session.total === 1) {
                         classes.push('lighten-4');
-					// } else if (commit.total > 3) {
+					// } else if (session.total > 3) {
                     //     classes.push('lighten-4');
-					} else if (commit.total >= 5 && commit.total < 10) {
+					} else if (session.total >= 5 && session.total < 10) {
                         classes.push('lighten-3');
-					// } else if (commit.total > 10) {
+					// } else if (session.total > 10) {
                     //     classes.push('lighten-2');
-					} else if (commit.total >= 10 && commit.total < 20) {
+					} else if (session.total >= 10 && session.total < 20) {
                         classes.push('lighten-2');
 					}
 				} else {
@@ -193,10 +193,10 @@
                 return parseInt(moment().format('d'));
 			},
 
-            parsedCommits() {
+            parsedSessions() {
                 let items = {};
-                this.commits.data.forEach(commit => {
-                    const date = moment(commit.action_on).format('YYYY-MM-DD');
+                this.sessions.forEach(session => {
+                    const date = moment(session.start_date).format('YYYY-MM-DD');
                     const daysFromToday = this.$options.filters.daysFromToday(date);
                     if (!items[daysFromToday]) {
                         items[daysFromToday] = {
@@ -213,10 +213,11 @@
 
         data() {
             return {
+				isLoading: false,
                 moment: moment,
-				commits: { data: [] },
-                commitsDay: { data: [] },
-				commitsDayDate: false,
+				sessions: [],
+                sessionsDay: [],
+				sessionsDayDate: false,
 			};
         },
 
@@ -226,19 +227,9 @@
 				this.init();
 			},
 
-			commits(value) {
+			sessions(value) {
 				this.$emit('load', value);
 			},
-
-			commitsDay(value) {
-				if (value.data.length > 0) {
-					this.$emit('load-commits-day', value);
-				}
-			},
-
-			commitsDayDate(value) {
-				this.$emit('load-commits-day-date', value);
-			}
 		}
     });
 </script>
@@ -257,6 +248,13 @@
 
 			div.clickable {
 				cursor: pointer;
+			}
+		}
+
+		tfoot {
+			td {
+				padding: 0;
+				height: 0;
 			}
 		}
 	}

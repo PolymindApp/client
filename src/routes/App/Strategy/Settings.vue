@@ -14,9 +14,8 @@
 					</v-card-title>
 					<v-card-text>
 						<v-text-field :error-messages="formErrors.name" :label="$t('strategy.settings.namePlaceholder')" v-model="strategy.name"></v-text-field>
-						<v-text-field :error-messages="formErrors.icon" :label="$t('strategy.settings.iconPlaceholder')" v-model="strategy.icon"></v-text-field>
-						<HTMLEditorField :error-messages="formErrors.description" :label="$t('strategy.settings.descPlaceholder')" v-model="strategy.description"></HTMLEditorField>
-<!--						<HTMLEditorField :error-messages="formErrors.instructions" :label="$t('strategy.settings.instructionsPlaceholder')" v-model="strategy.instructions"></HTMLEditorField>-->
+						<IconListField :error-messages="formErrors.icon" :label="$t('strategy.settings.iconPlaceholder')" v-model="strategy.icon" />
+						<HTMLEditorField :error-messages="formErrors.description" :label="$t('strategy.settings.descPlaceholder')" v-model="strategy.description" hide-details></HTMLEditorField>
 					</v-card-text>
 				</v-card>
 			</v-col>
@@ -30,7 +29,7 @@
 						<v-checkbox v-model="allDays" :label="$t('strategy.settings.reminder.allDays')" @change="handleAllDays()" hide-details></v-checkbox>
 						<v-row no-gutters>
 							<v-col cols="6" md="4" :key="day" v-for="day in days">
-								<v-checkbox v-model="strategy.reminder" :value="day" :label="$t('strategy.settings.reminder.' + day)" hide-details></v-checkbox>
+								<v-checkbox v-model="strategy.reminder" :value="day" :label="$t('date.' + day)" hide-details></v-checkbox>
 							</v-col>
 						</v-row>
 
@@ -38,10 +37,10 @@
 
 						<v-row>
 							<v-col cols="12" md="6">
-								<DateField v-model="strategy.start_date" @input="$event > strategy.end_date ? strategy.end_date = $event : null" :label="$t('strategy.settings.startDate')" clearable hide-details />
+								<DateField v-model="strategy.start_date" @input="$event > strategy.end_date ? strategy.end_date = $event : null" prepend-icon="mdi-calendar-month-outline" :label="$t('strategy.settings.startDate')" clearable hide-details />
 							</v-col>
 							<v-col cols="12" md="6">
-								<DateField :min="strategy.start_date" v-model="strategy.end_date" :label="$t('strategy.settings.endDate')" clearable hide-details />
+								<DateField :min="strategy.start_date" v-model="strategy.end_date" prepend-icon="mdi-calendar-month-outline" :label="$t('strategy.settings.endDate')" clearable hide-details />
 							</v-col>
 						</v-row>
 

@@ -2,20 +2,20 @@
 	<div class="text-center fill-height align-center d-flex">
 		<v-form ref="form" class="mx-auto" v-model="formIsValid" @submit="validate" lazy-validation>
 
-			<div v-if="isSent === true">
-				<div>
-					<v-icon style="font-size: 4rem">mdi-email-search</v-icon>
-				</div>
-
-				<h1 class="mt-4 display-1">{{ $t("restricted.forgotPasswordSent") }}</h1>
-				<p class="mb-4">{{ $t("restricted.forgotPasswordSentDesc") }}</p>
-			</div>
+			<v-alert v-if="isSent === true" color="success" style="background-color: rgba(0, 0, 0, 0.333) !important" outlined>
+				<v-icon size="48">mdi-email-search</v-icon>
+				<div class="title my-4">{{ $t("restricted.forgotPasswordSent") }}</div>
+				<div class="overline white--text" v-text="$t('restricted.forgotPasswordSentDesc')"></div>
+			</v-alert>
 			<div v-else>
-				<h1 class="display-1">{{$t('restricted.forgotPasswordTitle')}}</h1>
-				<p>{{$t('restricted.forgotPasswordDesc')}}</p>
+				<v-alert color="success" style="background-color: rgba(0, 0, 0, 0.333) !important" outlined>
+					<v-icon size="48">mdi-lock-question</v-icon>
+					<div class="title my-2">{{ $t("restricted.forgotPasswordTitle") }}</div>
+					<div class="overline white--text" v-text="$t('restricted.forgotPasswordDesc')"></div>
+				</v-alert>
 
 				<div class="my-4">
-					<v-text-field :error-messages="formErrors.email" ref="email" light solo v-model="email" :label="$t('restricted.email')" :rules="[rules.required, rules.email]" prepend-inner-icon="mdi-account-circle" :autofocus="$vuetify.breakpoint.lgAndUp" hide-details autocomplete="email"></v-text-field>
+					<v-text-field :error-messages="formErrors.email" ref="email" light solo v-model="email" :label="$t('restricted.email')" :rules="[rules.required, rules.email]" prepend-inner-icon="mdi-account-circle" :autofocus="$vuetify.breakpoint.lgAndUp" :hide-details="!formErrors.email" @input="formErrors.email = null" autocomplete="email"></v-text-field>
 				</div>
 
 				<v-btn type="submit" color="primary" :disabled="!formIsValid" style="width: 100%" dark large>
@@ -38,12 +38,20 @@ export default Vue.extend({
 		validate (event) {
 
 			event.preventDefault();
+			this.formErrors = {};
 
 			if (this.$refs.form.validate()) {
 				this.$root.isLoading = true;
 				UserService.forgotPassword(this.email)
 					.then(response => this.isSent = true)
-					.catch(error => this.$handleError(this, error))
+					.catch(error => {
+						switch (parseInt(error.code)) {
+							case 107:
+								this.formErrors.email = error.message;
+								return this.$forceUpdate();
+						}
+						this.$handleError(this, error);
+					})
 					.finally(() => this.$root.isLoading = false);
 			} else {
 				this.$refs.email.focus();

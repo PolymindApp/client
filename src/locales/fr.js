@@ -24,29 +24,71 @@ const literals = {
 		forgotPassword: 'Oublie de mot de passe',
 		resetPassword: 'Réinitialisation de mot de passe',
 		strategy: 'Stratégie',
+		strategySection: 'Stratégie',
 		component: 'Composante',
+		componentSection: 'Composante',
 		dataset: 'Bases de données',
+		datasetSection: 'Bases de données',
 		accountMessaging: 'Messagerie',
 		updateAccess: 'Mettre à jour les accès',
 	},
 	dashboard: {
 
-		objectives: {
-			title: 'Votre cheminement',
-			label1: 'Russe',
-			label2: 'Français',
-			label3: 'Anglais',
-			label4: 'Espagnol',
-			label5: 'Hindi',
-			label6: 'Prononciation',
-			label7: 'Conjugaison',
-			label8: 'Grammaire',
-			label9: 'Autre',
-			label10: 'Vocabulaire',
+		nextEventToday: 'Aujourd\'hui :',
+		nextEventTomorrow: 'Demain :',
+		nextEventLater: 'Prochainement :',
+
+		invalid: 'Invalide',
+		noStrategySoonTitle: 'Aucune session prévue prochainement',
+		noStrategySoonDesc: 'Mieux vaut jouer de la guitare 15 minutes par jour pendant une semaine que 6 heures en une journée.',
+
+		difficultyChartEmptyTitle: 'Aucune donnée',
+		difficultyChartEmptyDesc: 'Rien n\'a été capturé pour cette plage de temps',
+		difficultyChartTitle: 'Inflexion de la difficulté',
+		difficultyChartDesc: 'Basé sur l\'ensemble des réponses fournis',
+
+		intervalChartEmptyTitle: 'Aucune donnée',
+		intervalChartEmptyDesc: 'Rien n\'a été capturé pour cette plage de temps',
+		intervalChartTitle: 'Délais de réflexion',
+		intervalChartDesc: 'Basé sur le temps moyen passé afin de répondre à une question',
+
+		datasetChartEmptyTitle: 'Aucune donnée',
+		datasetChartEmptyDesc: 'Rien n\'a été capturé pour cette plage de temps',
+		datasetChartTitle: 'Alimentation des données',
+		datasetChartDesc: 'Les ajouts, modifications et effacements effectués',
+
+		datasetChartLabels: {
+			create: 'Ajoutées',
+			update: 'Modifiées',
+			delete: 'Nettoyées',
 		},
 
-		emptyCalendarTitle: 'Rien de prévu',
-		emptyCalendarDesc: 'Vous êtes libre cette semaine',
+		endeavoursDivisionChartEmptyTitle: 'Aucune donnée',
+		endeavoursDivisionChartEmptyDesc: 'Rien n\'a été capturé pour cette plage de temps',
+		endeavoursDivisionChartTitle: 'Répartition de l\'effort',
+		endeavoursDivisionChartDesc: 'Basé sur le temps total investi par type de session',
+
+		endeavoursDivisionChartTotal: 'Dans l\'ensemble',
+		endeavoursDivisionChartByStrategies: 'Par stratégie',
+		endeavoursDivisionChartByComponents: 'Par composante',
+		endeavoursDivisionChartByDatasets: 'Par base de données',
+
+		difficulties: {
+			easy: 'Facile',
+			unsure: 'Incertain',
+			hard: 'Difficile',
+		},
+
+		reviews: {
+			completed: 'Complété',
+			todo: 'À faire',
+			skipped: 'Manqué',
+		},
+
+		avgTimeSpent: 'Temps moyen passé',
+
+		emptyCalendarTitle: 'Rien de prévu !',
+		emptyCalendarDesc: 'Vous avez congé pour cette semaine',
 		planStrategy: 'Planifier une stratégie',
 
 		strategies: 'Strategies ({total})',
@@ -62,6 +104,8 @@ const literals = {
 		news: {
 			title: 'Dernières actualités',
 			seeMore: 'En savoir plus',
+			emptyDesc: 'Aucune actualité',
+			type: 'Type :',
 			types: {
 				general: 'Générale',
 				issue: 'Problème',
@@ -69,11 +113,11 @@ const literals = {
 		},
 
 		contextual: {
-			filters: 'Filtres',
-			archived: 'Archivé',
-			favourite: 'Favoris',
-			public: 'Publique',
-			andMore: '+{total} autres',
+			rangePlaceholder: 'Plage de temps',
+			last7days: 'Hebdomadaire',
+			thisMonth: 'Mensuel',
+			lastMonth: 'Le mois dernier',
+			custom: 'Personnaliser',
 		},
 		new: {
 			dataset: 'Base de donnée',
@@ -83,6 +127,7 @@ const literals = {
 		},
 		filteredNoResults: 'Aucun résultat...',
 		filteredNoResultsDesc: 'Vos critères de recherches n\'ont retournés aucun résultat',
+		noData: 'Aucune donnée',
 	},
 	news: {
 		writtenBy: 'Rédigé par <strong>{screenName}</strong>',
@@ -117,6 +162,7 @@ const literals = {
 		sortBy: 'Ordonner par',
 		viewCompleteMsg: 'Lire plus...',
 		unviewCompleteMsg: 'Réduire...',
+		noCommentYet: 'Soyez le premier à régiger un commentaire.',
 		emptyTitle: 'Aucun commentaire',
 		emptyDesc: 'Soyez le premier à commenter en utilisant le champs ci-dessous',
 		thumbUpTooltip: 'J\'aime',
@@ -130,124 +176,12 @@ const literals = {
 		deleteDesc: 'Êtes-vous certain de vouloir effacer ce commentaire ?',
 		commentDeleted: 'Commentaire effacé par l\'utilisateur',
 	},
-	commitGraph: {
-		noContribution: '<strong>Aucune contribution</strong> le {date}',
-		contributions: '<strong>{total} contributions</strong> le {date}',
-		noCommitsThisDay: '<strong>Aucune contribution</strong> le {date}',
-		contributionsDay: 'Les <strong>{total} contributions</strong> du {date} :',
+	sessionGraph: {
+		noSession: '<strong>Aucune session</strong> le {date}',
+		sessions: '<strong>{total} sessions</strong> le {date}',
+		noSessionsThisDay: '<strong>Aucune session</strong> le {date}',
+		sessionsDay: 'Aucune session pour le {date} | La session du {date} | Les <strong>{total} sessions</strong> du {date} :',
 		view: 'Voir',
-	},
-	activity: {
-		comment: {
-			dataset: {
-				title: 'A commenté la base de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_column: {
-				title: 'A commenté la colonne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_row: {
-				title: 'A commenté la ligne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_cell: {
-				title: 'A commenté la donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			component: {
-				title: 'A commenté la composante <strong>{name}</strong>',
-				desc: 'A écrit : <em>{comment}</em>',
-			},
-		},
-		create: {
-			dataset: {
-				title: 'A créé une nouvelle base de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_column: {
-				title: 'A créé une nouvelle colonne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_row: {
-				title: 'A créé une nouvelle ligne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_cell: {
-				title: 'A créé une nouvelle donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			component: {
-				title: 'A créé une nouvelle composante <strong>{name}</strong>',
-				desc: '',
-			},
-		},
-		delete: {
-			dataset: {
-				title: 'A effacé la base de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_column: {
-				title: 'A effacé la colonne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_row: {
-				title: 'A effacé la ligne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_cell: {
-				title: 'A effacé la donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			component: {
-				title: 'A effacé la composante <strong>{name}</strong>',
-				desc: '',
-			},
-		},
-		'soft-delete': {
-			dataset: {
-				title: 'A effacé la base de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_column: {
-				title: 'A effacé la colonne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_row: {
-				title: 'A effacé la ligne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_cell: {
-				title: 'A effacé la donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			component: {
-				title: 'A effacé la composante <strong>{name}</strong>',
-				desc: '',
-			},
-		},
-		update: {
-			dataset: {
-				title: 'A mis à jour la base de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_column: {
-				title: 'A mis à jour la colonne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_row: {
-				title: 'A mis à jour la ligne de donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			dataset_cell: {
-				title: 'A mis à jour la donnée <strong>{name}</strong>',
-				desc: '',
-			},
-			component: {
-				title: 'A mis à jour la composante <strong>{name}</strong>',
-				desc: '',
-			},
-		},
 	},
 	mediaBrowser: {
 		filterPlaceholder: 'Filtrer les étiquettes...',
@@ -266,7 +200,7 @@ const literals = {
 		thumbsDown: 'Plus de j\'aime pas',
 	},
 	account: {
-		contributionLastYear: '{total} contributions depuis un an',
+		sessionLastYear: 'Aucune session depuis un an | Une session depuis un an | {total} sessions depuis un an',
 		messages: 'Derniers messages',
 		recentActivities: 'Récentes activités',
 		header: {
@@ -284,16 +218,12 @@ const literals = {
 		},
 		activities: {
 			messagesEmpty: 'Aucun message pour le moment',
-			historyEmpty: 'Aucune historique pour le moment',
-			history: {
-				createPage: 'A écrit une nouvelle page <strong>{title}</strong>',
-				createComponent: 'A développé une nouvelle composante <strong>{name}</strong>',
-				createDocumentation: 'A documenté une nouvelle section <strong>{title}</strong>',
-			},
+			sessionEmpty: 'Aucune session pour le moment',
 			view: 'Voir',
 			publicItems: 'Éléments publiques',
 			publicItemsEmpty: 'Aucun élément n\'a été publié par cet utilisateur.',
 			postOnWallPlaceholder: 'À quoi songez-vous ?',
+			sessionCompleted: 'A terminé une session <strong>{name}</strong> {timeAgo}.',
 		},
 		changeWallpaper: 'Changer le fond d\'écran',
 		elements: {
@@ -370,8 +300,10 @@ const literals = {
 	strategy: {
 
 		newTitle: 'Nouvelle',
-		isDeleted: 'Cette stratégie a été effacé. C\'est votre dernière chance de la récupérer.',
+		isDeleted: 'Cette stratégie a été effacée.',
 		restore: 'Restaurer',
+		accomplishDialogTitle: 'Démarrer une session',
+		accomplishDialogDesc: 'Vous sentez-vous prêt à compléter cette session ? Des statistiques seront récupérées et comptabilisées dans vos résultats finaux. Vous vous apprétez à démarrer une véritable scéance !',
 
 		settings: {
 			title: 'Réglages',
@@ -379,7 +311,6 @@ const literals = {
 			isPrivateLabel: 'Privé',
 			isInvisibleLabel: 'Sans aspect visuel',
 			descPlaceholder: 'Description',
-			instructionsPlaceholder: 'Instructions',
 			iconPlaceholder: 'Icône',
 			categoryPlaceholder: 'Catégorie',
 			explanations: 'Une stratégie est un programme d\'apprentissage que vous paramétrez en assemblant et en configurant une suite de composante.',
@@ -389,13 +320,6 @@ const literals = {
 			reminder: {
 				title: 'Rappels',
 				allDays: 'Tous les jours',
-				monday: 'Lundi',
-				tuesday: 'Mardi',
-				wednesday: 'Mercredi',
-				thursday: 'Jeudi',
-				friday: 'Vendredi',
-				saturday: 'Samedi',
-				sunday: 'Dimanche',
 			},
 			startDate: 'Date de début',
 			endDate: 'Date de fin',
@@ -413,8 +337,11 @@ const literals = {
 			emptyTitle: 'Votre programme est vide',
 			emptyDesc: 'Ajouter un élément ci-dessus',
 			test: 'Tester',
+			accomplish: 'Accomplir',
+			datasetPlaceholder: '- Base de données -',
 			general: {
 				title: 'Configuration',
+				name: 'Nom',
 				component: 'Composante',
 				dataset: 'Base de données',
 				duration: 'Durée',
@@ -423,53 +350,22 @@ const literals = {
 				title: 'Composante',
 				emptyTitle: 'Aucune composante',
 				emptyDesc: 'Veuillez en sélectionnez une ci-contre',
+				noParameterTitle: 'Aucun paramètre',
+				noParameterDesc: 'Rien a paramétrer pour le moment',
 			},
 			dataset: {
 				title: 'Base de données',
 				emptyTitle: 'Aucune base de données',
 				emptyDesc: 'Veuillez en sélectionnez une ci-contre',
+				noParameterTitle: 'Aucun paramètre',
+				noParameterDesc: 'Rien a paramétrer pour le moment',
 			},
 			options: {
 				title: 'Options',
 				remove: 'Enlever',
 			},
 			warningTooltip: 'Vérifier cette configuration',
-		},
-		interface: {
-			title: 'Interfaces',
-			stencils: 'Pochoirs',
-			components: 'Composantes',
-			hierarchy: 'Hiérarchie',
-			addLayer: 'Ajouter',
-			orientation: 'Orientation',
-			orientations: {
-				_16_9: 'Mode paysage (16/9)',
-				_9_16: 'Mode portrait (9/16)',
-				_4_3: 'Mode paysage (4/3)',
-				_3_4: 'Mode portrait (3/4)',
-			},
-			tooltips: {
-				orientation: 'Orientation',
-				undo: 'Annuler',
-				redo: 'Refaire',
-				pointer: 'Déplacer',
-				select: 'Sélectionner',
-				draw: 'Dessiner',
-				rotate: 'Tourner',
-				layers: 'Couches',
-				fullscreenOn: 'Aller en mode plein écran',
-				fullscreenOff: 'Sortir du mode plein écran',
-				zoomIn: 'Agrandir',
-				zoomOut: 'Rétrécir',
-				horizontalAlign: 'Alignement horizontale',
-				verticalAlign: 'Alignement verticale',
-			},
-		},
-		workflow: {
-			title: 'Flux de travail',
-			components: 'Composantes',
-			datasets: 'Bases de données',
-			documents: 'Documents',
+			testTooltip: 'Tester',
 		},
 	},
 	media: {
@@ -493,8 +389,9 @@ const literals = {
 	component: {
 
 		newTitle: 'Nouveau',
-		isDeleted: 'Cette composante a été effacé. C\'est votre dernière chance de la récupérer.',
+		isDeleted: 'Cette composante a été effacée.',
 		restore: 'Restaurer',
+		test: 'Tester',
 
 		settings: {
 			title: 'Réglages',
@@ -503,16 +400,19 @@ const literals = {
 			namePlaceholder: 'Nom de la composante',
 			descPlaceholder: 'Description',
 			instructionsPlaceholder: 'Instructions',
+			hasInstructionsPlaceholder: 'Activer les instructions d\'utilisation',
 			iconPlaceholder: 'Icône',
 			categoryPlaceholder: 'Catégorie',
 			colorPlaceholder: 'Couleur',
-			explanations: 'Les stratégies utilisent vos composantes afin de générer des programmes d\'apprentissage.',
+			explanations: 'Les composantes sont paramétrables et permettent de dynamiser votre apprentissage en s\'alimentant de vos bases de données.',
 			readDoc: 'Explorer la documentation',
 			repoURLPlaceholder: 'Adresse du dépôt GIT',
+			repoBranchPlaceholder: 'Branche à utiliser',
 			repoUserPlaceholder: 'Nom d\'utilisateur',
 			repoPassPlaceholder: 'Mot de passe',
 			repoSSHKeyPlaceholder: 'Clé d\'authentification SSH',
 			testURIPlaceholder: 'Adresse de l\'environnement locale',
+			testURIHint: 'Cette addresse outrepassera celle par défaut lorsque vous serez en mode test.',
 			repoAuthNone: 'Publique',
 			repoAuthUserPass: 'Utilisateur/Mot de passe',
 			repoAuthSSHKey: 'Clé SSH',
@@ -524,6 +424,8 @@ const literals = {
 			envVarKey: 'Clé',
 			envVarValue: 'Valeur',
 			emptyEnvVar: 'Aucune variable d\'environnement ajoutée pour le moment.',
+			contentDiffersBuild: 'Des changements ont été détectés. Veuillez sauvegarder l\'état de votre composante afin de procéder à sa compilation.',
+			buildsPublicOnly: 'Pour le moment, les dépôts GIT doivent etre publiques.',
 		},
 		parameters: {
 			title: 'Paramètres',
@@ -533,12 +435,12 @@ const literals = {
 			emptyDesc: 'Complétez le schéma de paramètre ci-contre',
 			component: {
 				title: 'Composante',
-				selectPlaceholder: 'Sélectionner',
+				selectPlaceholder: '- Sélectionner -',
 				unknownType: 'Type inconnu',
 			},
 			dataset: {
 				title: 'Base de données',
-				columnPlaceholder: 'Sélectionner',
+				columnPlaceholder: '- Colonne -',
 				unknownType: 'Type inconnu',
 			}
 		},
@@ -550,10 +452,12 @@ const literals = {
 				title: 'Journal des événements',
 			},
 			states: {
-				running: 'En cours d\'éxecution',
+				inprogress: 'En cours d\'éxecution',
 				completed: 'Compilé avec succès',
 				failed: 'Compilation échouée',
-			}
+			},
+			noBuildTitle: 'Aucun compilation disponible',
+			noBuildDesc: 'Initiez-en une depuis l\'onglet Réglages',
 		},
 		source: {
 			title: 'Source',
@@ -671,6 +575,8 @@ const literals = {
 	dataset: {
 
 		newTitle: 'Nouveau',
+		isDeleted: 'Cette base de donnée a été effacée.',
+		test: 'Tester',
 
 		publishModal: {
 			title: 'Publier',
@@ -688,7 +594,7 @@ const literals = {
 			descPlaceholder: 'Description',
 			iconPlaceholder: 'Icône',
 			remoteURIPlaceholder: 'URI du serveur distant',
-			explanations: 'Les composantes se nourissent de vos bases de donnée afin de générer des interactivités éducatives.',
+			explanations: 'Les bases de données sont utilisées par les composantes afin de générer des interactivités éducatives.',
 			readDoc: 'Explorer la documentation',
 			testRemoteURI: 'Tester',
 			applyMapper: 'Appliquer un mappeur',
@@ -850,6 +756,7 @@ const literals = {
 	},
 	toolbar: {
 		help: 'Aide',
+		feedback: 'Votre avis',
 		seeAllNotif: 'Voir toutes les notifications',
 		seeAllMessages: 'Voir tous les messages',
 		searchPlaceholder: 'Entrez vos termes de recherche...',
@@ -1025,6 +932,8 @@ const literals = {
 		send: 'Envoyer',
 		publish: 'Publier',
 		fork: 'Bifurquer',
+		ready: 'Prêt',
+		start: 'Démarrer',
 	},
 	modalDelete: {
 		title: 'Effacer cette entité',
@@ -1151,7 +1060,7 @@ const literals = {
 		newConfirmationPlaceholder: 'Confirmer le nouveau mot de passe',
 		passwordPlaceholder: 'Mot de passe',
 		resetPasswordExpired: 'Votre clé de réinitialisation de mot de passe a expiré.',
-		resetPasswordAnotherOne: 'Générez une autre',
+		resetPasswordAnotherOne: 'En générez une autre',
 		resetPasswordTitle: 'Réinitisalisation de mot de passe',
 		resetPasswordDesc: 'Fournissez et confirmer un nouveau mot de passe ci-dessous.',
 		resetPasswordBtn: 'Réinitialiser',
@@ -1195,7 +1104,7 @@ const literals = {
 	role: {
 		guest: 'Visiteur',
 		user: 'Utilisateur',
-		member: 'Utilisateur',
+		member: 'Membre',
 		admin: 'Administrateur',
 		administrator: 'Administrateur',
 		dev: 'Développeur',
@@ -1333,8 +1242,16 @@ const literals = {
 			component: 'Composante',
 			componentSource: 'Composante > Source',
 		},
+	},
+	date: {
+		monday: 'Lundi',
+		tuesday: 'Mardi',
+		wednesday: 'Mercredi',
+		thursday: 'Jeudi',
+		friday: 'Vendredi',
+		saturday: 'Samedi',
+		sunday: 'Dimanche',
 	}
 };
-
 
 export default literals;

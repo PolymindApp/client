@@ -1,14 +1,14 @@
 <template>
 	<v-card flat dark color="transparent">
 		<v-container>
-			<Page slug="contact">
+			<Page ref="page" slug="contact">
 				<template v-slot:title="props">
 					<h1 class="display-1 mb-8" v-html="props.page.title" />
 				</template>
 				<template v-slot:content="props">
 					<p class="mb-12" v-html="props.page.content" />
 
-					<ContactForm />
+					<ContactForm @sent="$vuetify.goTo($refs.page.$el)" />
 				</template>
 			</Page>
 		</v-container>

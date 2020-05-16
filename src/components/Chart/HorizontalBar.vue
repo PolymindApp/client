@@ -1,13 +1,13 @@
 <script>
     import Vue from 'vue';
-	import { Bar, mixins } from 'vue-chartjs';
+	import { HorizontalBar, mixins } from 'vue-chartjs';
 	const { reactiveProp } = mixins;
 
     export default Vue.extend({
 
-        name: 'Bar',
+        name: 'HorizontalBar',
 
-		extends: Bar,
+		extends: HorizontalBar,
 		mixins: [reactiveProp],
 		props: ['options'],
 
@@ -23,7 +23,7 @@
 		},
 
 		data() {
-        	return {
+			return {
 				defaultOptions: {
 					responsive: true,
 					maintainAspectRatio: false,

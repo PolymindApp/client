@@ -1,13 +1,13 @@
 <script>
-    import Vue from 'vue';
-	import { Bar, mixins } from 'vue-chartjs';
+	import Vue from 'vue';
+	import { Doughnut, mixins } from 'vue-chartjs';
 	const { reactiveProp } = mixins;
 
-    export default Vue.extend({
+	export default Vue.extend({
 
-        name: 'Bar',
+		name: 'Doughnut',
 
-		extends: Bar,
+		extends: Doughnut,
 		mixins: [reactiveProp],
 		props: ['options'],
 
@@ -23,7 +23,7 @@
 		},
 
 		data() {
-        	return {
+			return {
 				defaultOptions: {
 					responsive: true,
 					maintainAspectRatio: false,
@@ -47,5 +47,5 @@
 				}
 			}
 		}
-    });
+	});
 </script>

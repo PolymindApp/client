@@ -17,11 +17,11 @@
 			<div class="d-flex fill-height">
 
 				<!-- SIDEBAR -->
-				<v-navigation-drawer :permanent="isPermanent" :temporary="!isPermanent" v-model="sidebar.opened" class="fill-height" style="min-width: 300px" :absolute="!isPermanent">
+				<v-navigation-drawer ref="drawer" :permanent="isPermanent" :temporary="!isPermanent" v-model="sidebar.opened" class="fill-height" style="min-width: 300px" :absolute="!isPermanent">
 					<div :class="{ 'pa-4 fill-height grey lighten-4': true, 'grey lighten-2 inner-shadow': isPermanent }">
 
 						<!-- SEARCH -->
-						<v-text-field ref="search" v-model="filter" :disabled="items.length === 0" clearable solo :label="$t('help.filterPlaceholder')" prepend-inner-icon="mdi-magnify" hide-details />
+						<v-text-field ref="search" v-model="filter" :disabled="items.length === 0" clearable solo :label="$t('help.filterPlaceholder')" prepend-inner-icon="mdi-magnify" autocomplete="off" hide-details />
 
 						<!-- ALERNO ITEMS -->
 						<v-alert v-if="items.length === 0" type="warning" text tile colored-border border="bottom" class="mt-4 white">
@@ -74,7 +74,7 @@
 <script>
     import Vue from 'vue';
     import EmptyView from "./EmptyView";
-    import { HelpService } from "@polymind/sdk-js";
+    import { DocumentationService } from "@polymind/sdk-js";
 
     export default Vue.extend({
 
@@ -117,11 +117,14 @@
             load() {
 
                 this.$root.isLoading = true;
-                HelpService.getAll(this.$i18n.locale)
-					.then(response => {
+				DocumentationService.getAll(this.$i18n.locale)
+					.then(documentations => {
 						this.$help.items.splice(0, this.$help.items.length);
-						response.data.forEach(documentation => {
-                        	this.$help.add(documentation.group, documentation.slug, documentation.title, documentation.content);
+						documentations.forEach(documentation => {
+							const content = documentation.getContent(this.$i18n.locale);
+							if (content) {
+                        		this.$help.add(documentation.group, content.slug, content.title, content.content);
+							}
 						});
 						this.itemsLoaded = true;
 					})
@@ -200,9 +203,12 @@
                 this.showModal = visible;
 
                 if (visible) {
-                    setTimeout(() => {
-                    	this.$refs.search.focus();
-					});
+                	if (this.$refs.drawer) {
+						setTimeout(() => {
+							this.$refs.search.focus();
+						});
+						this.$refs.drawer.init();
+					}
 				}
 			},
 

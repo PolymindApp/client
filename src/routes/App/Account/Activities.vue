@@ -3,9 +3,9 @@
 		<v-row>
 			<v-col cols="12">
 				<v-card-title>
-					<span class="text-break">{{ $t('account.contributionLastYear', { total: commits.data.length }) }}</span>
+					<span class="text-break">{{ $tc('account.sessionLastYear', sessions.length, { total: sessions.length }) }}</span>
 				</v-card-title>
-				<CommitGraph :user="user" @load="commits = arguments[0]" @load-commits-day="commitsDay = arguments[0]" @load-commits-day-date="commitsDayDate = arguments[0]"/>
+				<SessionGraph :user="user" @load="sessions = arguments[0]" @sessions="handleSessions" @date="handleDate"/>
 			</v-col>
 		</v-row>
 		<v-row>
@@ -26,7 +26,7 @@
 								</template>
 								<v-card>
 									<v-card-title class="pt-2 pb-0">
-										<span class="font-weight-medium">{{comment.action_by | userScreenName }}</span>
+										<span class="font-weight-medium subtitle-1">{{comment.action_by | userScreenName }}</span>
 										<span class="font-weight-light ml-md-4 body-2">{{comment.action_on | timeAgo}}</span>
 									</v-card-title>
 									<v-card-text class="mt-2 mt-md-0">
@@ -40,66 +40,35 @@
 			</v-col>
 			<v-col cols="12" md="5">
 				<v-slide-y-transition>
-					<AccountActivities v-if="!commitsLoaded" :activities-empty="$t('account.activities.historyEmpty')" :activities="histories">
+					<AccountActivities v-if="!sessionsLoaded" :activities-empty="$t('account.activities.sessionEmpty')" :activities="sessions">
 						<template v-slot:title>
 							{{ $t('account.recentActivities') }}
 						</template>>
 						<template v-slot:content="props">
-							<v-timeline-item :icon="props.activity.icon" :color="props.activity.color" large :key="props.index" label>
-								<v-row justify="space-between">
-									<v-col cols="12" md="8" class="py-0">
-										<v-card class="elevation-2">
-											<v-card-text>
-												<template v-if="props.activity.action === 'create'">
-												<span v-if="props.activity.collection === 'page'">
-													<span v-html="$t('account.activities.history.createPage', props.activity.relation.data)"></span>
-												</span>
-													<span v-else-if="props.activity.collection === 'component'">
-													<span v-html="$t('account.activities.history.createComponent', props.activity.relation.data)"></span>
-												</span>
-													<span v-else-if="props.activity.collection === 'documentation'">
-													<span v-html="$t('account.activities.history.createDocumentation', props.activity.relation.data)"></span>
-												</span>
-												</template>
-
-												<div class="mt-2">
-													<v-btn v-if="props.activity.to" :to="props.activity.to" x-small>
-														{{$t('account.activities.view')}}
-													</v-btn>
-													<v-btn v-else-if="props.activity.click" @click="props.activity.click" x-small>
-														{{$t('account.activities.view')}}
-													</v-btn>
-												</div>
-											</v-card-text>
-										</v-card>
-									</v-col>
-									<v-col class="text-right align-end d-flex flex-column justify-center py-0" cols="12" md="4">
-										<span class="py-2">{{ props.activity.action_on | timeAgo }}</span>
-									</v-col>
-								</v-row>
+							<v-timeline-item :icon="props.activity.getIcon()" :color="props.activity.getColor()" large :key="props.index" label>
+								<v-card class="elevation-2">
+									<v-card-text class="d-flex align-center">
+										<span v-html="$t('account.activities.sessionCompleted', {
+											name: props.activity.getName(),
+											timeAgo: $options.filters.timeAgo(props.activity.end_date)
+										})"></span>
+									</v-card-text>
+								</v-card>
 							</v-timeline-item>
 						</template>
 					</AccountActivities>
-					<AccountActivities v-else activities-empty="" :activities="commitsDay">
+					<AccountActivities v-else activities-empty="$t('account.activities.sessionEmpty')" :activities="sessionsDay">
 						<template v-slot:title>
-							<span id="contributions_section" class="text-break" v-html="$t('commitGraph.contributionsDay', { total: commitsDay.data.length, date: moment(commitsDayDate).format('ll') })"></span>
+							<span ref="activities" class="text-break" v-html="$tc('sessionGraph.sessionsDay', sessionsDay.length, { total: sessionsDay.length, date: moment(sessionsDayDate).format('ll') })"></span>
 						</template>>
 						<template v-slot:content="props">
-							<v-timeline-item :icon="props.activity.icon" :color="props.activity | activityColor" :key="props.index" large label>
-								<template v-slot:icon>
-									<v-icon dark>{{ props.activity | activityIcon }}</v-icon>
-								</template>
-								<v-card>
-									<v-card-title :class="{ 'pb-0': props.activity.action === 'comment' }">
-										<span class="font-weight-light text-break body-2 mr-4" v-html="$t('activity.' + props.activity.action + '.' + props.activity.collection + '.title', {
-											name: props.activity.relation.data.name
+							<v-timeline-item :icon="props.activity.getIcon()" :color="props.activity.getColor()" large :key="props.index" label>
+								<v-card class="elevation-2">
+									<v-card-text class="d-flex align-center">
+										<span v-html="$t('account.activities.sessionCompleted', {
+											name: props.activity.getName(),
+											timeAgo: $options.filters.timeAgo(props.activity.end_date)
 										})"></span>
-										<span class="font-weight-medium body-2">{{props.activity.action_on | date('HH:mm:ss')}}</span>
-									</v-card-title>
-									<v-card-text v-if="props.activity.action === 'comment'">
-										<v-icon color="grey lighten-2">mdi-format-quote-open</v-icon>
-										<span class="font-italic font-weight-light body-1 mx-2" v-text="props.activity.comment"></span>
-										<v-icon color="grey lighten-2">mdi-format-quote-close</v-icon>
 									</v-card-text>
 								</v-card>
 							</v-timeline-item>
@@ -113,9 +82,9 @@
 
 <script>
 import Vue from 'vue';
-import { HistoryService, CommentService } from '@polymind/sdk-js';
+import { SessionService, CommentService } from '@polymind/sdk-js';
 import UserAvatar from "../../../components/UserAvatar";
-import CommitGraph from "../../../components/CommitGraph";
+import SessionGraph from "../../../components/SessionGraph";
 import AccountActivities from "./AccountActivities";
 import moment from 'moment';
 
@@ -123,7 +92,7 @@ export default Vue.extend({
 
 	props: ['user'],
 
-	components: { UserAvatar, CommitGraph, AccountActivities },
+	components: { UserAvatar, SessionGraph, AccountActivities },
 
 	mounted() {
 		this.load();
@@ -134,33 +103,12 @@ export default Vue.extend({
 	    load() {
 
 	        Promise.all([
-                CommentService.getAll('directus_users', this.$route.params.id, '-id', 5),
-                HistoryService.fromUser(this.$route.params.id),
+                CommentService.getAll('directus_users', this.$route.params.id, '-id', 10),
+				SessionService.getAll(this.$route.params.id, null, 5),
 			])
-                .then(([comments, histories]) => {
+                .then(([comments, sessions]) => {
                     this.comments = comments;
-                    this.histories = histories;
-                    this.histories.data.map(history => {
-                        switch(history.collection) {
-							case 'page':
-							    history.icon = 'mdi-file-document-box-plus-outline';
-							    history.color = 'black lighten-2';
-							    history.to = '/' + history.relation.data.slug;
-							    break;
-							case 'component':
-							    history.icon = 'mdi-cube';
-							    history.color = 'blue-grey lighten-2';
-                                history.to = '/component/' + history.relation.data.id;
-							    break;
-							case 'documentation':
-							    history.icon = 'mdi-book';
-							    history.color = 'light-green darken-1';
-                                history.click = () => {
-                                    this.$help.open(history.relation.data.slug)
-								};
-							    break;
-						}
-					});
+                    this.sessions = sessions;
                 })
                 .catch(error => this.$handleError(this, error));
 		},
@@ -169,6 +117,14 @@ export default Vue.extend({
 	        if (event.code === 'Enter' && !event.shiftKey) {
 	            this.send(event);
 			}
+		},
+
+		handleSessions(sessions) {
+			this.sessionsDay = sessions;
+		},
+
+		handleDate(date) {
+			this.sessionsDayDate = date;
 		},
 
         send(event) {
@@ -189,39 +145,20 @@ export default Vue.extend({
                 })
                 .catch(error => this.$handleError(this, error));
         },
-
-		toContributions() {
-			this.$vuetify.goTo(this.target, this.options);
-		},
 	},
 
 	data() {
 		return {
 			moment: moment,
             comments: { data: [] },
-            commits: { data: [] },
-			commitsDay: { data: [] },
-			commitsDayDate: false,
-			commitsLoaded: false,
-			histories: { data: [] },
-			target: '#contributions_section',
-			duration: 300,
-			offset: 30,
-			easing: 'easeInOutCubic',
+			sessionsDay: [],
+			sessionsDayDate: false,
+			sessionsLoaded: false,
+			sessions: [],
             newComment: {
 		        text: '',
 			}
 		}
-	},
-
-	computed: {
-		options() {
-			return {
-				duration: this.duration,
-				offset: this.offset,
-				easing: this.easing,
-			}
-		},
 	},
 
 	watch: {
@@ -230,9 +167,13 @@ export default Vue.extend({
             this.load();
         },
 
-		commitsDay(value) {
-			this.commitsLoaded = true;
-			setTimeout(() => this.toContributions());
+		sessionsDay(value) {
+			this.sessionsLoaded = true;
+			setTimeout(() => this.$vuetify.goTo(this.$refs.activities, {
+				duration: 300,
+				offset: 30,
+				easing: 'easeInOutCubic',
+			}));
 		}
 	}
 });

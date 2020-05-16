@@ -6,14 +6,13 @@ const globalVariables = {
 	error: null,
 	languages: [],
 	breadcrumbs: [],
+	datasets: [],
+	components: [],
+	strategies: [],
 	isLoading: false,
 	isSaved: false,
 	copiedToClipboard: false,
 	isDeleted: false,
-	toolbarOptions: [],
-	toolbarContextual: {
-		component: false
-	},
 	shortcuts: {
 		visible: false,
 	},

@@ -14,7 +14,8 @@
 					</v-card-title>
 					<v-card-text>
 						<v-text-field :error-messages="formErrors.name" :label="$t('dataset.settings.namePlaceholder')" v-model="dataset.name"></v-text-field>
-						<HTMLEditorField :error-messages="formErrors.description" :label="$t('dataset.settings.descPlaceholder')" v-model="dataset.description"></HTMLEditorField>
+						<IconListField :error-messages="formErrors.icon" :label="$t('dataset.settings.iconPlaceholder')" v-model="dataset.icon" />
+						<HTMLEditorField :error-messages="formErrors.description" :label="$t('dataset.settings.descPlaceholder')" v-model="dataset.description" hide-details></HTMLEditorField>
 					</v-card-text>
 				</v-card>
 			</v-col>
@@ -62,15 +63,10 @@ export default Vue.extend({
 		testRemoteURI() {
 			this.remoteTestResponse = null;
 			this.$root.isLoading = true;
-			fetch(this.dataset.remote_uri)
-				.then(response => response.json())
-				.then(response => {
-					    if (this.dataset.is_applying_mapper) {
-					        return this.remoteTestResponse = eval('() => {' + this.dataset.mapper + '}')();
-					}
 
-					    return this.remoteTestResponse = response;
-				})
+			this.dataset.getRemote().then(response => {
+				return this.remoteTestResponse = response;
+			})
 				.catch(error => this.remoteTestResponse = error)
 				.finally(() => this.$root.isLoading = false);
 		}

@@ -5,7 +5,7 @@
 
     export default Vue.extend({
 
-        name: 'Bar',
+        name: 'BarStacked',
 
 		extends: Bar,
 		mixins: [reactiveProp],
@@ -23,7 +23,7 @@
 		},
 
 		data() {
-        	return {
+			return {
 				defaultOptions: {
 					responsive: true,
 					maintainAspectRatio: false,
@@ -34,6 +34,14 @@
 						mode: 'index',
 						intersect: false,
 					},
+					scales: {
+						xAxes: [{
+							stacked: true
+						}],
+						yAxes: [{
+							stacked: true
+						}],
+					}
 				}
 			}
 		},

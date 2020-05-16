@@ -1,5 +1,5 @@
 <template>
-	<v-menu v-model="show" v-bind="$attrs">
+	<v-menu v-model="show" v-bind="$attrs" max-height="400" color="white">
 		<v-list dense>
 
 			<template v-for="(item, index) in items">
@@ -11,7 +11,14 @@
 						<v-icon v-if="typeof item.icon === 'function'" v-text="item.icon()" small></v-icon>
 						<v-icon v-else v-text="item.icon" small></v-icon>
 					</v-list-item-icon>
-					<v-list-item-title>{{ item.text }}</v-list-item-title>
+					<v-list-item-title>
+						<template v-if="item.select">
+							<v-select :label="item.text" v-on="item.select.listeners" v-bind="item.select.attrs" dense solo flat hide-details></v-select>
+						</template>
+						<template v-else>
+							{{ item.text }}
+						</template>
+					</v-list-item-title>
 					<v-list-item-action v-if="item.childs" class="ml-2">
 						<v-icon small>mdi-chevron-right</v-icon>
 					</v-list-item-action>

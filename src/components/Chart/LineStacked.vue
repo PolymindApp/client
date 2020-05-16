@@ -1,30 +1,30 @@
 <script>
     import Vue from 'vue';
-	import { Bar, mixins } from 'vue-chartjs';
+	import { Line, mixins } from 'vue-chartjs';
 	const { reactiveProp } = mixins;
 
     export default Vue.extend({
 
-        name: 'Bar',
+        name: 'LineStacked',
 
-		extends: Bar,
+		extends: Line,
 		mixins: [reactiveProp],
 		props: ['options'],
 
-		mounted() {
+        mounted() {
 			this.updateChart();
-		},
+        },
 
 		methods: {
 
-			updateChart() {
+        	updateChart() {
 				this.renderChart(this.chartData, Object.assign({}, this.defaultOptions, this.options));
 			}
 		},
 
-		data() {
-        	return {
-				defaultOptions: {
+        data() {
+            return {
+            	defaultOptions: {
 					responsive: true,
 					maintainAspectRatio: false,
 					legend: {
@@ -34,14 +34,19 @@
 						mode: 'index',
 						intersect: false,
 					},
-				}
-			}
-		},
+					scales: {
+						yAxes: [{
+							stacked: true
+						}],
+					}
+				},
+			};
+        },
 
 		watch: {
 
 			chartData: {
-				deep: true,
+        		deep: true,
 				handler(options) {
 					this.updateChart();
 				}

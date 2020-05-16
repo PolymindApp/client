@@ -6,7 +6,7 @@
 
 			<template>
 				<slot name="loading">
-					<v-progress-linear :size="50" color="primary" :active="!hasLoaded && isLoading" indeterminate></v-progress-linear>
+					<v-progress-linear :size="50" color="primary" :active="!hasLoaded && isLoading" :class="{ 'my-4': isLoading }" indeterminate></v-progress-linear>
 				</slot>
 			</template>
 
@@ -20,7 +20,7 @@
 
 			<template v-else-if="comments.length === 0 && hasLoaded">
 				<slot name="empty">
-					<div v-text="$t('comment.emptyTitle')"></div>
+					<div v-text="$t('comment.noCommentYet')"></div>
 				</slot>
 			</template>
 		</div>
@@ -52,14 +52,18 @@
 
 			load(id, collection, sort) {
 
+				if (!id || !collection) {
+					return;
+				}
+
                 this.isLoading = true;
                 this.hasLoaded = false;
                 Promise.all([
-					CommentService.count(collection, id, sort),
+					// CommentService.count(collection, id, sort),
 					CommentService.getAll(collection, id, sort)
-				]).then(([count, comments]) => {
+				]).then(([comments]) => {
 					this.reset();
-					this.$emit('update:total', count.meta.filter_count);
+					this.$emit('update:total', comments.meta.result_count);
 					this.$emit('update:comments', comments.data);
 					this.hasLoaded = true;
 				})
@@ -89,10 +93,6 @@
                         .then(response => {
                             const comment = this.comments.find(comment => comment.id === id);
                             comment.comment_deleted_on = new Date();
-
-							this.$stats.push('DELETE_COMMENT', {
-								id
-							});
                         })
                         .catch(error => this.$handleError(this, error))
                         .finally(() => this.isLoading = false);

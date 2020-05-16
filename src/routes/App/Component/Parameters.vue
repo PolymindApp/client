@@ -1,7 +1,7 @@
 <template>
 	<v-row no-gutters class="fill-height">
 		<v-col cols="12" md="6">
-			<CodeEditorField v-model="component.parameters" lang="yaml" class="fill-height" hide-details></CodeEditorField>
+			<CodeEditorField v-model="schema" lang="yaml" class="fill-height" hide-details></CodeEditorField>
 		</v-col>
 		<v-col cols="12" md="6" class="scrollable pa-4">
 			<div :style="{ height: component.parameters ? 0 : null }" :class="{ 'fill-height': !component.parameters }">
@@ -27,15 +27,20 @@
 						<v-card>
 							<v-card-title v-text="$t('component.parameters.component.title')"></v-card-title>
 							<v-card-text>
-								<ComponentParameters v-model="preview.component.parameters" type="component" />
+								<EmptyView v-if="preview.component.parameters.length === 0" :title="$t('strategy.assembly.component.noParameterTitle')" :desc="$t('strategy.assembly.component.noParameterDesc')" />
+								<ComponentParameters v-else v-model="value.component" :parameters="preview.component.parameters" type="component" />
 							</v-card-text>
 						</v-card>
 
 						<!-- DATASET -->
 						<v-card class="my-4">
-							<v-card-title v-text="$t('component.parameters.dataset.title')"></v-card-title>
+							<v-card-title class="d-flex justify-space-between">
+								<span v-text="$t('component.parameters.dataset.title')"></span>
+								<v-select v-model="selectedDataset" :items="$root.datasets" :label="$t('strategy.assembly.datasetPlaceholder')" item-text="name" style="max-width: 250px" dense outlined return-object hide-details></v-select>
+							</v-card-title>
 							<v-card-text>
-								<ComponentParameters v-model="preview.dataset.parameters" type="dataset" :readonly="true" />
+								<EmptyView v-if="preview.dataset.parameters.length === 0" :title="$t('strategy.assembly.dataset.noParameterTitle')" :desc="$t('strategy.assembly.dataset.noParameterDesc')" />
+								<ComponentParameters v-else v-model="value.dataset" :parameters="preview.dataset.parameters" type="dataset" :columns="dataset.columns" />
 							</v-card-text>
 						</v-card>
 					</div>
@@ -52,6 +57,7 @@
 	import CodeEditorField from "../../../components/CodeEditorField";
 	import EmptyView from "../../../components/EmptyView";
 	import ComponentParameters from "../../../components/ComponentParameters";
+	import AssemblyParameters from "@polymind/sdk-js/src/models/AssemblyParameters";
 
 	let previewTimer;
 
@@ -59,12 +65,12 @@
 
         name: 'Parameters',
 
-        props: ['component'],
+        props: ['component', 'dataset'],
 
         components: { CodeEditorField, EmptyView, ComponentParameters },
 
         mounted() {
-			this.previewYaml();
+			this.init();
         },
 
         destroyed() {
@@ -77,14 +83,20 @@
         		this.previewYaml();
 			},
 
-        	previewYaml() {
+        	previewYaml(compile = true) {
 
         		this.error = null;
 
         		try {
 					const preview = yaml.safeLoad(this.component.parameters, 'utf8');
 					this.preview = new ComponentParametersModel(preview);
-					this.component.compiled_parameters = new ComponentParametersModel(this.$deepClone(this.preview));
+
+					if (compile) {
+						this.component.compiled_parameters = new ComponentParametersModel(this.$deepClone(this.preview));
+					}
+
+					const clone = this.$deepClone(this.value);
+					Object.assign(this.value, this.component.getDefaultParameters(), clone);
 				} catch (e) {
         			console.error(e);
         			this.error = e;
@@ -94,23 +106,50 @@
 
         computed: {
 
+        	schema: {
+
+        		get() {
+        			return this.component.parameters;
+				},
+
+				set(value) {
+					clearTimeout(previewTimer);
+					previewTimer = setTimeout(() => {
+						this.component.parameters = value;
+						this.previewYaml();
+						this.$emit('update:component', this.component);
+					}, 500);
+				},
+			}
 		},
 
         data() {
             return {
 				error: null,
+				selectedDataset: this.dataset,
+				value: new AssemblyParameters(),
 				preview: new ComponentParametersModel(),
 			};
         },
 
 		watch: {
 
-			'component.parameters'() {
-				clearTimeout(previewTimer);
-				previewTimer = setTimeout(() => {
-					this.previewYaml();
-					this.$emit('update:component', this.component);
-				}, 1000);
+        	'component.parameters'() {
+        		this.previewYaml();
+			},
+
+			value: {
+				deep: true,
+				handler(value) {
+					this.$emit('value', value);
+				}
+			},
+
+			'selectedDataset': {
+        		deep: true,
+				handler(dataset) {
+        			this.$emit('update:dataset', dataset);
+				}
 			}
 		}
     });

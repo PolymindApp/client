@@ -1,9 +1,9 @@
 <template>
-	<v-dialog ref="dialog" v-model="menu" :return-value="date" persistent width="290px">
+	<v-dialog ref="dialog" v-model="menu" :return-value="date" persistent :width="width">
 		<template v-slot:activator="{ on }">
-			<v-text-field v-model="date" prepend-icon="mdi-calendar-month-outline" readonly v-on="on" v-bind="$attrs"></v-text-field>
+			<v-text-field v-model="date" readonly v-on="on" v-bind="$attrs"></v-text-field>
 		</template>
-		<v-date-picker v-model="newDate" :min="min" :max="max" color="primary" scrollable>
+		<v-date-picker v-model="newDate" :min="min" :max="max" color="primary" :range="range" full-width scrollable>
 			<v-spacer></v-spacer>
 			<v-btn text color="primary" @click="apply()" v-text="$t('modal.apply')"></v-btn>
 			<v-btn text @click="menu = false" v-text="$t('modal.cancel')"></v-btn>
@@ -18,7 +18,22 @@
 
         name: 'DateField',
 
-        props: ['value', 'min', 'max'],
+		props: {
+        	value: null,
+			range: null,
+			min: {
+				type: String,
+				default: null
+			},
+			max: {
+				type: String,
+				default: null
+			},
+			width: {
+        		type: String,
+        		default: '290px'
+			}
+		},
 
         components: {},
 

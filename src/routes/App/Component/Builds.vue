@@ -2,7 +2,7 @@
 	<div class="fill-height">
 
 		<!-- LOGS -->
-		<v-dialog v-model="logsModal.visible" scrollable persistent max-width="750px">
+		<v-dialog v-model="logsModal.visible" scrollable persistent max-width="1000px">
 			<v-card>
 				<v-card-title class="headline">
 					<v-icon color="primary" slot="icon" size="36" left>mdi-format-list-bulleted-square</v-icon>
@@ -23,27 +23,27 @@
 		</v-dialog>
 
 		<!-- EMPTY -->
-		<EmptyView v-if="builds.length === 0" title="No build yet" desc="Initiate one from the settings page" />
+		<EmptyView v-if="builds.length === 0" :title="$t('component.builds.noBuildTitle')" :desc="$t('component.builds.noBuildDesc')" />
 
 		<!-- BUILD LIST -->
 		<v-list v-else>
 			<template v-for="(build, buildIdx) in builds">
 				<v-divider v-if="buildIdx > 0"></v-divider>
 				<v-list-item :key="buildIdx">
-					<v-list-item-avatar :color="build.state | buildColor">
-						<v-icon dark>{{ build.state | buildIcon }}</v-icon>
+					<v-list-item-avatar :color="build.status | buildColor">
+						<v-icon dark>{{ build.status | buildIcon }}</v-icon>
 					</v-list-item-avatar>
 
 					<v-list-item-content>
-						<v-list-item-title v-text="$t('component.builds.states.' + build.state)"></v-list-item-title>
+						<v-list-item-title v-text="$t('component.builds.states.' + build.status)"></v-list-item-title>
 						<v-list-item-subtitle v-text="$t('component.builds.launchedAt', {
-							timeAgo: $options.filters.timeAgo(build.startDate)
+							timeAgo: $options.filters.timeAgo(build.startTime)
 						})"></v-list-item-subtitle>
 					</v-list-item-content>
 
 					<v-list-item-action>
 						<div>
-							<v-btn :href="build.publicUrl" target="_blank" v-if="build.state === 'completed'" color="primary" class="mr-4" outlined tile>
+							<v-btn :href="build.publicUrl" target="_blank" v-if="build.status === 'completed'" color="primary" class="mr-4" outlined tile>
 								<v-icon>mdi-play</v-icon>
 							</v-btn>
 							<v-btn @click="checkLogs(build)" outlined tile>
@@ -112,8 +112,6 @@
 		width: 100%;
 		padding: 1rem;
 		background-color: black !important;
-		max-height: 10rem;
-		overflow: auto;
 		color: rgba(255, 255, 255, 0.7) !important;
 	}
 </style>

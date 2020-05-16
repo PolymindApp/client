@@ -3,7 +3,7 @@
 		<template v-slot:activator="{ on: menu }">
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on: tooltip }">
-					<v-btn v-on="{ ...tooltip, ...menu }" :disabled="$root.languages.length === 0" v-bind="$attrs">
+					<v-btn v-on="{ ...tooltip, ...menu }" :disabled="$root.languages.length === 0" :class="btnClass" v-bind="$attrs">
 						<v-icon left>mdi-translate</v-icon>
 						<span v-if="hideLang !== true">
 							<span v-if="!isLoading">{{ getSelectedLang() }}</span>
@@ -28,11 +28,11 @@
 <script>
 import Vue from 'vue';
 import moment from 'moment';
-import { LanguageService } from "@polymind/sdk-js";
+import { LanguageService, Cookies } from "@polymind/sdk-js";
 
 export default Vue.extend({
 	name: 'LanguageSwitcher',
-	props: ['value', 'full', 'autoApply', 'hideLang'],
+	props: ['value', 'full', 'autoApply', 'hideLang','btnClass'],
 
 	mounted() {
 
@@ -75,7 +75,7 @@ export default Vue.extend({
 
 			const cookieDate = new Date();
 			cookieDate.setMonth(cookieDate.getMonth() + 12);
-			this.$cookies.set("lang", lang, cookieDate, '/', process.env.VUE_APP_COOKIE_DOMAIN);
+			Cookies.set("lang", lang, cookieDate, '/', process.env.VUE_APP_COOKIE_DOMAIN);
 
 			this.$i18n.locale = lang;
 			moment.locale(lang);

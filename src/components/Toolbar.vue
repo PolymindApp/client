@@ -19,7 +19,7 @@
 			</v-btn>
 		</v-snackbar>
 
-		<v-app-bar dark :src="backgroundImage" app :class="collapse ? 'fullscreen' : null" :flat="collapse" :color="collapse ? 'transparent' : null" :collapse="collapse" :clipped-right="sidebar.permanent">
+		<v-app-bar dark :src="backgroundImage" app :class="collapse ? 'fullscreen' : null" :flat="collapse" :color="collapse ? 'transparent' : 'primary'" :collapse="collapse" :clipped-right="sidebar.permanent">
 
 			<template v-slot:img="{ props }">
 				<v-img v-bind="props" gradient="to bottom, rgba(86, 190, 187, 0.75), rgba(27, 142, 138, 0.75)"></v-img>
@@ -38,7 +38,7 @@
 
 			<!-- LOGO -->
 			<v-scale-transition mode="in-out" v-if="$vuetify.breakpoint.smAndUp">
-				<img class="mr-4" v-show="showAppTitle" src="../assets/images/polymind-light.svg" height="48" />
+				<img class="mr-4" src="../assets/images/polymind-light.svg" height="48" />
 			</v-scale-transition>
 
 			<!-- TITLE -->
@@ -50,14 +50,9 @@
 				<template v-if="$vuetify.breakpoint.smAndUp" v-for="(breadcrumb, index) in $root.breadcrumbs">
 					<div class="d-inline headline-item">
 						<span v-if="typeof breadcrumb === 'string'">
-							<span v-if="index === 0" v-show="showTitle" :key="index + '_item'">{{ breadcrumb }}</span>
-							<span v-if="index > 0" v-show="showTitle" :key="index + '_item'" class="font-weight-light">{{ breadcrumb }}</span>
+							<span v-if="index === 0" :key="index + '_item'">{{ breadcrumb }}</span>
+							<span v-if="index > 0" :key="index + '_item'" class="font-weight-light">{{ breadcrumb }}</span>
 						</span>
-
-						<template v-if="typeof breadcrumb !== 'string'">
-							<component class="d-inline" :is="breadcrumb[0]" v-bind="breadcrumb[1]" v-if="typeof breadcrumb === 'object'"></component>
-							<component class="d-inline" :is="breadcrumb" v-else></component>
-						</template>
 					</div>
 
 					<v-icon v-if="index + 1 < $root.breadcrumbs.length" :key="index + '_chevron'" class="separator">mdi-chevron-right</v-icon>
@@ -67,10 +62,16 @@
 			<v-spacer></v-spacer>
 
 			<template v-if="$vuetify.breakpoint.mdAndUp">
-				<template v-if="contextualComponent.component">
-					<component :is="contextualComponent.component"></component>
-					<v-divider v-if="!collapse" inset vertical class="ml-8"></v-divider>
-				</template>
+				<v-slide-y-transition>
+					<div v-if="$toolbar.state.hasItem" class="d-flex align-center">
+						<component :is="$toolbar.state.ref" v-bind="$toolbar.state.props" v-on="$toolbar.state.listeners"></component>
+					</div>
+				</v-slide-y-transition>
+
+				<v-btn to="/about/contact" class="ml-4" text>
+					<v-icon left>mdi-email-check-outline</v-icon>
+					<span v-text="$t('toolbar.feedback')"></span>
+				</v-btn>
 
 				<!-- MESSAGING -->
 <!--				<v-menu v-model="messagingMenu" v-if="!collapse" transition="slide-y-transition" max-width="450" min-width="450">-->
@@ -123,178 +124,178 @@
 <!--				</v-menu>-->
 
 				<!-- NOTIFICATIONS -->
-				<v-menu v-model="notificationMenu" v-if="!collapse" transition="slide-y-transition" max-width="450" min-width="450">
-					<template v-slot:activator="{ on: menu }">
-						<v-tooltip bottom>
-							<template v-slot:activator="{ on: tooltip }">
-								<v-btn :disabled="notifications.length === 0" :class="$vuetify.breakpoint.smAndUp ? 'ml-4 mr-0' : null" icon v-on="{ ...tooltip, ...menu }">
-									<v-badge color="error" v-if="newNotifications.length > 0">
-										<template v-slot:badge>{{ newNotifications.length }}</template>
-										<v-icon>mdi-bell</v-icon>
-									</v-badge>
-									<v-icon v-else>mdi-bell</v-icon>
-								</v-btn>
-							</template>
-							<span>{{$t('toolbar.tooltip.notification')}}</span>
-						</v-tooltip>
-					</template>
-					<v-card>
-						<v-list>
-							<template v-for="(notification, i) in notifications">
-								<v-list-item :key="'item_' + i" :to="'/' + notification.collection + '/' + notification.item" :class="(!notification.acknowledged_on || notification.acknowledged ? 'v-list-item--active primary--text' : '') + ' align-center'">
-									<v-list-item-avatar>
-										<UserAvatar :size="48" :user="notification.from" />
-									</v-list-item-avatar>
+<!--				<v-menu v-model="notificationMenu" v-if="!collapse" transition="slide-y-transition" max-width="450" min-width="450">-->
+<!--					<template v-slot:activator="{ on: menu }">-->
+<!--						<v-tooltip bottom>-->
+<!--							<template v-slot:activator="{ on: tooltip }">-->
+<!--								<v-btn :disabled="notifications.length === 0" :class="$vuetify.breakpoint.smAndUp ? 'ml-4 mr-0' : null" icon v-on="{ ...tooltip, ...menu }">-->
+<!--									<v-badge color="error" v-if="newNotifications.length > 0">-->
+<!--										<template v-slot:badge>{{ newNotifications.length }}</template>-->
+<!--										<v-icon>mdi-bell</v-icon>-->
+<!--									</v-badge>-->
+<!--									<v-icon v-else>mdi-bell</v-icon>-->
+<!--								</v-btn>-->
+<!--							</template>-->
+<!--							<span>{{$t('toolbar.tooltip.notification')}}</span>-->
+<!--						</v-tooltip>-->
+<!--					</template>-->
+<!--					<v-card>-->
+<!--						<v-list>-->
+<!--							<template v-for="(notification, i) in notifications">-->
+<!--								<v-list-item :key="'item_' + i" :to="'/' + notification.collection + '/' + notification.item" :class="(!notification.acknowledged_on || notification.acknowledged ? 'v-list-item&#45;&#45;active primary&#45;&#45;text' : '') + ' align-center'">-->
+<!--									<v-list-item-avatar>-->
+<!--										<UserAvatar :size="48" :user="notification.from" />-->
+<!--									</v-list-item-avatar>-->
 
-									<v-list-item-content>
-										<v-list-item-title>{{notification.from | userScreenName}}</v-list-item-title>
-										<v-list-item-subtitle v-html="$t('notification.types.' + notification.type + '_' + notification.collection, {
-											name: notification.relation.data.name
-										})"></v-list-item-subtitle>
+<!--									<v-list-item-content>-->
+<!--										<v-list-item-title>{{notification.from | userScreenName}}</v-list-item-title>-->
+<!--										<v-list-item-subtitle v-html="$t('notification.types.' + notification.type + '_' + notification.collection, {-->
+<!--											name: notification.relation.data.name-->
+<!--										})"></v-list-item-subtitle>-->
 
-										<v-list-item-subtitle v-if="notification.activity.action === 'comment'">
-											<v-icon>mdi-format-quote-open</v-icon>
-											<span class="font-italic font-weight-light mx-1">
-											{{ notification.activity.comment | plainExcerpt(100) }}
-										</span>
-											<v-icon>mdi-format-quote-close</v-icon>
-										</v-list-item-subtitle>
-									</v-list-item-content>
+<!--										<v-list-item-subtitle v-if="notification.activity.action === 'comment'">-->
+<!--											<v-icon>mdi-format-quote-open</v-icon>-->
+<!--											<span class="font-italic font-weight-light mx-1">-->
+<!--											{{ notification.activity.comment | plainExcerpt(100) }}-->
+<!--										</span>-->
+<!--											<v-icon>mdi-format-quote-close</v-icon>-->
+<!--										</v-list-item-subtitle>-->
+<!--									</v-list-item-content>-->
 
-									<v-list-item-icon v-if="!notification.acknowledged_on || notification.acknowledged">
-										<v-icon color="primary" xSmall>
-											mdi-checkbox-blank-circle
-										</v-icon>
-									</v-list-item-icon>
-								</v-list-item>
-							</template>
+<!--									<v-list-item-icon v-if="!notification.acknowledged_on || notification.acknowledged">-->
+<!--										<v-icon color="primary" xSmall>-->
+<!--											mdi-checkbox-blank-circle-->
+<!--										</v-icon>-->
+<!--									</v-list-item-icon>-->
+<!--								</v-list-item>-->
+<!--							</template>-->
 
-							<v-divider class="my-4" v-if="notifications.length > 0"></v-divider>
+<!--							<v-divider class="my-4" v-if="notifications.length > 0"></v-divider>-->
 
-							<v-list-item v-if="notifications.length > 0" :to="'/account/' + $root.user.id + '/notifications'" class="text-center">
-								<v-list-item-content>
-									<v-list-item-title>
-										{{$t('toolbar.seeAllNotif')}}
-									</v-list-item-title>
-								</v-list-item-content>
-							</v-list-item>
-						</v-list>
-					</v-card>
-				</v-menu>
+<!--							<v-list-item v-if="notifications.length > 0" :to="'/account/' + $root.user.id + '/notifications'" class="text-center">-->
+<!--								<v-list-item-content>-->
+<!--									<v-list-item-title>-->
+<!--										{{$t('toolbar.seeAllNotif')}}-->
+<!--									</v-list-item-title>-->
+<!--								</v-list-item-content>-->
+<!--							</v-list-item>-->
+<!--						</v-list>-->
+<!--					</v-card>-->
+<!--				</v-menu>-->
 
-				<v-divider class="mx-4" vertical inset></v-divider>
+<!--				<v-divider class="mx-4" vertical inset></v-divider>-->
 
 				<!-- SEARCH -->
-				<v-menu v-model="searchMenuOpened" transition="scroll-x-reverse-transition" max-width="450" min-width="450" :close-on-content-click="false" :nudge-width="300" offset-x>
-					<template v-slot:activator="{ on: menu }">
-						<v-tooltip bottom>
-							<template v-slot:activator="{ on: tooltip }">
-								<v-btn icon :class="$vuetify.breakpoint.smAndUp ? 'mr-0' : null" v-on="{ ...tooltip, ...menu }" @click="setSearchFocus()">
-									<v-icon>mdi-magnify</v-icon>
-								</v-btn>
-							</template>
-							<span>{{$t('toolbar.tooltip.search')}}</span>
-						</v-tooltip>
-					</template>
-					<v-card>
-						<div class="pa-2">
-							<v-text-field ref="searchInput" :loading="searchIsLoading" @change="search(searchQuery)" v-model="searchQuery" outlined :placeholder="$t('toolbar.searchPlaceholder')" append-icon="mdi-magnify" hide-details />
-						</div>
+<!--				<v-menu v-model="searchMenuOpened" transition="scroll-x-reverse-transition" max-width="450" min-width="450" :close-on-content-click="false" :nudge-width="300" offset-x>-->
+<!--					<template v-slot:activator="{ on: menu }">-->
+<!--						<v-tooltip bottom>-->
+<!--							<template v-slot:activator="{ on: tooltip }">-->
+<!--								<v-btn icon :class="$vuetify.breakpoint.smAndUp ? 'mr-0' : null" v-on="{ ...tooltip, ...menu }" @click="setSearchFocus()">-->
+<!--									<v-icon>mdi-magnify</v-icon>-->
+<!--								</v-btn>-->
+<!--							</template>-->
+<!--							<span>{{$t('toolbar.tooltip.search')}}</span>-->
+<!--						</v-tooltip>-->
+<!--					</template>-->
+<!--					<v-card>-->
+<!--						<div class="pa-2">-->
+<!--							<v-text-field ref="searchInput" :loading="searchIsLoading" @change="search(searchQuery)" v-model="searchQuery" outlined :placeholder="$t('toolbar.searchPlaceholder')" append-icon="mdi-magnify" hide-details />-->
+<!--						</div>-->
 
-						<v-slide-y-transition>
-							<div class="px-2" v-if="latestSearchTerms.data.length > 0">
-								<div class="mr-2 caption" v-text="$t('toolbar.search.latestTerms')"></div>
-								<v-chip-group column active-class="primary--text">
-									<v-chip @click="search(term.query, false)" v-for="(term, index) in latestSearchTerms.data" :key="index" x-small>
-										{{ term.query }}
-									</v-chip>
-								</v-chip-group>
-							</div>
-						</v-slide-y-transition>
+<!--						<v-slide-y-transition>-->
+<!--							<div class="px-2" v-if="latestSearchTerms.data.length > 0">-->
+<!--								<div class="mr-2 caption" v-text="$t('toolbar.search.latestTerms')"></div>-->
+<!--								<v-chip-group column active-class="primary&#45;&#45;text">-->
+<!--									<v-chip @click="search(term.query, false)" v-for="(term, index) in latestSearchTerms.data" :key="index" x-small>-->
+<!--										{{ term.query }}-->
+<!--									</v-chip>-->
+<!--								</v-chip-group>-->
+<!--							</div>-->
+<!--						</v-slide-y-transition>-->
 
-						<v-divider v-if="searchHasCompleted"></v-divider>
+<!--						<v-divider v-if="searchHasCompleted"></v-divider>-->
 
-						<v-scroll-y-transition leave-absolute>
-							<EmptyView class="mt-3" v-if="searchHasCompleted && !hasSearchResults" :image="false" :desc="$t('toolbar.search.noResults')" />
-						</v-scroll-y-transition>
+<!--						<v-scroll-y-transition leave-absolute>-->
+<!--							<EmptyView class="mt-3" v-if="searchHasCompleted && !hasSearchResults" :image="false" :desc="$t('toolbar.search.noResults')" />-->
+<!--						</v-scroll-y-transition>-->
 
-						<v-expand-transition>
-							<v-list v-if="!searchIsLoading && hasSearchResults" max-height="400" style="overflow: auto">
-								<v-scroll-y-transition>
-									<v-list-group value="true" v-if="searchResults.components.length > 0" prepend-icon="mdi-cube-outline">
-										<template v-slot:activator>
-											<v-list-item-title v-text="$t('toolbar.search.components')"></v-list-item-title>
-											<v-list-item-action>
-												<v-badge color="primary" inline :content="searchResults.components.length"></v-badge>
-											</v-list-item-action>
-										</template>
+<!--						<v-expand-transition>-->
+<!--							<v-list v-if="!searchIsLoading && hasSearchResults" max-height="400" style="overflow: auto">-->
+<!--								<v-scroll-y-transition>-->
+<!--									<v-list-group value="true" v-if="searchResults.components.length > 0" prepend-icon="mdi-cube-outline">-->
+<!--										<template v-slot:activator>-->
+<!--											<v-list-item-title v-text="$t('toolbar.search.components')"></v-list-item-title>-->
+<!--											<v-list-item-action>-->
+<!--												<v-badge color="primary" inline :content="searchResults.components.length"></v-badge>-->
+<!--											</v-list-item-action>-->
+<!--										</template>-->
 
-										<template v-for="(component, index) in searchResults.components">
-											<v-list-item :key="index + '-item'" :to="'/component/' + component.id">
-												<v-list-item-avatar>
-													<v-icon v-text="component.icon"></v-icon>
-												</v-list-item-avatar>
+<!--										<template v-for="(component, index) in searchResults.components">-->
+<!--											<v-list-item :key="index + '-item'" :to="'/component/' + component.id">-->
+<!--												<v-list-item-avatar>-->
+<!--													<v-icon v-text="component.icon"></v-icon>-->
+<!--												</v-list-item-avatar>-->
 
-												<v-list-item-content>
-													<v-list-item-title>{{ component.name }}</v-list-item-title>
-													<v-list-item-subtitle v-html="$options.filters.plainExcerpt(component.description, 100)"></v-list-item-subtitle>
-												</v-list-item-content>
-											</v-list-item>
+<!--												<v-list-item-content>-->
+<!--													<v-list-item-title>{{ component.name }}</v-list-item-title>-->
+<!--													<v-list-item-subtitle v-html="$options.filters.plainExcerpt(component.description, 100)"></v-list-item-subtitle>-->
+<!--												</v-list-item-content>-->
+<!--											</v-list-item>-->
 
-											<v-divider v-if="(index + 1) < searchResults.components.length" :key="index + '-sep'"></v-divider>
-										</template>
-									</v-list-group>
-								</v-scroll-y-transition>
-								<v-scroll-y-transition>
-									<v-list-group value="true" v-if="searchResults.users.length > 0" prepend-icon="mdi-account-circle">
-										<template v-slot:activator>
-											<v-list-item-title v-text="$t('toolbar.search.users')"></v-list-item-title>
-											<v-list-item-action>
-												<v-badge color="primary" inline :content="searchResults.users.length"></v-badge>
-											</v-list-item-action>
-										</template>
+<!--											<v-divider v-if="(index + 1) < searchResults.components.length" :key="index + '-sep'"></v-divider>-->
+<!--										</template>-->
+<!--									</v-list-group>-->
+<!--								</v-scroll-y-transition>-->
+<!--								<v-scroll-y-transition>-->
+<!--									<v-list-group value="true" v-if="searchResults.users.length > 0" prepend-icon="mdi-account-circle">-->
+<!--										<template v-slot:activator>-->
+<!--											<v-list-item-title v-text="$t('toolbar.search.users')"></v-list-item-title>-->
+<!--											<v-list-item-action>-->
+<!--												<v-badge color="primary" inline :content="searchResults.users.length"></v-badge>-->
+<!--											</v-list-item-action>-->
+<!--										</template>-->
 
-										<template v-for="(user, index) in searchResults.users">
-											<v-list-item :key="index + '-item'" :to="'/account/' + user.id">
-												<v-list-item-avatar>
-													<UserAvatar :user="user" :size="48" />
-												</v-list-item-avatar>
+<!--										<template v-for="(user, index) in searchResults.users">-->
+<!--											<v-list-item :key="index + '-item'" :to="'/account/' + user.id">-->
+<!--												<v-list-item-avatar>-->
+<!--													<UserAvatar :user="user" :size="48" />-->
+<!--												</v-list-item-avatar>-->
 
-												<v-list-item-content>
-													<v-list-item-title>{{ user | userScreenName }}</v-list-item-title>
-													<v-list-item-subtitle>{{ $t('role.' + user.role.name.toLowerCase()) }}</v-list-item-subtitle>
-												</v-list-item-content>
-											</v-list-item>
+<!--												<v-list-item-content>-->
+<!--													<v-list-item-title>{{ user | userScreenName }}</v-list-item-title>-->
+<!--													<v-list-item-subtitle>{{ $t('role.' + user.role.name.toLowerCase()) }}</v-list-item-subtitle>-->
+<!--												</v-list-item-content>-->
+<!--											</v-list-item>-->
 
-											<v-divider v-if="(index + 1) < searchResults.users.length" :key="index + '-sep'"></v-divider>
-										</template>
-									</v-list-group>
-								</v-scroll-y-transition>
-								<v-scroll-y-transition>
-									<v-list-group value="true" v-if="searchResults.pages.length > 0" prepend-icon="mdi-file-multiple-outline">
-										<template v-slot:activator>
-											<v-list-item-title v-text="$t('toolbar.search.pages')"></v-list-item-title>
-											<v-list-item-action>
-												<v-badge color="primary" inline :content="searchResults.pages.length"></v-badge>
-											</v-list-item-action>
-										</template>
+<!--											<v-divider v-if="(index + 1) < searchResults.users.length" :key="index + '-sep'"></v-divider>-->
+<!--										</template>-->
+<!--									</v-list-group>-->
+<!--								</v-scroll-y-transition>-->
+<!--								<v-scroll-y-transition>-->
+<!--									<v-list-group value="true" v-if="searchResults.pages.length > 0" prepend-icon="mdi-file-multiple-outline">-->
+<!--										<template v-slot:activator>-->
+<!--											<v-list-item-title v-text="$t('toolbar.search.pages')"></v-list-item-title>-->
+<!--											<v-list-item-action>-->
+<!--												<v-badge color="primary" inline :content="searchResults.pages.length"></v-badge>-->
+<!--											</v-list-item-action>-->
+<!--										</template>-->
 
-										<template v-for="(page, index) in searchResults.pages">
-											<v-list-item :key="index + '-item'" :to="'/' + page.slug">
-												<v-list-item-content class="text-truncate">
-													<v-list-item-title v-text="page.title"></v-list-item-title>
-													<v-list-item-subtitle v-text="$options.filters.plainExcerpt(page.content, 100)"></v-list-item-subtitle>
-												</v-list-item-content>
-											</v-list-item>
+<!--										<template v-for="(page, index) in searchResults.pages">-->
+<!--											<v-list-item :key="index + '-item'" :to="'/' + page.slug">-->
+<!--												<v-list-item-content class="text-truncate">-->
+<!--													<v-list-item-title v-text="page.title"></v-list-item-title>-->
+<!--													<v-list-item-subtitle v-text="$options.filters.plainExcerpt(page.content, 100)"></v-list-item-subtitle>-->
+<!--												</v-list-item-content>-->
+<!--											</v-list-item>-->
 
-											<v-divider v-if="(index + 1) < searchResults.pages.length" :key="index + '-sep'"></v-divider>
-										</template>
-									</v-list-group>
-								</v-scroll-y-transition>
-							</v-list>
-						</v-expand-transition>
-					</v-card>
-				</v-menu>
+<!--											<v-divider v-if="(index + 1) < searchResults.pages.length" :key="index + '-sep'"></v-divider>-->
+<!--										</template>-->
+<!--									</v-list-group>-->
+<!--								</v-scroll-y-transition>-->
+<!--							</v-list>-->
+<!--						</v-expand-transition>-->
+<!--					</v-card>-->
+<!--				</v-menu>-->
 
 				<!-- HELP -->
 				<v-tooltip v-if="!collapse" bottom>
@@ -332,10 +333,6 @@
 					</v-tooltip>
 				</template>
 				<v-list>
-					<template v-if="contextualComponent.component">
-						<component :is="contextualComponent.component"></component>
-						<v-divider class="my-4"></v-divider>
-					</template>
 
 					<!-- MESSAGING -->
 <!--					<v-list-item :to="'/account/' + $root.user.id + '/messaging'">-->
@@ -349,17 +346,17 @@
 <!--					</v-list-item>-->
 
 					<!-- NOTIFICATIONS -->
-					<v-list-item :to="'/account/' + $root.user.id + '/notifications'">
-						<v-icon left>mdi-bell</v-icon>
-						<v-list-item-title>{{$t('toolbar.tooltip.notification')}}</v-list-item-title>
-						<div>
-							<v-chip x-small :color="notifications.length > 0 ? 'primary' : null" class="ml-4">
-								<span v-text="notifications.length"></span>
-							</v-chip>
-						</div>
-					</v-list-item>
+<!--					<v-list-item :to="'/account/' + $root.user.id + '/notifications'">-->
+<!--						<v-icon left>mdi-bell</v-icon>-->
+<!--						<v-list-item-title>{{$t('toolbar.tooltip.notification')}}</v-list-item-title>-->
+<!--						<div>-->
+<!--							<v-chip x-small :color="notifications.length > 0 ? 'primary' : null" class="ml-4">-->
+<!--								<span v-text="notifications.length"></span>-->
+<!--							</v-chip>-->
+<!--						</div>-->
+<!--					</v-list-item>-->
 
-					<v-divider class="my-2"></v-divider>
+<!--					<v-divider class="my-2"></v-divider>-->
 
 					<!-- HELP -->
 					<v-list-item @click="toggleHelp()">
@@ -386,11 +383,7 @@ export default Vue.extend({
 	components: { LanguageSwitcher, UserAvatar, EmptyView },
 
 	mounted() {
-		setTimeout(() => {this.showAppTitle = true; }, 500);
-		setTimeout(() => {this.showTitle = true; }, 750);
-
 		this.$root.$on('FULLSCREEN', this.fullScreenEvent);
-
 		this.init();
 	},
 
@@ -406,11 +399,11 @@ export default Vue.extend({
 
 	    init() {
 
-	        NotificationService.getAll(this.$root.user.id)
-				.then(response => {
-				    this.notifications = response.data;
-				})
-				.catch(error => this.$handleError(this, error));
+	        // NotificationService.getAll(this.$root.user.id)
+			// 	.then(response => {
+			// 	    this.notifications = response.data;
+			// 	})
+			// 	.catch(error => this.$handleError(this, error));
 
             // MessagingService.getUsers()
 			// 	.then(response => {
@@ -503,12 +496,10 @@ export default Vue.extend({
 		},
 
         toggleShortcut() {
-	    	this.$stats.push('TOOGLE_SHORTCUT');
 		    this.$root.shortcuts.visible = !this.$root.shortcuts.visible;
 		},
 
         toggleHelp() {
-			this.$stats.push('TOOGLE_HELP');
 		    this.$root.help.visible = !this.$root.help.visible;
 		},
 
@@ -566,11 +557,6 @@ export default Vue.extend({
             notificationMenu: false,
 			collapse: false,
 			options: [],
-			contextualComponent: {
-				component: false,
-			},
-			showAppTitle: false,
-			showTitle: false,
 			notifications: [],
             messages: [],
             searchLastQuery: '',
@@ -588,18 +574,9 @@ export default Vue.extend({
 	},
 
 	watch: {
-		'$root.toolbarOptions': function(options) {
-			this.options = options;
-		},
-		'$root.toolbarContextual.component': function(component) {
-			this.contextualComponent.component = component;
-		},
 		$route(to, from) {
 		    this.searchMenuOpened = false;
-			this.$root.toolbarOptions = [];
-			this.$root.toolbarContextual = {
-				component: false,
-			};
+		    this.$toolbar.clear();
 		},
         searchMenuOpened() {
 		    this.loadLatestSearchTerms();

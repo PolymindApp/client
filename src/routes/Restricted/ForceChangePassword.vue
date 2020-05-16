@@ -41,14 +41,17 @@
 
 <script>
 import Vue from 'vue';
-import { Rules, UserService } from "@polymind/sdk-js";
+import { Rules, UserService, EventBus } from "@polymind/sdk-js";
 
 export default Vue.extend({
 
-	mounted() {
-		if (!this.$server.loggedIn) {
-			this.$router.push('/login');
-		}
+	beforeRouteEnter(to, from, next) {
+		this.$polymind.isLoggedIn().then(isLoggedIn => {
+			if (!this.$root.user.force_reset_password) {
+				return next('/login');
+			}
+			next();
+		}).catch(next('/issue/api'));
 	},
 
 	methods: {
@@ -65,7 +68,8 @@ export default Vue.extend({
 		},
 
 		goToDashboard() {
-			window.location.href = '/';
+			const path = localStorage.getItem('redirect_uri') || '/';
+			EventBus.publish('LOGIN', path);
 		},
 
 		validate (event) {

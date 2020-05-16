@@ -61,31 +61,33 @@ import Comments from "../../components/Comments";
 import CommentForm from "../../components/Comment/Form";
 import CommentSorting from "../../components/Comment/Sorting";
 
-const beforeRoute = function(to, from, next) {
+const beforeRoute = function(to, from, callback) {
 
 	if (to.params.slug === from.params.slug
 	&& to.params.locale === from.params.locale) {
-		return next();
+		return callback();
 	}
 
 	Promise.all([
 		NewsService.get(to.params.slug, to.params.locale),
 	]).then(([news]) => {
 		to.meta.news = news;
-		next();
+		callback();
 	})
-			.catch(error => next('/404'));
+			.catch(error => callback('/404'));
 };
 
 export default Vue.extend({
 
 	components: { Header, UserAvatar, Comments, CommentForm, CommentSorting, },
 
-	beforeRouteEnter: beforeRoute,
+	beforeRouteEnter(to, from, next) {
+		beforeRoute(to, from, (param) => next(param));
+	},
 
 	beforeRouteUpdate(to, from, next) {
-		beforeRoute(to, from, () => {
-			next();
+		beforeRoute(to, from, (param) => {
+			next(param);
 			this.$nextTick(() => {
 				this.init(to.params.id !== from.params.id);
 			});

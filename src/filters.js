@@ -15,26 +15,6 @@ Vue.filter('daysFromToday', (value) => {
 	return a.diff(b, 'days');
 });
 
-Vue.filter('activityColor', (value) => {
-	switch(value.action) {
-		case 'comment': return 'blue'; break;
-		case 'create': return 'green'; break;
-		case 'update': return 'orange'; break;
-		case 'delete': return 'red'; break;
-		case 'soft-delete': return 'red'; break;
-	}
-});
-
-Vue.filter('activityIcon', (value) => {
-	switch(value.action) {
-		case 'comment': return 'mdi-comment-text-outline'; break;
-		case 'create': return 'mdi-plus-circle-outline'; break;
-		case 'update': return 'mdi-update'; break;
-		case 'delete': return 'mdi-window-close'; break;
-		case 'soft-delete': return 'mdi-window-close'; break;
-	}
-});
-
 Vue.filter('monthName', (value) => {
 	return moment().set('month', value).format('MMM');
 });
@@ -49,6 +29,16 @@ Vue.filter('date', (value, format = 'YYYY-MM-DD HH:mm:ss') => {
 
 Vue.filter('userScreenName', (user) => {
 	return user.screen_name || (user.first_name + ' ' + user.last_name).trim();
+});
+
+Vue.filter('ucfirst', str => {
+	return str.charAt(0).toUpperCase() + str.slice(1);
+});
+
+Vue.filter('iconName', (iconName) => {
+	const name = iconName.substring(4).replace(/-/gim, ' ');
+	// return name.charAt(0).toUpperCase() + name.slice(1);
+	return name;
 });
 
 Vue.filter('humanNumber', (number, separator = ',') => {
@@ -85,20 +75,30 @@ Vue.filter('plainExcerpt', (value, limit = 250, stripTags = true) => {
 	return excerpt;
 });
 
-Vue.filter('buildColor', (state) => {
-	switch (state) {
+Vue.filter('buildColor', (status) => {
+
+	if (!status) {
+		return '';
+	}
+
+	switch (status) {
 		case 'completed': return 'success';
 		case 'failed': return 'error';
-		case 'running': return 'grey';
+		case 'inprogress': return 'grey';
 	}
 	return null;
 });
 
-Vue.filter('buildIcon', (state) => {
-	switch (state) {
+Vue.filter('buildIcon', (status) => {
+
+	if (!status) {
+		return '';
+	}
+
+	switch (status) {
 		case 'completed': return 'mdi-check';
 		case 'failed': return 'mdi-close';
-		case 'running': return 'mdi-loading mdi-spin';
+		case 'inprogress': return 'mdi-loading mdi-spin';
 	}
 	return null;
 });

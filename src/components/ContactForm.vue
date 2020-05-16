@@ -71,6 +71,7 @@ export default Vue.extend({
 
 				FormService.send('CONTACT', data).then(response => {
 					this.sent = true;
+					this.$emit('sent');
 				}).catch(error => {
 					this.$root.error = error;
 					this.disabled = false;
