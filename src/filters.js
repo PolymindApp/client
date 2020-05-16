@@ -75,20 +75,30 @@ Vue.filter('plainExcerpt', (value, limit = 250, stripTags = true) => {
 	return excerpt;
 });
 
-Vue.filter('buildColor', (state) => {
-	switch (state) {
+Vue.filter('buildColor', (status) => {
+
+	if (!status) {
+		return '';
+	}
+
+	switch (status) {
 		case 'completed': return 'success';
 		case 'failed': return 'error';
-		case 'running': return 'grey';
+		case 'inprogress': return 'grey';
 	}
 	return null;
 });
 
-Vue.filter('buildIcon', (state) => {
-	switch (state) {
+Vue.filter('buildIcon', (status) => {
+
+	if (!status) {
+		return '';
+	}
+
+	switch (status) {
 		case 'completed': return 'mdi-check';
 		case 'failed': return 'mdi-close';
-		case 'running': return 'mdi-loading mdi-spin';
+		case 'inprogress': return 'mdi-loading mdi-spin';
 	}
 	return null;
 });

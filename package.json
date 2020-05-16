@@ -15,6 +15,7 @@
 		"start": "node server.js"
 	},
 	"dependencies": {
+	  	"@polymind/sdk-js": "^0.1.7-beta",
 		"@mdi/font": "^4.9.95",
 		"chart.js": "^2.9.3",
 		"core-js": "^2.6.5",

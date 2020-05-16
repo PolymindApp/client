@@ -46,9 +46,12 @@
 
 				<!-- DEVELOPMENT -->
 				<v-card class="mb-4" outlined>
-					<v-card-title>
-						<v-icon left>mdi-coffee</v-icon>
-						<span v-text="$t('account.settings.ideSectionTitle')"></span>
+					<v-card-title class="d-flex justify-space-between">
+						<div>
+							<v-icon left>mdi-coffee</v-icon>
+							<span v-text="$t('account.settings.ideSectionTitle')"></span>
+						</div>
+						<v-switch :error-messages="formErrors.is_private" v-model="user.settings.developer" color="primary" class="ma-0 mr-n3" inset hide-details></v-switch>
 					</v-card-title>
 					<v-card-text>
 						<SettingsDevelopment :user="user" />

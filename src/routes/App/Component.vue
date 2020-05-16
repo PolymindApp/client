@@ -15,7 +15,7 @@
 				</v-tab>
 				<v-tab :to="'/component/' + id + '/builds'" exact>
 					<v-icon left>mdi-bulldozer</v-icon>
-					<v-badge :value="builds.length > 0" :color="lastBuildState | buildColor" :icon="lastBuildState | buildIcon" inline>
+					<v-badge :value="builds.length > 0" :color="lastBuildStatus | buildColor" :icon="lastBuildStatus | buildIcon" inline>
 						<span :class="{ 'mr-2': builds.length > 0 }">{{$t('component.builds.title')}}</span>
 					</v-badge>
 				</v-tab>
@@ -53,7 +53,7 @@
 		<v-tabs-items touchless :dark="$root.user.settings.theme === 'dark'" class="grey lighten-4" :style="{ flex: 1, overflow: (tab !== '/component/' + id + '/source') ? 'auto' : null }" v-model="tab">
 			<v-tab-item :value="'/component/' + id + '/settings'" class="pa-4 fill-height">
 				<div style="height: 0">
-					<Settings @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :form-errors="formErrors" :is-different="dataHasChanged" />
+					<Settings @update:component="compareJsonJob($event, 0)" @update="updateTab" @build="fetchBuildInfo()" :component.sync="component" :builds="builds" :form-errors="formErrors" :is-different="dataHasChanged" />
 				</div>
 			</v-tab-item>
 			<v-tab-item :value="'/component/' + id + '/parameters'" class="fill-height">
@@ -165,6 +165,7 @@ export default Vue.extend({
 	},
 
 	created() {
+		clearInterval(this.lookupInterval);
 		this.init();
 	},
 
@@ -173,6 +174,7 @@ export default Vue.extend({
 	},
 
 	destroyed() {
+		clearInterval(this.lookupInterval);
 		this.$shortcuts.remove(this.shortcutSave);
 	},
 
@@ -186,6 +188,7 @@ export default Vue.extend({
 
 				this.updateOriginalData();
 				// this.loadCommentCount();
+				this.fetchBuildInfo();
 			}
 
 			this.tab = '/component/' + this.id + '/' + this.$route.params.section;
@@ -365,6 +368,17 @@ export default Vue.extend({
 						const win = window.open(this.generatedTestUri, '_blank');
 						win.focus();
 					}).finally(() => this.sessionLoading = false);
+		},
+
+		fetchBuildInfo() {
+
+			ComponentService.buildList(this.component.id)
+				.then(response => {
+					this.builds = response.map(item => {
+						item.status = item.status.toLowerCase();
+						return item;
+					});
+				});
 		}
 	},
 
@@ -378,8 +392,8 @@ export default Vue.extend({
 			return this.$route.params.id === 'new';
 		},
 
-		lastBuildState() {
-			return this.builds.length > 0 && this.builds[0].state;
+		lastBuildStatus() {
+			return this.builds.length > 0 && this.builds[0].status;
 		},
 
 		sourceDark() {
@@ -447,15 +461,20 @@ export default Vue.extend({
 			originalComponentJson: null,
 			parametersValue: this.$route.meta.component.getDefaultParameters(),
             commentCount: 0,
-			builds: [
-				{ id: 1, state: 'running', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },
-				{ id: 2, state: 'completed', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },
-				{ id: 3, state: 'completed', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },
-				{ id: 4, state: 'failed', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },
-				{ id: 5, state: 'completed', startDate: 1587504365000, endDate: 1587504365000, publicUrl: 'https://localhost:5002', },
-			],
+			builds: [],
+			lookupInterval: null,
 		}
 	},
+
+	watch: {
+
+		lastBuildStatus(status) {
+			clearInterval(this.lookupInterval);
+			if (status === 'inprogress') {
+				setInterval(this.fetchBuildInfo, 30 * 1000);
+			}
+		}
+	}
 });
 </script>
 

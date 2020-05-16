@@ -242,11 +242,18 @@ export default Vue.extend({
 		filteredMenuItems() {
 
 			if (!this.filter) {
-				return this.menuItems;
+				return this.menuItems.filter(item => {
+					return item.visible === undefined || item.visible === true || item.visible();
+				});
 			}
 
 			let groups = [];
 			this.menuItems.forEach(item => {
+
+				if (item.visible && (item.visible === false || !item.visible())) {
+					return;
+				}
+
 				let group = this.$deepClone(item);
 				let items = item.getItems();
 				group.items = [];
@@ -302,26 +309,26 @@ export default Vue.extend({
 						return items;
 					},
 				},
+				// {
+                // 	name: 'strategies', canAdd: true, addTo: '/strategy/new', getItems: () => {
+				// 		let items = [];
+				// 		this.$root.strategies.forEach(strategy => {
+				// 			items.push({
+				// 				title: strategy.name,
+				// 				isPrivate: strategy.is_private,
+				// 				icon: strategy.icon || 'mdi-strategy',
+				// 				iconColor: strategy.color,
+				// 				link: '/strategy/' + strategy.id,
+				// 				badge: strategy.totalItems,
+				// 				badgeColor: 'transparent',
+				// 				valid: strategy.isValid(this.$root.components, this.$root.datasets),
+				// 			});
+				// 		});
+				// 		return items;
+				// 	},
+				// },
 				{
-                	name: 'strategies', canAdd: true, addTo: '/strategy/new', getItems: () => {
-						let items = [];
-						this.$root.strategies.forEach(strategy => {
-							items.push({
-								title: strategy.name,
-								isPrivate: strategy.is_private,
-								icon: strategy.icon || 'mdi-strategy',
-								iconColor: strategy.color,
-								link: '/strategy/' + strategy.id,
-								badge: strategy.totalItems,
-								badgeColor: 'transparent',
-								valid: strategy.isValid(this.$root.components, this.$root.datasets),
-							});
-						});
-						return items;
-					},
-				},
-				{
-                	name: 'components', canAdd: true, addTo: '/component/new', getItems: () => {
+                	name: 'components', visible: () => { return this.$root.user.settings.developer }, canAdd: true, addTo: '/component/new', getItems: () => {
 						let items = [];
 						this.$root.components.forEach(component => {
 							items.push({

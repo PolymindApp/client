@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <v-card color="transparent" :disabled="!user.settings.developer" tile flat>
 		<v-row>
 			<v-col cols="12" md="4" class="d-flex align-center">
 				<label v-text="$t('account.settings.theme.title')"></label>
@@ -36,7 +36,7 @@
 				</v-radio-group>
 			</v-col>
 		</v-row>
-	</div>
+	</v-card>
 </template>
 
 <script>

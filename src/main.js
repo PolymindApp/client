@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import moment from 'moment';
 import globalVariables from './global';
 import * as VueGoogleMaps from 'vue2-google-maps';
 import App, { routes as appRoutes } from './routes/App.vue';

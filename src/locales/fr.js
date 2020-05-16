@@ -407,6 +407,7 @@ const literals = {
 			explanations: 'Les composantes sont paramétrables et permettent de dynamiser votre apprentissage en s\'alimentant de vos bases de données.',
 			readDoc: 'Explorer la documentation',
 			repoURLPlaceholder: 'Adresse du dépôt GIT',
+			repoBranchPlaceholder: 'Branche à utiliser',
 			repoUserPlaceholder: 'Nom d\'utilisateur',
 			repoPassPlaceholder: 'Mot de passe',
 			repoSSHKeyPlaceholder: 'Clé d\'authentification SSH',
@@ -424,6 +425,7 @@ const literals = {
 			envVarValue: 'Valeur',
 			emptyEnvVar: 'Aucune variable d\'environnement ajoutée pour le moment.',
 			contentDiffersBuild: 'Des changements ont été détectés. Veuillez sauvegarder l\'état de votre composante afin de procéder à sa compilation.',
+			buildsPublicOnly: 'Pour le moment, les dépôts GIT doivent etre publiques.',
 		},
 		parameters: {
 			title: 'Paramètres',
@@ -450,10 +452,12 @@ const literals = {
 				title: 'Journal des événements',
 			},
 			states: {
-				running: 'En cours d\'éxecution',
+				inprogress: 'En cours d\'éxecution',
 				completed: 'Compilé avec succès',
 				failed: 'Compilation échouée',
-			}
+			},
+			noBuildTitle: 'Aucun compilation disponible',
+			noBuildDesc: 'Initiez-en une depuis l\'onglet Réglages',
 		},
 		source: {
 			title: 'Source',
