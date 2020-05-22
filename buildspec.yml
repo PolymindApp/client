@@ -12,6 +12,9 @@ phases:
       - export API_URL=$VUE_APP_API_URL
       - yarn
       - yarn add $SDK_PACKAGE_NAME --save
+  build:
+    commands:
+      - npm run build
 
 artifacts:
   files:
