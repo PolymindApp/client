@@ -32,7 +32,7 @@
 						</div>
 					</v-card>
 					<v-card v-else class="d-flex align-center fill-height">
-						<v-alert type="warning" class="ma-0 fill-height d-flex justify-center" text prominent tile>
+						<v-alert type="warning" class="ma-0 fill-height d-flex justify-start align-center w-100" text prominent tile>
 							<h3 v-text="$t('dashboard.noStrategySoonTitle')"></h3>
 							<div v-text="$t('dashboard.noStrategySoonDesc')"></div>
 							<v-btn class="mt-4" to="/strategy/new" color="warning">
@@ -57,10 +57,10 @@
 							</v-list-item-avatar>
 							<v-list-item-content>
 								<v-list-item-title class="headline mb-1">
-									<span v-text="news.data.content[0].title"></span>
+									<span v-text="newsContent.title"></span>
 								</v-list-item-title>
 								<v-list-item-subtitle>
-									<span v-text="news.data.content[0].abstract" style="line-height: 1.25rem"></span>
+									<span v-text="newsContent.abstract" style="line-height: 1.25rem"></span>
 								</v-list-item-subtitle>
 							</v-list-item-content>
 						</v-list-item>
@@ -137,11 +137,13 @@
 						@click:event="handleEventClick"
 						class="v-calendar-session"
 					>
-<!--						<template v-slot:day-header="props">-->
-<!--							<div class="text-center">-->
-<!--								<span v-text="$t('strategy.assembly.duration', { duration: totalTimePerDate[props.date] })"></span>-->
-<!--							</div>-->
-<!--						</template>-->
+						<template v-slot:day-header="props">
+							<div class="text-center">
+								<v-chip color="primary" v-if="totalSecondsPerDate[props.date]" x-small>
+									<span v-text="$options.filters.timeLeft(totalSecondsPerDate[props.date])"></span>
+								</v-chip>
+							</div>
+						</template>
 						<template v-slot:event="props">
 							<span :class="{ 'pa-1 black--text': props.event.startDay !== today && !props.timed }">
 								<span>
@@ -179,6 +181,47 @@
 			<v-row>
 				<v-col cols="12" md="6" xl="3">
 
+					<!-- ENDEAVOURS DIVISION -->
+					<v-card class="fill-height" light>
+						<v-overlay v-if="!hasEndeavoursStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
+							<EmptyView :title="$t('dashboard.endeavoursDivisionChartEmptyTitle')" :desc="$t('dashboard.endeavoursDivisionChartEmptyDesc')" :image="false" />
+						</v-overlay>
+						<v-fade-transition>
+							<v-overlay v-if="isLoading" color="white" absolute :dark="false" opacity="0.75" z-index="2">
+								<v-progress-circular color="primary" indeterminate></v-progress-circular>
+							</v-overlay>
+						</v-fade-transition>
+						<v-card-title class="flex-column text-break text-center">
+							<div v-text="$t('dashboard.endeavoursDivisionChartTitle')"></div>
+							<div class="overline" v-text="$t('dashboard.endeavoursDivisionChartDesc')"></div>
+						</v-card-title>
+						<v-card-text class="pt-4">
+							<EmptyView v-if="endeavoursDivisionCharts.datasets.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />
+							<doughnut-chart v-else-if="endeavoursDivisionCharts.datasets.length < 5" :chart-data="endeavoursDivisionCharts.datasets" :options="endeavoursDivisionCharts.datasets.options" style="height: 350px"></doughnut-chart>
+							<radar-chart v-else :chart-data="endeavoursDivisionCharts.datasets" :options="endeavoursDivisionCharts.datasets.options" style="height: 350px"></radar-chart>
+							<!--							<v-row no-gutters>-->
+							<!--								<v-col cols="12" md="6" class="pa-4 text-center">-->
+							<!--									<EmptyView v-if="endeavoursDivisionCharts.total.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />-->
+							<!--									<pie-chart v-else :chart-data="endeavoursDivisionCharts.total" :options="endeavoursDivisionCharts.total.options" style="height: 143.25px"></pie-chart>-->
+							<!--								</v-col>-->
+							<!--								<v-col cols="12" md="6" class="pa-4 text-center">-->
+							<!--									<EmptyView v-if="endeavoursDivisionCharts.strategies.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />-->
+							<!--									<doughnut-chart v-else :chart-data="endeavoursDivisionCharts.strategies" :options="endeavoursDivisionCharts.strategies.options" style="height: 143.25px"></doughnut-chart>-->
+							<!--								</v-col>-->
+							<!--								<v-col cols="12" md="12" class="pa-4 text-center">-->
+							<!--									<EmptyView v-if="endeavoursDivisionCharts.datasets.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />-->
+							<!--									<doughnut-chart v-else :chart-data="endeavoursDivisionCharts.datasets" :options="endeavoursDivisionCharts.datasets.options" style="height: 343.25px"></doughnut-chart>-->
+							<!--								</v-col>-->
+							<!--								<v-col cols="12" md="6" class="pa-4 text-center">-->
+							<!--									<EmptyView v-if="endeavoursDivisionCharts.components.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />-->
+							<!--									<doughnut-chart v-else :chart-data="endeavoursDivisionCharts.components" :options="endeavoursDivisionCharts.components.options" style="height: 243.25px"></doughnut-chart>-->
+							<!--								</v-col>-->
+							<!--							</v-row>-->
+						</v-card-text>
+					</v-card>
+				</v-col>
+				<v-col cols="12" md="6" xl="3">
+
 					<!-- DIFFICULTY -->
 					<v-card class="fill-height" light>
 						<v-overlay v-if="stats.totalCount === 0" color="white" absolute :dark="false" opacity="0.75" z-index="2">
@@ -189,7 +232,7 @@
 								<v-progress-circular color="primary" indeterminate></v-progress-circular>
 							</v-overlay>
 						</v-fade-transition>
-						<v-card-title class="flex-column">
+						<v-card-title class="flex-column text-break text-center">
 							<div v-text="$t('dashboard.difficultyChartTitle')"></div>
 							<div class="overline" v-text="$t('dashboard.difficultyChartDesc')"></div>
 						</v-card-title>
@@ -210,7 +253,7 @@
 								<v-progress-circular color="primary" indeterminate></v-progress-circular>
 							</v-overlay>
 						</v-fade-transition>
-						<v-card-title class="flex-column">
+						<v-card-title class="flex-column text-break text-center">
 							<div v-text="$t('dashboard.intervalChartTitle')"></div>
 							<div class="overline" v-text="$t('dashboard.intervalChartDesc')"></div>
 						</v-card-title>
@@ -231,50 +274,12 @@
 								<v-progress-circular color="primary" indeterminate></v-progress-circular>
 							</v-overlay>
 						</v-fade-transition>
-						<v-card-title class="flex-column">
+						<v-card-title class="flex-column text-break text-center">
 							<div v-text="$t('dashboard.datasetChartTitle')"></div>
 							<div class="overline" v-text="$t('dashboard.datasetChartDesc')"></div>
 						</v-card-title>
 						<v-card-text class="pt-4">
 							<bar-stacked-chart style="height: 350px" :chart-data="datasetChart" :options="datasetChart.options"></bar-stacked-chart>
-						</v-card-text>
-					</v-card>
-				</v-col>
-				<v-col cols="12" md="6" xl="3">
-
-					<!-- ENDEAVOURS DIVISION -->
-					<v-card class="fill-height" light>
-						<v-overlay v-if="!hasEndeavoursStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-							<EmptyView :title="$t('dashboard.endeavoursDivisionChartEmptyTitle')" :desc="$t('dashboard.endeavoursDivisionChartEmptyDesc')" :image="false" />
-						</v-overlay>
-						<v-fade-transition>
-							<v-overlay v-if="isLoading" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-								<v-progress-circular color="primary" indeterminate></v-progress-circular>
-							</v-overlay>
-						</v-fade-transition>
-						<v-card-title class="flex-column">
-							<div v-text="$t('dashboard.endeavoursDivisionChartTitle')"></div>
-							<div class="overline" v-text="$t('dashboard.endeavoursDivisionChartDesc')"></div>
-						</v-card-title>
-						<v-card-text class="pt-4">
-							<v-row no-gutters>
-								<v-col cols="12" md="6" class="pa-4 text-center">
-									<EmptyView v-if="endeavoursDivisionCharts.total.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />
-									<pie-chart v-else :chart-data="endeavoursDivisionCharts.total" :options="endeavoursDivisionCharts.total.options" style="height: 143.25px"></pie-chart>
-								</v-col>
-								<v-col cols="12" md="6" class="pa-4 text-center">
-									<EmptyView v-if="endeavoursDivisionCharts.strategies.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />
-									<doughnut-chart v-else :chart-data="endeavoursDivisionCharts.strategies" :options="endeavoursDivisionCharts.strategies.options" style="height: 143.25px"></doughnut-chart>
-								</v-col>
-								<v-col cols="12" md="6" class="pa-4 text-center">
-									<EmptyView v-if="endeavoursDivisionCharts.datasets.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />
-									<pie-chart v-else :chart-data="endeavoursDivisionCharts.datasets" :options="endeavoursDivisionCharts.datasets.options" style="height: 143.25px"></pie-chart>
-								</v-col>
-								<v-col cols="12" md="6" class="pa-4 text-center">
-									<EmptyView v-if="endeavoursDivisionCharts.components.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />
-									<doughnut-chart v-else :chart-data="endeavoursDivisionCharts.components" :options="endeavoursDivisionCharts.components.options" style="height: 143.25px"></doughnut-chart>
-								</v-col>
-							</v-row>
 						</v-card-text>
 					</v-card>
 				</v-col>
@@ -292,6 +297,7 @@ import BarChart from "../../components/Chart/Bar";
 import BarStackedChart from "../../components/Chart/BarStacked";
 import HorizontalBarChart from "../../components/Chart/HorizontalBar";
 import DoughnutChart from "../../components/Chart/Doughnut";
+import RadarChart from "../../components/Chart/Radar";
 import PieChart from "../../components/Chart/Pie";
 import { Color, NewsService, SessionStatsService, Cookies, Session } from "@polymind/sdk-js";
 import Radar from "../../components/Chart/Radar";
@@ -301,7 +307,7 @@ import AccomplishStrategy from "../../components/AccomplishStrategy";
 
 export default Vue.extend({
 
-	components: { EmptyView, UserAvatar, DoughnutChart, PieChart, BarChart, BarStackedChart, HorizontalBarChart, LineStackedChart, Radar, AccomplishStrategy },
+	components: { EmptyView, UserAvatar, RadarChart, DoughnutChart, PieChart, BarChart, BarStackedChart, HorizontalBarChart, LineStackedChart, Radar, AccomplishStrategy },
 
 	beforeRouteEnter(to, from, next) {
 
@@ -391,51 +397,54 @@ export default Vue.extend({
 
 		setEvents ({ start, end }) {
 			this.events = this.getEvents(start.date, end.date, true);
-			this.setTotalTimeByDate(events);
+			this.setTotalTimeByDate(this.events);
 		},
 
 		setTotalTimeByDate(events) {
-			this.totalTimePerDate = {};
+			this.totalSecondsPerDate = {};
 			events.forEach(event => {
 				if (!event.planned) {
-					if (!this.totalTimePerDate[event.startDay]) {
-						this.totalTimePerDate[event.startDay] = 0;
+					if (!this.totalSecondsPerDate[event.startDay]) {
+						this.totalSecondsPerDate[event.startDay] = 0;
 					}
-					this.totalTimePerDate[event.startDay] += event.duration;
+					this.totalSecondsPerDate[event.startDay] += event.duration * 60;
 				}
 			});
+			for(let date in this.totalSecondsPerDate) {
+				this.totalSecondsPerDate[date] = parseInt(this.totalSecondsPerDate[date]);
+			}
 		},
 
 		getPlannedEvents(start, end, excludeSessions = false, exclusePassedSession = true) {
 
 			const events = [];
 
-			this.strategies.forEach(item => {
-				const strategy = item;
-				strategy.getEvents(start, end).forEach(event => {
-					event.strategy = strategy;
-					Object.assign(event, {
-						id: strategy.id,
-						color: strategy.getColor(),
-						icon: strategy.getIcon(),
-						name: strategy.name,
-						desc: strategy.description,
-						planned: true,
-					});
-
-					const dayStats = this.stats.daily[event.startDay];
-					if (excludeSessions && dayStats && dayStats.session[event.session]) {
-						return;
-					}
-
-					if (exclusePassedSession && event.startDay < this.today) {
-						return
-					}
-
-					event.valid = strategy.isValid(this.components, this.datasets);
-					events.push(event);
-				});
-			});
+			// this.strategies.forEach(item => {
+			// 	const strategy = item;
+			// 	strategy.getEvents(start, end).forEach(event => {
+			// 		event.strategy = strategy;
+			// 		Object.assign(event, {
+			// 			id: strategy.id,
+			// 			color: strategy.getColor(),
+			// 			icon: strategy.getIcon(),
+			// 			name: strategy.name,
+			// 			desc: strategy.description,
+			// 			planned: true,
+			// 		});
+			//
+			// 		const dayStats = this.stats.daily[event.startDay];
+			// 		if (excludeSessions && dayStats && dayStats.session[event.session]) {
+			// 			return;
+			// 		}
+			//
+			// 		if (exclusePassedSession && event.startDay < this.today) {
+			// 			return
+			// 		}
+			//
+			// 		event.valid = strategy.isValid(this.components, this.datasets);
+			// 		events.push(event);
+			// 	});
+			// });
 
 			return events.sort((a, b) => (a.startDay > b.startDay) ? 1 : -1);
 		},
@@ -601,10 +610,10 @@ export default Vue.extend({
 				this.endeavoursDivisionCharts[type].labels = [];
 				this.endeavoursDivisionCharts[type].datasets = [];
 
-				const items = this.stats.endeavours[type];
+				const endeavours = this.stats.endeavours[type];
 				if (type === 'total') {
 
-					if ((items.strategies + items.components + items.datasets) > 0) {
+					if ((endeavours.strategies + endeavours.components + endeavours.datasets) > 0) {
 
 						this.endeavoursDivisionCharts[type].labels = [
 							this.$t('app.menuGroup.strategies'),
@@ -614,25 +623,46 @@ export default Vue.extend({
 						this.endeavoursDivisionCharts[type].datasets.push({ backgroundColor: [], data: []});
 						this.endeavoursDivisionCharts[type].datasets[0].backgroundColor = [colors[0], colors[1], colors[2]];
 						this.endeavoursDivisionCharts[type].datasets[0].data = [
-							items.strategies,
-							items.components,
-							items.datasets,
+							endeavours.strategies,
+							endeavours.components,
+							endeavours.datasets,
 						];
 					}
 				} else {
-					let i = 0;
 
-					for(let key in items) {
+					// const orderedKeys = Object.keys(endeavours).sort((a,b) => {
+					// 	return endeavours[a] - endeavours[b];
+					// }).reverse();
+					const orderedKeys = Object.keys(endeavours);
+
+					if (orderedKeys.length > 0) {
+						this.endeavoursDivisionCharts[type].datasets.push({ backgroundColor: [], data: []});
+					}
+
+					let others = 0;
+					let maxItems = 15;
+					for (let i = 0; i < orderedKeys.length; i++) {
+						const key = orderedKeys[i];
 						const id = parseInt(key);
 						const item = this.$root[type].find(entry => entry.id === id);
 						if (item) {
-							const value = items[key];
-							this.endeavoursDivisionCharts[type].datasets.push({ backgroundColor: [], data: []});
-							this.endeavoursDivisionCharts[type].labels.push(item.name);
-							this.endeavoursDivisionCharts[type].datasets[0].backgroundColor.push(item.color || colors[i]);
-							this.endeavoursDivisionCharts[type].datasets[0].data.push(value);
-							i++;
+							const endeavour = endeavours[key];
+							if (i < maxItems) {
+								this.endeavoursDivisionCharts[type].labels.push(item.name);
+								this.endeavoursDivisionCharts[type].datasets[0].backgroundColor.push(item.color || colors[i]);
+								this.endeavoursDivisionCharts[type].datasets[0].data.push(endeavour);
+							} else {
+								if (i === maxItems) {
+									this.endeavoursDivisionCharts[type].labels.push(this.$t('dashboard.endeavours.others'));
+									this.endeavoursDivisionCharts[type].datasets[0].backgroundColor.push('#999');
+								}
+								others += endeavour;
+							}
 						}
+					}
+
+					if (orderedKeys.length > (maxItems - 1)) {
+						this.endeavoursDivisionCharts[type].datasets[0].data.push(others);
 					}
 				}
 			}
@@ -652,7 +682,7 @@ export default Vue.extend({
 				return this.statsStartDate;
 			}
 
-			return moment().subtract(3, 'days').format('YYYY-MM-DD');
+			return moment().subtract(6, 'days').format('YYYY-MM-DD');
 		},
 
 		getCalendarEndDate() {
@@ -661,11 +691,15 @@ export default Vue.extend({
 				return this.statsEndDate;
 			}
 
-			return moment().add(3, 'days').format('YYYY-MM-DD');
+			return moment().format('YYYY-MM-DD');
 		},
 	},
 
 	computed: {
+
+		newsContent() {
+			return this.news.data.content.find(content => content.language === this.$i18n.locale);
+		},
 
 		dataRangeContextual() {
 			return [
@@ -870,7 +904,7 @@ export default Vue.extend({
 							callbacks: timeSpentTooltipsCallbacks
 						},
 						legend: {
-							position: 'right',
+							position: 'bottom',
 						},
 					},
 				},
@@ -890,7 +924,7 @@ export default Vue.extend({
 							callbacks: timeSpentTooltipsCallbacks
 						},
 						legend: {
-							position: 'right',
+							position: 'bottom',
 						},
 					},
 				},
@@ -910,7 +944,7 @@ export default Vue.extend({
 							callbacks: timeSpentTooltipsCallbacks
 						},
 						legend: {
-							position: 'right',
+							position: 'bottom',
 						},
 					},
 				},
@@ -921,16 +955,16 @@ export default Vue.extend({
 						data: [],
 					}],
 					options: {
-						title: {
-							display: true,
-							text: this.$t('dashboard.endeavoursDivisionChartByDatasets'),
-							position: 'bottom',
-						},
+						// title: {
+						// 	display: true,
+						// 	text: this.$t('dashboard.endeavoursDivisionChartByDatasets'),
+						// 	position: 'bottom',
+						// },
 						tooltips: {
 							callbacks: timeSpentTooltipsCallbacks
 						},
 						legend: {
-							position: 'right',
+							position: 'bottom',
 						},
 					},
 				},
@@ -939,7 +973,7 @@ export default Vue.extend({
 			today: moment().format('YYYY-MM-DD'),
 			tomorrow: moment().add(1, 'day').format('YYYY-MM-DD'),
 			calendarValue: moment().format('YYYY-MM-DD'),
-			totalTimePerDate: {},
+			totalSecondsPerDate: {},
 		}
 	},
 

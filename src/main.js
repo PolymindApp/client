@@ -180,6 +180,7 @@ localStorage.setItem('redirect_uri', window.location.pathname);
 	};
 
 	const gotoRestricted = (path) => {
+		globalVariables.user = new User();
 		component = Restricted;
 		routes = restrictedRoutes;
 		callback(path);

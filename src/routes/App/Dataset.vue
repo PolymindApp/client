@@ -16,13 +16,12 @@
 			<v-spacer></v-spacer>
 
 			<div class="d-flex align-center">
-				<DataActions ref="actions" :dataset="dataset" @refresh="refresh()" />
 
 				<v-menu offset-y>
 					<template v-slot:activator="{ on }">
-						<v-btn v-on="on" target="_blank" :loading="sessionLoading" :disabled="!canTest" class="ml-2" text small>
-							<v-icon left>mdi-test-tube</v-icon>
-							<span v-text="$t('dataset.test')"></span>
+						<v-btn v-on="on" target="_blank" :loading="sessionLoading" :disabled="!canTest" color="primary" text small>
+							<v-icon left>mdi-timelapse</v-icon>
+							<span v-text="$t('dataset.session')"></span>
 							<v-icon right>mdi-chevron-down</v-icon>
 						</v-btn>
 					</template>
@@ -37,6 +36,8 @@
 						</template>
 					</v-list>
 				</v-menu>
+
+				<DataActions ref="actions" class="ml-2" :dataset="dataset" @refresh="refresh()" />
 
 				<v-divider class="mx-4" vertical inset></v-divider>
 
@@ -561,7 +562,7 @@ export default Vue.extend({
 		},
 
 		generatedTestUri() {
-			return this.playerHost + '/d/' + this.session.hash + '/test';
+			return this.playerHost + '/d/' + this.session.hash + '/live';
 		},
 
 		canTest() {
