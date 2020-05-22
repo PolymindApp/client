@@ -31,8 +31,12 @@
 				return this.backgroundImage ? 'to top right, rgba(27, 142, 138, .7), rgba(27, 142, 138, .3)' : null;
 			},
 
+			newsContent() {
+				return this.news.data.content.find(content => content.language === this.$i18n.locale);
+			},
+
 			title() {
-				return this.news.data && this.news.data.content[0].title;
+				return this.newsContent && this.newsContent.title;
 			},
 		},
 

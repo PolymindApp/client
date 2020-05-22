@@ -15,8 +15,9 @@
 		"start": "node server.js"
 	},
 	"dependencies": {
-	  	"@polymind/sdk-js": "^0.1.7-beta",
 		"@mdi/font": "^4.9.95",
+		"@polymind/sdk-js": "0.1.7-beta",
+		"ansi_up": "^4.0.4",
 		"chart.js": "^2.9.3",
 		"core-js": "^2.6.5",
 		"eslint-plugin-editorconfig": "^2.1.2",

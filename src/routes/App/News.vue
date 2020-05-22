@@ -9,7 +9,7 @@
 				<v-container class="pa-4">
 
 					<!-- CONTENT -->
-					<div class="my-12" v-html="news.data.content[0].content"></div>
+					<div class="my-12" v-html="newsContent.content"></div>
 
 					<!-- CREDITS -->
 					<div>
@@ -111,6 +111,13 @@ export default Vue.extend({
 			];
 
 			document.title = title + ' - ' + this.$t('title.news');
+		},
+	},
+
+	computed: {
+
+		newsContent() {
+			return this.news.data.content.find(content => content.language === this.$i18n.locale);
 		},
 	},
 

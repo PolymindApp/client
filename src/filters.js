@@ -82,7 +82,7 @@ Vue.filter('buildColor', (status) => {
 	}
 
 	switch (status) {
-		case 'completed': return 'success';
+		case 'succeeded': return 'success';
 		case 'failed': return 'error';
 		case 'inprogress': return 'grey';
 	}
@@ -96,9 +96,34 @@ Vue.filter('buildIcon', (status) => {
 	}
 
 	switch (status) {
-		case 'completed': return 'mdi-check';
+		case 'succeeded': return 'mdi-check';
 		case 'failed': return 'mdi-close';
 		case 'inprogress': return 'mdi-loading mdi-spin';
 	}
 	return null;
+});
+
+Vue.filter('timeLeft', seconds => {
+
+	let hours = Math.floor(seconds / 3600);
+	let minutes = Math.floor((seconds - (hours * 3600)) / 60);
+	seconds = seconds - (hours * 3600) - (minutes * 60);
+	let time = '';
+
+	if (hours !== 0) {
+		time = hours + ' h ';
+	}
+	if (minutes !== 0 || time !== '') {
+		minutes = (minutes < 10 && time !== '') ? '0' + minutes : String(minutes);
+		time += minutes + ' m ';
+	}
+	if (time === '') {
+		time = seconds + ' s';
+	}
+	else {
+		time += (seconds < 10) ? '0' + seconds : String(seconds);
+		time += ' s';
+	}
+
+	return time;
 });

@@ -1,5 +1,5 @@
 <template>
-	<div class="fill-height">
+	<v-card color="transparent" :class="{ 'fill-height': builds.length === 0 }" flat tile>
 
 		<!-- LOGS -->
 		<v-dialog v-model="logsModal.visible" scrollable persistent max-width="1000px">
@@ -9,9 +9,8 @@
 					<span v-text="$t('component.builds.logs.title')"></span>
 				</v-card-title>
 
-				<v-card-text class="mt-5">
-					<code v-text="logsModal.logs"></code>
-				</v-card-text>
+				<v-card-text class="code" v-if="formattedLogs !== ''" v-html="formattedLogs"></v-card-text>
+				<v-card-text class="code" v-else><v-alert type="warning" class="ma-0" outlined><span v-text="$t('component.builds.noLogs')"></span></v-alert></v-card-text>
 
 				<v-card-actions>
 					<v-spacer></v-spacer>
@@ -43,10 +42,11 @@
 
 					<v-list-item-action>
 						<div>
-							<v-btn :href="build.publicUrl" target="_blank" v-if="build.status === 'completed'" color="primary" class="mr-4" outlined tile>
+							<v-btn @click="launch(build, buildIdx)" target="_blank" v-if="build.status === 'succeeded'" color="primary" class="mr-4" :loading="launchLoading === buildIdx" outlined tile>
 								<v-icon>mdi-play</v-icon>
 							</v-btn>
-							<v-btn @click="checkLogs(build)" outlined tile>
+
+							<v-btn @click="checkLogs(build, buildIdx)" :loading="logsModal.loading === buildIdx" outlined tile>
 								<v-icon left>mdi-format-list-bulleted-square</v-icon>
 								<span v-text="$t('component.builds.logsBtn')"></span>
 							</v-btn>
@@ -55,12 +55,16 @@
 				</v-list-item>
 			</template>
 		</v-list>
-	</div>
+	</v-card>
 </template>
 
 <script>
     import Vue from 'vue';
+	import { default as AnsiUp } from 'ansi_up';
 	import EmptyView from "../../../components/EmptyView";
+	import { ComponentService } from '@polymind/sdk-js';
+
+	const ansiUp = new AnsiUp();
 
     export default Vue.extend({
 
@@ -80,25 +84,71 @@
 
         methods: {
 
-        	checkLogs(build) {
+			launch(build, index) {
 
-        		this.logsModal.visible = true;
+				this.launchLoading = index;
+				ComponentService.buildLaunch(this.component.id, build.pipelineExecutionId)
+						.then(response => {
+							const win = window.open(response.url, '_blank');
+							win.focus();
+						})
+						.catch(error => this.$handleError(this, error))
+						.finally(() => this.launchLoading = false);
+			},
 
-        		// TODO: Call service with build.id
-        		this.logsModal.logs = `@ ./src/routes/App/Dataset/Data.vue?vue&type=script&lang=js&
-@ ./src/routes/App/Dataset/Data.vue
-@ ./node_modules/vuetify-loader/lib/loader.js?ref--17-0!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/routes/App/Dataset.vue?vue&type=script&lang=js&
-@ ./src/routes/App/Dataset.vue?vue&type=script&lang=js&`;
+			apply(build, index) {
+
+				this.applyLoading = index;
+				ComponentService.buildApply(this.component.id, build.pipelineExecutionId)
+						.then(response => {
+
+						})
+						.catch(error => this.$handleError(this, error))
+						.finally(() => this.applyLoading = false);
+			},
+
+        	parseLinks(str) {
+
+				const urlPattern = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
+				const pseudoUrlPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+				const emailAddressPattern = /[\w.]+@[a-zA-Z_-]+?(?:\.[a-zA-Z]{2,6})+/gim;
+
+				return str
+						.replace(urlPattern, '<a href="$&" target="_blank">$&</a>')
+						.replace(pseudoUrlPattern, '$1<a href="http://$2" target="_blank">$2</a>')
+						.replace(emailAddressPattern, '<a href="mailto:$&">$&</a>');
+			},
+
+        	checkLogs(build, index) {
+
+        		this.logsModal.loading = index;
+        		ComponentService.buildLogs(this.component.id, build.pipelineExecutionId)
+					.then(response => {
+						this.logsModal.visible = true;
+						this.logsModal.logs = response;
+					})
+					.catch(error => this.$handleError(this, error))
+					.finally(() => this.logsModal.loading = false);
 			},
 		},
 
         computed: {
 
+        	formattedLogs() {
+        		let logs = '';
+        		this.logsModal.logs.forEach(log => {
+        			logs += log.message;
+				});
+        		return this.parseLinks(ansiUp.ansi_to_html(logs));
+			}
 		},
 
         data() {
             return {
+				launchLoading: false,
+				applyLoading: false,
 				logsModal: {
+					loading: false,
 					visible: false,
 					logs: [],
 				},
@@ -108,9 +158,10 @@
 </script>
 
 <style lang="scss" scoped>
-	code {
+	.code {
+		white-space: pre-line;
 		width: 100%;
-		padding: 1rem;
+		padding: 1.5rem 1.75rem !important;
 		background-color: black !important;
 		color: rgba(255, 255, 255, 0.7) !important;
 	}

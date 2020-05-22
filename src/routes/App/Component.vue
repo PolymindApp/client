@@ -60,7 +60,9 @@
 				<Parameters @value="updateParamValues" @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :dataset.sync="dataset" :form-errors="formErrors" />
 			</v-tab-item>
 			<v-tab-item :value="'/component/' + id + '/builds'" class="fill-height">
-				<Builds @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :builds="builds" :form-errors="formErrors" />
+				<div :style="{ height: builds.length === 0 ? null : 0 }" :class="{ 'fill-height': builds.length === 0 }">
+					<Builds @update:component="compareJsonJob($event, 0)" @update="updateTab" :component.sync="component" :builds="builds" :form-errors="formErrors" />
+				</div>
 			</v-tab-item>
 		</v-tabs-items>
 
@@ -181,6 +183,7 @@ export default Vue.extend({
 	methods: {
 
 		init(load = true) {
+
 
 			if (load) {
 				this.originalComponent = this.$route.meta.component;
@@ -372,6 +375,7 @@ export default Vue.extend({
 
 		fetchBuildInfo() {
 
+			this.builds = [];
 			ComponentService.buildList(this.component.id)
 				.then(response => {
 					this.builds = response.map(item => {

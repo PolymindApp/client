@@ -1,6 +1,24 @@
 <template>
 	<v-card color="transparent" flat tile>
 
+		<!-- BUILD: COMPLETED -->
+		<v-snackbar color="success" v-model="buildCompleted">
+			<v-icon class="white--text" left>mdi-check</v-icon>
+			{{$t('component.settings.buildCompleted')}}
+			<v-btn text @click="buildCompleted = false">
+				{{$t('modal.close')}}
+			</v-btn>
+		</v-snackbar>
+
+		<!-- BUILD: FAILED -->
+		<v-snackbar color="error" v-model="buildFailed">
+			<v-icon class="white--text" left>mdi-close</v-icon>
+			{{$t('component.settings.buildFailed')}}
+			<v-btn text @click="buildFailed = false">
+				{{$t('modal.close')}}
+			</v-btn>
+		</v-snackbar>
+
 		<v-alert type="info" border="left" text :icon="!isMobile ? 'mdi-information-outline' : false" class="mx-n4 mt-n4" dismissible tile>
 			<div v-text="$t('component.settings.explanations')"></div>
 		</v-alert>
@@ -67,7 +85,7 @@
 							</div>
 						</v-expand-transition>
 
-						<v-btn @click="build()" color="primary" :loading="buildIsLoading" :disabled="!component.repo_url || isDifferent">
+						<v-btn @click="build()" color="primary" :loading="buildIsLoading" :disabled="!canBuild">
 							<v-icon left>mdi-play</v-icon>
 							<span v-text="$t('component.settings.build')"></span>
 						</v-btn>
@@ -75,7 +93,9 @@
 
 					<v-divider class="my-4" />
 
-					<v-card-title>Variables d'environnement</v-card-title>
+					<v-card-title>
+						<span v-text="$t('component.settings.envVars')"></span>
+					</v-card-title>
 
 					<v-card-text>
 						<SimpleListBuilder v-model="component.env_variables" :empty-item="emptyEnvVariables">
@@ -119,8 +139,11 @@ export default Vue.extend({
 
 			this.buildIsLoading = true;
 			ComponentService.build(this.component.id, this.repoPassword)
-				.then(response => this.$emit('build', response))
-				.catch(error => this.$handleError(this, error))
+				.then(response => {
+					this.buildCompleted = true;
+					this.$emit('build', response);
+				})
+				.catch(error => this.buildFailed = true)
 				.finally(() => this.buildIsLoading = false);
 		}
 	},
@@ -130,6 +153,15 @@ export default Vue.extend({
 		isMobile() {
 			return this.$vuetify.breakpoint.smAndDown;
 		},
+
+		canBuild() {
+			let defaultCheck = (this.component.repo_url && !this.isDifferent);
+			if (this.component.repo_auth_type === 'none') {
+				return defaultCheck;
+			} else if (this.component.repo_auth_type === 'user_pass') {
+				return defaultCheck && this.component.repo_user && this.repoPassword;
+			}
+		}
 	},
 
 	data() {
@@ -137,6 +169,8 @@ export default Vue.extend({
 			emptyEnvVariables: new ComponentEnvVariable(),
 			repoPassword: '',
 			buildIsLoading: false,
+			buildCompleted: false,
+			buildFailed: false,
             categories: [
 				{ text: this.$t('component.categories.general'), value: 'general' },
 				{ text: this.$t('component.categories.language'), value: 'language' },

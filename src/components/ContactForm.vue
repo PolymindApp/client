@@ -15,7 +15,7 @@
 					<v-icon>mdi-chevron-right</v-icon>
 				</v-col>
 				<v-col class="grow py-0">
-					<v-text-field solo :light="!inputDark" v-model="data.otherSubject" :disabled="disabled" :rules="[rules.required]" :label="$t('contact.subjectOther')" required />
+					<v-text-field ref="other" solo :light="!inputDark" v-model="data.otherSubject" :disabled="disabled" :rules="[rules.required]" :label="$t('contact.subjectOther')" required />
 				</v-col>
 			</v-row>
 		</v-expand-transition>
@@ -115,6 +115,17 @@ export default Vue.extend({
 			valid: true,
 		}
 	},
+
+	watch: {
+
+		'data.subject'(value) {
+			if (value === 'other') {
+				setTimeout(() => {
+					this.$refs.other.$el.querySelector('input').focus();
+				});
+			}
+		}
+	}
 });
 </script>
 
