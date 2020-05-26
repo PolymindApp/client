@@ -84,28 +84,28 @@
 
 			<v-spacer></v-spacer>
 
-			<v-menu max-height="450" v-model="revisionMenu" offset-y>
-				<template v-slot:activator="{ on }">
-					<v-btn :disabled="revisions.length === 0 && revisionLoaded" class="float-right mr-4" @click="loadRevisions()" :loading="revisionLoading" text>
-						<v-icon :left="$vuetify.breakpoint.mdAndUp">mdi-history</v-icon>
-						<span v-if="$vuetify.breakpoint.mdAndUp">{{$t('revision.btnTitle')}}</span>
-						<v-icon right>mdi-chevron-up</v-icon>
-					</v-btn>
-				</template>
-				<v-list>
-					<v-list-item-group v-model="revisionOffset" color="primary">
-						<v-list-item v-for="(revision, index) in revisions" :key="index" @click="loadRevision(index)">
-							<v-list-item-avatar>
-								<UserAvatar :size="48" :user="revision.activity.action_by" />
-							</v-list-item-avatar>
-							<v-list-item-content>
-								<v-list-item-title>{{revision.activity.action_by | userScreenName }}</v-list-item-title>
-								<v-list-item-subtitle>{{ revision.data.modified_on }}</v-list-item-subtitle>
-							</v-list-item-content>
-						</v-list-item>
-					</v-list-item-group>
-				</v-list>
-			</v-menu>
+<!--			<v-menu max-height="450" v-model="revisionMenu" offset-y>-->
+<!--				<template v-slot:activator="{ on }">-->
+<!--					<v-btn :disabled="revisions.length === 0 && revisionLoaded" class="float-right mr-4" @click="loadRevisions()" :loading="revisionLoading" text>-->
+<!--						<v-icon :left="$vuetify.breakpoint.mdAndUp">mdi-history</v-icon>-->
+<!--						<span v-if="$vuetify.breakpoint.mdAndUp">{{$t('revision.btnTitle')}}</span>-->
+<!--						<v-icon right>mdi-chevron-up</v-icon>-->
+<!--					</v-btn>-->
+<!--				</template>-->
+<!--				<v-list>-->
+<!--					<v-list-item-group v-model="revisionOffset" color="primary">-->
+<!--						<v-list-item v-for="(revision, index) in revisions" :key="index" @click="loadRevision(index)">-->
+<!--							<v-list-item-avatar>-->
+<!--								<UserAvatar :size="48" :user="revision.activity.action_by" />-->
+<!--							</v-list-item-avatar>-->
+<!--							<v-list-item-content>-->
+<!--								<v-list-item-title>{{revision.activity.action_by | userScreenName }}</v-list-item-title>-->
+<!--								<v-list-item-subtitle>{{ revision.data.modified_on }}</v-list-item-subtitle>-->
+<!--							</v-list-item-content>-->
+<!--						</v-list-item>-->
+<!--					</v-list-item-group>-->
+<!--				</v-list>-->
+<!--			</v-menu>-->
 
 			<v-menu offset-y top>
 				<template v-slot:activator="{ on }">
