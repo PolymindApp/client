@@ -19,6 +19,9 @@ VUE_APP_GOOGLE_API_KEY=AIzaSyAoE0HY9rR_o3a9J7UpKxSAJc6ecHVuYMk
 VUE_APP_GOOGLE_ANALYTICS_ID=G-9JJ4JPW6RV
 VUE_APP_WS_URI=ws://127.0.0.1:2140
 VUE_APP_COOKIE_DOMAIN=localhost
+VUE_APP_PLAYER_URL=http://localhost:4200
+VUE_APP_COMPONENT_BUCKET_URL=https://polymind-component-local.s3.ca-central-1.amazonaws.com
+SDK_PACKAGE_NAME=@polymind/sdk-js@https://github.com/PolymindApp/sdk-js.git#dev
 ```
 
 ## Launch
