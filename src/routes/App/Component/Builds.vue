@@ -89,7 +89,7 @@
 				this.launchLoading = index;
 				ComponentService.buildLaunch(this.component.id, build.pipelineExecutionId)
 						.then(response => {
-							const win = window.open(response.url, '_blank');
+							const win = window.open(this.bucketUrl + '/' + response.url, '_blank');
 							win.focus();
 						})
 						.catch(error => this.$handleError(this, error))
@@ -145,6 +145,7 @@
 
         data() {
             return {
+            	bucketUrl: process.env.VUE_APP_COMPONENT_BUCKET_URL,
 				launchLoading: false,
 				applyLoading: false,
 				logsModal: {
