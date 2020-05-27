@@ -1,6 +1,6 @@
 {
 	"name": "@polymind/client",
-	"version": "0.1.7-beta",
+	"version": "0.1.8-beta.1",
 	"private": true,
 	"author": "Danny Coulombe <danny.coulombe@polymind.app>",
 	"engines": {
