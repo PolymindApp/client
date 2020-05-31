@@ -43,8 +43,7 @@
 
 <script>
     import Vue from 'vue';
-    import { LANGUAGES } from '@polymind/sdk-js';
-	import AssemblyParameters from "@polymind/sdk-js/src/models/AssemblyParameters";
+    import { LANGUAGES, AssemblyParameters } from '@polymind/sdk-js';
 
     export default Vue.extend({
 

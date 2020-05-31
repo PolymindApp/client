@@ -53,11 +53,10 @@
 <script>
     import Vue from 'vue';
     import yaml from 'js-yaml';
-    import { ComponentParameters as ComponentParametersModel } from '@polymind/sdk-js';
+    import { ComponentParameters as ComponentParametersModel, AssemblyParameters } from '@polymind/sdk-js';
 	import CodeEditorField from "../../../components/CodeEditorField";
 	import EmptyView from "../../../components/EmptyView";
 	import ComponentParameters from "../../../components/ComponentParameters";
-	import AssemblyParameters from "@polymind/sdk-js/src/models/AssemblyParameters";
 
 	let previewTimer;
 
