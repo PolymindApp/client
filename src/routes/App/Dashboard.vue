@@ -1,1022 +1,410 @@
 <template>
-	<v-sheet class="w-100 py-2" color="grey lighten-4" tile>
+	<v-row class="white" no-gutters>
 
-		<v-card color="transparent" class="px-4" flat tile>
+		<!-- LAUNCH SESSION DIALOG -->
+		<LaunchSession :visible="launchSession.visible" :structure="launchSession.structure"></LaunchSession>
 
-			<!-- TOTALS -->
-			<v-row>
-				<v-col cols="12" md="6">
-					<v-card v-if="next" v-on="next.listeners" class="d-flex align-center fill-height">
-						<v-card class="text-no-wrap pa-4 d-flex flex-column justify-center fill-height" :color="next.color" style="flex: 0; border-top-right-radius: 0; border-bottom-right-radius: 0" dark flat>
-							<div class="overline" v-text="$t('dashboard.nextEvent' + (next.isToday ? 'Today' : next.isTomorrow ? 'Tomorrow' : 'Later'))"></div>
-							<div class="title text-uppercase" v-text="next.dayMonth"></div>
-							<div v-text="next.year"></div>
-						</v-card>
-						<div class="ml-8 pa-4 d-flex align-center" style="flex: 1">
-							<div class="text-center text-no-wrap " style="flex: 0">
-								<v-icon :color="next.color" x-large>{{ next.icon }}</v-icon>
-								<h3 class="mt-2" v-text="next.name"></h3>
-								<div class="overline" v-text="$t('strategy.assembly.duration', { duration: next.duration || '~' })"></div>
-							</div>
-							<div class="ml-8 text-center" style="flex: 1">
-								<div class="desc" v-html="next.desc"></div>
-<!--								<div class="overline">{{ next.strategy.assemblies.length }} étapes :</div>-->
-
-<!--								<div :key="assembly.guid" v-for="(assembly, assemblyIdx) in next.strategy.assemblies">-->
-<!--									<strong v-text="assembly.name || assembly.component"></strong>-->
-<!--								</div>-->
-							</div>
+		<!-- NAVIGATION -->
+		<v-col cols="12" md="3" class="fill-height d-flex flex-column pa-4">
+			<div style="flex: 0">
+				<v-btn :loading="sessionLoading" :disabled="!canStartSession" block color="primary" rounded large>
+					<v-icon left>mdi-timelapse</v-icon>
+					<span>Démarrez une session</span>
+				</v-btn>
+			</div>
+			<v-divider class="my-4"></v-divider>
+			<div class="scrollable" style="flex-grow: 1; height: 0">
+				<v-row :class="{ 'scrollable': true, 'mt-4': dayIdx > 0 }" :key="day.date" v-for="(day, dayIdx) in navigation" no-gutters>
+					<v-col cols="3" class="text-center d-flex flex-column align-start">
+						<div>
+							<div :class="{ 'overline text-no-wrap': true, 'primary--text': selectedSession.date === day.date }" v-text="day.name"></div>
+							<div :class="{ 'd-flex align-center justify-center title': true, 'primary white--text': selectedSession.date === day.date }" v-text="day.day" style="height: 2.5rem; width: 2.5rem; border-radius: 100%"></div>
 						</div>
-						<div v-if="next.isToday" class="px-4 text-center" style="flex: 0">
-							<v-icon :color="next.color" x-large>mdi-play</v-icon>
-						</div>
-					</v-card>
-					<v-card v-else class="d-flex align-center fill-height">
-						<v-alert type="warning" class="ma-0 fill-height d-flex justify-start align-center w-100" text prominent tile>
-							<h3 v-text="$t('dashboard.noStrategySoonTitle')"></h3>
-							<div v-text="$t('dashboard.noStrategySoonDesc')"></div>
-							<v-btn class="mt-4" to="/strategy/new" color="warning">
-								<v-icon left>mdi-plus</v-icon>
-								<span v-text="$t('dashboard.planStrategy')"></span>
-							</v-btn>
-						</v-alert>
-					</v-card>
-				</v-col>
-				<v-col cols="12" md="6">
-
-					<!-- EMPTY -->
-					<v-slide-y-reverse-transition>
-						<EmptyView key="empty" v-if="!news.data" :desc="$t('dashboard.news.emptyDesc')" />
-					</v-slide-y-reverse-transition>
-
-					<!-- HAS CONTENT -->
-					<v-card class="fill-height">
-						<v-list-item three-line>
-							<v-list-item-avatar v-if="news.data.thumbnail" tile size="80">
-								<v-img height="80" width="80" :src="$thumbnails(news.data.thumbnail.private_hash, 'avatar')"></v-img>
-							</v-list-item-avatar>
-							<v-list-item-content>
-								<v-list-item-title class="headline mb-1">
-									<span v-text="newsContent.title"></span>
-								</v-list-item-title>
-								<v-list-item-subtitle>
-									<span v-text="newsContent.abstract" style="line-height: 1.25rem"></span>
-								</v-list-item-subtitle>
-							</v-list-item-content>
-						</v-list-item>
-						<v-card-actions>
-							<v-btn color="primary" :to="'/news/' + news.data.content[0].language + '/' + news.data.content[0].slug" text>
-								<span v-text="$t('dashboard.news.seeMore')"></span>
-								<v-icon right>mdi-plus</v-icon>
-							</v-btn>
-
-							<v-spacer></v-spacer>
-
-							<v-icon left x-small>mdi-calendar</v-icon>
-							<span class="overline mr-4">{{ news.data.created_on | timeAgo }}</span>
-						</v-card-actions>
-					</v-card>
-				</v-col>
-			</v-row>
-
-			<!-- CALENDAR -->
-			<v-card class="relative my-2">
-
-				<!-- ACCOMPLISH DIALOG -->
-				<AccomplishStrategy :visible.sync="accomplishDialog.visible" :strategy="accomplishStrategy" />
-
-				<!-- PAST/FUTURE DIALOG -->
-				<v-dialog v-model="accomplishDialog.pastFutureVisible" scrollable persistent max-width="400px">
-					<v-card>
-						<v-card-title class="headline">
-							<v-icon color="error" slot="icon" size="36" left>mdi-close</v-icon>
-							<span v-text="$t('strategy.accomplishDialogTitle')"></span>
-						</v-card-title>
-
-						<v-card-text class="my-4">
-							<span v-text="$t('strategy.accomplishDialogDesc')"></span>
-						</v-card-text>
-
-						<v-card-actions>
-							<v-spacer></v-spacer>
-							<v-btn @click="accomplishDialog.pastFutureVisible = false" text>
-								<span v-text="$t('modal.close')"></span>
-							</v-btn>
-						</v-card-actions>
-					</v-card>
-				</v-dialog>
-
-				<v-overlay absolute color="white" z-index="2" :value="events.length === 0">
-					<div class="text-center">
-						<EmptyView :title="$t('dashboard.emptyCalendarTitle')" :desc="$t('dashboard.emptyCalendarDesc')" icon="mdi-thumb-up-outline" color="primary" :size="48" light />
-						<v-btn to="/strategy/new" v-text="$t('dashboard.planStrategy')"></v-btn>
-					</div>
-				</v-overlay>
-				<v-fade-transition>
-					<v-overlay v-if="isLoading" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-						<v-progress-circular color="primary" indeterminate></v-progress-circular>
-					</v-overlay>
-				</v-fade-transition>
-				<v-sheet :height="calendarType === 'custom-daily' ? 350 : null">
-					<v-calendar
-						ref="calendar"
-						:type="calendarType"
-						color="primary"
-						:now="today"
-						:value="calendarValue"
-						short-months
-						short-weekday
-						:start="calendarStartDate"
-						:end="calendarEndDate"
-						:locale="$i18n.locale"
-						:first-interval="firstInterval"
-						:interval-count="intervalCount"
-						:events="events"
-						:event-color="getEventColor"
-						@change="setEvents"
-						@click:event="handleEventClick"
-						class="v-calendar-session"
-					>
-						<template v-slot:day-header="props">
-							<div class="text-center">
-								<v-chip color="primary" v-if="totalSecondsPerDate[props.date]" x-small>
-									<span v-text="$options.filters.timeLeft(totalSecondsPerDate[props.date])"></span>
-								</v-chip>
-							</div>
-						</template>
-						<template v-slot:event="props">
-							<span :class="{ 'pa-1 black--text': props.event.startDay !== today && !props.timed }">
-								<span>
-									<template v-if="!props.event.valid">
-										<v-icon color="white" small left>mdi-alert</v-icon>
-									</template>
-									<template v-else-if="props.event.startDay > today">
-										<v-icon :color="props.event.color" small left>mdi-calendar-clock</v-icon>
-									</template>
-									<template v-else-if="!props.timed && props.event.startDay === today">
-										<v-icon :color="props.event.color" small left>mdi-play</v-icon>
-									</template>
-									<template v-else>
-										<v-icon :color="props.event.color" small left>mdi-check-circle</v-icon>
-									</template>
-									<span v-text="props.event.name"></span>
-									(<!--
-										--><strong v-if="props.event.valid" v-text="$t('strategy.assembly.duration', { duration: props.event.duration || '~' })"></strong>
-										<strong v-else v-text="$t('dashboard.invalid')"></strong><!--
-									-->)
-								</span>
-								<div v-if="props.timed && props.event.duration >= 60" class="text-center">
-									<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.easy > 0 ? 'success' : null" class="mr-2" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.easy || 0 }}</v-chip>
-									<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.unsure > 0 ? 'warning' : null" class="mr-2" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.unsure || 0 }}</v-chip>
-									<v-chip :color="stats.daily[props.event.startDay].session[props.event.id].totalTags.hard > 0 ? 'error' : null" x-small outlined>{{ stats.daily[props.event.startDay].session[props.event.id].totalTags.hard || 0 }}</v-chip>
+					</v-col>
+					<v-col cols="9">
+						<v-card @click="selectSession(session)" :class="{ 'pa-2': true, 'mt-2': sessionIdx > 0 }" :color="selectedSession.id === session.id ? 'primary' : 'grey lighten-4'" :key="session.id" v-for="(session, sessionIdx) in day.sessions" :dark="selectedSession.id === session.id" flat>
+							<div class="font-weight-medium" v-text="session.title"></div>
+							<div class="caption d-flex align-center justify-space-between">
+								<div>{{session.startTime}} - {{session.endTime}}</div>
+								<div class="d-flex align-center">
+									<v-icon x-small left>mdi-timer</v-icon>
+									<span>{{ (session.duration / 60).toFixed(1) }} min</span>
 								</div>
-							</span>
+							</div>
+							<div class="session-status d-flex mb-n2 ml-n2 mr-n2 mt-2">
+								<div class="status-hard error" :style="{ width: session.statusPercentages.hard + '%' }"></div>
+								<div class="status-unsure warning" :style="{ width: session.statusPercentages.unsure + '%' }"></div>
+								<div class="status-easy success" :style="{ width: session.statusPercentages.easy + '%' }"></div>
+							</div>
+						</v-card>
+					</v-col>
+				</v-row>
+			</div>
+<!--			<div style="flex: 0" class="mt-4">-->
+<!--				<v-alert type="warning" border="left" icon="mdi-alert-circle-outline" class="ma-0" outlined>-->
+<!--					Some alert message here-->
+<!--				</v-alert>-->
+<!--			</div>-->
+		</v-col>
+
+		<!-- DETAILS -->
+		<v-col cols="12" md="9" class="fill-height d-flex flex-column">
+			<div class="pa-4 pl-0" style="flex-grow: 1; height: 0; overflow-y: scroll">
+				<v-card outlined :elevation="2">
+
+					<!-- HEADER -->
+					<v-toolbar color="primary" dark flat>
+
+						<v-toolbar-title>
+							<v-icon left v-text="selectedSession.icon"></v-icon>
+							<span v-text="selectedSession.title"></span>
+						</v-toolbar-title>
+						<span class="overline ml-4 mt-1">
+							(<v-icon x-small left>mdi-timer</v-icon><span v-text="(selectedSession.duration / 60).toFixed(1)"></span> min)
+						</span>
+						<v-spacer></v-spacer>
+
+						<v-btn @click="relaunch()" class="mr-4" :loading="launchSession.loading" text>
+							<v-icon left>mdi-redo-variant</v-icon>
+							<span>Relancer</span>
+						</v-btn>
+
+						<v-menu bottom left>
+							<template v-slot:activator="{ on }">
+								<v-btn v-on="on" icon>
+									<v-icon>mdi-dots-vertical</v-icon>
+								</v-btn>
+							</template>
+							<v-list dense>
+								<v-list-item @click="test(dataset)">
+									<v-list-item-icon>
+										<v-icon>mdi-archive</v-icon>
+									</v-list-item-icon>
+									<v-list-item-title>Archive</v-list-item-title>
+								</v-list-item>
+							</v-list>
+						</v-menu>
+
+						<template v-slot:extension>
+							<v-tabs v-model="tab" background-color="primary" grow>
+								<v-tab>
+									<v-icon left>mdi-clipboard-list</v-icon>
+									<span>Résultats</span>
+								</v-tab>
+								<v-tab>
+									<v-icon left>mdi-chart-line</v-icon>
+									<span>Statistics</span>
+								</v-tab>
+								<v-tab>
+									<v-icon left>mdi-file-find-outline</v-icon>
+									<span>Details</span>
+								</v-tab>
+							</v-tabs>
 						</template>
-					</v-calendar>
-				</v-sheet>
-			</v-card>
-		</v-card>
+					</v-toolbar>
 
-		<v-sheet color="transparent" class="px-4" tile>
-			<v-row>
-				<v-col cols="12" md="6" xl="3">
+					<v-tabs-items v-model="tab">
 
-					<!-- ENDEAVOURS DIVISION -->
-					<v-card class="fill-height" light>
-						<v-overlay v-if="!hasEndeavoursStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-							<EmptyView :title="$t('dashboard.endeavoursDivisionChartEmptyTitle')" :desc="$t('dashboard.endeavoursDivisionChartEmptyDesc')" :image="false" />
-						</v-overlay>
-						<v-fade-transition>
-							<v-overlay v-if="isLoading" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-								<v-progress-circular color="primary" indeterminate></v-progress-circular>
-							</v-overlay>
-						</v-fade-transition>
-						<v-card-title class="flex-column text-break text-center">
-							<div v-text="$t('dashboard.endeavoursDivisionChartTitle')"></div>
-							<div class="overline" v-text="$t('dashboard.endeavoursDivisionChartDesc')"></div>
-						</v-card-title>
-						<v-card-text class="pt-4">
-							<EmptyView v-if="endeavoursDivisionCharts.datasets.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />
-							<doughnut-chart v-else-if="endeavoursDivisionCharts.datasets.length < 5" :chart-data="endeavoursDivisionCharts.datasets" :options="endeavoursDivisionCharts.datasets.options" style="height: 350px"></doughnut-chart>
-							<radar-chart v-else :chart-data="endeavoursDivisionCharts.datasets" :options="endeavoursDivisionCharts.datasets.options" style="height: 350px"></radar-chart>
-							<!--							<v-row no-gutters>-->
-							<!--								<v-col cols="12" md="6" class="pa-4 text-center">-->
-							<!--									<EmptyView v-if="endeavoursDivisionCharts.total.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />-->
-							<!--									<pie-chart v-else :chart-data="endeavoursDivisionCharts.total" :options="endeavoursDivisionCharts.total.options" style="height: 143.25px"></pie-chart>-->
-							<!--								</v-col>-->
-							<!--								<v-col cols="12" md="6" class="pa-4 text-center">-->
-							<!--									<EmptyView v-if="endeavoursDivisionCharts.strategies.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />-->
-							<!--									<doughnut-chart v-else :chart-data="endeavoursDivisionCharts.strategies" :options="endeavoursDivisionCharts.strategies.options" style="height: 143.25px"></doughnut-chart>-->
-							<!--								</v-col>-->
-							<!--								<v-col cols="12" md="12" class="pa-4 text-center">-->
-							<!--									<EmptyView v-if="endeavoursDivisionCharts.datasets.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />-->
-							<!--									<doughnut-chart v-else :chart-data="endeavoursDivisionCharts.datasets" :options="endeavoursDivisionCharts.datasets.options" style="height: 343.25px"></doughnut-chart>-->
-							<!--								</v-col>-->
-							<!--								<v-col cols="12" md="6" class="pa-4 text-center">-->
-							<!--									<EmptyView v-if="endeavoursDivisionCharts.components.datasets.length === 0" :desc="$t('dashboard.noData')" :size="32" icon="mdi-information-outline" />-->
-							<!--									<doughnut-chart v-else :chart-data="endeavoursDivisionCharts.components" :options="endeavoursDivisionCharts.components.options" style="height: 243.25px"></doughnut-chart>-->
-							<!--								</v-col>-->
-							<!--							</v-row>-->
-						</v-card-text>
-					</v-card>
-				</v-col>
-				<v-col cols="12" md="6" xl="3">
+						<!-- RESULTS -->
+						<v-tab-item color="transparent">
+							<v-row class="fill-height" no-gutters>
+								<v-col cols="12" md="4" class="d-flex flex-column">
+									<div class="error white--text text-center title relative">
+										<div class="pa-4">Difficultés</div>
+										<v-sparkline v-model="results.hard" color="rgba(255, 255, 255, 0.25)" :padding="0" height="30" class="mt-n9" fill smooth auto-draw></v-sparkline>
+									</div>
+									<v-list :color="bg.error" style="flex: 1">
+										<v-list-item :key="item" v-for="(item, itemIdx) in words[0]">
+											<v-list-item-icon>
+												<pie-chart :chart-data="wordsChart" :options="wordsChart.options" style="height: 40px; width: 40px; margin: 5px -5px -15px -5px"></pie-chart>
+											</v-list-item-icon>
+											<v-list-item-content>
+												<v-list-item-title v-html="item"></v-list-item-title>
+												<v-list-item-subtitle>
+													Temps passé : 3min
+												</v-list-item-subtitle>
+											</v-list-item-content>
+											<v-list-item-icon>
+												<v-btn icon>
+													<v-icon>mdi-chevron-right</v-icon>
+												</v-btn>
+											</v-list-item-icon>
+										</v-list-item>
+									</v-list>
+								</v-col>
+								<v-col cols="12" md="4" class="d-flex flex-column" style="padding: 0 2px">
+									<div class="warning white--text text-center title relative">
+										<div class="pa-4">Incertitudes</div>
+										<v-sparkline v-model="results.unsure" color="rgba(255, 255, 255, 0.25)" :padding="0" height="30" class="mt-n9" fill smooth auto-draw></v-sparkline>
+									</div>
+									<v-list :color="bg.warning" style="flex: 1">
+										<v-list-item :key="item" v-for="(item, itemIdx) in words[1]">
+											<v-list-item-icon>
+												<pie-chart :chart-data="wordsChart" :options="wordsChart.options" style="height: 40px; width: 40px; margin: 5px -5px -15px -5px"></pie-chart>
+											</v-list-item-icon>
+											<v-list-item-content>
+												<v-list-item-title v-html="item"></v-list-item-title>
+												<v-list-item-subtitle>
+													Temps passé : 3min
+												</v-list-item-subtitle>
+											</v-list-item-content>
+											<v-list-item-icon>
+												<v-btn icon>
+													<v-icon>mdi-chevron-right</v-icon>
+												</v-btn>
+											</v-list-item-icon>
+										</v-list-item>
+									</v-list>
+								</v-col>
+								<v-col cols="12" md="4" class="d-flex flex-column">
+									<div class="success white--text text-center title relative">
+										<div class="pa-4">Facilités</div>
+										<v-sparkline v-model="results.success" color="rgba(255, 255, 255, 0.25)" :padding="0" height="30" class="mt-n9" fill smooth auto-draw></v-sparkline>
+									</div>
+									<v-list :color="bg.success" style="flex: 1">
+										<v-list-item :key="item" v-for="(item, itemIdx) in words[2]">
+											<v-list-item-icon>
+												<pie-chart :chart-data="wordsChart" :options="wordsChart.options" style="height: 40px; width: 40px; margin: 5px -5px -15px -5px"></pie-chart>
+											</v-list-item-icon>
+											<v-list-item-content>
+												<v-list-item-title v-html="item"></v-list-item-title>
+												<v-list-item-subtitle>
+													Temps passé : 3min
+												</v-list-item-subtitle>
+											</v-list-item-content>
+											<v-list-item-icon>
+												<v-btn icon>
+													<v-icon>mdi-chevron-right</v-icon>
+												</v-btn>
+											</v-list-item-icon>
+										</v-list-item>
+									</v-list>
+								</v-col>
+							</v-row>
+						</v-tab-item>
 
-					<!-- DIFFICULTY -->
-					<v-card class="fill-height" light>
-						<v-overlay v-if="stats.totalCount === 0" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-							<EmptyView :title="$t('dashboard.difficultyChartEmptyTitle')" :desc="$t('dashboard.difficultyChartEmptyDesc')" :image="false" />
-						</v-overlay>
-						<v-fade-transition>
-							<v-overlay v-if="isLoading" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-								<v-progress-circular color="primary" indeterminate></v-progress-circular>
-							</v-overlay>
-						</v-fade-transition>
-						<v-card-title class="flex-column text-break text-center">
-							<div v-text="$t('dashboard.difficultyChartTitle')"></div>
-							<div class="overline" v-text="$t('dashboard.difficultyChartDesc')"></div>
-						</v-card-title>
-						<v-card-text class="pt-4">
-							<line-stacked-chart style="height: 350px" :chart-data="difficultyChart" :options="difficultyChart.options"></line-stacked-chart>
-						</v-card-text>
-					</v-card>
-				</v-col>
-				<v-col cols="12" md="6" xl="3">
+						<!-- STATISTICS -->
+						<v-tab-item color="transparent" class="pa-4">
+							<pre v-text="stats"></pre>
+						</v-tab-item>
 
-					<!-- INTERVALS -->
-					<v-card class="fill-height" light>
-						<v-overlay v-if="stats.totalTime === 0" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-							<EmptyView :title="$t('dashboard.intervalChartEmptyTitle')" :desc="$t('dashboard.intervalChartEmptyDesc')" :image="false" />
-						</v-overlay>
-						<v-fade-transition>
-							<v-overlay v-if="isLoading" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-								<v-progress-circular color="primary" indeterminate></v-progress-circular>
-							</v-overlay>
-						</v-fade-transition>
-						<v-card-title class="flex-column text-break text-center">
-							<div v-text="$t('dashboard.intervalChartTitle')"></div>
-							<div class="overline" v-text="$t('dashboard.intervalChartDesc')"></div>
-						</v-card-title>
-						<v-card-text class="pt-4">
-							<bar-stacked-chart style="height: 350px" :chart-data="intervalChart" :options="intervalChart.options"></bar-stacked-chart>
-						</v-card-text>
-					</v-card>
-				</v-col>
-				<v-col cols="12" md="6" xl="3">
-
-					<!--  DATASET -->
-					<v-card class="fill-height" light>
-						<v-overlay v-if="!hasDatasetStats" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-							<EmptyView :title="$t('dashboard.datasetChartEmptyTitle')" :desc="$t('dashboard.datasetChartEmptyDesc')" :image="false" />
-						</v-overlay>
-						<v-fade-transition>
-							<v-overlay v-if="isLoading" color="white" absolute :dark="false" opacity="0.75" z-index="2">
-								<v-progress-circular color="primary" indeterminate></v-progress-circular>
-							</v-overlay>
-						</v-fade-transition>
-						<v-card-title class="flex-column text-break text-center">
-							<div v-text="$t('dashboard.datasetChartTitle')"></div>
-							<div class="overline" v-text="$t('dashboard.datasetChartDesc')"></div>
-						</v-card-title>
-						<v-card-text class="pt-4">
-							<bar-stacked-chart style="height: 350px" :chart-data="datasetChart" :options="datasetChart.options"></bar-stacked-chart>
-						</v-card-text>
-					</v-card>
-				</v-col>
-			</v-row>
-		</v-sheet>
-	</v-sheet>
+						<!-- DETAILS -->
+						<v-tab-item color="transparent">
+							<v-row>
+								<v-col cols="12" md="6">
+									<v-list>
+										<v-subheader>Générale</v-subheader>
+										<v-list-item>
+											<v-list-item-icon>
+												<v-icon>mdi-calendar</v-icon>
+											</v-list-item-icon>
+											<v-list-item-content>
+												<v-list-item-title>Plage de temps</v-list-item-title>
+												<v-list-item-subtitle>
+													{{ selectedSession.date | humanDate }} de
+													{{ selectedSession.startTime }} - {{ selectedSession.endTime }}
+												</v-list-item-subtitle>
+											</v-list-item-content>
+										</v-list-item>
+										<v-list-item>
+											<v-list-item-icon>
+												<v-icon>mdi-timer</v-icon>
+											</v-list-item-icon>
+											<v-list-item-content>
+												<v-list-item-title>Durée de la session</v-list-item-title>
+												<v-list-item-subtitle>3.24 min</v-list-item-subtitle>
+											</v-list-item-content>
+										</v-list-item>
+										<v-list-item>
+											<v-list-item-icon>
+												<v-icon>mdi-cube</v-icon>
+											</v-list-item-icon>
+											<v-list-item-content>
+												<v-list-item-title>Type de session</v-list-item-title>
+												<v-list-item-subtitle>Diaporama libre</v-list-item-subtitle>
+											</v-list-item-content>
+										</v-list-item>
+									</v-list>
+								</v-col>
+								<v-col cols="12" md="6">
+									<v-list>
+										<v-subheader>Paramètres</v-subheader>
+										<v-list-item>
+											<v-list-item-content>
+												<v-list-item-title>Clé</v-list-item-title>
+												<v-list-item-subtitle>Valeur</v-list-item-subtitle>
+											</v-list-item-content>
+										</v-list-item>
+									</v-list>
+								</v-col>
+							</v-row>
+						</v-tab-item>
+					</v-tabs-items>
+				</v-card>
+			</div>
+		</v-col>
+	</v-row>
 </template>
 
 <script>
-import Vue from 'vue';
-import EmptyView from "../../components/EmptyView";
-import ToolbarContextual from "./Dashboard/ToolbarContextual";
-import LineStackedChart from "../../components/Chart/LineStacked";
-import BarChart from "../../components/Chart/Bar";
-import BarStackedChart from "../../components/Chart/BarStacked";
-import HorizontalBarChart from "../../components/Chart/HorizontalBar";
-import DoughnutChart from "../../components/Chart/Doughnut";
-import RadarChart from "../../components/Chart/Radar";
-import PieChart from "../../components/Chart/Pie";
-import { Color, NewsService, SessionStatsService, Cookies, Session } from "@polymind/sdk-js";
-import Radar from "../../components/Chart/Radar";
-import UserAvatar from "../../components/UserAvatar";
-import moment from "moment";
-import AccomplishStrategy from "../../components/AccomplishStrategy";
+	import Vue from 'vue';
+	import EmptyView from "../../components/EmptyView";
+	import LaunchSession from "../../components/LaunchSession";
+	import moment from 'moment';
+	import { SessionStatsService, SessionStructure, Color, Session, SessionStructureService } from '@polymind/sdk-js';
+	import PieChart from '../../components/Chart/Pie';
 
-export default Vue.extend({
+	export default Vue.extend({
 
-	components: { EmptyView, UserAvatar, RadarChart, DoughnutChart, PieChart, BarChart, BarStackedChart, HorizontalBarChart, LineStackedChart, Radar, AccomplishStrategy },
+		components: { EmptyView, PieChart, LaunchSession },
 
-	beforeRouteEnter(to, from, next) {
+		beforeRouteEnter(to, from, next) {
 
-		const startDate = moment().subtract(6, 'days');
-		const endDate = moment().add(1, 'day');
+			const startDate = moment().subtract(1, 'month');
+			const endDate = moment().add(1, 'day');
+			SessionStatsService.getAll(null, startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD')).then(stats => {
+				to.meta.stats = stats;
+				next();
+			})
+					.catch(error => next('/404'));
+		},
 
-		Promise.all([
-			NewsService.getLatest(Cookies.get('lang')),
-			SessionStatsService.getAll(null, startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD')),
-		])
-				.then(([news, stats]) => {
-					to.meta.news = news;
-					to.meta.stats = stats;
-					next();
+		created() {
+			this.init();
+		},
+
+		mounted () {
+
+		},
+
+		methods: {
+
+			init() {
+
+				if (this.navigation.length > 0) {
+					this.selectSession(this.navigation[0].sessions[0]);
+				}
+			},
+
+			selectSession(session) {
+				this.selectedSession = session;
+			},
+
+			relaunch() {
+				this.launchSession.loading = true;
+				SessionStructureService.getBySessionId(this.selectedSession.id)
+				.then(structure => {
+					this.launchSession.visible = true;
+					this.launchSession.structure = structure;
 				})
-				.catch(error => next('/404'));
-	},
+				.finally(() => this.launchSession.loading = false);
+			},
 
-	created() {
-		this.init();
-	},
-
-	mounted () {
-		this.$refs.calendar.scrollToTime(moment().format('HH:mm'));
-		this.$toolbar.setContextual(ToolbarContextual, {
-			value: this.dataRangeContextual
-		}, {
-			input: args => this.dataRange = [moment(args[0]), moment(args[1])],
-		});
-	},
-
-	methods: {
-
-		init() {
-			this.updateDates();
-			this.prepareStats();
 		},
 
-		updateDates() {
-			const [ start, end ] = this.dataRange;
-			this.statsStartDate = start.format('YYYY-MM-DD');
-			this.statsEndDate = end.format('YYYY-MM-DD');
-			this.calendarValue = this.statsStartDate;
-			this.calendarType = this.rangeSize() > 7 ? 'month' : 'custom-daily';
-			this.calendarStartDate = this.getCalendarStartDate();
-			this.calendarEndDate = this.getCalendarEndDate();
-		},
+		computed: {
 
-		rangeSize() {
-			return moment(this.dataRange[1]).diff(moment(this.dataRange[0]), 'days');
-		},
-
-		handleEventClick(props) {
-
-			if (!props.event.valid) {
-				this.$router.push('/strategy/' + props.event.strategy.id);
-			}
-			else if (props.timed) {
-
-			}
-			else if (props.event.startDay === this.today) {
-				this.accomplishStrategy = props.event.strategy;
-				this.accomplishDialog.visible = true;
-			} else if (props.event.startDay > this.today) {
-				this.accomplishStrategy = props.event.strategy;
-				this.accomplishDialog.pastFutureVisible = true;
-			} else if (props.event.startDay < this.today) {
-				this.accomplishStrategy = props.event.strategy;
-				this.accomplishDialog.pastFutureVisible = true;
-			}
-		},
-
-		reload() {
-
-			const [ start, end ] = this.dataRange;
-
-			this.isLoading = true;
-			SessionStatsService.getAll(null, start.format('YYYY-MM-DD'), moment(end).add(1, 'day').format('YYYY-MM-DD'))
-					.then(stats => {
-						this.stats = stats;
-						this.updateDates();
-						this.prepareStats();
-					})
-					.catch(error => this.$handleError(this, error))
-					.finally(() => this.isLoading = false);
-		},
-
-		setEvents ({ start, end }) {
-			this.events = this.getEvents(start.date, end.date, true);
-			this.setTotalTimeByDate(this.events);
-		},
-
-		setTotalTimeByDate(events) {
-			this.totalSecondsPerDate = {};
-			events.forEach(event => {
-				if (!event.planned) {
-					if (!this.totalSecondsPerDate[event.startDay]) {
-						this.totalSecondsPerDate[event.startDay] = 0;
-					}
-					this.totalSecondsPerDate[event.startDay] += event.duration * 60;
-				}
-			});
-			for(let date in this.totalSecondsPerDate) {
-				this.totalSecondsPerDate[date] = parseInt(this.totalSecondsPerDate[date]);
-			}
-		},
-
-		getPlannedEvents(start, end, excludeSessions = false, exclusePassedSession = true) {
-
-			const events = [];
-
-			// this.strategies.forEach(item => {
-			// 	const strategy = item;
-			// 	strategy.getEvents(start, end).forEach(event => {
-			// 		event.strategy = strategy;
-			// 		Object.assign(event, {
-			// 			id: strategy.id,
-			// 			color: strategy.getColor(),
-			// 			icon: strategy.getIcon(),
-			// 			name: strategy.name,
-			// 			desc: strategy.description,
-			// 			planned: true,
-			// 		});
-			//
-			// 		const dayStats = this.stats.daily[event.startDay];
-			// 		if (excludeSessions && dayStats && dayStats.session[event.session]) {
-			// 			return;
-			// 		}
-			//
-			// 		if (exclusePassedSession && event.startDay < this.today) {
-			// 			return
-			// 		}
-			//
-			// 		event.valid = strategy.isValid(this.components, this.datasets);
-			// 		events.push(event);
-			// 	});
-			// });
-
-			return events.sort((a, b) => (a.startDay > b.startDay) ? 1 : -1);
-		},
-
-		getTimedSessions(start, end) {
-
-			const events = [];
-
-			for(let day in this.stats.daily) {
-				for(let ssKey in this.stats.daily[day].session) {
-					const id = parseInt(ssKey);
-					const stat = this.stats.daily[day].session[ssKey];
-					const element = stat.strategy
-							? this.$root.strategies.find(strategy => strategy.id === stat.strategy)
-							: this.$root.components.find(component => component.id === stat.component);
-					const dataset = this.$root.datasets.find(dataset => dataset.id === stat.dataset);
-					if (element && dataset) {
-						const session = new Session(stat);
-						const event = session.getEvent(element, dataset);
-						Object.assign(event, {
+			navigation() {
+				let items = [];
+				for (let date in this.stats.daily) {
+					const day = {
+						date,
+						timestamp: moment(date).unix(),
+						name: moment(date).format('ddd').toUpperCase().replace('.', ''),
+						day: parseInt(moment(date).format('D')),
+						sessions: [],
+					};
+					for (let id in this.stats.daily[date].session) {
+						const sessionData = this.stats.daily[date].session[id];
+						const dataset = this.$root.datasets.find(dataset => dataset.id === sessionData.dataset);
+						const totalStatus = (sessionData.totalTags.hard || 0) + (sessionData.totalTags.unsure || 0) + (sessionData.totalTags.easy || 0);
+						const session = {
 							id,
-							color: element.getColor(),
-							icon: element.getIcon(),
-							name: stat.strategy ? element.name : dataset.name,
-							desc: stat.strategy ? element.description : dataset.description,
-							planned: false,
-						});
-						events.push(event);
+							date,
+							icon: dataset.icon,
+							title: dataset.name,
+							startTime: moment(sessionData.start_date).format('HH:mm'),
+							endTime: moment(sessionData.end_date).format('HH:mm'),
+							duration: sessionData.totalTime,
+							timestamp: moment(sessionData.start_date).unix(),
+							statusPercentages: {
+								easy: (sessionData.totalTags.easy || 0) * 100 / totalStatus,
+								unsure: (sessionData.totalTags.unsure || 0) * 100 / totalStatus,
+								hard: (sessionData.totalTags.hard || 0) * 100 / totalStatus,
+							},
+						};
+						day.sessions.push(session);
 					}
+					day.sessions.sort((a, b) => (a.timestamp > b.timestamp) ? 1 : -1).reverse();
+					items.push(day);
 				}
-			}
+				items.sort((a, b) => (a.timestamp > b.timestamp) ? 1 : -1).reverse();
+				return items;
+			},
 
-			return events.sort((a, b) => (a.startDay > b.startDay) ? 1 : -1);
+			canStartSession() {
+				return this.$root.components.length > 0 && this.$root.datasets.length > 0;
+			},
 		},
 
-		getEvents (start, end, excludeSessions = false) {
-			return this.getPlannedEvents(start, end, excludeSessions).concat(this.getTimedSessions(start, end));
-		},
-
-		getEventColor (event) {
-
-			if (!event.valid) {
-				return 'error';
-			} else if (event.startTime) {
-
-				return '#fff';
-
-				if (event.startDay === this.today) {
-					return event.color;
-				}
-
-			} else if (event.startDay === this.today) {
-				return event.color;
-			} else if (event.startDay > this.today) {
-				return Color.hexToRgba(event.color, 0.25);
-			}
-
-			return 'grey lighten-4';
-		},
-
-		prepareStats() {
-
-			const [ start, end ] = this.dataRange;
-			const daysDiff = end.diff(start, 'days') + 1;
-			const daysLabels = [];
-			for (let i = 0; i < daysDiff; i++) {
-				if (this.rangeSize() > 7) {
-					const localizedDate = moment(start).add(i, 'day').format('ll').split(' ');
-					daysLabels.push(localizedDate[0] + ' ' + localizedDate[1]);
-				} else {
-					daysLabels.push(this.$options.filters.ucfirst(moment(start).add(i, 'day').format('dddd')));
-				}
-			}
-			const tags = ['easy', 'unsure', 'hard'];
-			const colors = [
-				this.$vuetify.theme.themes.light.success,
-				this.$vuetify.theme.themes.light.warning,
-				this.$vuetify.theme.themes.light.error
-			];
-			for (let i = 0; i < 7; i++) {
-				colors.push('#' + Color.randomHex());
-			}
-
-			/**
-			 * Difficulty Overview Chart
-			 */
-			this.difficultyOverviewChart.datasets = [{
-				data: [
-					this.stats.totalTags.easy || 0,
-					this.stats.totalTags.unsure || 0,
-					this.stats.totalTags.hard || 0,
-					0, // Hack.. otherwise data won't show up
-				],
-				backgroundColor: [colors[0], colors[1], colors[2]]
-			}];
-
-			/**
-			 * Difficulty Details Chart
-			 */
-			this.difficultyChart.datasets = [];
-			for (let tagIdx = 0; tagIdx < tags.length; tagIdx++) {
-				const tag = tags[tagIdx];
-				const data = [];
-				for (let i = 0; i < daysDiff; i++) {
-					const day = moment(start).add(i, 'days').format('YYYY-MM-DD');
-					const dailyItem = this.stats.daily[day];
-					data.push(dailyItem ? dailyItem.totalTags[tag] || 0 : 0);
-				}
-
-				this.difficultyChart.datasets.push({
-					label: this.$t('dashboard.difficulties.' + tag),
-					backgroundColor: colors[tagIdx],
-					borderColor: 'transparent',
-					pointRadius: 0,
-					data,
-				});
-			}
-			this.difficultyChart.labels = daysLabels
-
-			/**
-			 * Interval Details Chart
-			 */
-			let data = [];
-			for (let i = 0; i < daysDiff; i++) {
-				const day = moment(start).add(i, 'days').format('YYYY-MM-DD');
-				const dailyItem = this.stats.daily[day];
-				data.push(dailyItem ? dailyItem.avgAnsweringTime || 0 : 0);
-			}
-			this.intervalChart.datasets = [{
-				label: this.$t('dashboard.avgTimeSpent'),
-				backgroundColor: Color.hexToRgba(colors[0]),
-				borderColor: Color.hexToRgba(colors[0]),
-				data,
-			}];
-			this.intervalChart.labels = daysLabels;
-
-			/**
-			 * Dataset Chart
-			 */
-			let datasetTypes = ['create', 'update', 'delete'];
-			this.datasetChart.datasets = [];
-			datasetTypes.forEach((type, typeIdx) => {
-				let data = [];
-				for (let i = 0; i < daysDiff; i++) {
-					const day = moment(start).add(i, 'days').format('YYYY-MM-DD');
-					const dailyItem = this.stats.datasets.daily[day];
-					data.push(dailyItem ? dailyItem.total[type] || 0 : 0);
-				}
-				this.datasetChart.datasets.push({
-					label: this.$t('dashboard.datasetChartLabels.' + type),
-					backgroundColor: Color.hexToRgba(colors[typeIdx]),
-					borderColor: Color.hexToRgba(colors[typeIdx]),
-					data,
-				});
-			});
-			this.datasetChart.labels = daysLabels;
-
-			/**
-			 * Endeavours Division Chart
-			 */
-			for(let type in this.stats.endeavours) {
-
-				this.endeavoursDivisionCharts[type].labels = [];
-				this.endeavoursDivisionCharts[type].datasets = [];
-
-				const endeavours = this.stats.endeavours[type];
-				if (type === 'total') {
-
-					if ((endeavours.strategies + endeavours.components + endeavours.datasets) > 0) {
-
-						this.endeavoursDivisionCharts[type].labels = [
-							this.$t('app.menuGroup.strategies'),
-							this.$t('app.menuGroup.components'),
-							this.$t('app.menuGroup.dataset'),
-						];
-						this.endeavoursDivisionCharts[type].datasets.push({ backgroundColor: [], data: []});
-						this.endeavoursDivisionCharts[type].datasets[0].backgroundColor = [colors[0], colors[1], colors[2]];
-						this.endeavoursDivisionCharts[type].datasets[0].data = [
-							endeavours.strategies,
-							endeavours.components,
-							endeavours.datasets,
-						];
-					}
-				} else {
-
-					// const orderedKeys = Object.keys(endeavours).sort((a,b) => {
-					// 	return endeavours[a] - endeavours[b];
-					// }).reverse();
-					const orderedKeys = Object.keys(endeavours);
-
-					if (orderedKeys.length > 0) {
-						this.endeavoursDivisionCharts[type].datasets.push({ backgroundColor: [], data: []});
-					}
-
-					let others = 0;
-					let maxItems = 15;
-					for (let i = 0; i < orderedKeys.length; i++) {
-						const key = orderedKeys[i];
-						const id = parseInt(key);
-						const item = this.$root[type].find(entry => entry.id === id);
-						if (item) {
-							const endeavour = endeavours[key];
-							if (i < maxItems) {
-								this.endeavoursDivisionCharts[type].labels.push(item.name);
-								this.endeavoursDivisionCharts[type].datasets[0].backgroundColor.push(item.color || colors[i]);
-								this.endeavoursDivisionCharts[type].datasets[0].data.push(endeavour);
-							} else {
-								if (i === maxItems) {
-									this.endeavoursDivisionCharts[type].labels.push(this.$t('dashboard.endeavours.others'));
-									this.endeavoursDivisionCharts[type].datasets[0].backgroundColor.push('#999');
-								}
-								others += endeavour;
-							}
-						}
-					}
-
-					if (orderedKeys.length > (maxItems - 1)) {
-						this.endeavoursDivisionCharts[type].datasets[0].data.push(others);
-					}
-				}
-			}
-		},
-
-		getNextSession() {
-
-			const events = this.getPlannedEvents(this.today, moment(this.today).add(1, 'month'));
-			if (events.length > 0) {
-				return events[0];
-			}
-		},
-
-		getCalendarStartDate() {
-
-			if (this.rangeSize > 7) {
-				return this.statsStartDate;
-			}
-
-			return moment().subtract(6, 'days').format('YYYY-MM-DD');
-		},
-
-		getCalendarEndDate() {
-
-			if (this.rangeSize > 7) {
-				return this.statsEndDate;
-			}
-
-			return moment().format('YYYY-MM-DD');
-		},
-	},
-
-	computed: {
-
-		newsContent() {
-			return this.news.data.content.find(content => content.language === this.$i18n.locale);
-		},
-
-		dataRangeContextual() {
-			return [
-				this.dataRange[0].format('YYYY-MM-DD'),
-				this.dataRange[1].format('YYYY-MM-DD')
-			];
-		},
-
-		hasDatasetStats() {
-			const total = this.stats.datasets.total;
-			return (total.create + total.delete + total.update) > 0;
-		},
-
-		hasEndeavoursStats() {
-			const total = this.stats.endeavours.total;
-			return (total.components + total.datasets + total.strategies) > 0;
-		},
-
-		firstInterval() {
-			let firstInterval = 24;
-			this.events.forEach(event => {
-				const startHour = moment(event.start).hour();
-				const endHour = moment(event.end).hour();
-
-				if (startHour === 0 && endHour === 0) {
-					return;
-				}
-
-				if (startHour < firstInterval) {
-					firstInterval = startHour;
-				}
-			});
-
-			if (firstInterval === -1) {
-				firstInterval = moment().hour();
-			}
-
-			return firstInterval;
-		},
-
-		intervalCount() {
-			let intervalCount = -1;
-			this.events.forEach(event => {
-				const startHour = moment(event.start).hour();
-				const endHour = moment(event.end).hour();
-
-				if (startHour === 0 && endHour === 0) {
-					return;
-				}
-
-				if (endHour > intervalCount) {
-					intervalCount = endHour + 1;
-				}
-			});
-
-			if (intervalCount === -1) {
-				intervalCount = moment().hour() + 5;
-			}
-
-			let count = intervalCount - this.firstInterval;
-			if (count < 5) {
-				count = 5;
-			}
-
-			return count;
-		},
-
-		next() {
-			const event = this.getNextSession();
-
-			if (!event) {
-				return;
-			}
-
-			const localizedDate = moment(event.startDay).format('ll').split(' ');
-			const isToday = event.startDay === this.today;
-			const isTomorrow = event.startDay === this.tomorrow;
-			const listeners = {};
-
-			if (isToday) {
-				listeners.click = () => {
-					this.accomplishStrategy = this.$root.strategies[0];
-					this.accomplishDialog.visible = true;
-				};
-			}
-
+		data() {
 			return {
-				...event,
-				isToday,
-				isTomorrow,
-				color: isToday ? event.color || 'primary' : 'grey darken-2',
-				dayMonth: localizedDate[0] + ' ' + localizedDate[1],
-				year: moment().format('YYYY'),
-				listeners,
-			};
-		}
-	},
-
-	data() {
-		const timeSpentTooltipsCallbacks = {
-			label(tooltipItem, data) {
-				let label = data.datasets[tooltipItem.datasetIndex].label || data.labels[tooltipItem.index];
-				const value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-				if (label) {
-					label += ': ';
-				}
-				let format = 's[s]';
-				if (value >= 10 * 60 * 60) {
-					format = 'HH[h]mm[m]ss[s]';
-				} else if (value >= 60 * 60) {
-					format = 'H[h]mm[m]ss[s]';
-				} else if (value >= 10 * 60) {
-					format = 'mm[m]ss[s]';
-				} else if (value >= 60) {
-					format = 'm[m]ss[s]';
-				} else if (value >= 10) {
-					format = 'ss[s]';
-				}
-
-				return label + moment().startOf('day').add(value, 'seconds').format(format);
-			}
-		};
-		return {
-			dataRange: [
-				moment().subtract(7, 'days'),
-				moment()
-			],
-			calendarType: 'custom-daily',
-			calendarStartDate: null,
-			calendarEndDate: null,
-			isLoading: false,
-			selectedStrategy: [],
-			accomplishStrategy: null,
-			accomplishDialog: { visible: false, pastFutureVisible: false, },
-			news: this.$route.meta.news,
-			strategies: this.$root.strategies,
-			components: this.$root.components,
-			datasets: this.$root.datasets,
-			stats: this.$route.meta.stats,
-			statsBySessionDate: {},
-			difficultyOverviewChart: {
-				labels: [
-					this.$t('dashboard.difficulties.easy'),
-					this.$t('dashboard.difficulties.unsure'),
-					this.$t('dashboard.difficulties.hard')
+				tab: 'stats',
+				today: moment().format('YYYY-MM-DD'),
+				stats: this.$route.meta.stats,
+				selectedSession: new Session(),
+				sessionLoading: false,
+				results: {
+					hard: [3, 5, 11, 17, 6, 9, 18, 14, 4, 12, 10, 8, 2, 1, 16, 7, 19, 15, 13, 20],
+					unsure: [13, 16, 17, 19, 15, 12, 10, 4, 3, 1, 14, 8, 5, 9, 11, 2, 18, 7, 6, 20],
+					success: [6, 16, 7, 10, 17, 5, 3, 8, 1, 4, 20, 13, 19, 2, 15, 18, 14, 11, 9, 12],
+				},
+				bg: {
+					error: Color.hexToRgba(this.$vuetify.theme.themes.light.error, 0.1),
+					warning: Color.hexToRgba(this.$vuetify.theme.themes.light.warning, 0.1),
+					success: Color.hexToRgba(this.$vuetify.theme.themes.light.success, 0.1),
+				},
+				words: [
+					['articulate', 'acquisition', 'rain', 'demand', 'nature', 'branch', 'apathy', 'capture', 'free', 'lack', 'temporary', 'gate', 'grow', 'turkey', 'ball', 'representative', 'convulsion', 'crosswalk', 'popular', 'fascinate', 'economist', 'qualification', 'compound', 'session', 'game',],
+					['aluminium', 'kneel', 'abuse', 'unlike', 'hold', 'bracket', 'risk', 'decline', 'whip', 'director', 'hell', 'occasion', 'assembly', 'ambition', 'beer', 'efflux', 'partner', 'lily', 'constellation', 'native', 'rice', 'paralyzed', 'indication', 'harass', 'tiger,',],
+					['skin', 'Koran', 'dealer', 'neighborhood', 'mouth', 'dance', 'number', 'design', 'pepper', 'superior', 'restless', 'hunter', 'rebel', 'spy', 'patience', 'bike', 'ignore', 'market', 'seem', 'trivial', 'condition', 'charge', 'award', 'attack', 'improvement',],
 				],
-				datasets: [],
-				options: {
-					legend: false,
-					scales: {
-						xAxes: [{
-							display: false,
-							gridLines: {
-								display:false
-							}
-						}],
-						yAxes: [{
-							gridLines: {
-								display:false
-							}
-						}]
-					},
+				wordsChart: {
+					labels: [],
+					datasets: [{
+						backgroundColor: [
+							this.$vuetify.theme.themes.light.success,
+							this.$vuetify.theme.themes.light.warning,
+							this.$vuetify.theme.themes.light.error
+						],
+						data: [3, 5, 7],
+					}],
+					options: {
+						tooltips: {
+							enabled: false,
+						},
+					}
 				},
-			},
-			difficultyChart: {
-				labels: [],
-				datasets: [],
-				options: {
+				launchSession: {
+					loading: false,
+					visible: false,
+					structure: new SessionStructure(),
+				},
+			}
+		},
 
-				},
-			},
-			intervalChart: {
-				labels: [],
-				datasets: [],
-				options: {
-					tooltips: {
-						callbacks: timeSpentTooltipsCallbacks
-					},
-				},
-			},
-			datasetChart: {
-				labels: [],
-				datasets: [],
-				options: {
+		watch: {
 
-				},
-			},
-			endeavoursDivisionCharts: {
-            	total: {
-					labels: [],
-					datasets: [{
-						backgroundColor: [],
-						data: [],
-					}],
-					options: {
-						title: {
-							display: true,
-							text: this.$t('dashboard.endeavoursDivisionChartTotal'),
-							position: 'bottom',
-						},
-						tooltips: {
-							callbacks: timeSpentTooltipsCallbacks
-						},
-						legend: {
-							position: 'bottom',
-						},
-					},
-				},
-            	strategies: {
-					labels: [],
-					datasets: [{
-						backgroundColor: [],
-						data: [],
-					}],
-					options: {
-						title: {
-							display: true,
-							text: this.$t('dashboard.endeavoursDivisionChartByStrategies'),
-							position: 'bottom',
-						},
-						tooltips: {
-							callbacks: timeSpentTooltipsCallbacks
-						},
-						legend: {
-							position: 'bottom',
-						},
-					},
-				},
-            	components: {
-					labels: [],
-					datasets: [{
-						backgroundColor: [],
-						data: [],
-					}],
-					options: {
-						title: {
-							display: true,
-							text: this.$t('dashboard.endeavoursDivisionChartByComponents'),
-							position: 'bottom',
-						},
-						tooltips: {
-							callbacks: timeSpentTooltipsCallbacks
-						},
-						legend: {
-							position: 'bottom',
-						},
-					},
-				},
-            	datasets: {
-					labels: [],
-					datasets: [{
-						backgroundColor: [],
-						data: [],
-					}],
-					options: {
-						// title: {
-						// 	display: true,
-						// 	text: this.$t('dashboard.endeavoursDivisionChartByDatasets'),
-						// 	position: 'bottom',
-						// },
-						tooltips: {
-							callbacks: timeSpentTooltipsCallbacks
-						},
-						legend: {
-							position: 'bottom',
-						},
-					},
-				},
-			},
-			events: [],
-			today: moment().format('YYYY-MM-DD'),
-			tomorrow: moment().add(1, 'day').format('YYYY-MM-DD'),
-			calendarValue: moment().format('YYYY-MM-DD'),
-			totalSecondsPerDate: {},
 		}
-	},
-
-	watch: {
-
-		dataRange(range) {
-			this.reload();
-		}
-	}
-});
+	});
 </script>
 
 <style lang="scss">
-	.theme--light.v-calendar-session {
-
-		.v-calendar-weekly__day-label,
-		.v-calendar-daily_head-day-label {
-			pointer-events: none;
-		}
-
-		.v-calendar-daily__day.v-past,
-		.v-calendar-daily__day.v-future {
-			background-color: rgba(0, 0, 0, 0.05);
-		}
-
-		.v-calendar-weekly__week .v-event,
-		.v-event-timed {
-			transition: all ease 0.3s;
-
-			.white--text,
-			&.white--text {
-				color: black !important;
-				border-color: #ccc !important;
-			}
-
-			&.white--text:hover {
-				border-color: #666 !important;
-			}
-		}
+	.session-status > div {
+		height: 3px;
 	}
-	.desc {
-		p:last-child {
-			margin-bottom: 0;
-		}
+	.session-status {
+		border-radius: 0 0 3px 3px !important;
+		overflow: hidden;
 	}
 </style>

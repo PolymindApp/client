@@ -3,8 +3,8 @@
 
 		<DeleteDialog ref="deleteModal" @delete="remove(true)" />
 
-		<!-- ACCOMPLISH DIALOG -->
-		<AccomplishStrategy :visible.sync="accomplishDialog.visible" :strategy="strategy" />
+		<!-- LAUNCH SESSION DIALOG -->
+		<LaunchSession :visible.sync="launchSessionDialog.visible" :strategy="strategy" />
 
 		<div ref="header">
 			<v-tabs style="flex: 0" v-model="tab" background-color="rgba(0, 0, 0, 0.1)" @change="updateTab()">
@@ -29,7 +29,7 @@
 						</v-chip>
 					</div>
 
-					<v-btn @click="accomplishDialog.visible = true" target="_blank" :disabled="!canTest" color="success" class="mr-2" small>
+					<v-btn @click="launchSessionDialog.visible = true" target="_blank" :disabled="!canTest" color="success" class="mr-2" small>
 						<v-icon left>mdi-play</v-icon>
 						<span v-text="$t('strategy.assembly.accomplish')"></span>
 					</v-btn>
@@ -127,7 +127,7 @@ import {StrategyService, Strategy, CommentService, DeploymentService, SessionStr
 import DeleteDialog from "../../components/DeleteDialog";
 import UserAvatar from "../../components/UserAvatar";
 import Assembly from "./Strategy/Assembly";
-import AccomplishStrategy from "../../components/AccomplishStrategy";
+import LaunchSession from "../../components/LaunchSession";
 
 let jsonJobTimeout = null;
 
@@ -153,7 +153,7 @@ const beforeRoute = function(to, from, callback) {
 
 export default Vue.extend({
 
-	components: { Settings, Assembly, DeleteDialog, UserAvatar, AccomplishStrategy },
+	components: { Settings, Assembly, DeleteDialog, UserAvatar, LaunchSession },
 
 	beforeRouteEnter(to, from, next) {
 		beforeRoute(to, from, (param) => next(param));
@@ -468,7 +468,7 @@ export default Vue.extend({
 			strategyJson: null,
 			originalStrategyJson: null,
 			commentCount: 0,
-			accomplishDialog: {
+			launchSessionDialog: {
 				visible: false,
 			},
 		}

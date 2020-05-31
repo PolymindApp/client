@@ -79,7 +79,7 @@ export default Vue.extend({
 			states: {
 			    general: {
 					dark: true,
-					backgroundColor: '#56BEBB',
+					backgroundColor: '#3AAFB5',
 					color: '',
 				},
 				terms: {
@@ -94,7 +94,7 @@ export default Vue.extend({
 				},
 				contact: {
 					dark: true,
-					backgroundColor: '#56BEBB',
+					backgroundColor: '#3AAFB5',
 					color: 'white',
 				}
 			}
