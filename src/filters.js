@@ -15,6 +15,10 @@ Vue.filter('daysFromToday', (value) => {
 	return a.diff(b, 'days');
 });
 
+Vue.filter('humanDate', value => {
+	return moment(value).format('LL');
+});
+
 Vue.filter('monthName', (value) => {
 	return moment().set('month', value).format('MMM');
 });
@@ -103,7 +107,7 @@ Vue.filter('buildIcon', (status) => {
 	return null;
 });
 
-Vue.filter('timeLeft', seconds => {
+Vue.filter('timeLeft', (seconds, spaced = true) => {
 
 	let hours = Math.floor(seconds / 3600);
 	let minutes = Math.floor((seconds - (hours * 3600)) / 60);
@@ -122,7 +126,10 @@ Vue.filter('timeLeft', seconds => {
 	}
 	else {
 		time += (seconds < 10) ? '0' + seconds : String(seconds);
-		time += ' s';
+	}
+
+	if (spaced === false) {
+		time = time.replace(/ /gim, '');
 	}
 
 	return time;

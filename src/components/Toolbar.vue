@@ -19,11 +19,7 @@
 			</v-btn>
 		</v-snackbar>
 
-		<v-app-bar dark :src="backgroundImage" app :class="collapse ? 'fullscreen' : null" :flat="collapse" :color="collapse ? 'transparent' : 'primary'" :collapse="collapse" :clipped-right="sidebar.permanent">
-
-			<template v-slot:img="{ props }">
-				<v-img v-bind="props" gradient="to bottom, rgba(86, 190, 187, 0.75), rgba(27, 142, 138, 0.75)"></v-img>
-			</template>
+		<v-app-bar dark app :class="collapse ? 'fullscreen' : null" :flat="collapse" :color="collapse ? 'transparent' : '#3CA0A8'" :collapse="collapse" :clipped-right="sidebar.permanent">
 
 			<!-- LEFT -->
 			<v-tooltip bottom v-if="(!sidebar.permanent && !collapse) || this.$vuetify.breakpoint.smAndDown">

@@ -3,11 +3,11 @@
 		<v-card>
 			<v-card-title class="headline">
 				<v-icon color="primary" slot="icon" size="36" left>mdi-timetable</v-icon>
-				<span v-text="$t('strategy.accomplishDialogTitle')"></span>
+				<span v-text="$t('strategy.launchSessionDialogTitle')"></span>
 			</v-card-title>
 
 			<v-card-text class="my-4">
-				<span v-text="$t('strategy.accomplishDialogDesc')"></span>
+				<span v-text="$t('strategy.launchSessionDialogDesc')"></span>
 			</v-card-text>
 
 			<v-card-actions>
@@ -26,11 +26,11 @@
 
 <script>
     import Vue from 'vue';
-    import { Strategy, SessionStructureService } from '@polymind/sdk-js';
+    import { Strategy, SessionStructureService, SessionStructure } from '@polymind/sdk-js';
 
     export default Vue.extend({
 
-        name: 'AccomplishStrategy',
+        name: 'LaunchSession',
 
         props: {
         	visible: {
@@ -40,7 +40,11 @@
 			strategy: {
         		type: Strategy,
 				default: () => new Strategy()
-			}
+			},
+			structure: {
+        		type: SessionStructure,
+				default: () => new SessionStructure()
+			},
 		},
 
         components: {},
@@ -71,7 +75,7 @@
 								win.focus();
 							}).finally(() => this.sessionAccomplishLoading = false);
 				} else {
-					this.accomplishDialog.visible = true;
+					this.launchSessionDialog.visible = true;
 				}
 			},
 		},

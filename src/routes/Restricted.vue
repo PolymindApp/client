@@ -1,5 +1,10 @@
 <template>
-	<v-app>
+	<v-app style="background-color: #9DCD7A">
+
+		<video class="background-video w-100" autoplay loop muted>
+			<source :src="video" type="video/mp4">
+			Your browser does not support the video tag.
+		</video>
 
 		<ErrorDialog :response="$root.error" />
 		<Modal :settings="$root.error" />
@@ -24,7 +29,7 @@
 		</v-overlay>
 
 		<v-fade-transition>
-			<v-container v-if="hasLoaded" fluid class="pa-4 fill-height d-flex flex-column main-container w-100" :style="{ backgroundImage: 'url(' + backgrounds[backgroundIdx] + ')' }">
+			<v-container v-if="hasLoaded" fluid class="pa-4 fill-height d-flex flex-column main-container w-100">
 
 				<div class="overlay"></div>
 
@@ -106,7 +111,7 @@
 			setTimeout(() => { this.showPanel = true; }, 750);
 			setTimeout(() => { this.hasLoaded = true; }, 0);
 
-			this.backgroundIdx = Math.round(Math.random() * (this.backgrounds.length - 1));
+			// this.backgroundIdx = Math.round(Math.random() * (this.backgrounds.length - 1));
 			// this.backgroundInterval = setInterval(() => {
 			// 	this.backgroundIdx++;
 			// 	if (this.backgroundIdx > this.backgrounds.length - 1) {
@@ -136,20 +141,21 @@
 
 		data: function() {
 			return {
+				video: 'https://polymind.s3.ca-central-1.amazonaws.com/assets/client/restricted-background.mp4',
 				version: process.env.VERSION,
-				backgroundInterval: null,
+				// backgroundInterval: null,
 				showLogo: false,
 				showPanel: false,
 				hasLoaded: false,
 				wwwUrl: process.env.VUE_APP_WWW_URL,
 				currentLang: this.$i18n.locale,
-				backgroundIdx: 0,
-				backgrounds: [
-					'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background.jpg',
-					// 'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-2.jpg',
-					'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-3.jpg',
-					'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-4.jpg',
-				],
+				// backgroundIdx: 0,
+				// backgrounds: [
+				// 	'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background.jpg',
+				// 	// 'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-2.jpg',
+				// 	'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-3.jpg',
+				// 	'https://polymind.s3.ca-central-1.amazonaws.com/assets/img/login-background-4.jpg',
+				// ],
 			};
 		},
 	});
@@ -170,7 +176,7 @@
 		background-size: cover;
 		background-position: center center;
 		position: relative;
-		z-index: 1;
+		z-index: 2;
 	}
 	.main-content::v-deep a {
 		color: white;
@@ -217,5 +223,13 @@
 		right: 1rem;
 		z-index: 1;
 		color: rgba(255, 255, 255, 0.1);
+	}
+
+	.background-video {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		z-index: 0;
 	}
 </style>
