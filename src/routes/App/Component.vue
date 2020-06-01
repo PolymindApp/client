@@ -475,7 +475,7 @@ export default Vue.extend({
 		lastBuildStatus(status) {
 			clearInterval(this.lookupInterval);
 			if (status === 'inprogress') {
-				setInterval(this.fetchBuildInfo, 30 * 1000);
+				this.lookupInterval = setInterval(this.fetchBuildInfo, 30 * 1000);
 			}
 		}
 	}
