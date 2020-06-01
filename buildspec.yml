@@ -4,14 +4,18 @@ phases:
   install:
     commands:
       - npm i npm@latest -g
-      - npm i yarn -g
-      - yarn config set ignore-engines true
   pre_build:
     commands:
-      # Copy VUE_APP_API_URL to API_URL so SDK can build properly
+      # Preparing SDK installation
+      - git clone $SDK_GIT_URL -b $SDK_GIT_BRANCH _sdkjs && cd _sdkjs
+      - # Copy VUE_APP_API_URL to API_URL so SDK can build properly
       - export API_URL=$VUE_APP_API_URL
-      - yarn add $SDK_PACKAGE_NAME --save
-      - yarn
+      - npm install --unsafe-perm && cd ..
+      # Proceed to normal dependencies installation
+      - npm install
+      - npm install PolymindApp/sdk-js#$SDK_GIT_BRANCH
+      # Move SDK build to node_modules
+      - mv _sdkjs/lib node_modules/@polymind/sdk-js/lib && rm -R _sdkjs
   build:
     commands:
       - npm run build
