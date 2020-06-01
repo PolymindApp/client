@@ -1,4 +1,4 @@
-<babeledit_project be_version="2.7.0" version="1.2">
+<babeledit_project version="1.2" be_version="2.7.0">
     <!--
 
     BabelEdit project file
@@ -10,7 +10,7 @@
     -->
     <preset_collections/>
     <framework>generic-json</framework>
-    <filename>locales.babel</filename>
+    <filename>client.babel</filename>
     <source_root_dir></source_root_dir>
     <folder_node>
         <name></name>
@@ -15598,48 +15598,6 @@
                 </translations>
             </concept_node>
             <concept_node>
-                <name>strategy.accomplishDialogDesc</name>
-                <definition_loaded>false</definition_loaded>
-                <description></description>
-                <comment></comment>
-                <default_text></default_text>
-                <translations>
-                    <translation>
-                        <language>en-US</language>
-                        <approved>false</approved>
-                    </translation>
-                    <translation>
-                        <language>es-ES</language>
-                        <approved>false</approved>
-                    </translation>
-                    <translation>
-                        <language>fr-FR</language>
-                        <approved>false</approved>
-                    </translation>
-                </translations>
-            </concept_node>
-            <concept_node>
-                <name>strategy.accomplishDialogTitle</name>
-                <definition_loaded>false</definition_loaded>
-                <description></description>
-                <comment></comment>
-                <default_text></default_text>
-                <translations>
-                    <translation>
-                        <language>en-US</language>
-                        <approved>false</approved>
-                    </translation>
-                    <translation>
-                        <language>es-ES</language>
-                        <approved>false</approved>
-                    </translation>
-                    <translation>
-                        <language>fr-FR</language>
-                        <approved>false</approved>
-                    </translation>
-                </translations>
-            </concept_node>
-            <concept_node>
                 <name>strategy.assembly.accomplish</name>
                 <definition_loaded>false</definition_loaded>
                 <description></description>
@@ -16334,6 +16292,48 @@
             </concept_node>
             <concept_node>
                 <name>strategy.isDeleted</name>
+                <definition_loaded>false</definition_loaded>
+                <description></description>
+                <comment></comment>
+                <default_text></default_text>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>es-ES</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-FR</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>strategy.launchSessionDialogDesc</name>
+                <definition_loaded>false</definition_loaded>
+                <description></description>
+                <comment></comment>
+                <default_text></default_text>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>es-ES</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-FR</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>strategy.launchSessionDialogTitle</name>
                 <definition_loaded>false</definition_loaded>
                 <description></description>
                 <comment></comment>
