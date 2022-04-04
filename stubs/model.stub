@@ -1,0 +1,27 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Models\Traits\HasUuid;
+use App\Models\Traits\HasCreatedUpdatedBy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class {{ class }} extends Model
+{
+    use HasFactory, HasUuid, HasCreatedUpdatedBy;
+
+    public bool $incrementing = false;
+
+    protected $fillable = [];
+
+    public function created_by()
+    {
+        return $this->belongsTo('App\Models\User', 'created_by');
+    }
+
+    public function updated_by()
+    {
+        return $this->belongsTo('App\Models\User', 'updated_by');
+    }
+}

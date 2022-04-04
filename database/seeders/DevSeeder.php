@@ -1,0 +1,28 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+class DevSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        DB::table('users')->insert([
+            'id' => Str::orderedUuid(),
+            'name' => 'Danny Coulombe',
+            'email' => 'danny@coulombe.dev',
+            'email_verified_at' => now(),
+            'password' => bcrypt('1q2w3e4r'),
+            'remember_token' => Str::random(10),
+            'created_at' => now(),
+        ]);
+    }
+}
