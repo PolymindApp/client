@@ -28,7 +28,7 @@
                     <span v-text="$t('btn.options')"></span>
                 </v-tooltip>
             </template>
-            <v-list class="text-nowrap">
+            <v-list class="text-no-wrap">
                 <portal-target name="options"></portal-target>
                 <v-list-item @click="handleSwitchThemeClick">
                     <v-list-item-icon>
