@@ -59,14 +59,10 @@
         </v-form>
 
         <!-- DESKTOP NAV -->
-        <portal to="toolbar_left">
+        <portal to="desktop_nav">
             <div class="d-flex align-center" style="gap: 1rem">
-                <DeckSelect v-if="$vuetify.breakpoint.mdAndUp" v-model="deck" route="deck.edit" style="width: 15rem" outlined dense global />
-
-                <v-btn color="primary" :to="{ name: 'deck.play', params: { uuid: deck && deck.id || 'unclassified' } }">
-                    <v-icon left>mdi-play</v-icon>
-                    <span v-text="$t('btn.play')"></span>
-                </v-btn>
+<!--                <DeckSelect v-model="deck" route="deck.edit" style="width: 15rem" outlined dense global />-->
+                <DesktopNav :deck="deck" background-color="transparent" />
             </div>
         </portal>
 
@@ -181,6 +177,7 @@ import CardEditorForm from '@/components/CardEditorForm';
 import CardListing from '@/components/CardListing';
 import DeckSelect from '@/components/breadcrumbs/DeckSelect';
 import MobileNav from '@/components/layout/MobileNav';
+import DesktopNav from '@/components/layout/DesktopNav';
 import BulkActionMenu from '@/components/BulkActionMenu';
 import VAutocomplete from 'vuetify/lib/components/VAutocomplete/VAutocomplete';
 import VSelect from 'vuetify/lib/components/VSelect/VSelect';
@@ -190,7 +187,7 @@ import Rules from "@/utils/Rules";
 export default {
 	name: 'Home',
 
-    components: { Modal, CardEditorForm, DeckSelect, CardListing, MobileNav, BulkActionMenu },
+    components: { Modal, CardEditorForm, DeckSelect, CardListing, MobileNav, BulkActionMenu, DesktopNav },
 
     data: () => ({
         skeleton: true,
@@ -244,6 +241,7 @@ export default {
     },
 
     methods: {
+
         handleSelectAll() {
             this.selected = this.cards.map(item => ({...item}));
         },

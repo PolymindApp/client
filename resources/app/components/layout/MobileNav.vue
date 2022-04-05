@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import EventBus from "@/utils/EventBus";
+
 export default {
     name: "MobileNav",
 

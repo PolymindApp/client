@@ -12,11 +12,7 @@
         </div>
 
         <template v-if="$vuetify.breakpoint.mdAndUp">
-            <portal-target name="toolbar_left"></portal-target>
-
-            <v-spacer />
-
-            <portal-target name="toolbar_middle"></portal-target>
+            <portal-target name="desktop_nav"></portal-target>
         </template>
 
         <v-spacer />
