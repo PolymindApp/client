@@ -4,7 +4,7 @@
         <!-- BREADCRUMBS -->
         <portal to="desktop_nav">
             <div class="d-flex align-center" style="gap: 1rem">
-<!--                <DeckSelect v-model="deck" route="deck.play" style="width: 15rem" outlined dense global />-->
+                <DeckSelect v-model="deck" route="deck.play" style="width: 25rem" outlined dense global />
                 <DesktopNav :deck="deck" background-color="transparent" />
             </div>
         </portal>
@@ -17,6 +17,12 @@
                 </v-list-item-icon>
                 <v-list-item-content v-text="$t('btn.playbackSettings')"></v-list-item-content>
             </v-list-item>
+<!--            <v-list-item :disabled="!canExport" @click="handleExportClick">-->
+<!--                <v-list-item-icon>-->
+<!--                    <v-icon>mdi-cloud-download-outline</v-icon>-->
+<!--                </v-list-item-icon>-->
+<!--                <v-list-item-content v-text="$t('btn.exportSession')"></v-list-item-content>-->
+<!--            </v-list-item>-->
             <v-divider class="my-2" />
         </portal>
 
@@ -135,13 +141,26 @@
             </template>
         </Modal>
 
+        <!-- EXPORT SESSION SETTINGS -->
+        <Modal v-model="exportSessionDialog.visible" :title="$t('deck.play.exportSessionDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
+            <template #body>
+                TBD
+            </template>
+            <template #buttons>
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="exportSessionDialog.loading" :disabled="exportSessionDialog.loading" color="primary" large @click="exportSession">
+                    <span v-text="$t('btn.export')"></span>
+                </v-btn>
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="exportSessionDialog.loading" outlined large @click="exportSessionDialog.visible = false">
+                    <span v-text="$t('btn.cancel')"></span>
+                </v-btn>
+            </template>
+        </Modal>
+
         <!-- LAYOUT -->
         <div style="flex: 1" class="fill-height w-100 d-flex flex-column align-content-between justify-center">
             <v-row style="flex: 0" class="pa-4">
                 <v-col cols="4"></v-col>
-                <v-col cols="4" class="text-center">
-
-                </v-col>
+                <v-col cols="4" class="text-center"></v-col>
                 <v-col cols="4"></v-col>
             </v-row>
             <div style="flex: 1" class="pa-4 d-flex align-center justify-space-between">
@@ -244,11 +263,12 @@ export default {
         showBack: false,
         cards: [],
         originalCards: [],
-        index: 0,
+        index: -1,
         progress: 0,
         repeat: 0,
         deck: null,
         settings: {},
+        audios: {},
         startTime: new Date(),
         pauseTime: new Date(),
         playbackSettingsDialog: {
@@ -256,11 +276,16 @@ export default {
             saving: false,
             data: {},
         },
+        exportSessionDialog: {
+            visible: false,
+            loading: false,
+            data: {},
+        },
     }),
 
     computed: {
         canGoPrevious() {
-            return !this.loading && !this.skeleton && this.cards.length > 1 && this.playing;
+            return !this.loading && !this.skeleton && this.cards.length > 1 && !this.firstPlay;
         },
 
         canPlay() {
@@ -272,7 +297,7 @@ export default {
         },
 
         canGoNext() {
-            return !this.loading && !this.skeleton && this.cards.length > 1 && this.playing;
+            return !this.loading && !this.skeleton && this.cards.length > 1 && !this.firstPlay;
         },
 
         canRemove() {
@@ -280,6 +305,10 @@ export default {
         },
 
         canAdjustPlaybackSettings() {
+            return !this.skeleton && this.originalCards.length > 0;
+        },
+
+        canExport() {
             return !this.skeleton && this.originalCards.length > 0;
         },
 
@@ -298,7 +327,24 @@ export default {
         },
 
         totalDelay() {
-            return this.settings.delay * (this.settings.mode === null ? 2 : 1)  * 1000;
+            return (this.settings.delay
+                * (this.settings.mode === null ? 2 : 1) * 1000)
+                + ((this.currentAudio.front || {}).duration || 0)
+                + ((this.currentAudio.back || {}).duration || 0);
+        },
+
+        isFirstSide() {
+            return (!this.settings.flipped && this.showFront)
+                || (this.settings.flipped && this.showBack);
+        },
+
+        isOtherSide() {
+            return (!this.settings.flipped && this.showBack)
+                || (this.settings.flipped && this.showFront);
+        },
+
+        currentAudio() {
+            return (this.audios[(this.cards[this.index] || {}).id] || {});
         },
 
         _cards() {
@@ -309,7 +355,18 @@ export default {
     watch: {
         index: {
             immediate: true,
-            handler() {
+            handler(newValue, oldValue) {
+
+                if (oldValue) {
+                    const audio = this.audios[(this.cards[oldValue] || {}).id] || {};
+                    if (audio.front) {
+                        audio.front.element.pause();
+                    }
+                    if (audio.back) {
+                        audio.back.element.pause();
+                    }
+                }
+
                 this.setFirstSide(this.settings.mode !== 'back');
                 this.setOtherSide(this.settings.mode === 'back');
             },
@@ -317,6 +374,15 @@ export default {
     },
 
     methods: {
+
+        handleExportClick() {
+            Object.assign(this.exportSessionDialog, {
+                visible: true,
+                loading: false,
+                data: {},
+            });
+        },
+
         handlePlaybackSettingsClick() {
             Object.assign(this.playbackSettingsDialog, {
                 visible: true,
@@ -340,6 +406,11 @@ export default {
         },
 
         handlePlayClick() {
+
+            if (this.firstPlay) {
+                this.index = 0;
+            }
+
             this.play();
         },
 
@@ -370,12 +441,13 @@ export default {
         },
 
         onFrame() {
-            if (!this.playing) {
+            if (!this.playing || this._isBeingDestroyed) {
                 return false;
             }
 
             const nowTime = new Date().getTime();
             const remainingTime = this.endTime.getTime() - nowTime;
+            const originalRange = this.endTime.getTime() - this.startTime.getTime();
             if (remainingTime <= 0) {
                 this.next();
                 this.setFirstSide(this.settings.mode !== 'back');
@@ -383,9 +455,12 @@ export default {
             } else {
                 this.progress = (this.totalDelay - remainingTime) * 100 / this.totalDelay;
 
-                if (this.progress >= 50 && this.settings.mode === null) {
-                    this.setFirstSide(this.settings.mode === 'back');
-                    this.setOtherSide(this.settings.mode !== 'back');
+                if (this.settings.mode === null) {
+                    const midProgress = originalRange - ((this.currentAudio.front || {}).duration || 0) - (this.settings.delay * 1000);
+                    if (!this.isOtherSide && remainingTime < midProgress) {
+                        this.setFirstSide(this.settings.mode === 'back');
+                        this.setOtherSide(this.settings.mode !== 'back');
+                    }
                 }
             }
 
@@ -422,6 +497,7 @@ export default {
         play() {
             this.playing = true;
             this.firstPlay = false;
+            this.setFirstSide(true);
 
             const date = new Date();
             if (this.pauseTime) {
@@ -444,8 +520,9 @@ export default {
                         cards,
                         originalCards: this.$deepClone(cards),
                     });
-                    this.skeleton = false;
+                    return this.calculateAudioLength(cards);
                 })
+                .then(() => this.skeleton = false)
                 .catch(this.$handleError)
                 .finally(() => this.loading = false);
         },
@@ -462,13 +539,21 @@ export default {
         setFirstSide(visible) {
             if (this.settings.flipped) {
                 this.showBack = visible;
-                if (this.settings.backVoiceEnabled) {
-                    //TODO
+                if (visible && this.settings.backVoiceEnabled) {
+                    const audio = this.currentAudio.back;
+                    if (audio) {
+                        audio.element.currentTime = 0;
+                        audio.element.play();
+                    }
                 }
             } else {
                 this.showFront = visible;
-                if (this.settings.frontVoiceEnabled) {
-                    //TODO
+                if (visible && this.settings.frontVoiceEnabled) {
+                    const audio = this.currentAudio.front;
+                    if (audio) {
+                        audio.element.currentTime = 0;
+                        audio.element.play();
+                    }
                 }
             }
         },
@@ -476,15 +561,65 @@ export default {
         setOtherSide(visible) {
             if (this.settings.flipped) {
                 this.showFront = visible;
-                if (this.settings.frontVoiceEnabled) {
-                    //TODO
+                if (visible && this.settings.frontVoiceEnabled) {
+                    const audio = this.currentAudio.front;
+                    if (audio) {
+                        audio.element.currentTime = 0;
+                        audio.element.play();
+                    }
                 }
             } else {
                 this.showBack = visible;
-                if (this.settings.backVoiceEnabled) {
-                    //TODO
+                if (visible && this.settings.backVoiceEnabled) {
+                    const audio = this.currentAudio.back;
+                    if (audio) {
+                        audio.element.currentTime = 0;
+                        audio.element.play();
+                    }
                 }
             }
+        },
+
+        calculateAudioLength(cards) {
+            return new Promise((resolve, reject) => {
+                let toDo = 0;
+                let completed = 0;
+                cards.forEach(card => {
+                    ['front', 'back'].forEach(side => {
+                        const key = side + '_synthesized';
+                        if (card[key]) {
+                            toDo++;
+
+                            const element = new Audio(card[key]);
+                            if (!this.audios[card.id]) {
+                                this.audios[card.id] = {};
+                            }
+
+                            this.audios[card.id][side] = {
+                                element,
+                                duration: 0,
+                            }
+
+                            element.onloadedmetadata = () => {
+                                this.audios[card.id][side].duration = element.duration;
+                                completed++;
+
+                                if (completed === toDo) {
+                                    resolve();
+                                }
+                            };
+                        }
+
+                        if (completed === toDo) {
+                            resolve();
+                        }
+                    });
+                });
+            });
+        },
+
+        exportSession() {
+            this.exportSessionDialog.visible = false;
         },
     },
 

@@ -61,7 +61,7 @@
         <!-- DESKTOP NAV -->
         <portal to="desktop_nav">
             <div class="d-flex align-center" style="gap: 1rem">
-<!--                <DeckSelect v-model="deck" route="deck.edit" style="width: 15rem" outlined dense global />-->
+                <DeckSelect v-model="deck" route="deck.edit" style="width: 25rem" outlined dense global />
                 <DesktopNav :deck="deck" background-color="transparent" />
             </div>
         </portal>
@@ -160,11 +160,14 @@
                         :cards.sync="cards"
                         :selected.sync="selected"
                         :voices="_voices"
-                        :btn-attrs="{ block: true, large: true }"
+                        :btn-attrs="{ block: true, large: true, outlined: !$vuetify.theme.dark }"
                         top
                         offset-y
                         @update="resetVoices"
                     />
+                    <v-btn class="mt-2" text large block @click="selected = []">
+                        <span v-text="$t('btn.cancel')"></span>
+                    </v-btn>
                 </v-sheet>
             </v-sheet>
         </v-container>
