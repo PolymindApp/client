@@ -5,7 +5,7 @@
                 <v-list-item class="pt-4 d-flex align-center">
                     <div class="d-flex align-center justify-center no-select" style="flex: 1">
                         <img :src="logo" height="37" class="mr-3" />
-                        <div class="title">Polymind</div>
+                        <div class="title mb-n1">Polymind</div>
                     </div>
                     <v-btn @click.prevent="_value = false" icon>
                         <v-icon>mdi-close</v-icon>

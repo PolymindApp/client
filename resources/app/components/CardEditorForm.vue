@@ -315,9 +315,11 @@ export default {
             clearTimeout(this.inputFocusedTimeout);
             this.$root.inputFocused = true;
         },
+
         handleBlur() {
             this.inputFocusedTimeout = setTimeout(() => this.$root.inputFocused = false);
         },
+
         handleBeforeRecord(voice, callback = () => ({})) {
             return new Promise((resolve, reject) => {
                 if (!voice) {

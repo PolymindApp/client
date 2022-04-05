@@ -35,3 +35,9 @@
 .no-select, .no-select * {
     user-select: none;
 }
+
+@media all and (max-width: 767px) {
+    .v-tooltip__content {
+        display: none !important;
+    }
+}

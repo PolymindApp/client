@@ -1,5 +1,15 @@
 <template>
-    <v-container class="fill-height pa-0 d-flex flex-column" fluid v-bind="$attrs" v-on="$listeners">
+    <v-container class="fill-height pa-0 d-flex flex-column" fluid v-bind="$attrs" v-on="$listeners" v-touch="{
+        left: handleSwipeLeft,
+        right: handleSwipeRight,
+    }">
+
+        <!-- SHORTCUTS -->
+        <Keypress v-if="canGoPrevious" key-event="keyup" :key-code="37" @success="handlePrevClick" />
+        <Keypress v-if="canGoNext" key-event="keyup" :key-code="39" @success="handleNextClick" />
+        <Keypress v-if="canRemove" key-event="keyup" :key-code="27" @success="handleRemoveClick" />
+        <Keypress v-if="canPlay" key-event="keyup" :key-code="32" @success="handlePlayClick" />
+        <Keypress v-else-if="canPause" key-event="keyup" :key-code="32" @success="handlePauseClick" />
 
         <!-- BREADCRUMBS -->
         <portal to="desktop_nav">
@@ -157,12 +167,14 @@
         </Modal>
 
         <!-- LAYOUT -->
-        <div style="flex: 1" class="fill-height w-100 d-flex flex-column align-content-between justify-center">
-            <v-row style="flex: 0" class="pa-4">
-                <v-col cols="4"></v-col>
-                <v-col cols="4" class="text-center"></v-col>
-                <v-col cols="4"></v-col>
-            </v-row>
+        <div style="flex: 1" class="w-100 fill-height d-flex flex-column align-content-between justify-center">
+            <v-container style="flex: 0" class="pa-4" fluid>
+                <v-row>
+                    <v-col cols="4"></v-col>
+                    <v-col cols="4" class="text-center"></v-col>
+                    <v-col cols="4"></v-col>
+                </v-row>
+            </v-container>
             <div style="flex: 1" class="pa-4 d-flex align-center justify-space-between">
                 <v-btn v-if="showNavigation" :disabled="!canGoPrevious" height="30vh" text x-large @click="handlePrevClick">
                     <v-icon size="7.5vh">mdi-chevron-left</v-icon>
@@ -194,29 +206,32 @@
                     <v-icon size="7.5vh">mdi-chevron-right</v-icon>
                 </v-btn>
             </div>
-            <v-row style="flex: 0" class="pa-4">
-                <v-col cols="3" class="d-flex align-center justify-start">
-                    <v-expand-transition>
-                        <v-btn v-if="!firstPlay" icon :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
-                            <v-icon v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
-                        </v-btn>
-                    </v-expand-transition>
-                </v-col>
-                <v-col cols="6" class="d-flex align-center justify-center text-center">
-                    <span v-if="cards.length > 0" v-text="$t('deck.play.indexOf', {
-                        current: index + 1,
-                        total: cards.length,
-                    })"></span>
-                    <span v-else-if="cards.length < originalCards.length" v-text="$t('deck.play.noCardsLeft')"></span>
-                </v-col>
-                <v-col cols="3" class="d-flex align-center justify-end">
-                    <v-expand-transition>
-                        <v-btn v-if="!firstPlay" icon :disabled="!canRemove" @click="handleRemoveClick">
-                            <v-icon>mdi-close-box-outline</v-icon>
-                        </v-btn>
-                    </v-expand-transition>
-                </v-col>
-            </v-row>
+            <v-container style="flex: 0" class="pa-4" fluid>
+                <v-row>
+                    <v-col cols="3" class="d-flex align-center justify-start">
+                        <v-expand-transition>
+                            <v-btn v-if="!firstPlay" icon :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
+                                <v-icon v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
+                            </v-btn>
+                        </v-expand-transition>
+                    </v-col>
+                    <v-col cols="6" class="d-flex align-center justify-center text-center">
+                        <span v-if="firstPlay"></span>
+                        <span v-else-if="cards.length > 0" v-text="$t('deck.play.indexOf', {
+                            current: index + 1,
+                            total: cards.length,
+                        })"></span>
+                        <span v-else-if="cards.length < originalCards.length" v-text="$t('deck.play.noCardsLeft')"></span>
+                    </v-col>
+                    <v-col cols="3" class="d-flex align-center justify-end">
+                        <v-expand-transition>
+                            <v-btn v-if="!firstPlay" icon :disabled="!canRemove" @click="handleRemoveClick">
+                                <v-icon>mdi-close-box-outline</v-icon>
+                            </v-btn>
+                        </v-expand-transition>
+                    </v-col>
+                </v-row>
+            </v-container>
             <v-expand-transition>
                 <v-progress-linear v-if="showProgress" :value="progress" height="5" />
             </v-expand-transition>
@@ -235,6 +250,7 @@ import MobileNav from '@/components/layout/MobileNav';
 import DesktopNav from '@/components/layout/DesktopNav';
 import Modal from '@/components/generic/Modal';
 import Services from "@/utils/Services";
+import Keypress from 'vue-keypress';
 
 let autoPlayBus;
 const defaultSettings = {
@@ -250,7 +266,7 @@ const defaultSettings = {
 export default {
     name: "Play",
 
-    components: { DeckSelect, MobileNav, Modal, DesktopNav },
+    components: { DeckSelect, MobileNav, Modal, DesktopNav, Keypress },
 
     data: () => ({
         loading: false,
@@ -374,6 +390,25 @@ export default {
     },
 
     methods: {
+        handleKeyPress(event) {
+            console.log(event.which);
+            switch (event.which) {
+                case 'Arrow_Left':
+                    break;
+            }
+        },
+
+        handleSwipeLeft() {
+            if (this.canGoPrevious) {
+                this.prev();
+            }
+        },
+
+        handleSwipeRight() {
+            if (this.canGoNext) {
+                this.next();
+            }
+        },
 
         handleExportClick() {
             Object.assign(this.exportSessionDialog, {
@@ -427,7 +462,11 @@ export default {
             if (this.index === -1) {
                 this.playing = false;
                 this.completed = true;
+            } else {
+                this.setFirstSide(this.settings.mode !== 'back');
+                this.setOtherSide(this.settings.mode === 'back');
             }
+
             this.resetTime(new Date());
         },
 
@@ -438,6 +477,8 @@ export default {
         resetTime(date) {
             this.startTime = date;
             this.endTime = new Date(date.getTime() + this.totalDelay);
+            this.progress = 0;
+            this.pauseTime = null;
         },
 
         onFrame() {
@@ -497,7 +538,6 @@ export default {
         play() {
             this.playing = true;
             this.firstPlay = false;
-            this.setFirstSide(true);
 
             const date = new Date();
             if (this.pauseTime) {
@@ -615,6 +655,10 @@ export default {
                         }
                     });
                 });
+
+                if (cards.length === 0) {
+                    resolve();
+                }
             });
         },
 

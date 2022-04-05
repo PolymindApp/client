@@ -8,7 +8,7 @@
 
         <div class="d-flex align-center mr-3 px-md-6 no-select" x-large text>
             <v-img :src="logo" width="2rem" class="mr-3" />
-            <div class="title">Polymind</div>
+            <div class="title mb-n1">Polymind</div>
         </div>
 
         <template v-if="$vuetify.breakpoint.mdAndUp">

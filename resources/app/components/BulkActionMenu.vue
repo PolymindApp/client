@@ -14,7 +14,24 @@
                     outlined
                     required
                     clearable
-                />
+                >
+                    <template #append>
+                        <div class="d-flex align-center" style="margin-top: -6px">
+                            <v-tooltip bottom>
+                                <template #activator="{ attrs, on }">
+                                    <MicAudioRecorder v-model="editDialog.data[index].front_synthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(editDialog.data[index].front_voice_id, () => editDialog.data[index].front_voice_id = null)" :disabled="!canRecord(editDialog.data[index].front_voice_id)" icon />
+                                </template>
+                                <span v-text="$t('btn.record')"></span>
+                            </v-tooltip>
+                            <v-tooltip bottom>
+                                <template #activator="{ attrs, on }">
+                                    <PlayAudioBtn v-model="editDialog.data[index].front_synthesized" tabindex="-1" v-bind="attrs" v-on="on" />
+                                </template>
+                                <span v-text="$t('btn.listen')"></span>
+                            </v-tooltip>
+                        </div>
+                    </template>
+                </v-text-field>
 
                 <v-text-field
                     v-model="editDialog.data[index].back"
@@ -25,7 +42,24 @@
                     outlined
                     required
                     clearable
-                />
+                >
+                    <template #append>
+                        <div class="d-flex align-center" style="margin-top: -6px">
+                            <v-tooltip bottom>
+                                <template #activator="{ attrs, on }">
+                                    <MicAudioRecorder v-model="editDialog.data[index].back_synthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(editDialog.data[index].back_voice_id, () => editDialog.data[index].back_voice_id = null)" :disabled="!canRecord(editDialog.data[index].back_voice_id)" icon />
+                                </template>
+                                <span v-text="$t('btn.record')"></span>
+                            </v-tooltip>
+                            <v-tooltip bottom>
+                                <template #activator="{ attrs, on }">
+                                    <PlayAudioBtn v-model="editDialog.data[index].back_synthesized" tabindex="-1" v-bind="attrs" v-on="on" />
+                                </template>
+                                <span v-text="$t('btn.listen')"></span>
+                            </v-tooltip>
+                        </div>
+                    </template>
+                </v-text-field>
 
                 <component
                     v-model="editDialog.data[index].front_voice_id"
@@ -40,6 +74,7 @@
                     outlined
                     clearable
                 />
+
                 <component
                     v-model="editDialog.data[index].back_voice_id"
                     :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
@@ -158,6 +193,8 @@
 <script>
 import Modal from "./generic/Modal";
 import DeckSelect from "./breadcrumbs/DeckSelect";
+import MicAudioRecorder from "./audio/MicAudioRecorder";
+import PlayAudioBtn from "./audio/PlayAudioBtn";
 import Services from "../utils/Services";
 import VAutocomplete from 'vuetify/lib/components/VAutocomplete/VAutocomplete';
 import VSelect from 'vuetify/lib/components/VSelect/VSelect';
@@ -166,7 +203,7 @@ import Rules from "@/utils/Rules";
 export default {
     name: "BulkActionMenu",
 
-    components: { Modal, DeckSelect },
+    components: { Modal, DeckSelect, MicAudioRecorder, PlayAudioBtn },
 
     props: {
         selected: {
@@ -345,6 +382,25 @@ export default {
             );
         },
 
+        handleBeforeRecord(voice, callback = () => ({})) {
+            return new Promise((resolve, reject) => {
+                if (!voice) {
+                    resolve();
+                } else {
+                    this.$confirm(
+                        this.$i18n.t('cardEditorForm.confirmBeforeRecord.title'),
+                        this.$i18n.t('cardEditorForm.confirmBeforeRecord.body'),
+                        this.$i18n.t('btn.continue'),
+                        (modal, btn) => {
+                            callback()
+                            modal.visible = false;
+                            resolve();
+                        }
+                    )
+                }
+            });
+        },
+
         update(mapper = item => item) {
             const cards = this.selected.map(mapper);
 
@@ -425,6 +481,10 @@ export default {
         removeSelected() {
             this._cards = this.cards.filter(item => !this.selected.find(selected => selected.id === item.id));
             this._selected = [];
+        },
+
+        canRecord(voice) {
+            return !this.loading;
         },
     },
 
