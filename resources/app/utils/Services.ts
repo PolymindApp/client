@@ -203,6 +203,13 @@ export default class Services {
 	}
 
 	/**
+	 * Create new card
+	 */
+	static bulkCreateCards(cards: any[]): Promise<any> {
+		return Query.post('/card/bulk', cards);
+	}
+
+	/**
 	 * Update specific card
 	 */
 	static updateCard(card: any): Promise<any> {

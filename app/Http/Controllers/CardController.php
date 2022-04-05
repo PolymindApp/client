@@ -43,6 +43,21 @@ class CardController extends Controller
     }
 
     /**
+     * Bulk store resources in storage.
+     *
+     * @param  Request  $request
+     * @return Response
+     */
+    public function bulkStore(Request $request): Response
+    {
+        $newCards = [];
+        foreach($request->all() as $data) {
+            $newCards[] = Card::find(Card::create($data)->id);
+        }
+        return response($newCards);
+    }
+
+    /**
      * Display the specified resource.
      *
      * @param  string  $id
@@ -68,7 +83,7 @@ class CardController extends Controller
     }
 
     /**
-     * Bulk update the specified resource in storage.
+     * Bulk update the specified resources in storage.
      *
      * @param  Request  $request
      * @return Response
@@ -96,7 +111,7 @@ class CardController extends Controller
     }
 
     /**
-     * Bulk remove the specified resource from storage.
+     * Bulk remove the specified resources from storage.
      *
      * @param  array  $ids
      * @return Response

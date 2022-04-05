@@ -95,8 +95,24 @@
             </template>
         </Modal>
 
+        <!-- BULK COPY TO -->
+        <Modal v-model="copyToDialog.visible" :title="$t('bulkActionMenu.copyToDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
+            <template #body>
+                <DeckSelect v-model="copyToDialog.deck" :exclude="copyToDialog.exclude" outlined />
+            </template>
+            <template #buttons>
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="bulking" :disabled="bulking || copyToDialog.deck === copyToDialog.exclude[0]" color="primary" large @click="handleCopyToComplete">
+                    <v-icon left>mdi-content-copy</v-icon>
+                    <span v-text="$t('btn.copy')"></span>
+                </v-btn>
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="bulking" outlined large @click="copyToDialog.visible = false">
+                    <span v-text="$t('btn.cancel')"></span>
+                </v-btn>
+            </template>
+        </Modal>
+
         <!-- BULK MENU -->
-        <v-menu v-bind="$attrs" v-on="$listeners">
+        <v-menu v-bind="$attrs" v-on="$listeners" transition="slide-y-reverse-transition" nudge-top="15">
             <template #activator="{ on, attrs }">
                 <v-btn v-bind="{ ...attrs, ...btnAttrs }" v-on="{ ...on, ...btnOn }" :disabled="selected.length === 0">
                     <span v-text="$t('menu.bulk')"></span>
@@ -121,6 +137,12 @@
                         <v-icon>mdi-file-move-outline</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title v-text="$t('btn.moveTo')"></v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="handleCopyTo">
+                    <v-list-item-icon>
+                        <v-icon>mdi-content-copy</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title v-text="$t('btn.copyTo')"></v-list-item-title>
                 </v-list-item>
                 <v-list-item @click="handleDelete">
                     <v-list-item-icon>
@@ -179,6 +201,12 @@ export default {
             data: [],
         },
         moveToDialog: {
+            visible: false,
+            formErrors: {},
+            exclude: [],
+            deck: null,
+        },
+        copyToDialog: {
             visible: false,
             formErrors: {},
             exclude: [],
@@ -271,6 +299,14 @@ export default {
             });
         },
 
+        handleCopyTo() {
+            Object.assign(this.copyToDialog, {
+                visible: true,
+                deck: null,
+                exclude: [this.selected[0].deck_id],
+            });
+        },
+
         handleMoveToComplete() {
             const deckId = this.moveToDialog.deck && this.moveToDialog.deck.id || null;
             this.edit(selected => ({
@@ -280,6 +316,17 @@ export default {
                 .then(() => {
                     this.moveToDialog.visible = false;
                     this.removeSelected();
+                });
+        },
+
+        handleCopyToComplete() {
+            const deckId = this.copyToDialog.deck && this.copyToDialog.deck.id || null;
+            this.create(selected => ({
+                ...selected,
+                deck_id: deckId,
+            }))
+                .then(() => {
+                    this.copyToDialog.visible = false;
                 });
         },
 
@@ -324,6 +371,18 @@ export default {
                 .then(() => {
                     this.$snack(this.$i18n.t('snack.cardBulkEdited'));
                 });
+        },
+
+        create(mapper) {
+            const cards = this.selected.map(mapper);
+
+            this.bulking = true;
+            return Services.bulkCreateCards(cards)
+                .then(() => {
+                    this.$snack(this.$i18n.t('snack.cardBulkCopied'));
+                })
+                .catch(this.$handleError)
+                .finally(() => this.bulking = false);
         },
 
         flip() {

@@ -39,6 +39,7 @@ Route::group(['middleware' => ['auth:sanctum', 'verified', 'lang']], function() 
     Route::get('/language', [LanguageController::class, 'index']);
     Route::get('/voice', [VoiceController::class, 'index']);
     Route::resource('deck', DeckController::class);
+    Route::post('/card/bulk', [CardController::class, 'bulkStore']);
     Route::put('/card/bulk', [CardController::class, 'bulkUpdate']);
     Route::delete('/card/bulk', [CardController::class, 'bulkDestroy']);
     Route::resource('card', CardController::class);
