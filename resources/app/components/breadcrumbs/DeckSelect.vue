@@ -1,19 +1,17 @@
 <template>
-    <div>
-        <v-select
-            v-model="_value"
-            :items="_decks"
-            :placeholder="'- ' + $t('placeholder.select') + ' -'"
-            item-text="name"
-            item-value="id"
-            prepend-inner-icon="mdi-cards"
-            hide-details
-            return-object
-            v-bind="$attrs"
-            v-on="$listeners"
-            @change="handleDeckSelect"
-        />
-    </div>
+    <v-select
+        v-model="_value"
+        :items="_decks"
+        :placeholder="'- ' + $t('placeholder.select') + ' -'"
+        item-text="name"
+        item-value="id"
+        prepend-inner-icon="mdi-cards"
+        hide-details
+        return-object
+        v-bind="$attrs"
+        v-on="$listeners"
+        @change="handleDeckSelect"
+    />
 </template>
 
 <script>
@@ -33,6 +31,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        exclude: {
+            type: Array,
+            default: null,
+        },
         global: {
             type: Boolean,
             default: false,
@@ -49,9 +51,12 @@ export default {
             },
         },
         _decks() {
-            return this.skipCurrent
+            const decks = (this.skipCurrent
                 ? this.$root.decks.filter(deck => deck.id !== (this.value && this.value.id))
-                : this.$root.decks;
+                : this.$root.decks);
+            return this.exclude
+                ? decks.filter(deck => this.exclude.indexOf(deck.id) === -1)
+                : decks;
         }
     },
 

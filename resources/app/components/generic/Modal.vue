@@ -1,6 +1,6 @@
 <template>
 	<v-dialog v-model="_value" v-bind="$attrs" v-on="$listeners" :persistent="disabled">
-		<v-card :color="color" :disabled="disabled" class="d-flex flex-column">
+		<v-card :color="color" :disabled="disabled" :tile="$vuetify.breakpoint.smAndDown" class="d-flex flex-column">
 			<v-card-title class="d-flex align-center flex-nowrap justify-space-between background">
 				<slot name="title">
 					<div class="d-flex align-center overflow-hidden">
@@ -85,6 +85,9 @@ export default {
         if (!this.$slots.buttons && this.buttons.length === 0) {
             this.buttons.push({
                 text: this.$i18n.t('btn.close'),
+                attrs: {
+                    outlined: true,
+                },
                 events: {
                     click: () => {
                         this._value = false;

@@ -82,10 +82,10 @@
         <!-- BULK MOVE TO -->
         <Modal v-model="moveToDialog.visible" :title="$t('bulkActionMenu.moveToDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
             <template #body>
-                <DeckSelect v-model="moveToDialog.deck" skip-current outlined />
+                <DeckSelect v-model="moveToDialog.deck" :exclude="moveToDialog.exclude" outlined />
             </template>
             <template #buttons>
-                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="bulking" :disabled="bulking || !moveToDialog.deck" color="primary" large @click="handleMoveToComplete">
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="bulking" :disabled="bulking || moveToDialog.deck === moveToDialog.exclude[0]" color="primary" large @click="handleMoveToComplete">
                     <v-icon left>mdi-file-move-outline</v-icon>
                     <span v-text="$t('btn.move')"></span>
                 </v-btn>
@@ -181,6 +181,7 @@ export default {
         moveToDialog: {
             visible: false,
             formErrors: {},
+            exclude: [],
             deck: null,
         },
         VAutocomplete,
@@ -222,12 +223,14 @@ export default {
                 this.index = this.selected.length - 1;
             }
         },
+
         handleNext() {
             this.index++;
             if (this.index > this.selected.length - 1) {
                 this.index = 0;
             }
         },
+
         handleEdit() {
             Object.assign(this.editDialog, {
                 visible: true,
@@ -236,7 +239,10 @@ export default {
         },
 
         handleEditComplete() {
-            this.edit(this.editDialog.data)
+            this.edit((selected, index) => ({
+                ...selected,
+                ...this.editDialog.data[index],
+            }))
                 .then(() => {
                     this.editDialog.visible = false;
                 });
@@ -261,14 +267,16 @@ export default {
             Object.assign(this.moveToDialog, {
                 visible: true,
                 deck: null,
+                exclude: [this.selected[0].deck_id],
             });
         },
 
         handleMoveToComplete() {
             const deckId = this.moveToDialog.deck && this.moveToDialog.deck.id || null;
-            this.edit({
+            this.edit(selected => ({
+                ...selected,
                 deck_id: deckId,
-            })
+            }))
                 .then(() => {
                     this.moveToDialog.visible = false;
                     this.removeSelected();
@@ -311,11 +319,8 @@ export default {
                 .finally(() => this.bulking = false);
         },
 
-        edit(data) {
-            return this.update(selected => ({
-                ...selected,
-                ...data,
-            }))
+        edit(mapper) {
+            return this.update(mapper)
                 .then(() => {
                     this.$snack(this.$i18n.t('snack.cardBulkEdited'));
                 });
