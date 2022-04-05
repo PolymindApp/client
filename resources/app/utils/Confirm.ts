@@ -31,6 +31,7 @@ export default {
                 ],
                 attrs: {
                     maxWidth: 500,
+                    dense: true,
                     ...attrs
                 },
             })

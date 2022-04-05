@@ -387,8 +387,6 @@ export default {
                 (modal, btn) => {
                     btn.attrs.loading = true;
                     modal.disabled = true;
-                }, {
-                    dark: true,
                 }
             );
         },

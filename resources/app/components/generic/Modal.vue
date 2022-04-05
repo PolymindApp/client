@@ -1,7 +1,10 @@
 <template>
 	<v-dialog v-model="_value" v-bind="$attrs" v-on="$listeners" :persistent="disabled">
 		<v-card :color="color" :disabled="disabled" :tile="$vuetify.breakpoint.smAndDown" class="d-flex flex-column">
-			<v-card-title class="d-flex align-center flex-nowrap justify-space-between background">
+			<v-card-title :class="{
+                'd-flex align-center flex-nowrap justify-space-between': true,
+                'background': !dense,
+			}">
 				<slot name="title">
 					<div class="d-flex align-center overflow-hidden">
 						<v-icon v-if="icon" left v-text="icon"></v-icon>
@@ -12,13 +15,16 @@
 					<v-icon>mdi-close</v-icon>
 				</v-btn>
 			</v-card-title>
-			<v-card-text class="py-8" style="flex: 1">
+			<v-card-text :class="{ 'py-8': !dense }" style="flex: 1">
 				<slot name="body">
 					<div v-html="body"></div>
 				</slot>
 			</v-card-text>
             <v-divider></v-divider>
-            <v-card-actions class="background py-4 py-md-2">
+            <v-card-actions :class="{
+                'py-4 py-md-2': true,
+                'background': !dense,
+            }">
                 <slot name="actions">
                     <div class="d-flex flex-column flex-md-row w-100 justify-end" style="gap: 0.5rem">
                         <slot name="buttons">
@@ -45,6 +51,10 @@ export default {
 			default: false,
 		},
 		disabled: {
+			type: Boolean,
+			default: false,
+		},
+		dense: {
 			type: Boolean,
 			default: false,
 		},

@@ -289,9 +289,7 @@ export default {
                         this.$snack(this.$i18n.t('deck.deleteConfirm.deleted'));
                         modal.visible = false;
                     });
-                }, {
-                    dark: true,
-                },
+                }
             );
         },
 

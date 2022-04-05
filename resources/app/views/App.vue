@@ -118,8 +118,6 @@ export default Vue.extend({
                         })
                         .catch(this.$handleError)
                         .finally(() => btn.attrs.loading = false);
-                }, {
-                    dark: true,
                 }
             );
 		},
