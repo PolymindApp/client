@@ -60,7 +60,7 @@
                             version,
                             year,
                         })"></span>
-                        <br><span v-text="$t('footer.allRights')"></span>
+                        <span v-text="$t('footer.allRights')"></span>
                     </div>
                 </div>
             </v-sheet>

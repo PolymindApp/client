@@ -1,5 +1,5 @@
 <template>
-    <v-form v-bind="$attrs" v-on="$listeners">
+    <v-form v-bind="$attrs" v-on="$listeners" @submit.prevent="handleSubmit">
         <v-card :flat="$vuetify.breakpoint.smAndDown" :tile="$vuetify.breakpoint.smAndDown">
             <v-expand-transition>
                 <v-row v-if="!$vuetify.breakpoint.smAndDown || !$root.inputFocused" style="position: relative" no-gutters>
@@ -143,7 +143,7 @@
             </v-row>
             <v-sheet color="surface" class="pa-3 d-flex align-center justify-space-between">
                 <div class="w-100 d-flex d-md-block" style="gap: 1rem">
-                    <v-btn style="flex: 1" color="primary" :disabled="!canAdd" :loading="adding" @click="handleAddClick">
+                    <v-btn type="submit" style="flex: 1" color="primary" :disabled="!canAdd" :loading="adding" @click="handleSubmit">
                         <v-icon left>mdi-plus</v-icon>
                         <span v-text="$t('btn.add')"></span>
                     </v-btn>
@@ -358,7 +358,7 @@ export default {
             this._voiceFront = oldBackVoice;
         },
 
-        handleAddClick() {
+        handleSubmit() {
             this.adding = true;
             Services.createCard(
                 this._front,

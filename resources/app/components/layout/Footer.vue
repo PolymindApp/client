@@ -4,7 +4,6 @@
             <span v-text="$t('footer.copyright', {
                 name: 'Polymind',
                 version,
-                year,
             })"></span>
             &nbsp;<span v-text="$t('footer.allRights')"></span>
         </div>
