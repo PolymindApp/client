@@ -11,9 +11,10 @@
         <Keypress v-if="canPlay" key-event="keyup" :key-code="32" @success="handlePlayClick" />
         <Keypress v-else-if="canPause" key-event="keyup" :key-code="32" @success="handlePauseClick" />
 
+        <!-- TITLE -->
         <portal v-if="$vuetify.breakpoint.smAndDown" to="title">
             <v-app-bar-title>
-                <span v-text="deck.name"></span>
+                <span v-text="deck && deck.name || $t('state.unclassified')"></span>
             </v-app-bar-title>
         </portal>
 

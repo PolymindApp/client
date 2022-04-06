@@ -58,6 +58,13 @@
             </Modal>
         </v-form>
 
+        <!-- TITLE -->
+        <portal v-if="$vuetify.breakpoint.smAndDown" to="title">
+            <v-app-bar-title>
+                <span v-text="deck && deck.name || $t('state.unclassified')"></span>
+            </v-app-bar-title>
+        </portal>
+
         <!-- DESKTOP NAV -->
         <portal to="desktop_nav">
             <div class="d-flex align-center" style="gap: 1rem">
