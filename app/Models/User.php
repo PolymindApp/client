@@ -13,7 +13,6 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasUuid, HasFactory, Notifiable;
 
-    public $incrementing = false;
     protected $primaryKey = 'id';
     protected $keyType = 'uuid';
 
