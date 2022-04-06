@@ -1,7 +1,7 @@
 export default class Query {
 
 	static prefix: string|undefined = process.env.NODE_ENV === 'production'
-		? process.env.VUE_APP_API_ENDPOINT
+		? '/api'
 		: '/api';
 
 	static doCall(path: string, method = 'GET', body?: any, params?: any): Promise<any> {
