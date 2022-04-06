@@ -40,7 +40,6 @@
 		/>
 
 		<v-btn type="button" color="primary" :disabled="!canSubmit" :loading="loading" block @click="handleFormSubmit">
-			<v-icon left>mdi-lock-reset</v-icon>
 			<span v-text="$t('resetPassword.btn')"></span>
 		</v-btn>
 

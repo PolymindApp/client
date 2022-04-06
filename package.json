@@ -1,6 +1,10 @@
 {
     "version": "0.3.2-beta",
     "private": true,
+    "author": {
+        "name" : "Danny Coulombe",
+        "url" : "https://www.coulombe.dev"
+    },
     "scripts": {
         "dev": "npm run development",
         "development": "mix",

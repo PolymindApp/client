@@ -19,9 +19,8 @@
 			<v-sheet class="h-100 d-flex flex-column py-4 py-md-0" :color="background">
 				<v-sheet color="transparent" class="h-100 d-flex align-center justify-center" style="flex: 1">
 					<v-card :max-width="maxWidth" class="text-center w-100" :tile="flat" :flat="flat">
-						<LanguageSwitcher id="lang" v-model="lang" class="ma-4" menu-props="left" abbreviation dense hide-details />
 						<v-card-text class="d-flex flex-column align-center" :style="logoStyle">
-							<v-img :src="logo" max-width="150" height="150" contain />
+							<v-img :src="logo" :max-width="logoSize" :height="logoSize" contain />
 							<h1 class="primary--text display-1 mt-2" style="flex: 1" v-text="$t('restricted.title.' + $route.name)">Polymind</h1>
 						</v-card-text>
 						<v-card-text>
@@ -30,14 +29,20 @@
 					</v-card>
 				</v-sheet>
 
-				<v-footer :color="background" class="d-block d-md-flex text-center justify-md-space-between justify-center caption">
+				<v-footer :color="$vuetify.theme.dark ? 'transparent' : background" class="d-block d-md-flex text-center justify-md-space-between justify-center caption">
+                    <div v-if="$vuetify.breakpoint.smAndDown" class="d-flex justify-center">
+                        <LanguageSwitcher v-model="lang" class="ma-4 mr-2" menu-props="auto" style="max-width: 6rem" abbreviation dense hide-details />
+                    </div>
 					<span v-text="$t('footer.copyrightNoVersion', {
 						name: 'Polymind',
 						year,
 					})"></span>
-					<span v-text="$t('footer.version', {
-						version,
-					})"></span>
+                    <div class="d-flex align-center justify-center text-no-wrap" style="flex: 0">
+                        <LanguageSwitcher v-if="$vuetify.breakpoint.mdAndUp" v-model="lang" class="ma-4" menu-props="left" abbreviation dense hide-details />
+                        <span v-text="$t('footer.version', {
+                            version,
+                        })"></span>
+                    </div>
 				</v-footer>
 			</v-sheet>
 		</v-main>
@@ -72,7 +77,9 @@ export default Vue.extend({
 			return this.$vuetify.breakpoint.smAndDown;
 		},
 		background() {
-			return this.$vuetify.breakpoint.smAndDown ? 'white' : 'background';
+			return this.$vuetify.breakpoint.smAndDown
+                ? (this.$vuetify.theme.dark ? null : 'white')
+                : 'background';
 		},
 		maxWidth() {
 			return this.$vuetify.breakpoint.mdAndUp ? 350 : null;
@@ -81,6 +88,11 @@ export default Vue.extend({
 			return this.$vuetify.breakpoint.mdAndUp
 				? 'transform: translateY(-75px); margin-bottom: -75px'
 				: null;
+		},
+        logoSize() {
+			return this.$vuetify.breakpoint.mdAndUp
+				? 150
+				: 75;
 		},
 	},
 
@@ -97,12 +109,3 @@ export default Vue.extend({
 	},
 });
 </script>
-
-<style lang="scss" scoped>
-#lang {
-	position: absolute;
-	right: 0;
-	width: min-content;
-	z-index: 1;
-}
-</style>

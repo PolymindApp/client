@@ -9,6 +9,10 @@ class Voice extends Model
 {
     use HasFactory;
 
+    protected $with = [
+        'language',
+    ];
+
     public function language(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo('App\Models\Language', 'language_id');

@@ -39,12 +39,10 @@
 		</div>
 
 		<v-btn class="mt-4" tabindex="3" type="submit" color="primary" :disabled="!canSubmit" :loading="loading" block @click="handleFormSubmit">
-			<v-icon left>mdi-login-variant</v-icon>
 			<span v-text="$t('login.btn')"></span>
 		</v-btn>
 
 		<v-btn class="mt-4" tabindex="4" color="primary" block outlined :to="{ name: 'register' }">
-			<v-icon left>mdi-account-plus-outline</v-icon>
 			<span v-text="$t('btn.createAccount')"></span>
 		</v-btn>
 	</v-form>

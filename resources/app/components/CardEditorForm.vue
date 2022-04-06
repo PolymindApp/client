@@ -52,7 +52,7 @@
             <v-divider v-if="!$vuetify.breakpoint.smAndDown || !$root.inputFocused" /> <!-- NEEDS TO BE HERE -->
             <v-row no-gutters>
                 <v-col cols="12" md="6" class="pa-3 d-flex d-md-block">
-                    <v-textarea
+                    <v-text-field
                         ref="front"
                         v-model="_front"
                         :placeholder="$t('translateForm.frontPlaceholder')"
@@ -61,6 +61,7 @@
                         :height="$vuetify.breakpoint.mdAndUp ? 100 : 70"
                         :loading="loading"
                         :disabled="loading"
+                        class="main-input"
                         no-resize
                         solo
                         flat
@@ -98,7 +99,7 @@
                 </v-col>
                 <v-divider v-if="$vuetify.breakpoint.mdAndUp" vertical />
                 <v-col cols="12" md="6" class="pa-3 d-flex d-md-block">
-                    <v-textarea
+                    <v-text-field
                         ref="back"
                         v-model="_back"
                         :placeholder="$t('translateForm.backPlaceholder')"
@@ -106,6 +107,7 @@
                         :height="$vuetify.breakpoint.mdAndUp ? 100 : 70"
                         :loading="loading"
                         :disabled="loading"
+                        class="main-input"
                         no-resize
                         solo
                         flat
@@ -414,3 +416,10 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+.main-input ::v-deep .v-input__slot {
+    align-items: start;
+    padding-top: 0.5rem !important;
+}
+</style>

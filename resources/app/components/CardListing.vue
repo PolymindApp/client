@@ -88,7 +88,7 @@ const ItemSide = {
         <PlayAudioBtn v-model="audio" tabindex="-1" />
       </div>
       <div style="line-height: 1rem" class="overflow-hidden">
-        <div class="font-weight-bold" v-text="value"></div>
+        <div class="font-weight-bold two-lines-truncate" v-text="value"></div>
         <div v-if="voice" class="text-truncate mb-n1">
           <small class="opacity-33">
             <span v-text="voice.language.name"></span>

@@ -85,7 +85,7 @@
 	"footer.copyright": "Copyright © {year} {name} v{version}.",
 	"footer.copyrightNoVersion": "Copyright © {year} {name}.",
 	"footer.version": "Version {version}",
-	"forgotPassword.btn": "Request password reset",
+	"forgotPassword.btn": "Request password",
 	"forgotPassword.requestSent": "If an account was associated with the email you provided, you should receive an email containing your password reset request.",
 	"header.back": "Back",
 	"header.createdAt": "Created at",

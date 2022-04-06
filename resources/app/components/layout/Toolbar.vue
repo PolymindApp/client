@@ -6,13 +6,15 @@
 
         <v-spacer v-if="$vuetify.breakpoint.smAndDown" />
 
-        <div class="d-flex align-center mr-3 px-md-6 no-select" x-large text>
-            <v-img :src="logo" width="2rem" class="mr-3" />
-            <div class="title mb-n1">Polymind</div>
-        </div>
+        <portal-target name="title" slim>
+            <div class="d-flex align-center mr-3 px-md-6 no-select" x-large text>
+                <v-img :src="logo" width="2rem" class="mr-3" />
+                <div class="title mb-n1">Polymind</div>
+            </div>
+        </portal-target>
 
         <template v-if="$vuetify.breakpoint.mdAndUp">
-            <portal-target name="desktop_nav"></portal-target>
+            <portal-target name="desktop_nav" slim></portal-target>
         </template>
 
         <v-spacer />
@@ -47,8 +49,6 @@ import logoDark from '@/assets/images/polymind-dark.svg'
 
 export default {
     name: "Toolbar",
-
-    data: () => ({}),
 
     computed: {
         logo() {

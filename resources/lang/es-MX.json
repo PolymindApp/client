@@ -85,7 +85,7 @@
 	"footer.copyright": "Derechos de autor © {year} {name} v{version}.",
 	"footer.copyrightNoVersion": "Derechos de autor © {year} {name}.",
 	"footer.version": "Versión {version}",
-	"forgotPassword.btn": "Recuperar la contraseña",
+	"forgotPassword.btn": "Recuperar",
 	"forgotPassword.requestSent": "Si se asoció una cuenta con el correo electrónico que proporcionó, debería recibir un correo electrónico con su solicitud de restablecimiento de contraseña.",
 	"header.back": "Atrás",
 	"header.createdAt": "Creado en",

@@ -11,6 +11,12 @@
         <Keypress v-if="canPlay" key-event="keyup" :key-code="32" @success="handlePlayClick" />
         <Keypress v-else-if="canPause" key-event="keyup" :key-code="32" @success="handlePauseClick" />
 
+        <portal v-if="$vuetify.breakpoint.smAndDown" to="title">
+            <v-app-bar-title>
+                <span v-text="deck.name"></span>
+            </v-app-bar-title>
+        </portal>
+
         <!-- BREADCRUMBS -->
         <portal to="desktop_nav">
             <div class="d-flex align-center" style="gap: 1rem">
@@ -195,10 +201,10 @@
                     </v-btn>
                     <template v-else>
                         <transition name="slide">
-                            <h1 class="text-h4 text-md-h3 text-lg-h2 abs_middle" v-if="!firstPlay && showFront" v-text="_cards[index].front"></h1>
+                            <h1 class="text-center px-4 text-h4 text-md-h3 text-lg-h2 abs_middle" v-if="!firstPlay && showFront" v-text="_cards[index].front"></h1>
                         </transition>
                         <transition name="slide">
-                            <h1 class="text-h3 text-md-h2 text-lg-h1 abs_middle primary--text" v-if="!firstPlay && showBack" v-text="_cards[index].back"></h1>
+                            <h1 class="text-center px-4 text-h3 text-md-h2 text-lg-h1 abs_middle primary--text" v-if="!firstPlay && showBack" v-text="_cards[index].back"></h1>
                         </transition>
                     </template>
                 </div>

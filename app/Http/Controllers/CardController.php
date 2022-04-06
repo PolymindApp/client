@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Card;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Voice;
+use App\Http\Helpers\Polly;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -38,7 +39,18 @@ class CardController extends Controller
             'back' => 'string|required',
         ]);
 
-        $card = Card::find(Card::create($request->all())->id);
+        $data = $request->all();
+        $polly = new Polly();
+        foreach(['front', 'back'] as $side) {
+            $voiceId = $data[$side . '_voice_id'] ?? null;
+            if ($voiceId) {
+                $voice = Voice::find($voiceId);
+                $stream = $polly->getDataStream($data[$side], $voice->language->code, $voice->name);
+                $data[$side . '_synthesized'] = 'data:audio/mp3;base64,' . base64_encode($stream);
+            }
+        }
+
+        $card = Card::find(Card::create($data)->id);
         return response($card);
     }
 

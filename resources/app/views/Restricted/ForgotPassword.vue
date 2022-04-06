@@ -21,7 +21,6 @@
 		/>
 
 		<v-btn type="button" color="primary" :disabled="!canSubmit" :loading="loading" block @click="handleFormSubmit">
-			<v-icon left>mdi-email-send-outline</v-icon>
 			<span v-text="$t('forgotPassword.btn')"></span>
 		</v-btn>
 

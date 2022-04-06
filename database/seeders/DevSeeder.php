@@ -17,10 +17,10 @@ class DevSeeder extends Seeder
     {
         DB::table('users')->insert([
             'id' => Str::orderedUuid(),
-            'name' => 'Danny Coulombe',
-            'email' => 'danny@coulombe.dev',
+            'name' => 'Administrator',
+            'email' => 'admin@polymind.app',
             'email_verified_at' => now(),
-            'password' => bcrypt('1q2w3e4r'),
+            'password' => bcrypt('polymind'),
             'remember_token' => Str::random(10),
             'created_at' => now(),
         ]);

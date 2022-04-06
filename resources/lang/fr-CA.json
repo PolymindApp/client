@@ -85,7 +85,7 @@
 	"footer.copyright": "Droits d'auteur © {year} {name} v{version}.",
 	"footer.copyrightNoVersion": "Droits d'auteur © {year} {name}.",
 	"footer.version": "Version {version}",
-	"forgotPassword.btn": "Réinitialiser le mot de passe",
+	"forgotPassword.btn": "Réinitialiser",
 	"forgotPassword.requestSent": "Si un compte était associé à l'adresse courriel que vous avez fourni, vous devriez recevoir un courriel contenant votre demande de réinitialisation de mot de passe.",
 	"header.back": "Verso",
 	"header.createdAt": "Créé à",

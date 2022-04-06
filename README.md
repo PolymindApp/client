@@ -19,10 +19,21 @@ Written in PHP and JavaScript, it uses Laravel, VueJS and Vuetify as frameworks.
 
 ### Setup your environment
 
-1) Create a copy of ```.env.example``` and name it ```.env```. Adjust the settings according to your current setup.
+1) Create a copy of ```.env.example```, name it ```.env``` and adjust the settings according to your current setup.
 2) Run ```composer install``` in the root directory.
 3) Run ```npm install``` or ```yarn``` in the root directory.
-4) Run ```php artisan migrate``` in order to create the database.
+4) Run the following commands to initiate the database:
+```
+php artisan migrate:fresh
+php artisan db:seed --class=LanguageSeeder
+php artisan db:seed --class=VoiceSeeder
+```
+
+### Setup AWS
+
+1) Create a new IAM user of type ```Programmatic access```.
+2) Attach the existing policy ```AmazonPollyFullAccess``` to the user.
+3) Copy-paste the access and secret key into your ```.env``` file.
 
 ### Launch the application
 

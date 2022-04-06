@@ -47,21 +47,20 @@
 			@input="handleInput"
 		/>
 
-		<v-checkbox
-			v-model="acceptTerms"
-			class="mt-0 pt-0"
-			tabindex="4"
-			:rules="[rules.true]"
-		>
-			<template #label>
-				<i18n path="register.acceptTerms" tag="label">
-					<a v-text="$t('register.acceptTermsText')" @click.stop="$emit('terms')"></a>
-				</i18n>
-			</template>
-		</v-checkbox>
+<!--		<v-checkbox-->
+<!--			v-model="acceptTerms"-->
+<!--			class="mt-0 pt-0"-->
+<!--			tabindex="4"-->
+<!--			:rules="[rules.true]"-->
+<!--		>-->
+<!--			<template #label>-->
+<!--				<i18n path="register.acceptTerms" tag="label">-->
+<!--					<a v-text="$t('register.acceptTermsText')" @click.stop="$emit('terms')"></a>-->
+<!--				</i18n>-->
+<!--			</template>-->
+<!--		</v-checkbox>-->
 
 		<v-btn class="mt-4" tabindex="5" type="submit" color="primary" :disabled="!canSubmit" :loading="loading" block @click="handleFormSubmit">
-			<v-icon left>mdi-login-variant</v-icon>
 			<span v-text="$t('btn.register')"></span>
 		</v-btn>
 
@@ -93,7 +92,7 @@ export default Vue.extend({
 			password: '',
 			confirmation: '',
 		},
-		acceptTerms: false,
+		// acceptTerms: false,
 	}),
 
 	computed: {
