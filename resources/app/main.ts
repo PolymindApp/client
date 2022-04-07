@@ -20,7 +20,7 @@ import { RouteConfig } from "vue-router/types/router"
 import '@mdi/font/scss/materialdesignicons.scss'
 import './filters'
 import './index.scss'
-import './registerServiceWorker'
+// import './registerServiceWorker'
 
 Vue.config.productionTip = false
 
