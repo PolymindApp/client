@@ -407,13 +407,13 @@ export default {
 
         handleSwipeLeft() {
             if (this.canGoPrevious) {
-                this.prev();
+                this.next();
             }
         },
 
         handleSwipeRight() {
             if (this.canGoNext) {
-                this.next();
+                this.prev();
             }
         },
 
