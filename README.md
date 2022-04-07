@@ -28,6 +28,7 @@ php artisan migrate:fresh
 php artisan db:seed --class=LanguageSeeder
 php artisan db:seed --class=VoiceSeeder
 ```
+5) Run ```npm run build```.
 
 ### Setup AWS
 
@@ -45,7 +46,6 @@ php artisan serve
 If you want to make modifications to the UI, also run:
 ```
 npm run hot
-# or yarn hot
 ```
 
 ## License
