@@ -3,6 +3,7 @@
 namespace App\Http\Helpers;
 
 use Aws\Polly\PollyClient;
+use Illuminate\Support\Str;
 
 class Polly
 {
@@ -25,12 +26,12 @@ class Polly
     public function getDataStream($text, $locale, $voiceId, $standard = true)
     {
         $result = $this->client->synthesizeSpeech([
-            'Engine' => 'standard',
+            'Engine' => $standard ? 'standard' : 'neural',
             'LanguageCode' => $locale,
             'OutputFormat' => 'mp3',
             'Text' => '<speak>' . $text . '</speak>',
             'TextType' => 'ssml',
-            'VoiceId' => $voiceId,
+            'VoiceId' => Str::ascii($voiceId),
         ]);
 
         return $result->get('AudioStream')->getContents();

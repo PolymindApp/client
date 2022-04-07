@@ -91,7 +91,6 @@
             </template>
             <template #buttons>
                 <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="bulking" :disabled="bulking" color="primary" large @click="handleEditComplete">
-                    <v-icon left>mdi-content-save</v-icon>
                     <span v-text="$t('btn.save')"></span>
                 </v-btn>
                 <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="bulking" outlined large @click="editDialog.visible = false">
@@ -117,11 +116,24 @@
         <!-- BULK MOVE TO -->
         <Modal v-model="moveToDialog.visible" :title="$t('bulkActionMenu.moveToDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
             <template #body>
-                <DeckSelect v-model="moveToDialog.deck" :exclude="moveToDialog.exclude" outlined />
+                <DeckSelect v-model="moveToDialog.deck" :exclude="moveToDialog.exclude" outlined include-new />
+                <template v-if="moveToDialog.deck && moveToDialog.deck.id === '__new__'">
+                    <v-text-field
+                        v-model="moveToDialog.newDeck.name"
+                        :error-messages="moveToDialog.formErrors.newDeck"
+                        :label="$t('field.name')"
+                        :rules="[rules.required]"
+                        :loading="bulking"
+                        autofocus
+                        class="mt-8"
+                        outlined
+                        required
+                        clearable
+                    />
+                </template>
             </template>
             <template #buttons>
-                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="bulking" :disabled="bulking || moveToDialog.deck === moveToDialog.exclude[0]" color="primary" large @click="handleMoveToComplete">
-                    <v-icon left>mdi-file-move-outline</v-icon>
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="bulking" :disabled="!canMoveTo" color="primary" large @click="handleMoveToComplete">
                     <span v-text="$t('btn.move')"></span>
                 </v-btn>
                 <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="bulking" outlined large @click="moveToDialog.visible = false">
@@ -133,11 +145,24 @@
         <!-- BULK COPY TO -->
         <Modal v-model="copyToDialog.visible" :title="$t('bulkActionMenu.copyToDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
             <template #body>
-                <DeckSelect v-model="copyToDialog.deck" :exclude="copyToDialog.exclude" outlined />
+                <DeckSelect v-model="copyToDialog.deck" :exclude="copyToDialog.exclude" outlined include-new />
+                <template v-if="copyToDialog.deck && copyToDialog.deck.id === '__new__'">
+                    <v-text-field
+                        v-model="copyToDialog.newDeck.name"
+                        :error-messages="copyToDialog.formErrors.newDeck"
+                        :label="$t('field.name')"
+                        :rules="[rules.required]"
+                        :loading="bulking"
+                        autofocus
+                        class="mt-8"
+                        outlined
+                        required
+                        clearable
+                    />
+                </template>
             </template>
             <template #buttons>
-                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="bulking" :disabled="bulking || copyToDialog.deck === copyToDialog.exclude[0]" color="primary" large @click="handleCopyToComplete">
-                    <v-icon left>mdi-content-copy</v-icon>
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="bulking" :disabled="!canCopyTo" color="primary" large @click="handleCopyToComplete">
                     <span v-text="$t('btn.copy')"></span>
                 </v-btn>
                 <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="bulking" outlined large @click="copyToDialog.visible = false">
@@ -242,12 +267,14 @@ export default {
             formErrors: {},
             exclude: [],
             deck: null,
+            newDeck: {},
         },
         copyToDialog: {
             visible: false,
             formErrors: {},
             exclude: [],
             deck: null,
+            newDeck: {},
         },
         VAutocomplete,
         VSelect,
@@ -270,6 +297,24 @@ export default {
             set(value) {
                 this.$emit('update:selected', value);
             },
+        },
+        canMoveTo() {
+            const deckId = this.moveToDialog.deck ? this.moveToDialog.deck.id : null;
+            return !this.bulking
+                && this.moveToDialog.exclude.indexOf(deckId) === -1
+                && (
+                    deckId !== '__new__'
+                    || (this.moveToDialog.newDeck.name || '').trim() !== ''
+                );
+        },
+        canCopyTo() {
+            const deckId = this.copyToDialog.deck ? this.copyToDialog.deck.id : null;
+            return !this.bulking
+                && this.copyToDialog.exclude.indexOf(deckId) === -1
+                && (
+                    deckId !== '__new__'
+                    || (this.copyToDialog.newDeck.name || '').trim() !== ''
+                );
         },
     },
 
@@ -332,6 +377,11 @@ export default {
             Object.assign(this.moveToDialog, {
                 visible: true,
                 deck: null,
+                newDeck: {
+                    name: null,
+                    default_front_language_id: null,
+                    default_back_language_id: null,
+                },
                 exclude: [this.selected[0].deck_id],
             });
         },
@@ -340,31 +390,60 @@ export default {
             Object.assign(this.copyToDialog, {
                 visible: true,
                 deck: null,
+                newDeck: {
+                    name: null,
+                    default_front_language_id: null,
+                    default_back_language_id: null,
+                },
                 exclude: [this.selected[0].deck_id],
             });
         },
 
         handleMoveToComplete() {
-            const deckId = this.moveToDialog.deck && this.moveToDialog.deck.id || null;
-            this.edit(selected => ({
-                ...selected,
-                deck_id: deckId,
-            }))
-                .then(() => {
-                    this.moveToDialog.visible = false;
-                    this.removeSelected();
-                });
+            const callback = () => {
+                const deckId = this.moveToDialog.deck && this.moveToDialog.deck.id || null;
+                this.edit(selected => ({
+                    ...selected,
+                    deck_id: deckId,
+                }))
+                    .then(() => {
+                        this.moveToDialog.visible = false;
+                        this.removeSelected();
+                    });
+            }
+
+            if (this.moveToDialog.deck && this.moveToDialog.deck.id === '__new__') {
+                this.createDeck(this.moveToDialog.newDeck)
+                    .then(deck => {
+                        this.moveToDialog.deck = deck;
+                        callback();
+                    });
+            } else {
+                callback();
+            }
         },
 
         handleCopyToComplete() {
-            const deckId = this.copyToDialog.deck && this.copyToDialog.deck.id || null;
-            this.create(selected => ({
-                ...selected,
-                deck_id: deckId,
-            }))
-                .then(() => {
-                    this.copyToDialog.visible = false;
-                });
+            const callback = () => {
+                const deckId = this.copyToDialog.deck && this.copyToDialog.deck.id || null;
+                this.create(selected => ({
+                    ...selected,
+                    deck_id: deckId,
+                }))
+                    .then(() => {
+                        this.copyToDialog.visible = false;
+                    });
+            }
+
+            if (this.copyToDialog.deck && this.copyToDialog.deck.id === '__new__') {
+                this.createDeck(this.copyToDialog.newDeck)
+                    .then(deck => {
+                        this.copyToDialog.deck = deck;
+                        callback();
+                    });
+            } else {
+                callback();
+            }
         },
 
         handleDelete() {
@@ -399,6 +478,17 @@ export default {
                     )
                 }
             });
+        },
+
+        createDeck(deck) {
+            this.bulking = true;
+            return Services.createDeck(deck)
+                .then(deck => {
+                    this.$root.decks.push(deck);
+                    return deck;
+                })
+                .catch(this.$handleError)
+                .finally(() => this.bulking = false);
         },
 
         update(mapper = item => item) {

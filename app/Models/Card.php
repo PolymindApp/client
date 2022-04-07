@@ -11,8 +11,6 @@ class Card extends Model
 {
     use HasFactory, HasUuid, HasCreatedUpdatedBy;
 
-    public bool $incrementing = false;
-
     protected $with = [
         'front_voice.language',
         'back_voice.language',

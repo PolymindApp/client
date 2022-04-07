@@ -3,7 +3,7 @@
 
         <!-- ADD/EDIT DECK -->
         <v-form ref="form" :disabled="deckModal.loading" v-model="deckModal.formIsValid" @submit="handleDeckFormSubmit" lazy-validation>
-            <Modal v-model="deckModal.visible" :title="$t('deckModal.title' + (deckModal.clonedData.id ? 'Edit' : 'New'))" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown">
+            <Modal v-model="deckModal.visible" :title="$t('deckModal.title' + (deckModal.clonedData.id ? 'Edit' : 'New'))" max-width="500" scrollable :fullscreen="$vuetify.breakpoint.smAndDown">
                 <template #body>
                     <v-text-field
                         v-model="deckModal.clonedData.name"
@@ -48,7 +48,6 @@
                 </template>
                 <template #buttons>
                     <v-btn color="primary" large type="submit" :loading="deckModal.loading" :disabled="deckModal.loading" :block="$vuetify.breakpoint.smAndDown" @click="handleDeckFormSubmit">
-                        <v-icon v-text="deckModal.clonedData.id ? 'mdi-content-save' : 'mdi-plus'" left></v-icon>
                         <span v-text="$t('btn.' + (deckModal.clonedData.id ? 'save' : 'create'))"></span>
                     </v-btn>
                     <v-btn outlined large :block="$vuetify.breakpoint.smAndDown" @click="deckModal.visible = false">
