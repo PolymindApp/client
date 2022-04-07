@@ -59,7 +59,6 @@
                             :style="style"
                             :autofocus="autofocus"
                             :height="$vuetify.breakpoint.mdAndUp ? 100 : 70"
-                            :loading="loading"
                             :disabled="loading"
                             class="main-input"
                             no-resize
@@ -108,7 +107,6 @@
                                     :placeholder="$t('translateForm.backPlaceholder')"
                                     :style="style"
                                     :height="$vuetify.breakpoint.mdAndUp ? 100 : 70"
-                                    :loading="loading"
                                     :disabled="loading"
                                     class="main-input"
                                     no-resize
