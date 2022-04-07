@@ -17,7 +17,6 @@ export default class Services {
 			.then((response: any) => {
 				this.token = response.token;
 				localStorage.setItem('token', response.token);
-				EventBus.publish('login', path);
 				return response;
 			});
 	}
@@ -35,7 +34,6 @@ export default class Services {
 			.then((response: any) => {
 				this.token = response.token;
 				localStorage.setItem('token', response.token);
-				EventBus.publish('login', path);
 				return response;
 			});
 	}
@@ -48,7 +46,6 @@ export default class Services {
 			.then((response: any) => {
 				this.token = null;
 				localStorage.removeItem('token');
-				EventBus.publish('logout');
 				return response;
 			});
 	}
@@ -93,7 +90,12 @@ export default class Services {
 	 * Verify email
 	 */
 	static verifyEmail(signature: string): Promise<any> {
-		return Query.post('/register/verify?signature=' + signature);
+		return Query.post('/register/verify?signature=' + signature)
+            .then(response => {
+                this.token = response.token;
+                localStorage.setItem('token', response.token);
+                return response;
+            });
 	}
 
 	/**

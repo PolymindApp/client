@@ -51,7 +51,7 @@ class RequestPasswordReset extends Notification
             ->line(__('notification.requestPasswordReset.description', [
                 'hour' => 24,
             ]))
-            ->action(__('notification.requestPasswordReset.action'), url('/#/reset-password/' . $this->token));
+            ->action(__('notification.requestPasswordReset.action'), url('/password/reset/' . $this->token));
     }
 
     /**

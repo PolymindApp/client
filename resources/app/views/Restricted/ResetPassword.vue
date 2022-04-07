@@ -6,42 +6,53 @@
 				<span v-text="$t('resetPassword.requestSent')"></span>
 			</v-alert>
 		</v-expand-transition>
+		<v-expand-transition>
+			<v-alert v-if="invalidToken" class="text-left" type="error" prominent>
+				<span v-text="$t('resetPassword.invalidToken')"></span>
+			</v-alert>
+		</v-expand-transition>
 
-		<p v-text="$t('resetPassword.desc')"></p>
+        <template v-if="skeleton">
+            <v-progress-circular color="primary" indeterminate></v-progress-circular>
+        </template>
+        <template v-else-if="!invalidToken">
 
-		<v-text-field
-			v-model="data.password"
-			:error-messages="formErrors.password"
-			:label="$t('placeholder.password')"
-			:rules="[rules.required]"
-			:type="showPassword ? 'text' : 'password'"
-			:append-icon="!showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-			prepend-inner-icon="mdi-lock"
-			autocomplete="password"
-			outlined
-			required
-			@click:append="showPassword = !showPassword"
-			@input="handleFormInput"
-		/>
+            <p v-text="$t('resetPassword.desc')"></p>
 
-		<v-text-field
-			v-model="data.confirmation"
-			:error-messages="formErrors.confirmation"
-			:label="$t('placeholder.confirmation')"
-			:rules="[rules.required, rules.identical]"
-			:type="showConfirmation ? 'text' : 'password'"
-			:append-icon="!showConfirmation ? 'mdi-eye' : 'mdi-eye-off'"
-			prepend-inner-icon="mdi-lock"
-			autocomplete="password"
-			outlined
-			required
-			@click:append="showConfirmation = !showConfirmation"
-			@input="handleFormInput"
-		/>
+            <v-text-field
+                v-model="data.password"
+                :error-messages="formErrors.password"
+                :label="$t('placeholder.password')"
+                :rules="[rules.required]"
+                :type="showPassword ? 'text' : 'password'"
+                :append-icon="!showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                prepend-inner-icon="mdi-lock"
+                autocomplete="password"
+                outlined
+                required
+                @click:append="showPassword = !showPassword"
+                @input="handleFormInput"
+            />
 
-		<v-btn type="button" color="primary" :disabled="!canSubmit" :loading="loading" block @click="handleFormSubmit">
-			<span v-text="$t('resetPassword.btn')"></span>
-		</v-btn>
+            <v-text-field
+                v-model="data.confirmation"
+                :error-messages="formErrors.confirmation"
+                :label="$t('placeholder.confirmation')"
+                :rules="[rules.required, rules.identical]"
+                :type="showConfirmation ? 'text' : 'password'"
+                :append-icon="!showConfirmation ? 'mdi-eye' : 'mdi-eye-off'"
+                prepend-inner-icon="mdi-lock"
+                autocomplete="password"
+                outlined
+                required
+                @click:append="showConfirmation = !showConfirmation"
+                @input="handleFormInput"
+            />
+
+            <v-btn type="button" color="primary" :disabled="!canSubmit" :loading="loading" block @click="handleFormSubmit">
+                <span v-text="$t('resetPassword.btn')"></span>
+            </v-btn>
+        </template>
 
 		<v-btn class="mt-4" block text :to="{ name: 'login' }">
 			<v-icon left>mdi-arrow-left</v-icon>
@@ -59,8 +70,10 @@ export default Vue.extend({
 	name: 'ResetPassword',
 
 	data: () => ({
+        skeleton: true,
 		loading: false,
 		sent: false,
+        invalidToken: false,
 		showPassword: false,
 		showConfirmation: false,
 		formIsValid: true,
@@ -74,7 +87,7 @@ export default Vue.extend({
 
 	computed: {
 		canSubmit() {
-			return !this.loading && this.formIsValid && !this.sent;
+			return !this.loading && this.formIsValid && !this.sent && !this.invalidToken;
 		},
 	},
 
@@ -92,15 +105,30 @@ export default Vue.extend({
 				this.loading = true;
 				Services.resetPassword(this.data.password, this.data.confirmation, this.$route.params.token)
 					.then(response => this.sent = true)
-                    .catch(reason => this.$handleError(reason, this.formErrors))
+                    .catch(reason => {
+                        if (reason.message === 'INVALID_TOKEN') {
+                            this.invalidToken = true;
+                        } else {
+                            this.$handleError(reason, this.formErrors);
+                        }
+                    })
 					.finally(() => this.loading = false);
 			}
 		},
 		validateToken() {
 			this.loading = true;
 			Services.validateResetPasswordToken(this.$route.params.token)
-                .catch(reason => this.$handleError(reason, this.formErrors))
-				.finally(() => this.loading = false);
+                .catch(reason => {
+                    if (reason.message === 'INVALID_TOKEN') {
+                        this.invalidToken = true;
+                    } else {
+                        this.$handleError(reason, this.formErrors);
+                    }
+                })
+				.finally(() => {
+                    this.loading = false;
+                    this.skeleton = false;
+                });
 		}
 	},
 

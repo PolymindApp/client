@@ -30,25 +30,7 @@
                                                             <td align="center">
                                                                 <a href="{{ config('polymind.facebook_url') }}"><img
                                                                         style="width:36px;border:0px;display: inline!important;"
-                                                                        src="{{ asset('assets/images/emails/Facebook.png') }}"
-                                                                        width="36" border="0" alt="icon"></a>
-                                                            </td>
-                                                            <td width="10"></td>
-                                                        </tr>
-                                                    </table>
-                                                @endif
-                                            </td>
-                                            <td class="rwd-on-mobile" align="center" valign="middle" height="36"
-                                                style="height: 36px;">
-                                                @if( config('polymind.instagram_url') != '')
-                                                    <table border="0" align="center" cellpadding="0" cellspacing="0"
-                                                           role="presentation">
-                                                        <tr>
-                                                            <td width="10"></td>
-                                                            <td align="center">
-                                                                <a href="{{ config('polymind.instagram_url') }}"><img
-                                                                        style="width:36px;border:0px;display: inline!important;"
-                                                                        src="{{ asset('assets/images/emails/Instagram.png') }}"
+                                                                        src="{{ asset('assets/images/emails/facebook.png') }}"
                                                                         width="36" border="0" alt="icon"></a>
                                                             </td>
                                                             <td width="10"></td>
@@ -66,7 +48,7 @@
                                                             <td align="center">
                                                                 <a href="{{ config('polymind.twitter_url') }}"><img
                                                                         style="width:36px;border:0px;display: inline!important;"
-                                                                        src="{{ asset('assets/images/emails/Twitter.png') }}"
+                                                                        src="{{ asset('assets/images/emails/twitter.png') }}"
                                                                         width="36" border="0" alt="icon"></a>
                                                             </td>
                                                             <td width="10"></td>
@@ -76,15 +58,33 @@
                                             </td>
                                             <td class="rwd-on-mobile" align="center" valign="middle" height="36"
                                                 style="height: 36px;">
-                                                @if( config('polymind.pinterest_url') != '')
+                                                @if( config('polymind.linkedin_url') != '')
                                                     <table border="0" align="center" cellpadding="0" cellspacing="0"
                                                            role="presentation">
                                                         <tr>
                                                             <td width="10"></td>
                                                             <td align="center">
-                                                                <a href="{{ config('polymind.pinterest_url') }}"><img
+                                                                <a href="{{ config('polymind.linkedin_url') }}"><img
                                                                         style="width:36px;border:0px;display: inline!important;"
-                                                                        src="{{ asset('assets/images/emails/Pinterest.png') }}"
+                                                                        src="{{ asset('assets/images/emails/linkedin.png') }}"
+                                                                        width="36" border="0" alt="icon"></a>
+                                                            </td>
+                                                            <td width="10"></td>
+                                                        </tr>
+                                                    </table>
+                                                @endif
+                                            </td>
+                                            <td class="rwd-on-mobile" align="center" valign="middle" height="36"
+                                                style="height: 36px;">
+                                                @if( config('polymind.github_url') != '')
+                                                    <table border="0" align="center" cellpadding="0" cellspacing="0"
+                                                           role="presentation">
+                                                        <tr>
+                                                            <td width="10"></td>
+                                                            <td align="center">
+                                                                <a href="{{ config('polymind.github_url') }}"><img
+                                                                        style="width:36px;border:0px;display: inline!important;"
+                                                                        src="{{ asset('assets/images/emails/github.png') }}"
                                                                         width="36" border="0" alt="icon"></a>
                                                             </td>
                                                             <td width="10"></td>

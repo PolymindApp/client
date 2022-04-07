@@ -5,12 +5,15 @@ export default {
 	install: function (Vue: VueConstructor): void {
 		Vue.prototype.$handleError = function (
             reason: any,
-            formErrors?: any
+            formErrors?: any,
+            showWarning = true,
         ) {
-            Object.assign(globalVariables.error, {
-                ...reason,
-                body: reason.message,
-            })
+            if (showWarning) {
+                Object.assign(globalVariables.error, {
+                    ...reason,
+                    body: reason.message,
+                })
+            }
 
             if (reason.errors) {
                 Object.assign(formErrors, reason.errors);

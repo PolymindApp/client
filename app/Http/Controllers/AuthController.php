@@ -61,8 +61,8 @@ class AuthController extends Controller
         }
 
         $user->markEmailAsVerified();
-        $token = $user->createToken(env('APP_KEY'))->plainTextToken;
         $user->notify(new WelcomeNewUser());
+        $token = $user->createToken(env('APP_KEY'))->plainTextToken;
 
         return response([
             'user' => $user,

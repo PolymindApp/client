@@ -69,7 +69,7 @@ class VerifyEmail extends Notification
             'expiration' => Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60 * 24)),
         ]));
 
-        $url = '/#/verify-email?signature=' . $signature;
+        $url = '/register/verify?signature=' . $signature;
 
         return $url;
     }
