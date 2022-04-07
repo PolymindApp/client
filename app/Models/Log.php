@@ -11,7 +11,7 @@ class Log extends Model
 {
     use HasFactory, HasUuid, HasCreatedUpdatedBy;
 
-    public bool $incrementing = false;
+    public $incrementing = false;
 
     protected $fillable = [];
 }

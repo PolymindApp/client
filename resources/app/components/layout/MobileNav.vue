@@ -2,11 +2,11 @@
     <v-sheet v-bind="$attrs" v-on="$listeners">
         <v-divider />
         <v-sheet class="w-100 d-flex align-center">
-            <v-card class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="{ name: 'deck.edit', params: { uuid: $route.params.uuid } }" flat tile>
+            <v-card class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="{ name: 'deck.edit', params: { uuid: $route.params.uuid } }" exact flat tile>
                 <v-icon>mdi-pencil</v-icon>
                 <div class="caption" v-text="$t('btn.edit')"></div>
             </v-card>
-            <v-card class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="{ name: 'deck.play', params: { uuid: $route.params.uuid } }" flat tile>
+            <v-card class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="{ name: 'deck.play', params: { uuid: $route.params.uuid } }" exact flat tile>
                 <v-icon>mdi-play</v-icon>
                 <div class="caption" v-text="$t('btn.play')"></div>
             </v-card>

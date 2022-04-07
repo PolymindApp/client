@@ -7,6 +7,13 @@
 	font-display: swap;
 }
 
+html, body {
+    overscroll-behavior-y: none;
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+}
+
 .v-main {
     transition: none;
 }
