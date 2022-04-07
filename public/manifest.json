@@ -3,7 +3,7 @@
     "name": "Polymind",
     "short_name": "Polymind",
     "start_url": ".",
-    "display": "fullscreen",
+    "display": "standalone",
     "background_color": "#1B8E8A",
     "theme_color": "#1B8E8A",
     "description": "Practice memorization at the subconscious level.",
