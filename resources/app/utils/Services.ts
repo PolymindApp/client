@@ -239,4 +239,24 @@ export default class Services {
         const ids = cards.map(card => card.id);
 		return Query.delete('/card/bulk', ids);
 	}
+
+    /**
+     * Export given session in specified format
+     */
+    static export(ids: any[], format: string, name: string, settings: any): Promise<any> {
+        return Query.post('/export/' + format, {
+            ids,
+            name,
+            settings
+        }, undefined,  true)
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = name + ".mp3";
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            });
+    }
 }

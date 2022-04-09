@@ -1,9 +1,11 @@
 <template>
-	<v-dialog v-model="_value" v-bind="$attrs" v-on="$listeners" :persistent="disabled">
+	<v-dialog v-model="_value" v-bind="$attrs" v-on="$listeners" :persistent="disabled" :dark="dark">
 		<v-card :color="color" :disabled="disabled" :tile="$vuetify.breakpoint.smAndDown" class="d-flex flex-column">
 			<v-card-title :class="{
                 'd-flex align-center flex-nowrap justify-space-between': true,
-                'background': !dense,
+                'background': !dense && !dark && !$vuetify.breakpoint.smAndDown,
+                'primary white--text': !dense && $vuetify.breakpoint.smAndDown,
+                'py-3': $vuetify.breakpoint.smAndDown,
 			}">
 				<slot name="title">
 					<div class="d-flex align-center overflow-hidden">
@@ -11,7 +13,7 @@
 						<span class="headline text-truncate" v-text="title"></span>
 					</div>
 				</slot>
-				<v-btn @click="_value = false" icon>
+				<v-btn @click="_value = false" :dark="!dense && $vuetify.breakpoint.smAndDown" icon>
 					<v-icon>mdi-close</v-icon>
 				</v-btn>
 			</v-card-title>
@@ -23,7 +25,7 @@
             <v-divider></v-divider>
             <v-card-actions :class="{
                 'py-4 py-md-2': true,
-                'background': !dense,
+                'background': !dense && !dark,
             }">
                 <slot name="actions">
                     <div class="d-flex flex-column flex-md-row w-100 justify-end" style="gap: 0.5rem">
@@ -64,6 +66,10 @@ export default {
 		},
 		icon: {
 			type: String,
+			default: null,
+		},
+		dark: {
+			type: Boolean,
 			default: null,
 		},
 		title: {

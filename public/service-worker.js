@@ -1,55 +1,88 @@
-const PRECACHE = 'precache-v1';
-const RUNTIME = 'runtime';
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
-// A list of local resources we always want to be cached.
-const PRECACHE_URLS = [
+const HTML_CACHE = "html";
+const JS_CACHE = "javascript";
+const STYLE_CACHE = "stylesheets";
+const IMAGE_CACHE = "images";
+const FONT_CACHE = "fonts";
+const AUDIO_CACHE = 'audio';
 
-];
-
-// The install handler takes care of precaching the resources we always need.
-self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(PRECACHE)
-            .then(cache => cache.addAll(PRECACHE_URLS))
-            .then(self.skipWaiting())
-    );
-});
-
-// The activate handler takes care of cleaning up old caches.
-self.addEventListener('activate', event => {
-    const currentCaches = [PRECACHE, RUNTIME];
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return cacheNames.filter(cacheName => !currentCaches.includes(cacheName));
-        }).then(cachesToDelete => {
-            return Promise.all(cachesToDelete.map(cacheToDelete => {
-                return caches.delete(cacheToDelete);
-            }));
-        }).then(() => self.clients.claim())
-    );
-});
-
-// The fetch handler serves responses for same-origin resources from a cache.
-// If no response is found, it populates the runtime cache with the response
-// from the network before returning it to the page.
-self.addEventListener('fetch', event => {
-    // Skip cross-origin requests, like those for Google Analytics.
-    if (event.request.url.startsWith(self.location.origin)) {
-        event.respondWith(
-            caches.match(event.request).then(cachedResponse => {
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
-
-                return caches.open(RUNTIME).then(cache => {
-                    return fetch(event.request).then(response => {
-                        // Put a copy of the response in the runtime cache.
-                        return cache.put(event.request, response.clone()).then(() => {
-                            return response;
-                        });
-                    });
-                });
-            })
-        );
+self.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "SKIP_WAITING") {
+        self.skipWaiting();
     }
 });
+
+workbox.loadModule('workbox-cacheable-response');
+workbox.loadModule('workbox-range-requests');
+
+workbox.routing.registerRoute(
+    ({event}) => event.request.destination === 'document',
+    new workbox.strategies.NetworkFirst({
+        cacheName: HTML_CACHE,
+        plugins: [
+            new workbox.expiration.ExpirationPlugin({
+                maxEntries: 10,
+            }),
+        ],
+    })
+);
+
+workbox.routing.registerRoute(
+    ({event}) => event.request.destination === 'script',
+    new workbox.strategies.StaleWhileRevalidate({
+        cacheName: JS_CACHE,
+        plugins: [
+            new workbox.expiration.ExpirationPlugin({
+                maxEntries: 15,
+            }),
+        ],
+    })
+);
+
+workbox.routing.registerRoute(
+    ({event}) => event.request.destination === 'style',
+    new workbox.strategies.CacheFirst({
+        cacheName: STYLE_CACHE,
+        plugins: [
+            new workbox.expiration.ExpirationPlugin({
+                maxEntries: 15,
+            }),
+        ],
+    })
+);
+
+workbox.routing.registerRoute(
+    ({event}) => event.request.destination === 'image',
+    new workbox.strategies.CacheFirst({
+        cacheName: IMAGE_CACHE,
+        plugins: [
+            new workbox.expiration.ExpirationPlugin({
+                maxEntries: 15,
+            }),
+        ],
+    })
+);
+
+workbox.routing.registerRoute(
+    ({event}) => event.request.destination === 'font',
+    new workbox.strategies.CacheFirst({
+        cacheName: FONT_CACHE,
+        plugins: [
+            new workbox.expiration.ExpirationPlugin({
+                maxEntries: 15,
+            }),
+        ],
+    })
+);
+
+workbox.routing.registerRoute(
+    /.*\.mp3/,
+    new workbox.strategies.StaleWhileRevalidate({
+        cacheName: AUDIO_CACHE,
+        plugins: [
+            new workbox.cacheableResponse.CacheableResponsePlugin({statuses: [200]}),
+            new workbox.rangeRequests.RangeRequestsPlugin(),
+        ],
+    }),
+);

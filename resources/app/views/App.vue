@@ -1,7 +1,7 @@
 <template>
 	<v-app>
         <Snack v-model="$root.snack.visible" v-bind="$root.snack" transition="slide-y-reverse-transition" bottom left />
-        <ErrorHandler :value="$root.error" max-width="500" icon="mdi-alert" color="error" dark scrollable />
+        <ErrorHandler :value="$root.error" max-width="500" icon="mdi-alert" color="error" dark scrollable :fullscreen="$vuetify.breakpoint.smAndDown" />
         <GlobalModal v-model="$root.modal.visible" v-bind="{ ...$root.modal, ...$root.modal.attrs }" scrollable />
 
         <v-fade-transition>
@@ -76,7 +76,7 @@ export default Vue.extend({
     computed: {
         showToolbar() {
             return (!this.$root.inputFocused || this.$vuetify.breakpoint.mdAndUp)
-            && (this.$vuetify.breakpoint.mdAndUp || window.innerHeight > window.innerWidth);
+            && (this.$vuetify.breakpoint.mdAndUp || this.$root.orientation === 'portrait');
         },
     },
 
@@ -125,6 +125,11 @@ export default Vue.extend({
 
     created() {
         this.load();
+
+        screen.orientation.onchange = () => {
+            const direction = screen.orientation.type.match(/\w+/)[0];
+            this.$root.orientation = direction;
+        };
     },
 });
 </script>

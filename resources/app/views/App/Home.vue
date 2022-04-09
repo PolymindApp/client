@@ -375,6 +375,7 @@ export default {
             this.$router.replace({ name: 'deck.edit', params: { uuid: localStorage.getItem('deck') } })
         }
         this.deck = this.$root.decks.find(deck => deck.id === this.$route.params.uuid) || null;
+        document.title = this.deck && this.deck.name || this.$i18n.t('state.unclassified');
 
         this.load();
     },

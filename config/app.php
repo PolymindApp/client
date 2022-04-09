@@ -161,6 +161,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+        ProtoneMedia\LaravelFFMpeg\Support\ServiceProvider::class,
 
         /*
          * Package Service Providers...
@@ -206,6 +207,7 @@ return [
         'Eloquent' => Illuminate\Database\Eloquent\Model::class,
         'Event' => Illuminate\Support\Facades\Event::class,
         'File' => Illuminate\Support\Facades\File::class,
+        'FFMpeg' => ProtoneMedia\LaravelFFMpeg\Support\FFMpeg::class,
         'Gate' => Illuminate\Support\Facades\Gate::class,
         'Hash' => Illuminate\Support\Facades\Hash::class,
         'Http' => Illuminate\Support\Facades\Http::class,

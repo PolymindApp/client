@@ -6,6 +6,7 @@ use App\Http\Controllers\VoiceController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\DeckController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\ExportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,4 +45,5 @@ Route::group(['middleware' => ['auth:sanctum', 'verified', 'lang']], function() 
     Route::delete('/card/bulk', [CardController::class, 'bulkDestroy']);
     Route::resource('card', CardController::class);
     Route::resource('log', LogController::class);
+    Route::post('/export/audio', [ExportController::class, 'audio']);
 });

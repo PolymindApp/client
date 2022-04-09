@@ -55,6 +55,7 @@
 	"deck.deleteConfirm.deleted": "¡Paquete eliminado con éxito!",
 	"deck.deleteConfirm.title": "Eliminar paquete",
 	"deck.play.emptyWarning": "Primero debe agregar algunas cartas en este paquete.",
+	"deck.play.exportSessionDialog.desc": "Al hacer clic en el botón exportar a continuación, exportará una versión MP3 de la sesión actual que podrá escuchar. Puede tardar un par de segundos en renderizarse, así que tenga paciencia.",
 	"deck.play.exportSessionDialog.title": "Exportar sesión",
 	"deck.play.indexOf": "{current} de {total}",
 	"deck.play.noCards": "Sin tarjetas",

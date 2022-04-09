@@ -31,6 +31,11 @@ class Deck extends Model
         'default_back_voice_id' => 'integer',
     ];
 
+    public function cards()
+    {
+        return $this->hasMany('App\Models\Card', 'deck_id', 'id');
+    }
+
     public function default_front_voice()
     {
         return $this->belongsTo('App\Models\Voice', 'default_front_voice_id');

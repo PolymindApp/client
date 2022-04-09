@@ -2,11 +2,15 @@
     "$schema": "https://json.schemastore.org/web-manifest-combined.json",
     "name": "Polymind",
     "short_name": "Polymind",
-    "start_url": ".",
+    "description": "Practice memorization at the subconscious level.",
+    "categories": [
+        "education"
+    ],
+    "start_url": "./",
     "display": "standalone",
+    "orientation": "any",
     "background_color": "#1B8E8A",
     "theme_color": "#1B8E8A",
-    "description": "Practice memorization at the subconscious level.",
     "icons": [{
         "src": "assets/images/manifest/icon48.png",
         "sizes": "48x48",
@@ -31,5 +35,30 @@
         "src": "assets/images/manifest/icon192.png",
         "sizes": "192x192",
         "type": "image/png"
-    }]
+    }, {
+        "src": "assets/images/manifest/icon512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+    }, {
+        "src": "assets/images/manifest/icon512-transparent.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable"
+    }],
+    "screenshots" : [
+        {
+            "src": "assets/images/manifest/screenshot1.png",
+            "sizes": "720x1280",
+            "type": "image/png",
+            "platform": "narrow",
+            "label": "Dashboard to manage all of your flashcards"
+        },
+        {
+            "src": "assets/images/manifest/screenshot2.png",
+            "sizes": "720x1280",
+            "type": "image/png",
+            "platform": "narrow",
+            "label": "Listen to your flashcard like on a music player"
+        }
+    ]
 }

@@ -12,6 +12,7 @@ import Error from '@/utils/Error'
 import Modal from '@/utils/Modal'
 import Confirm from '@/utils/Confirm'
 import Snack from '@/utils/Snack'
+import Sound from '@/utils/Sound'
 import Voices from '@/utils/Voices'
 import EventBus from '@/utils/EventBus'
 import Services from '@/utils/Services'
@@ -30,6 +31,7 @@ Vue.use(DeepClone)
 Vue.use(Error)
 Vue.use(Modal)
 Vue.use(Snack)
+Vue.use(Sound)
 Vue.use(Voices)
 Vue.use(PortalVue)
 

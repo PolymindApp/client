@@ -1,5 +1,6 @@
 export default {
     inputFocused: false,
+    orientation: (screen.orientation.type.match(/\w+/) || [])[0] || 'portrait',
 	error: {
         title: null,
         body: null,

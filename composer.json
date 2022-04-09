@@ -13,7 +13,8 @@
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.13",
         "laravel/tinker": "^2.5",
-        "laravel/ui": "^3.4"
+        "laravel/ui": "^3.4",
+        "pbmedia/laravel-ffmpeg": "7.8.1"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

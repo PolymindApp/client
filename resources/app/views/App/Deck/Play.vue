@@ -34,12 +34,12 @@
                 </v-list-item-icon>
                 <v-list-item-content v-text="$t('btn.playbackSettings')"></v-list-item-content>
             </v-list-item>
-<!--            <v-list-item :disabled="!canExport" @click="handleExportClick">-->
-<!--                <v-list-item-icon>-->
-<!--                    <v-icon>mdi-cloud-download-outline</v-icon>-->
-<!--                </v-list-item-icon>-->
-<!--                <v-list-item-content v-text="$t('btn.exportSession')"></v-list-item-content>-->
-<!--            </v-list-item>-->
+            <v-list-item :disabled="!canExport" @click="handleExportClick">
+                <v-list-item-icon>
+                    <v-icon>mdi-cloud-download-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content v-text="$t('btn.exportSession')"></v-list-item-content>
+            </v-list-item>
             <v-divider class="my-2" />
         </portal>
 
@@ -161,7 +161,7 @@
         <!-- EXPORT SESSION SETTINGS -->
         <Modal v-model="exportSessionDialog.visible" :title="$t('deck.play.exportSessionDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
             <template #body>
-                TBD
+                <div v-text="$t('deck.play.exportSessionDialog.desc')"></div>
             </template>
             <template #buttons>
                 <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="exportSessionDialog.loading" :disabled="exportSessionDialog.loading" color="primary" large @click="exportSession">
@@ -338,7 +338,7 @@ export default {
         showMobileNav() {
             return this.$vuetify.breakpoint.smAndDown
                 && !this.$root.inputFocused
-                && window.innerHeight > window.innerWidth;
+                && this.$root.orientation === 'portrait';
         },
 
         showNavigation() {
@@ -397,14 +397,6 @@ export default {
     },
 
     methods: {
-        handleKeyPress(event) {
-            console.log(event.which);
-            switch (event.which) {
-                case 'Arrow_Left':
-                    break;
-            }
-        },
-
         handleSwipeLeft() {
             if (this.canGoPrevious) {
                 this.next();
@@ -449,6 +441,8 @@ export default {
 
         handlePlayClick() {
 
+            this.$sound.play('play');
+
             if (this.firstPlay) {
                 this.index = 0;
             }
@@ -462,6 +456,9 @@ export default {
         },
 
         handleRemoveClick() {
+
+            this.$sound.play('remove');
+
             this.cards.splice(this.index, 1);
             if (this.index > this.cards.length - 1) {
                 this.index = this.cards.length - 1;
@@ -469,6 +466,7 @@ export default {
             if (this.index === -1) {
                 this.playing = false;
                 this.completed = true;
+                this.$sound.play('completed');
             } else {
                 this.setFirstSide(this.settings.mode !== 'back');
                 this.setOtherSide(this.settings.mode === 'back');
@@ -478,6 +476,7 @@ export default {
         },
 
         handleResetClick() {
+            this.$sound.play('play');
             this.reset();
         },
 
@@ -670,7 +669,14 @@ export default {
         },
 
         exportSession() {
-            this.exportSessionDialog.visible = false;
+            this.exportSessionDialog.loading = true;
+            const ids = this._cards.map(card => card.id);
+            Services.export(ids, 'audio', this.deck.name, this.settings)
+                .then(() => {
+                    this.exportSessionDialog.visible = false;
+                })
+                .catch(reason => this.$handleError(reason))
+                .finally(() => this.exportSessionDialog.loading = false)
         },
     },
 
@@ -681,6 +687,7 @@ export default {
             this.$router.replace({ name: 'deck.play', params: { uuid: localStorage.getItem('deck') } })
         }
         this.deck = this.$root.decks.find(deck => deck.id === this.$route.params.uuid) || null;
+        document.title = this.deck && this.deck.name || this.$i18n.t('state.unclassified');
 
         this.settings = this.$deepClone(defaultSettings);
 

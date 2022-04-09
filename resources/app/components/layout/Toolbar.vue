@@ -1,6 +1,6 @@
 <template>
     <v-app-bar v-bind="$attrs" v-on="$listeners">
-        <v-btn icon @click="$emit('drawer')">
+        <v-btn icon @click="$emit('drawer')" class="mr-3">
             <v-icon>mdi-menu</v-icon>
         </v-btn>
 
@@ -23,7 +23,7 @@
             <template #activator="{ attrs: menuAttrs, on: menuOn }">
                 <v-tooltip bottom>
                     <template #activator="{ attrs: tooltipAttrs, on: tooltipOn }">
-                        <v-btn v-bind="{ ...menuAttrs, ...tooltipAttrs }" v-on="{ ...menuOn, ...tooltipOn }" icon>
+                        <v-btn v-bind="{ ...menuAttrs, ...tooltipAttrs }" v-on="{ ...menuOn, ...tooltipOn }" class="ml-3" icon>
                             <v-icon>mdi-dots-vertical</v-icon>
                         </v-btn>
                     </template>

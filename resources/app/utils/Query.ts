@@ -4,7 +4,7 @@ export default class Query {
 		? '/api'
 		: '/api';
 
-	static doCall(path: string, method = 'GET', body?: any, params?: any): Promise<any> {
+	static doCall(path: string, method = 'GET', body?: any, params?: any, blob = false): Promise<any> {
 		const headers: any = {
 			'Accept': 'application/json',
 			'Content-Type': 'application/json',
@@ -31,6 +31,9 @@ export default class Query {
 			body
 		})
 			.then(response => {
+                if (blob) {
+                    return response.blob();
+                }
 				return response.json().then(json => {
 					if (response.status < 200 || response.status > 299) {
 						let error = new Error();
@@ -46,15 +49,15 @@ export default class Query {
 		return this.doCall(path, 'GET', null, params);
 	}
 
-	static post(path: string, data: any = {}): Promise<any> {
-		return this.doCall(path, 'POST', JSON.stringify(data));
+	static post(path: string, data: any = {}, params?: any, blob = false): Promise<any> {
+		return this.doCall(path, 'POST', JSON.stringify(data), params, blob);
 	}
 
-	static put(path: string, data: any = {}): Promise<any> {
+	static put(path: string, data: any = {}, params?: any): Promise<any> {
 		return this.doCall(path, 'PUT', JSON.stringify(data));
 	}
 
-	static delete(path: string, data: any = {}): Promise<any> {
+	static delete(path: string, data: any = {}, params?: any): Promise<any> {
 		return this.doCall(path, 'DELETE', JSON.stringify(data));
 	}
 }
