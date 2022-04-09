@@ -369,10 +369,8 @@ export default {
             required: value => Rules.required(value) || this.$t('rules.required'),
         };
 
-        if (this.$route.params.uuid !== localStorage.getItem('deck')
-            && [null, 'null'].indexOf(localStorage.getItem('deck')) === -1
-            && this.$route.params.uuid !== 'unclassified') {
-            this.$router.replace({ name: 'deck.edit', params: { uuid: localStorage.getItem('deck') } })
+        if (!this.$route.params.uuid) {
+            this.$router.replace({ name: 'deck.edit', params: { uuid: 'unclassified' } })
         }
         this.deck = this.$root.decks.find(deck => deck.id === this.$route.params.uuid) || null;
         document.title = this.deck && this.deck.name || this.$i18n.t('state.unclassified');

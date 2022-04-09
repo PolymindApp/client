@@ -1,6 +1,6 @@
 export default {
     inputFocused: false,
-    orientation: (screen.orientation.type.match(/\w+/) || [])[0] || 'portrait',
+    orientation: (window.orientation === 90 || window.orientation === -90) ? 'landscape' : 'portrait',
 	error: {
         title: null,
         body: null,

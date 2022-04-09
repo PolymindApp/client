@@ -81,20 +81,15 @@ export default Vue.extend({
     },
 
 	methods: {
-        load() {
-            this.loading = true;
-            Promise.all([
-                Services.getDecks(),
-            ])
-                .then(([decks]) => {
-                    decks.unshift({ name: this.$i18n.t('state.unclassified'), id: null });
-                    Object.assign(this.$root, { decks });
-                })
-                .catch(this.$handleError)
-                .finally(() => {
-                    this.loading = false;
-                    this.loaded = true;
-                });
+        handleOrientationChange() {
+            switch(window.orientation) {
+                case -90: case 90:
+                    this.$root.orientation = 'landscape';
+                    break;
+                default:
+                    this.$root.orientation = 'portrait';
+                    break;
+            }
         },
 		handleLogoutClick() {
             this.$confirm(
@@ -121,15 +116,31 @@ export default Vue.extend({
                 }
             );
 		},
+        load() {
+            this.loading = true;
+            Promise.all([
+                Services.getDecks(),
+            ])
+                .then(([decks]) => {
+                    decks.unshift({ name: this.$i18n.t('state.unclassified'), id: null });
+                    Object.assign(this.$root, { decks });
+                })
+                .catch(this.$handleError)
+                .finally(() => {
+                    this.loading = false;
+                    this.loaded = true;
+                });
+        },
 	},
 
     created() {
-        this.load();
+        window.addEventListener('orientationchange', this.handleOrientationChange);
 
-        screen.orientation.onchange = () => {
-            const direction = screen.orientation.type.match(/\w+/)[0];
-            this.$root.orientation = direction;
-        };
+        this.load();
     },
+
+    destroyed() {
+        window.removeEventListener('orientationchange', this.handleOrientationChange);
+    }
 });
 </script>

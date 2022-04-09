@@ -16,7 +16,7 @@
     }
     #app {
         overflow: auto;
-        height: 100vh;
+        height: 100%;
     }
 }
 
@@ -59,5 +59,9 @@
 @media all and (max-width: 767px) {
     .v-tooltip__content {
         display: none !important;
+    }
+    .v-snack__wrapper {
+        min-width: auto;
+        width: 100%;
     }
 }
