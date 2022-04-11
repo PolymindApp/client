@@ -377,6 +377,9 @@ export default {
                 this.deck ? this.deck.id : null
             )
                 .then(card => {
+                    if (this.autofocus) {
+                        this.$refs.front.$el.querySelector('input').focus();
+                    }
                     this.$emit('add', card);
                     this.clear();
                     this.$snack(this.$i18n.t('snack.cardAdded'));
