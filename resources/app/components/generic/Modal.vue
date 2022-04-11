@@ -4,7 +4,7 @@
 			<v-card-title :class="{
                 'd-flex align-center flex-nowrap justify-space-between': true,
                 'background': !dense && !dark && !$vuetify.breakpoint.smAndDown,
-                'primary white--text': !dense && $vuetify.breakpoint.smAndDown,
+                'primary white--text': !dense && !dark && $vuetify.breakpoint.smAndDown,
                 'py-3': $vuetify.breakpoint.smAndDown,
 			}">
 				<slot name="title">
