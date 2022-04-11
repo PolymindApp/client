@@ -63,11 +63,11 @@
                 <v-row>
                     <v-col cols="12" sm="6">
                         <v-skeleton-loader v-if="skeleton" type="text" class="mb-n2"></v-skeleton-loader>
-                        <ItemSide v-else v-model="card.front" :audio="card.front_synthesized" :voice="card.front_voice" />
+                        <ItemSide v-else v-model="card.front" :audio="card.front_synthesized" :voice="card.front_voice" :selected="isSelected(card)" />
                     </v-col>
                     <v-col cols="12" sm="6">
                         <v-skeleton-loader v-if="skeleton" type="text" class="mb-n2"></v-skeleton-loader>
-                        <ItemSide v-else v-model="card.back" :audio="card.back_synthesized" :voice="card.back_voice" primary />
+                        <ItemSide v-else v-model="card.back" :audio="card.back_synthesized" :voice="card.back_voice" primary :selected="isSelected(card)" />
                     </v-col>
                 </v-row>
             </v-card-text>
@@ -98,6 +98,10 @@ const ItemSide = {
             type: Boolean,
             default: false,
         },
+        selected: {
+            type: Boolean,
+            default: false,
+        },
     },
     components: { PlayAudioBtn },
     template: `<div class="d-flex align-center">
@@ -108,11 +112,13 @@ const ItemSide = {
         <div class="font-weight-bold two-lines-truncate">
             <span :class="{
               'd-inline-block text-capitalize-first': true,
-              'primary--text': primary
+              'primary--text': primary && !selected
             }" v-text="value"></span>
         </div>
         <div v-if="voice" class="mb-n1">
-          <small class="opacity-33">
+          <small :class="{
+            'opacity-33': !selected
+          }">
             <span v-text="voice.language.name"></span>
             - <span v-text="voice.name"></span>
           </small>
