@@ -28,6 +28,13 @@
 
         <!-- OPTIONS -->
         <portal to="options">
+            <v-list-item :disabled="!canResetSession" @click="handleResetSessionClick">
+                <v-list-item-icon>
+                    <v-icon>mdi-reload</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content v-text="$t('btn.reset')"></v-list-item-content>
+            </v-list-item>
+            <v-divider class="my-2" />
             <v-list-item :disabled="!canAdjustPlaybackSettings" @click="handlePlaybackSettingsClick">
                 <v-list-item-icon>
                     <v-icon>mdi-headphones-settings</v-icon>
@@ -186,7 +193,7 @@
                 <v-btn v-if="showNavigation" :disabled="!canGoPrevious" height="30vh" text x-large @click="handlePrevClick">
                     <v-icon size="7.5vh">mdi-chevron-left</v-icon>
                 </v-btn>
-                <div class="d-flex align-center justify-center fill-height" style="flex: 1">
+                <div class="d-flex align-center justify-center fill-height" style="flex: 1; position: relative">
                     <v-progress-circular v-if="skeleton" color="primary" size="64" indeterminate></v-progress-circular>
                     <template v-else-if="originalCards.length === 0">
                         <div class="text-center" style="max-width: 15rem">
@@ -202,10 +209,10 @@
                     </v-btn>
                     <template v-else>
                         <transition name="slide">
-                            <h1 class="text-center px-4 text-h4 text-md-h3 text-lg-h2 abs_middle" v-if="!firstPlay && showFront" v-text="_cards[index].front"></h1>
+                            <h1 class="text-capitalize-first text-center px-4 text-h4 text-md-h3 text-lg-h2 abs_middle" v-if="!firstPlay && showFront" v-text="_cards[index].front"></h1>
                         </transition>
                         <transition name="slide">
-                            <h1 class="text-center px-4 text-h3 text-md-h2 text-lg-h1 abs_middle primary--text" v-if="!firstPlay && showBack" v-text="_cards[index].back"></h1>
+                            <h1 class="text-capitalize-first text-center px-4 text-h3 text-md-h2 text-lg-h1 abs_middle primary--text" v-if="!firstPlay && showBack" v-text="_cards[index].back"></h1>
                         </transition>
                     </template>
                 </div>
@@ -327,6 +334,10 @@ export default {
             return this.cards.length > 0;
         },
 
+        canResetSession() {
+            return !this.skeleton && this.originalCards.length !== this.cards.length;
+        },
+
         canAdjustPlaybackSettings() {
             return !this.skeleton && this.originalCards.length > 0;
         },
@@ -417,6 +428,11 @@ export default {
             });
         },
 
+        handleResetSessionClick() {
+            this.reset();
+            this.pause();
+        },
+
         handlePlaybackSettingsClick() {
             Object.assign(this.playbackSettingsDialog, {
                 visible: true,
@@ -451,8 +467,7 @@ export default {
         },
 
         handlePauseClick() {
-            this.playing = false;
-            this.pauseTime = new Date();
+            this.pause();
         },
 
         handleRemoveClick() {
@@ -478,6 +493,7 @@ export default {
         handleResetClick() {
             this.$sound.play('play');
             this.reset();
+            this.play();
         },
 
         resetTime(date) {
@@ -556,6 +572,11 @@ export default {
             requestAnimationFrame(this.onFrame);
         },
 
+        pause() {
+            this.playing = false;
+            this.pauseTime = new Date();
+        },
+
         load() {
             this.loading = true;
             Promise.all([
@@ -577,9 +598,8 @@ export default {
             this.cards = this.$deepClone(this.originalCards);
             this.firstPlay = true;
             this.completed = false
-            this.index = 0;
+            this.index = -1;
             this.resetTime(new Date());
-            this.play();
         },
 
         setFirstSide(visible) {
@@ -700,6 +720,10 @@ export default {
 }
 .abs_middle {
     position: absolute;
+    transform: translateY(-50%);
+    top: 50%;
+    left: 0;
+    width: 100%;
 }
 .slide-enter-active,
 .slide-leave-active {

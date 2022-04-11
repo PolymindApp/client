@@ -38,7 +38,7 @@
                 <ItemSide v-model="item.front" :audio="item.front_synthesized" :voice="item.front_voice" />
             </template>
             <template #item.back="{ item }">
-                <ItemSide v-model="item.back" :audio="item.back_synthesized" :voice="item.back_voice" />
+                <ItemSide v-model="item.back" :audio="item.back_synthesized" :voice="item.back_voice" primary />
             </template>
             <template #item.created_at="{ item }">
                 {{ item.created_at | moment('YYYY-MM-DD HH:mm:ss') }}
@@ -61,13 +61,13 @@
         }" @click="handleCardClick(card)">
             <v-card-text class="text-break">
                 <v-row>
-                    <v-col cols="6">
+                    <v-col cols="12" sm="6">
                         <v-skeleton-loader v-if="skeleton" type="text" class="mb-n2"></v-skeleton-loader>
                         <ItemSide v-else v-model="card.front" :audio="card.front_synthesized" :voice="card.front_voice" />
                     </v-col>
-                    <v-col cols="6">
+                    <v-col cols="12" sm="6">
                         <v-skeleton-loader v-if="skeleton" type="text" class="mb-n2"></v-skeleton-loader>
-                        <ItemSide v-else v-model="card.back" :audio="card.back_synthesized" :voice="card.back_voice" />
+                        <ItemSide v-else v-model="card.back" :audio="card.back_synthesized" :voice="card.back_voice" primary />
                     </v-col>
                 </v-row>
             </v-card-text>
@@ -81,15 +81,37 @@ import PlayAudioBtn from '@/components/audio/PlayAudioBtn';
 import Services from "../utils/Services";
 
 const ItemSide = {
-    props: ['value', 'voice', 'audio'],
+    props: {
+        value: {
+            type: String,
+            default: null,
+        },
+        voice: {
+            type: Object,
+            default: () => ({}),
+        },
+        audio: {
+            type: String,
+            default: null,
+        },
+        primary: {
+            type: Boolean,
+            default: false,
+        },
+    },
     components: { PlayAudioBtn },
     template: `<div class="d-flex align-center">
       <div v-if="audio" class="mr-3">
         <PlayAudioBtn v-model="audio" tabindex="-1" />
       </div>
       <div style="line-height: 1rem" class="overflow-hidden">
-        <div class="font-weight-bold two-lines-truncate" v-text="value"></div>
-        <div v-if="voice" class="text-truncate mb-n1">
+        <div class="font-weight-bold two-lines-truncate">
+            <span :class="{
+              'd-inline-block text-capitalize-first': true,
+              'primary--text': primary
+            }" v-text="value"></span>
+        </div>
+        <div v-if="voice" class="mb-n1">
           <small class="opacity-33">
             <span v-text="voice.language.name"></span>
             - <span v-text="voice.name"></span>
