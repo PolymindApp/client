@@ -61,6 +61,7 @@ export default Vue.extend({
 		loading: false,
 		formIsValid: true,
 		showPassword: false,
+        emailNotVerifiedDialog: false,
 		formErrors: {},
 		rules: {},
 		data: {
@@ -88,7 +89,28 @@ export default Vue.extend({
 						Object.assign(this.$root.user, response.user);
 						EventBus.publish('RENDER_APP');
 					})
-					.catch(reason => this.$handleError(reason, this.formErrors))
+					.catch(reason => {
+                        if (reason.message === 'EMAIL_NOT_VERIFIED') {
+                            this.$confirm(
+                                this.$i18n.t('restricted.login.emailNotVerifiedConfirm.title'),
+                                this.$i18n.t('restricted.login.emailNotVerifiedConfirm.body'),
+                                this.$i18n.t('btn.resend'),
+                                (modal, btn) => {
+                                    modal.disabled = true;
+                                    btn.attrs.loading = true;
+                                    Services.resendVerificationEmail(this.data.email)
+                                        .then(() => {
+                                            modal.visible = false;
+                                            this.$snack(this.$i18n.t('snack.emailNotVerifiedConfirmSent'))
+                                        })
+                                        .catch(reason => this.$handleError(reason, this.formErrors))
+                                        .finally(() => btn.attrs.loading = false);
+                                }
+                            );
+                        } else {
+                            this.$handleError(reason, this.formErrors, false);
+                        }
+                    })
 					.finally(() => this.loading = false);
 			}
 		},

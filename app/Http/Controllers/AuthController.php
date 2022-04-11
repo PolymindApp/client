@@ -133,50 +133,20 @@ class AuthController extends Controller
             }
         );
 
-//        if ($status !== Password::RESET_LINK_SENT) {
-//            return response([
-//                'message' => strtoupper(str_replace('.', '_', $status)),
-//                'errors' => [
-//                    'email' => __('dads'),
-//                ],
-//            ], 401);
-//        }
-
         return response([
-//            'message' => strtoupper(str_replace('.', '_', $status))
-            'message' => true,
+            'message' => $status,
         ], 201);
-    }
-
-    public function validateResetPasswordToken(Request $request)
-    {
-        $request->validate([
-            'token' => 'required',
-        ]);
-
-        $passwordReset = DB::table('password_resets')
-            ->where('token', $request->token)->first();
-        if (!$passwordReset) {
-            return response(['message' => 'INVALID_TOKEN'], 404);
-        }
-
-        return response(['message' => 'VALID']);
     }
 
     public function resetPassword(Request $request)
     {
         $request->validate([
             'token' => 'required',
+            'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
         ]);
 
-        $passwordReset = DB::table('password_resets')
-            ->where('token', $request->token)->first();
-        if (!$passwordReset) {
-            return response(['message' => 'INVALID_TOKEN'], 404);
-        }
-        $credentials = $request->only('password', 'password_confirmation', 'token');
-        $credentials['email'] = $passwordReset->email;
+        $credentials = $request->only('email', 'password', 'password_confirmation', 'token');
 
         $status = Password::reset($credentials, function ($user, $password) {
             $user->forceFill([

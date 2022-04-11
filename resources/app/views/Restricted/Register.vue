@@ -125,7 +125,7 @@ export default Vue.extend({
 				this.loading = true;
 				Services.register(this.data.email, this.data.password, this.data.confirmation, this.$route.query.redirect)
 					.then(response => this.mustVerify = true)
-                    .catch(reason => this.$handleError(reason, this.formErrors))
+                    .catch(reason => this.$handleError(reason, this.formErrors, false))
 					.finally(() => this.loading = false);
 			}
 		},

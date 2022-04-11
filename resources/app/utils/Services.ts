@@ -69,19 +69,11 @@ export default class Services {
 	/**
 	 * Reset password
 	 */
-	static resetPassword(password: string, confirmation: string, token: string): Promise<any> {
+	static resetPassword(email: string, password: string, confirmation: string, token: string): Promise<any> {
 		return Query.post('/password/reset', {
+            email,
 			password,
 			password_confirmation: confirmation,
-			token,
-		});
-	}
-
-	/**
-	 * Validate the reset password token
-	 */
-	static validateResetPasswordToken(token: string): Promise<any> {
-		return Query.post('/password/reset/validate', {
 			token,
 		});
 	}

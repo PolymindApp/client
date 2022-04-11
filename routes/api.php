@@ -29,7 +29,6 @@ Route::group(['middleware' => ['guest', 'lang']], function() {
     Route::post('/register/resend', [AuthController::class, 'resendVerificationEmail']);
     Route::post('/password/reset/request', [AuthController::class, 'requestPasswordReset']);
     Route::post('/password/reset', [AuthController::class, 'resetPassword']);
-    Route::post('/password/reset/validate', [AuthController::class, 'validateResetPasswordToken']);
     Route::post('/login', [AuthController::class, 'login']);
 });
 

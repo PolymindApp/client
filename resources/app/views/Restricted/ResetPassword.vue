@@ -17,6 +17,20 @@
         </template>
         <template v-else-if="!invalidToken">
 
+            <v-text-field
+                v-model="data.email"
+                :error-messages="formErrors.email"
+                :label="$t('placeholder.email')"
+                :rules="[rules.required, rules.email]"
+                :autofocus="$vuetify.breakpoint.mdAndUp"
+                prepend-inner-icon="mdi-account"
+                autocomplete="email"
+                tabindex="1"
+                outlined
+                required
+                @input="formErrors = {}"
+            />
+
             <p v-text="$t('resetPassword.desc')"></p>
 
             <v-text-field
@@ -28,6 +42,7 @@
                 :append-icon="!showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 prepend-inner-icon="mdi-lock"
                 autocomplete="password"
+                tabindex="2"
                 outlined
                 required
                 @click:append="showPassword = !showPassword"
@@ -43,18 +58,19 @@
                 :append-icon="!showConfirmation ? 'mdi-eye' : 'mdi-eye-off'"
                 prepend-inner-icon="mdi-lock"
                 autocomplete="password"
+                tabindex="3"
                 outlined
                 required
                 @click:append="showConfirmation = !showConfirmation"
                 @input="handleFormInput"
             />
 
-            <v-btn type="button" color="primary" :disabled="!canSubmit" :loading="loading" block @click="handleFormSubmit">
+            <v-btn type="submit" color="primary" tabindex="4" :disabled="!canSubmit" :loading="loading" block @click="handleFormSubmit">
                 <span v-text="$t('resetPassword.btn')"></span>
             </v-btn>
         </template>
 
-		<v-btn class="mt-4" block text :to="{ name: 'login' }">
+		<v-btn class="mt-4" block text tabindex="5" :to="{ name: 'login' }">
 			<v-icon left>mdi-arrow-left</v-icon>
 			<span v-text="$t('btn.back')"></span>
 		</v-btn>
@@ -80,6 +96,7 @@ export default Vue.extend({
 		formErrors: {},
 		rules: {},
 		data: {
+			email: '',
 			password: '',
 			confirmation: '',
 		},
@@ -103,43 +120,28 @@ export default Vue.extend({
 
 			if (this.$refs.form && this.$refs.form.validate()) {
 				this.loading = true;
-				Services.resetPassword(this.data.password, this.data.confirmation, this.$route.params.token)
-					.then(response => this.sent = true)
+				Services.resetPassword(this.data.email, this.data.password, this.data.confirmation, this.$route.params.token)
+					.then(() => this.sent = true)
                     .catch(reason => {
-                        if (reason.message === 'INVALID_TOKEN') {
+                        if (reason.message === 'PASSWORDS_TOKEN') {
                             this.invalidToken = true;
                         } else {
-                            this.$handleError(reason, this.formErrors);
+                            this.$handleError(reason, this.formErrors, false);
                         }
                     })
 					.finally(() => this.loading = false);
 			}
 		},
-		validateToken() {
-			this.loading = true;
-			Services.validateResetPasswordToken(this.$route.params.token)
-                .catch(reason => {
-                    if (reason.message === 'INVALID_TOKEN') {
-                        this.invalidToken = true;
-                    } else {
-                        this.$handleError(reason, this.formErrors);
-                    }
-                })
-				.finally(() => {
-                    this.loading = false;
-                    this.skeleton = false;
-                });
-		}
 	},
 
 	created() {
-
-		this.validateToken();
-
 		this.rules = {
+			email: value => Rules.email(value) || this.$t('rules.email'),
 			required: value => Rules.required(value) || this.$t('rules.required'),
 			identical: () => Rules.identical(this.data.password, this.data.confirmation) || this.$t('rules.passwordConfirmation'),
 		};
+
+        this.skeleton = false;
 	},
 })
 </script>

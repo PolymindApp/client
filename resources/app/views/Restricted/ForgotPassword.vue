@@ -7,22 +7,24 @@
 			</v-alert>
 		</v-expand-transition>
 
-		<v-text-field
-			v-model="data.email"
-			:error-messages="formErrors.email"
-			:label="$t('placeholder.email')"
-			:rules="[rules.required, rules.email]"
-			:autofocus="$vuetify.breakpoint.mdAndUp"
-			prepend-inner-icon="mdi-account"
-			autocomplete="email"
-			outlined
-			required
-			@input="formErrors = {}"
-		/>
+        <template v-if="!sent">
+            <v-text-field
+                v-model="data.email"
+                :error-messages="formErrors.email"
+                :label="$t('placeholder.email')"
+                :rules="[rules.required, rules.email]"
+                :autofocus="$vuetify.breakpoint.mdAndUp"
+                prepend-inner-icon="mdi-account"
+                autocomplete="email"
+                outlined
+                required
+                @input="formErrors = {}"
+            />
 
-		<v-btn type="button" color="primary" :disabled="!canSubmit" :loading="loading" block @click="handleFormSubmit">
-			<span v-text="$t('forgotPassword.btn')"></span>
-		</v-btn>
+            <v-btn type="button" color="primary" :disabled="!canSubmit" :loading="loading" block @click="handleFormSubmit">
+                <span v-text="$t('forgotPassword.btn')"></span>
+            </v-btn>
+        </template>
 
 		<v-btn class="mt-4" block text :to="{ name: 'login' }">
 			<v-icon left>mdi-arrow-left</v-icon>
@@ -66,7 +68,7 @@ export default Vue.extend({
 				this.loading = true;
 				Services.forgotPasswordRequest(this.data.email)
 					.then(response => this.sent = true)
-                    .catch(reason => this.$handleError(reason, this.formErrors))
+                    .catch(reason => this.$handleError(reason, this.formErrors, false))
 					.finally(() => this.loading = false);
 			}
 		},
