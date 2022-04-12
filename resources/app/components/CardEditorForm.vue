@@ -65,8 +65,6 @@
                             solo
                             flat
                             hide-details
-                            @focus="handleFocus"
-                            @blur="handleBlur"
                         />
                         <div style="flex: 0" class="ml-3 ml-md-0 d-flex align-center justify-space-between">
                             <div>
@@ -113,8 +111,6 @@
                                     solo
                                     flat
                                     hide-details
-                                    @focus="handleFocus"
-                                    @blur="handleBlur"
                                 />
                                 <div style="flex: 0" class="ml-3 ml-md-0 d-flex align-center justify-space-between">
                                     <div>
@@ -320,14 +316,6 @@ export default {
     },
 
     methods: {
-        handleFocus() {
-            clearTimeout(this.inputFocusedTimeout);
-            this.$root.inputFocused = true;
-        },
-
-        handleBlur() {
-            this.inputFocusedTimeout = setTimeout(() => this.$root.inputFocused = false);
-        },
 
         handleBeforeRecord(voice, callback = () => ({})) {
             return new Promise((resolve, reject) => {

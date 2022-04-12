@@ -1,12 +1,19 @@
 <template>
     <v-app-bar v-bind="$attrs" v-on="$listeners">
-        <v-btn icon @click="$emit('drawer')" class="mr-3">
+        <v-btn icon @click="$emit('drawer')" :class="{
+            'mr-3': !$vuetify.rtl,
+            'ml-3': $vuetify.rtl,
+        }">
             <v-icon>mdi-menu</v-icon>
         </v-btn>
 
         <v-spacer v-if="$vuetify.breakpoint.smAndDown" />
 
-        <div v-if="$vuetify.breakpoint.mdAndUp" class="d-flex align-center mr-3 px-md-6 no-select" style="gap: 1rem">
+        <div v-if="$vuetify.breakpoint.mdAndUp" :class="{
+            'd-flex align-center px-md-6 no-select': true,
+            'ml-3': !$vuetify.rtl,
+            'mr-3': $vuetify.rtl,
+        }" style="gap: 1rem">
             <v-img :src="logo" width="2rem" />
             <div class="title mb-n1">Polymind</div>
         </div>
@@ -27,7 +34,10 @@
             <template #activator="{ attrs: menuAttrs, on: menuOn }">
                 <v-tooltip bottom>
                     <template #activator="{ attrs: tooltipAttrs, on: tooltipOn }">
-                        <v-btn v-bind="{ ...menuAttrs, ...tooltipAttrs }" v-on="{ ...menuOn, ...tooltipOn }" class="ml-3" icon>
+                        <v-btn v-bind="{ ...menuAttrs, ...tooltipAttrs }" v-on="{ ...menuOn, ...tooltipOn }" :class="{
+                            'ml-3': !$vuetify.rtl,
+                            'mr-3': $vuetify.rtl,
+                        }" icon>
                             <v-icon>mdi-dots-vertical</v-icon>
                         </v-btn>
                     </template>

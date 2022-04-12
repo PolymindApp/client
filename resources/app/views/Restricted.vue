@@ -87,6 +87,7 @@ import { rtlLanguages } from '@/locales';
 import EventBus from "@/utils/EventBus";
 
 let languageSwitchBus;
+let checkFocusTimeout;
 
 export default Vue.extend({
 	name: 'Restricted',
@@ -139,9 +140,12 @@ export default Vue.extend({
         handleLanguageSwitch(value) {
             EventBus.publish('LANGUAGE_SWITCH', value);
         },
-        handleCheckFocus() {
-            this.$root.inputFocused = ['input', 'textarea'].indexOf(document.activeElement.nodeName.toLowerCase()) !== -1;
-            this.$forceUpdate();
+        handleCheckFocus(args) {
+            clearTimeout(checkFocusTimeout);
+            checkFocusTimeout = setTimeout(() => {
+                this.$root.inputFocused = ['input', 'textarea'].indexOf(document.activeElement.nodeName.toLowerCase()) !== -1 && !document.activeElement.getAttribute('readonly');
+                this.$forceUpdate();
+            }, args.type === 'focusout' ? 100 : 0);
         },
     },
 

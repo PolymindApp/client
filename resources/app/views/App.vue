@@ -59,6 +59,7 @@ import EventBus from "@/utils/EventBus";
 import {rtlLanguages} from "@/locales";
 
 let languageSwitchBus;
+let checkFocusTimeout;
 
 export default Vue.extend({
 	name: 'App',
@@ -92,9 +93,12 @@ export default Vue.extend({
                     break;
             }
         },
-        handleCheckFocus() {
-            this.$root.inputFocused = ['input', 'textarea'].indexOf(document.activeElement.nodeName.toLowerCase()) !== -1;
-            this.$forceUpdate();
+        handleCheckFocus(args) {
+            clearTimeout(checkFocusTimeout);
+            checkFocusTimeout = setTimeout(() => {
+                this.$root.inputFocused = ['input', 'textarea'].indexOf(document.activeElement.nodeName.toLowerCase()) !== -1 && !document.activeElement.getAttribute('readonly');
+                this.$forceUpdate();
+            }, args.type === 'focusout' ? 100 : 0);
         },
 		handleLogoutClick() {
             this.$confirm(
