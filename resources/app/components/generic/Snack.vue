@@ -1,6 +1,6 @@
 <template>
 	<v-snackbar v-model="visible" v-bind="$attrs" v-on="$listeners">
-        <v-icon v-if="icon" v-text="icon" left></v-icon>
+        <v-icon v-if="icon" v-text="icon" :left="!$vuetify.rtl" :right="$vuetify.rtl"></v-icon>
         <span v-text="body" class="mr-4"></span>
 
         <template #action="{ attrs }">

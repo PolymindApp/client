@@ -191,7 +191,7 @@
             </v-container>
             <div style="flex: 1" class="pa-4 d-flex align-center justify-space-between">
                 <v-btn v-if="showNavigation" :disabled="!canGoPrevious" height="30vh" text x-large @click="handlePrevClick">
-                    <v-icon size="7.5vh">mdi-chevron-left</v-icon>
+                    <v-icon size="7.5vh" v-text="$vuetify.rtl ? 'mdi-chevron-right' : 'mdi-chevron-left'"></v-icon>
                 </v-btn>
                 <div class="d-flex align-center justify-center fill-height" style="flex: 1; position: relative">
                     <v-progress-circular v-if="skeleton" color="primary" size="64" indeterminate></v-progress-circular>
@@ -225,7 +225,7 @@
                     </div>
                 </div>
                 <v-btn v-if="showNavigation" :disabled="!canGoNext" height="30vh" text x-large @click="handleNextClick">
-                    <v-icon size="7.5vh">mdi-chevron-right</v-icon>
+                    <v-icon size="7.5vh" v-text="$vuetify.rtl ? 'mdi-chevron-left' : 'mdi-chevron-right'"></v-icon>
                 </v-btn>
             </div>
             <v-container style="flex: 0" class="pa-4" fluid>

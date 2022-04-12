@@ -11,7 +11,7 @@
 				'd-flex align-center w-100 text-no-wrap': true,
 				'caption': dense,
 			}">
-				<v-icon :x-small="dense" left>mdi-translate</v-icon>
+				<v-icon :x-small="dense" :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-translate</v-icon>
                 <template v-if="!iconOnly">
                     <div v-if="abbreviation" v-text="item.text.toUpperCase()"></div>
                     <div v-else v-text="item.text"></div>

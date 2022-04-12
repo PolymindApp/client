@@ -10,7 +10,7 @@
                 }">
                     <slot name="title">
                         <div class="d-flex align-center overflow-hidden">
-                            <v-icon v-if="icon" left v-text="icon"></v-icon>
+                            <v-icon v-if="icon" :left="!$vuetify.rtl" :right="$vuetify.rtl" v-text="icon"></v-icon>
                             <span class="headline text-truncate" v-text="title"></span>
                         </div>
                     </slot>
@@ -35,7 +35,7 @@
                             <div class="d-flex flex-column flex-md-row w-100 justify-end" style="gap: 0.5rem">
                                 <slot name="buttons">
                                     <v-btn :key="btnIdx" v-for="(btn, btnIdx) in buttons" v-bind="btn.attrs" v-on="btn.events" :block="$vuetify.breakpoint.smAndDown" :outlined="btn.type === 'cancel' || (btn.attrs && btn.attrs.outlined)" large @click="btn.type === 'cancel' ? _value = false : null">
-                                        <v-icon v-if="btn.icon" v-text="btn.icon" left></v-icon>
+                                        <v-icon v-if="btn.icon" v-text="btn.icon" :left="!$vuetify.rtl" :right="$vuetify.rtl"></v-icon>
                                         <span v-if="btn.type === 'cancel'" v-text="$t('btn.cancel')"></span>
                                         <span v-else v-text="btn.text"></span>
                                     </v-btn>

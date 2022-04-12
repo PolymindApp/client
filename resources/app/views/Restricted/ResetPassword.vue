@@ -71,7 +71,7 @@
         </template>
 
 		<v-btn class="mt-4" block text tabindex="5" :to="{ name: 'login' }">
-			<v-icon left>mdi-arrow-left</v-icon>
+			<v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-arrow-left</v-icon>
 			<span v-text="$t('btn.back')"></span>
 		</v-btn>
 	</v-form>

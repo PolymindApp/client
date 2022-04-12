@@ -38,7 +38,7 @@
                 <div class="pa-4">
                     <div v-if="$root.user.id" class="mb-4">
                         <v-btn color="secondaryDark" block text @click="$emit('logout')">
-                            <v-icon color="secondaryDark" left>mdi-logout-variant</v-icon>
+                            <v-icon color="secondaryDark" :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-logout-variant</v-icon>
                             <span v-text="$t('accountMenu.logout')"></span>
                         </v-btn>
                     </div>
