@@ -272,7 +272,7 @@ let autoPlayBus;
 const defaultSettings = {
     mode: null,
     repeat: 1,
-    delay: 1,
+    delay: 5,
     flipped: false,
     reversed: false,
     frontVoiceEnabled: true,
