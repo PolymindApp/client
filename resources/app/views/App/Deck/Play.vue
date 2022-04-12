@@ -208,12 +208,18 @@
                     <div v-else class="px-4 text-center abs_middle">
                         <transition name="slide">
                             <div v-if="!firstPlay && showFront">
-                                <h1 class="text-capitalize-first text-h4 text-md-h3 text-lg-h2" v-text="_cards[index].front"></h1>
+                                <h1 :class="{
+                                    'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !settings.flipped,
+                                    'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': settings.flipped,
+                                }" v-text="_cards[index].front"></h1>
                             </div>
                         </transition>
                         <transition name="slide">
                             <div v-if="!firstPlay && showBack">
-                                <h1 class="text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text" v-text="_cards[index].back"></h1>
+                                <h1 :class="{
+                                    'text-capitalize-first text-h4 text-md-h3 text-lg-h2': settings.flipped,
+                                    'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !settings.flipped,
+                                }" v-text="_cards[index].back"></h1>
                             </div>
                         </transition>
                     </div>
