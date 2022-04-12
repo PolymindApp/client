@@ -12,13 +12,16 @@
         v-on="$listeners"
         @change="handleDeckSelect"
     >
+        <template #selection="{ item }">
+            {{ item.i18n ? $t(item.i18n) : item.name }}
+        </template>
         <template #item="{ item }">
             <template v-if="item.id === '__new__'">
                 <v-icon color="primary" left>mdi-plus-circle</v-icon>
-                <span v-text="item.name"></span>
+                <span v-text="item.i18n ? $t(item.i18n) : item.name"></span>
             </template>
             <template v-else>
-                {{ item.name }}
+                {{ item.i18n ? $t(item.i18n) : item.name }}
             </template>
         </template>
     </v-select>

@@ -14,7 +14,7 @@
         <!-- TITLE -->
         <portal v-if="$vuetify.breakpoint.smAndDown" to="title">
             <v-app-bar-title>
-                <span v-text="deck && deck.name || $t('state.unclassified')"></span>
+                <span v-text="deckName"></span>
             </v-app-bar-title>
         </portal>
 
@@ -383,12 +383,19 @@ export default {
             return (this.audios[(this.cards[this.index] || {}).id] || {});
         },
 
+        deckName() {
+            return this.deck && this.deck.name || this.$i18n.t('state.unclassified');
+        },
+
         _cards() {
             return this.settings.reversed ? this.cards.reverse() : this.cards;
         },
     },
 
     watch: {
+        '$i18n.locale'() {
+            document.title = this.deckName;
+        },
         index: {
             immediate: true,
             handler(newValue, oldValue) {
@@ -707,7 +714,7 @@ export default {
             this.$router.replace({ name: 'deck.edit', params: { uuid: 'unclassified' } })
         }
         this.deck = this.$root.decks.find(deck => deck.id === this.$route.params.uuid) || null;
-        document.title = this.deck && this.deck.name || this.$i18n.t('state.unclassified');
+        document.title = this.deckName;
 
         this.settings = this.$deepClone(defaultSettings);
 

@@ -127,7 +127,7 @@ export default Vue.extend({
                 Services.getDecks(),
             ])
                 .then(([decks]) => {
-                    decks.unshift({ name: this.$i18n.t('state.unclassified'), id: null });
+                    decks.unshift({ i18n: 'state.unclassified', id: null });
                     Object.assign(this.$root, { decks });
                 })
                 .catch(this.$handleError)

@@ -248,9 +248,15 @@ export default {
         fullCardView() {
             return this.$vuetify.breakpoint.smAndDown && this.selected.length > 0;
         },
+        deckName() {
+            return this.deck && this.deck.name || this.$i18n.t('state.unclassified');
+        },
     },
 
     watch: {
+        '$i18n.locale'() {
+            document.title = this.deckName;
+        },
         selected: {
             deep: true,
             handler(value) {
@@ -259,7 +265,7 @@ export default {
                         amount: value.length,
                     });
                 } else {
-                    this.title = this.deck && this.deck.name || this.$i18n.t('state.unclassified');
+                    this.title = this.deckName;
                 }
                 document.title = this.title;
             },
@@ -390,7 +396,7 @@ export default {
             this.$router.replace({ name: 'deck.edit', params: { uuid: 'unclassified' } })
         }
         this.deck = this.$root.decks.find(deck => deck.id === this.$route.params.uuid) || null;
-        this.title = this.deck && this.deck.name || this.$i18n.t('state.unclassified');
+        this.title = this.deckName;
         document.title = this.title;
 
         this.load();

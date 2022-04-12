@@ -27,7 +27,7 @@
         <v-list dense>
             <v-subheader v-text="$t('sidebar.decks.title')"></v-subheader>
             <v-list-item :key="deck.id" v-for="deck in $root.decks" :to="{ name: $route.name, params: { uuid: deck && deck.id || 'unclassified' }}">
-                <v-list-item-content v-text="deck.name"></v-list-item-content>
+                <v-list-item-content v-text="deck.i18n ? $t(deck.i18n) : deck.name"></v-list-item-content>
             </v-list-item>
         </v-list>
 
