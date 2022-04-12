@@ -78,6 +78,9 @@ export default Vue.extend({
             return (!this.$root.inputFocused || this.$vuetify.breakpoint.mdAndUp)
             && (this.$vuetify.breakpoint.mdAndUp || this.$root.orientation === 'portrait');
         },
+        hideMobileFocus() {
+            return this.$root.inputFocused && this.$vuetify.breakpoint.smAndDown;
+        },
     },
 
 	methods: {
@@ -90,6 +93,10 @@ export default Vue.extend({
                     this.$root.orientation = 'portrait';
                     break;
             }
+        },
+        handleCheckFocus() {
+            this.$root.inputFocused = ['input', 'textarea'].indexOf(document.activeElement.nodeName.toLowerCase()) !== -1;
+            this.$forceUpdate();
         },
 		handleLogoutClick() {
             this.$confirm(
@@ -137,10 +144,15 @@ export default Vue.extend({
         window.addEventListener('orientationchange', this.handleOrientationChange);
 
         this.load();
+
+        document.addEventListener('focusin', this.handleCheckFocus);
+        document.addEventListener('focusout', this.handleCheckFocus);
     },
 
     destroyed() {
         window.removeEventListener('orientationchange', this.handleOrientationChange);
+        document.removeEventListener('focusin', this.handleCheckFocus);
+        document.removeEventListener('focusout', this.handleCheckFocus);
     }
 });
 </script>

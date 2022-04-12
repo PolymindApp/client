@@ -363,8 +363,8 @@ export default {
         totalDelay() {
             return (this.settings.delay
                 * (this.settings.mode === null ? 2 : 1) * 1000)
-                + ((this.currentAudio.front || {}).duration || 0)
-                + ((this.currentAudio.back || {}).duration || 0);
+                + (((this.currentAudio.front || {}).duration || 0) * 1000)
+                + (((this.currentAudio.back || {}).duration || 0) * 1000);
         },
 
         isFirstSide() {

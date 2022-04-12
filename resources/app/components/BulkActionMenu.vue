@@ -507,6 +507,7 @@ export default {
                         });
                     });
                     this.$emit('update', response);
+                    return response;
                 })
                 .catch(this.$handleError)
                 .finally(() => this.bulking = false);
@@ -524,8 +525,9 @@ export default {
 
             this.bulking = true;
             return Services.bulkCreateCards(cards)
-                .then(() => {
+                .then(response => {
                     this.$snack(this.$i18n.t('snack.cardBulkCopied'));
+                    return response;
                 })
                 .catch(this.$handleError)
                 .finally(() => this.bulking = false);
@@ -563,6 +565,7 @@ export default {
                     this.$emit('update', response);
                     this.$snack(this.$i18n.t('snack.cardBulkDeleted'));
                     this.removeSelected();
+                    return response;
                 })
                 .catch(this.$handleError)
                 .finally(() => this.bulking = false);

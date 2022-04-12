@@ -19,10 +19,12 @@
 			<v-sheet class="h-100 d-flex flex-column py-4 py-md-0" :color="background">
 				<v-sheet color="transparent" class="h-100 d-flex align-center justify-center" style="flex: 1">
 					<v-card :max-width="maxWidth" class="text-center w-100" :tile="flat" :flat="flat">
-						<v-card-text class="d-flex flex-column align-center" :style="logoStyle">
-							<v-img :src="logo" :max-width="logoSize" :height="logoSize" contain />
-							<h1 class="primary--text display-1 mt-2" style="flex: 1" v-text="$t('restricted.title.' + $route.name)">Polymind</h1>
-						</v-card-text>
+                        <v-card-text :style="logoStyle">
+                            <div class="d-flex flex-column align-center">
+                                <v-img :src="logo" :max-width="logoSize" :height="logoSize" contain />
+                                <h1 class="primary--text display-1 mt-2" style="flex: 1" v-text="$t('restricted.title.' + $route.name)">Polymind</h1>
+                            </div>
+                        </v-card-text>
 						<v-card-text>
 							<router-view @terms="termsModal = true" />
 						</v-card-text>
@@ -94,6 +96,9 @@ export default Vue.extend({
 				? 150
 				: 75;
 		},
+        hideMobileFocus() {
+            return this.$root.inputFocused && this.$vuetify.breakpoint.smAndDown;
+        },
 	},
 
 	watch: {
@@ -103,9 +108,24 @@ export default Vue.extend({
 		},
 	},
 
+    methods: {
+        handleCheckFocus() {
+            this.$root.inputFocused = ['input', 'textarea'].indexOf(document.activeElement.nodeName.toLowerCase()) !== -1;
+            this.$forceUpdate();
+        },
+    },
+
 	created() {
 		this.lang = this.$i18n.locale;
 		localStorage.setItem('lang', this.lang);
+
+        document.addEventListener('focusin', this.handleCheckFocus);
+        document.addEventListener('focusout', this.handleCheckFocus);
 	},
+
+    destroyed() {
+        document.removeEventListener('focusin', this.handleCheckFocus);
+        document.removeEventListener('focusout', this.handleCheckFocus);
+    }
 });
 </script>

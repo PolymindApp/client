@@ -95,6 +95,7 @@
 	"header.back": "Verso",
 	"header.createdAt": "Créé à",
 	"header.front": "Devant",
+	"home.selected": "Sélectionné ({amount})",
 	"language.en-CA": "Anglais (Canada)",
 	"language.es-MX": "Espagnol (Mexique)",
 	"language.fr-CA": "Français (Canada)",

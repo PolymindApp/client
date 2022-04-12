@@ -6,11 +6,15 @@
 
         <v-spacer v-if="$vuetify.breakpoint.smAndDown" />
 
-        <portal-target name="title" slim>
-            <div class="d-flex align-center mr-3 px-md-6 no-select" x-large text>
-                <v-img :src="logo" width="2rem" class="mr-3" />
-                <div class="title mb-n1">Polymind</div>
-            </div>
+        <div v-if="$vuetify.breakpoint.mdAndUp" class="d-flex align-center mr-3 px-md-6 no-select">
+            <v-img :src="logo" width="2rem" class="mr-3" />
+            <div class="title mb-n1">Polymind</div>
+        </div>
+
+        <portal-target v-if="$vuetify.breakpoint.smAndDown" name="title" slim>
+            <v-app-bar-title>
+                <span>Polymind</span>
+            </v-app-bar-title>
         </portal-target>
 
         <template v-if="$vuetify.breakpoint.mdAndUp">

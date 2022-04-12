@@ -95,6 +95,7 @@
 	"header.back": "Atrás",
 	"header.createdAt": "Creado en",
 	"header.front": "Frente",
+	"home.selected": "Seleccionado ({amount})",
 	"language.en-CA": "Inglés (Canadá)",
 	"language.es-MX": "Español (México)",
 	"language.fr-CA": "Francés (Canadá)",

@@ -1,44 +1,50 @@
 <template>
-	<v-dialog v-model="_value" v-bind="$attrs" v-on="$listeners" :persistent="disabled" :dark="dark">
+	<v-dialog v-model="_value" v-bind="$attrs" v-on="$listeners" :persistent="disabled" :dark="dark" :fullscreen="fullscreen">
 		<v-card :color="color" :disabled="disabled" :tile="$vuetify.breakpoint.smAndDown" class="d-flex flex-column">
-			<v-card-title :class="{
-                'd-flex align-center flex-nowrap justify-space-between': true,
-                'background': !dense && !dark && !$vuetify.breakpoint.smAndDown,
-                'primary white--text': !dense && !dark && $vuetify.breakpoint.smAndDown,
-                'py-3': $vuetify.breakpoint.smAndDown,
-			}">
-				<slot name="title">
-					<div class="d-flex align-center overflow-hidden">
-						<v-icon v-if="icon" left v-text="icon"></v-icon>
-						<span class="headline text-truncate" v-text="title"></span>
-					</div>
-				</slot>
-				<v-btn @click="_value = false" :dark="!dense && $vuetify.breakpoint.smAndDown" icon>
-					<v-icon>mdi-close</v-icon>
-				</v-btn>
-			</v-card-title>
+            <v-expand-transition>
+                <v-card-title v-if="!hideMobileFocus" :class="{
+                    'd-flex align-center flex-nowrap justify-space-between': true,
+                    'background': !dense && !dark && !$vuetify.breakpoint.smAndDown,
+                    'primary white--text': !dense && !dark && $vuetify.breakpoint.smAndDown,
+                    'py-3': $vuetify.breakpoint.smAndDown,
+                }">
+                    <slot name="title">
+                        <div class="d-flex align-center overflow-hidden">
+                            <v-icon v-if="icon" left v-text="icon"></v-icon>
+                            <span class="headline text-truncate" v-text="title"></span>
+                        </div>
+                    </slot>
+                    <v-btn @click="_value = false" :dark="!dense && $vuetify.breakpoint.smAndDown" icon>
+                        <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                </v-card-title>
+            </v-expand-transition>
 			<v-card-text :class="{ 'py-8': !dense }" style="flex: 1">
 				<slot name="body">
 					<div v-html="body"></div>
 				</slot>
 			</v-card-text>
-            <v-divider></v-divider>
-            <v-card-actions :class="{
-                'py-4 py-md-2': true,
-                'background': !dense && !dark,
-            }">
-                <slot name="actions">
-                    <div class="d-flex flex-column flex-md-row w-100 justify-end" style="gap: 0.5rem">
-                        <slot name="buttons">
-                            <v-btn :key="btnIdx" v-for="(btn, btnIdx) in buttons" v-bind="btn.attrs" v-on="btn.events" :block="$vuetify.breakpoint.smAndDown" :outlined="btn.type === 'cancel' || (btn.attrs && btn.attrs.outlined)" large @click="btn.type === 'cancel' ? _value = false : null">
-                                <v-icon v-if="btn.icon" v-text="btn.icon" left></v-icon>
-                                <span v-if="btn.type === 'cancel'" v-text="$t('btn.cancel')"></span>
-                                <span v-else v-text="btn.text"></span>
-                            </v-btn>
+            <v-expand-transition>
+                <div v-if="!hideMobileFocus">
+                    <v-divider></v-divider>
+                    <v-card-actions :class="{
+                        'py-4 py-md-2': true,
+                        'background': !dense && !dark,
+                    }">
+                        <slot name="actions">
+                            <div class="d-flex flex-column flex-md-row w-100 justify-end" style="gap: 0.5rem">
+                                <slot name="buttons">
+                                    <v-btn :key="btnIdx" v-for="(btn, btnIdx) in buttons" v-bind="btn.attrs" v-on="btn.events" :block="$vuetify.breakpoint.smAndDown" :outlined="btn.type === 'cancel' || (btn.attrs && btn.attrs.outlined)" large @click="btn.type === 'cancel' ? _value = false : null">
+                                        <v-icon v-if="btn.icon" v-text="btn.icon" left></v-icon>
+                                        <span v-if="btn.type === 'cancel'" v-text="$t('btn.cancel')"></span>
+                                        <span v-else v-text="btn.text"></span>
+                                    </v-btn>
+                                </slot>
+                            </div>
                         </slot>
-                    </div>
-                </slot>
-            </v-card-actions>
+                    </v-card-actions>
+                </div>
+            </v-expand-transition>
 		</v-card>
 	</v-dialog>
 </template>
@@ -72,6 +78,10 @@ export default {
 			type: Boolean,
 			default: null,
 		},
+		fullscreen: {
+			type: Boolean,
+			default: false,
+		},
 		title: {
 			type: String,
 			default: null,
@@ -95,6 +105,9 @@ export default {
 				this.$emit('input', value);
 			},
 		},
+        hideMobileFocus() {
+            return this.$root.inputFocused && this.$vuetify.breakpoint.smAndDown && this.fullscreen;
+        },
 	},
 
     created() {

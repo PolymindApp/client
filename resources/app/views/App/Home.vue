@@ -10,7 +10,7 @@
                         :error-messages="deckModal.formErrors.name"
                         :label="$t('placeholder.name')"
                         :rules="[rules.required]"
-                        :autofocus="deckModal.visible"
+                        :autofocus="deckModal.visible && $vuetify.breakpoint.mdAndUp"
                         outlined
                         required
                         @input="handleInput"
@@ -58,9 +58,9 @@
         </v-form>
 
         <!-- TITLE -->
-        <portal v-if="$vuetify.breakpoint.smAndDown" to="title">
+        <portal to="title">
             <v-app-bar-title>
-                <span v-text="deck && deck.name || $t('state.unclassified')"></span>
+                <span v-text="title"></span>
             </v-app-bar-title>
         </portal>
 
@@ -212,6 +212,7 @@ export default {
         back: '',
         frontSynthesized: null,
         backSynthesized: null,
+        title: null,
         deckModal: {
             visible: false,
             loading: false,
@@ -246,6 +247,22 @@ export default {
         },
         fullCardView() {
             return this.$vuetify.breakpoint.smAndDown && this.selected.length > 0;
+        },
+    },
+
+    watch: {
+        selected: {
+            deep: true,
+            handler(value) {
+                if (value.length > 0) {
+                    this.title = this.$i18n.t('home.selected', {
+                        amount: value.length,
+                    });
+                } else {
+                    this.title = this.deck && this.deck.name || this.$i18n.t('state.unclassified');
+                }
+                document.title = this.title;
+            },
         },
     },
 
@@ -373,7 +390,8 @@ export default {
             this.$router.replace({ name: 'deck.edit', params: { uuid: 'unclassified' } })
         }
         this.deck = this.$root.decks.find(deck => deck.id === this.$route.params.uuid) || null;
-        document.title = this.deck && this.deck.name || this.$i18n.t('state.unclassified');
+        this.title = this.deck && this.deck.name || this.$i18n.t('state.unclassified');
+        document.title = this.title;
 
         this.load();
     },

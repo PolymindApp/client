@@ -40,16 +40,6 @@ class CardController extends Controller
         ]);
 
         $data = $request->all();
-        $polly = new Polly();
-        foreach(['front', 'back'] as $side) {
-            $voiceId = $data[$side . '_voice_id'] ?? null;
-            if ($voiceId) {
-                $voice = Voice::find($voiceId);
-                $stream = $polly->getDataStream($data[$side], $voice->language->code, $voice->name, $voice->standard === 1);
-                $data[$side . '_synthesized'] = 'data:audio/mp3;base64,' . base64_encode($stream);
-            }
-        }
-
         $card = Card::find(Card::create($data)->id);
         return response($card);
     }
