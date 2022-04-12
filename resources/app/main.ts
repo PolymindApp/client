@@ -3,10 +3,10 @@ import App from './views/App.vue'
 import Restricted from './views/Restricted.vue'
 import appRoutes from '@/routes/app.routes';
 import restrictedRoutes from '@/routes/restricted.routes';
-import vuetify from '@/plugins/vuetify'
 import VueRouter from 'vue-router'
 import PortalVue from 'portal-vue'
-import i18n from './locales'
+import i18n, { rtlLanguages } from './locales'
+import vuetify from '@/plugins/vuetify'
 import DeepClone from '@/utils/DeepClone'
 import Error from '@/utils/Error'
 import Modal from '@/utils/Modal'
@@ -52,6 +52,7 @@ const render = (
 	if (path) {
 		router.replace(path);
 	}
+    vuetify.preset.rtl = rtlLanguages.indexOf(i18n.locale) !== -1;
 	new Vue({
 		router,
 		vuetify,

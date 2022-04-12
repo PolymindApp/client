@@ -6,8 +6,8 @@
 
         <v-spacer v-if="$vuetify.breakpoint.smAndDown" />
 
-        <div v-if="$vuetify.breakpoint.mdAndUp" class="d-flex align-center mr-3 px-md-6 no-select">
-            <v-img :src="logo" width="2rem" class="mr-3" />
+        <div v-if="$vuetify.breakpoint.mdAndUp" class="d-flex align-center mr-3 px-md-6 no-select" style="gap: 1rem">
+            <v-img :src="logo" width="2rem" />
             <div class="title mb-n1">Polymind</div>
         </div>
 

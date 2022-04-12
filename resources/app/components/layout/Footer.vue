@@ -19,7 +19,7 @@
                 </v-tooltip>
             </div>
             <div style="max-width: 12rem">
-                <LanguageSwitcher v-model="$i18n.locale" btn-class="px-0" color="secondaryDark" outlined dense hide-details />
+                <LanguageSwitcher v-model="$i18n.locale" btn-class="px-0" color="secondaryDark" outlined dense hide-details @input="handleLanguageSwitch" />
             </div>
         </div>
     </v-footer>
@@ -28,6 +28,7 @@
 <script>
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import packageJson from '../../../../package.json';
+import EventBus from "@/utils/EventBus";
 
 export default {
     name: "Footer",
@@ -56,5 +57,11 @@ export default {
             },
         },
     },
+
+    methods: {
+        handleLanguageSwitch(value) {
+            EventBus.publish('LANGUAGE_SWITCH', value);
+        },
+    }
 }
 </script>

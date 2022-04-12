@@ -3,8 +3,8 @@
         <template #prepend>
             <v-sheet :color="$vuetify.breakpoint.smAndDown ? 'primary' : null" :dark="$vuetify.breakpoint.smAndDown">
                 <v-list-item class="pt-4 d-flex align-center">
-                    <div class="d-flex align-center justify-center no-select" style="flex: 1">
-                        <img :src="logo" height="37" class="mr-3" />
+                    <div class="d-flex align-center justify-center no-select" style="gap: 1rem; flex: 1">
+                        <img :src="logo" height="37" />
                         <div class="title mb-n1">Polymind</div>
                     </div>
                     <v-btn @click.prevent="_value = false" icon>
@@ -18,7 +18,7 @@
     <!--            </v-list-item>-->
 
                 <v-list-item class="mt-4">
-                    <LanguageSwitcher v-model="$i18n.locale" btn-class="px-0" color="secondaryDark" outlined dense hide-details />
+                    <LanguageSwitcher v-model="$i18n.locale" btn-class="px-0" color="secondaryDark" outlined dense hide-details @input="handleLanguageSwitch" />
                 </v-list-item>
                 <v-divider class="mt-4"></v-divider>
             </v-sheet>
@@ -72,6 +72,7 @@
 import logoLight from '@/assets/images/polymind-light.svg'
 import logoDark from '@/assets/images/polymind-dark.svg'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import EventBus from '@/utils/EventBus'
 import packageJson from "../../../../package.json";
 
 export default {
@@ -107,6 +108,12 @@ export default {
 
         logo() {
             return this.$vuetify.breakpoint.smAndDown || this.$vuetify.theme.dark ? logoLight : logoDark;
+        },
+    },
+
+    methods: {
+        handleLanguageSwitch(value) {
+            EventBus.publish('LANGUAGE_SWITCH', value);
         },
     },
 }

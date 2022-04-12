@@ -19,13 +19,14 @@
         >
             <template #footer.prepend>
                 <BulkActionMenu
+                    ref="bulkAction"
                     :cards.sync="_cards"
-                    :selected.sync="_selected"
+                    :selected.sync="_bulkSelected"
                     :voices="voices"
                     :btn-attrs="{ outlined: true }"
                     top
                     offset-y
-                    @update="$emit('update')"
+                    @update="handleUpdate"
                 />
             </template>
             <template #no-data>
@@ -44,14 +45,24 @@
                 {{ item.created_at | moment('YYYY-MM-DD HH:mm:ss') }}
             </template>
             <template #item._action="{ item }">
-                <v-tooltip left>
-                    <template #activator="{ attrs, on }">
-                        <v-btn v-bind="attrs" v-on="on" icon @click.stop="handleDeleteCardClick(item)">
-                            <v-icon>mdi-delete</v-icon>
-                        </v-btn>
-                    </template>
-                    <span v-text="$t('btn.delete')"></span>
-                </v-tooltip>
+                <div class="d-flex">
+                    <v-tooltip left>
+                        <template #activator="{ attrs, on }">
+                            <v-btn v-bind="attrs" v-on="on" icon @click.stop="handleEditCardClick(item)">
+                                <v-icon>mdi-pencil</v-icon>
+                            </v-btn>
+                        </template>
+                        <span v-text="$t('btn.edit')"></span>
+                    </v-tooltip>
+                    <v-tooltip left>
+                        <template #activator="{ attrs, on }">
+                            <v-btn v-bind="attrs" v-on="on" icon @click.stop="handleDeleteCardClick(item)">
+                                <v-icon>mdi-delete</v-icon>
+                            </v-btn>
+                        </template>
+                        <span v-text="$t('btn.delete')"></span>
+                    </v-tooltip>
+                </div>
             </template>
         </v-data-table>
     </v-card>
@@ -155,6 +166,10 @@ export default {
         },
     },
 
+    data: () => ({
+        singleSelected: [],
+    }),
+
     computed: {
         _cards: {
             get() {
@@ -162,6 +177,16 @@ export default {
             },
             set(value) {
                 this.$emit('update:cards', value);
+            },
+        },
+        _bulkSelected: {
+            get() {
+                return this.singleSelected.length === 0
+                    ? this.selected
+                    : this.singleSelected;
+            },
+            set(value) {
+                this.$emit('update:selected', value);
             },
         },
         _selected: {
@@ -175,6 +200,13 @@ export default {
     },
 
     methods: {
+        handleUpdate(args) {
+            if (this.singleSelected.length > 0) {
+                this.singleSelected = [];
+            }
+
+            this.$emit('update', args);
+        },
         handleCardClick(card) {
             const index = this.selected.findIndex(item => item.id === card.id);
             if (index === -1) {
@@ -184,6 +216,11 @@ export default {
             }
 
             this.$emit('selected', this._selected);
+        },
+
+        handleEditCardClick(card) {
+            this.singleSelected = [card];
+            this.$nextTick(() => this.$refs.bulkAction.handleEdit());
         },
 
         handleDeleteCardClick(card) {

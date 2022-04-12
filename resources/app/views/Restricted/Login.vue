@@ -32,7 +32,7 @@
 		/>
 
 		<div class="d-flex align-center">
-			<v-icon left>mdi-help-circle-outline</v-icon>
+			<v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-help-circle-outline</v-icon>
 			<router-link :to="{ name: 'forgot_password' }" tabindex="5">
 				<span v-text="$t('login.forgotPassword')"></span>
 			</router-link>

@@ -28,18 +28,18 @@
 
         <!-- OPTIONS -->
         <portal to="options">
-            <v-list-item :disabled="!canResetSession" @click="handleResetSessionClick">
-                <v-list-item-icon>
-                    <v-icon>mdi-reload</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content v-text="$t('btn.reset')"></v-list-item-content>
-            </v-list-item>
-            <v-divider class="my-2" />
             <v-list-item :disabled="!canAdjustPlaybackSettings" @click="handlePlaybackSettingsClick">
                 <v-list-item-icon>
                     <v-icon>mdi-headphones-settings</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content v-text="$t('btn.playbackSettings')"></v-list-item-content>
+            </v-list-item>
+            <v-divider class="my-2" />
+            <v-list-item :disabled="!canResetSession" @click="handleResetSessionClick">
+                <v-list-item-icon>
+                    <v-icon>mdi-reload</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content v-text="$t('btn.reset')"></v-list-item-content>
             </v-list-item>
             <v-list-item :disabled="!canExport" @click="handleExportClick">
                 <v-list-item-icon>

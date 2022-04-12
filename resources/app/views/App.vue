@@ -25,10 +25,11 @@
 
         <Sidebar
             v-model="drawer"
-            :social-links="socialLinks"
+            :social-links="$root.socialLinks"
             width="270"
             fixed
             temporary
+            :right="$vuetify.rtl"
             @logout="handleLogoutClick"
         />
 
@@ -40,7 +41,7 @@
 
         <Footer
             v-if="$vuetify.breakpoint.mdAndUp"
-            :social-links="socialLinks"
+            :social-links="$root.socialLinks"
         />
 	</v-app>
 </template>
@@ -55,6 +56,9 @@ import GlobalModal from "@/components/generic/Modal";
 import Snack from "@/components/generic/Snack";
 import Services from "@/utils/Services";
 import EventBus from "@/utils/EventBus";
+import {rtlLanguages} from "@/locales";
+
+let languageSwitchBus;
 
 export default Vue.extend({
 	name: 'App',
@@ -65,12 +69,6 @@ export default Vue.extend({
         loading: true,
         loaded: false,
         drawer: false,
-        socialLinks: [
-            { icon: 'mdi-facebook', tooltip: 'Facebook', href: 'https://www.facebook.com/polymindapp' },
-            { icon: 'mdi-twitter', tooltip: 'Twitter', href: 'https://twitter.com/polymindapp' },
-            { icon: 'mdi-youtube', tooltip: 'Youtube', href: 'https://www.youtube.com/channel/UCX8r3RbWCk9VSWp7EO9zqcA' },
-            { icon: 'mdi-github', tooltip: 'Github', href: 'https://github.com/PolymindApp' },
-        ],
     }),
 
     computed: {
@@ -147,12 +145,17 @@ export default Vue.extend({
 
         document.addEventListener('focusin', this.handleCheckFocus);
         document.addEventListener('focusout', this.handleCheckFocus);
+
+        languageSwitchBus = EventBus.subscribe('LANGUAGE_SWITCH', lang => {
+            this.$vuetify.rtl = rtlLanguages.indexOf(lang) !== -1;
+        });
     },
 
     destroyed() {
         window.removeEventListener('orientationchange', this.handleOrientationChange);
         document.removeEventListener('focusin', this.handleCheckFocus);
         document.removeEventListener('focusout', this.handleCheckFocus);
+        languageSwitchBus.unsubscribe();
     }
 });
 </script>

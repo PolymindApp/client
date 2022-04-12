@@ -25,4 +25,10 @@ export default {
 		buttons: [],
 		attrs: {},
 	},
+    socialLinks: [
+        { icon: 'mdi-facebook', tooltip: 'Facebook', href: 'https://www.facebook.com/polymindapp' },
+        { icon: 'mdi-twitter', tooltip: 'Twitter', href: 'https://twitter.com/polymindapp' },
+        { icon: 'mdi-youtube', tooltip: 'Youtube', href: 'https://www.youtube.com/channel/UCX8r3RbWCk9VSWp7EO9zqcA' },
+        { icon: 'mdi-github', tooltip: 'Github', href: 'https://github.com/PolymindApp' },
+    ],
 }

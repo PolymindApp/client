@@ -8,23 +8,25 @@
 	>
 		<template #selection="{ item }">
 			<div :class="{
-				'd-flex align-center text-no-wrap': true,
+				'd-flex align-center w-100 text-no-wrap': true,
 				'caption': dense,
 			}">
 				<v-icon :x-small="dense" left>mdi-translate</v-icon>
                 <template v-if="!iconOnly">
-                    <span v-if="abbreviation" v-text="item.text.toUpperCase()"></span>
-                    <span v-else v-text="$i18n.t('language.' + item.text)"></span>
+                    <div v-if="abbreviation" v-text="item.text.toUpperCase()"></div>
+                    <div v-else v-text="item.text"></div>
                 </template>
 			</div>
 		</template>
 		<template #item="{ item }">
-			<span v-text="$i18n.t('language.' + item.text)"></span>
+			<span v-text="item.text"></span>
 		</template>
 	</v-select>
 </template>
 
 <script>
+import languages from '@/assets/languages.json';
+
 export default {
 	name: "LanguageSwitcher",
 
@@ -66,7 +68,7 @@ export default {
 	created() {
 		this.items = this.$i18n.availableLocales.map(lang => ({
 			value: lang,
-			text: lang,
+			text: (languages.find(item => item.code === lang) || { native: lang }).native,
 		}));
 	},
 }
