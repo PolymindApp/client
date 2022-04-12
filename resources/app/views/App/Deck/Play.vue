@@ -195,26 +195,28 @@
                 </v-btn>
                 <div class="d-flex align-center justify-center fill-height" style="flex: 1; position: relative">
                     <v-progress-circular v-if="skeleton" color="primary" size="64" indeterminate></v-progress-circular>
-                    <template v-else-if="originalCards.length === 0">
-                        <div class="text-center" style="max-width: 15rem">
-                            <v-icon color="warning" x-large>mdi-alert</v-icon>
-                            <h3 class="mt-2" v-text="$t('deck.play.emptyWarning')"></h3>
-                        </div>
-                    </template>
+                    <div v-else-if="originalCards.length === 0" class="text-center" style="max-width: 15rem">
+                        <v-icon color="warning" x-large>mdi-alert</v-icon>
+                        <h3 class="mt-2" v-text="$t('deck.play.emptyWarning')"></h3>
+                    </div>
                     <v-btn v-else-if="completed" height="15vh" width="15vh" text fab x-large @click="handleResetClick">
                         <v-icon size="7.5vh">mdi-refresh</v-icon>
                     </v-btn>
                     <v-btn v-else-if="firstPlay" height="15vh" width="15vh" text fab x-large :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
                         <v-icon size="7.5vh" v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
                     </v-btn>
-                    <template v-else>
+                    <div v-else class="px-4 text-center abs_middle">
                         <transition name="slide">
-                            <h1 class="text-capitalize-first text-center px-4 text-h4 text-md-h3 text-lg-h2 abs_middle" v-if="!firstPlay && showFront" v-text="_cards[index].front"></h1>
+                            <div v-if="!firstPlay && showFront">
+                                <h1 class="text-capitalize-first text-h4 text-md-h3 text-lg-h2" v-text="_cards[index].front"></h1>
+                            </div>
                         </transition>
                         <transition name="slide">
-                            <h1 class="text-capitalize-first text-center px-4 text-h3 text-md-h2 text-lg-h1 abs_middle primary--text" v-if="!firstPlay && showBack" v-text="_cards[index].back"></h1>
+                            <div v-if="!firstPlay && showBack">
+                                <h1 class="text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text" v-text="_cards[index].back"></h1>
+                            </div>
                         </transition>
-                    </template>
+                    </div>
                 </div>
                 <v-btn v-if="showNavigation" :disabled="!canGoNext" height="30vh" text x-large @click="handleNextClick">
                     <v-icon size="7.5vh">mdi-chevron-right</v-icon>
@@ -270,7 +272,7 @@ let autoPlayBus;
 const defaultSettings = {
     mode: null,
     repeat: 1,
-    delay: 5,
+    delay: 1,
     flipped: false,
     reversed: false,
     frontVoiceEnabled: true,
@@ -519,7 +521,7 @@ export default {
                 this.progress = (this.totalDelay - remainingTime) * 100 / this.totalDelay;
 
                 if (this.settings.mode === null) {
-                    const midProgress = originalRange - ((this.currentAudio.front || {}).duration || 0) - (this.settings.delay * 1000);
+                    const midProgress = originalRange - (((this.currentAudio.front || {}).duration || 0) * 1000) - (this.settings.delay * 1000);
                     if (!this.isOtherSide && remainingTime < midProgress) {
                         this.setFirstSide(this.settings.mode === 'back');
                         this.setOtherSide(this.settings.mode !== 'back');
@@ -725,16 +727,23 @@ export default {
     left: 0;
     width: 100%;
 }
+.abs_middle h1 {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    width: 100%;
+}
 .slide-enter-active,
 .slide-leave-active {
     transition-duration: 0.2s;
     transition-property: opacity, transform;
     transition-timing-function: ease;
-    transform: translateY(0px);
+    transform: translateY(-50%);
 }
 .slide-enter,
 .slide-leave-active {
     opacity: 0;
-    transform: translateY(1.5rem);
+    transform: translateY(calc(-50% + 1.5rem));
 }
 </style>
