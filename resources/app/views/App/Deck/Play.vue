@@ -205,22 +205,22 @@
                     <v-btn v-else-if="firstPlay" height="15vh" width="15vh" text fab x-large :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
                         <v-icon size="7.5vh" v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
                     </v-btn>
-                    <div v-else class="px-4 text-center abs_middle">
+                    <div v-else-if="_cards[index]" class="px-4 text-center abs_middle">
                         <transition name="slide">
-                            <div v-if="!firstPlay && showFront">
-                                <h1 :class="{
+                            <v-card v-if="!firstPlay && showFront">
+                                <h1 v-ripple @click="handleClickCard(_cards[index], 'front')" :class="{
                                     'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !settings.flipped,
                                     'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': settings.flipped,
                                 }" v-text="_cards[index].front"></h1>
-                            </div>
+                            </v-card>
                         </transition>
                         <transition name="slide">
-                            <div v-if="!firstPlay && showBack">
-                                <h1 :class="{
+                            <v-card v-if="!firstPlay && showBack">
+                                <h1 v-ripple @click="handleClickCard(_cards[index], 'back')" :class="{
                                     'text-capitalize-first text-h4 text-md-h3 text-lg-h2': settings.flipped,
                                     'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !settings.flipped,
                                 }" v-text="_cards[index].back"></h1>
-                            </div>
+                            </v-card>
                         </transition>
                     </div>
                 </div>
@@ -361,7 +361,7 @@ export default {
         },
 
         showNavigation() {
-            return !this.skeleton && this.originalCards.length > 0 && this.$vuetify.breakpoint.mdAndUp;
+            return !this.skeleton && this.originalCards.length > 0 && (this.$vuetify.breakpoint.mdAndUp || this.$root.orientation === 'landscape');
         },
 
         showProgress() {
@@ -423,6 +423,13 @@ export default {
     },
 
     methods: {
+        handleClickCard(card, side) {
+            if (this.audios[card.id] && this.audios[card.id][side]) {
+                this.audios[card.id][side].element.currentTime = 0;
+                this.audios[card.id][side].element.play();
+            }
+        },
+
         handleSwipeLeft() {
             if (this.canGoPrevious) {
                 this.next();
@@ -471,10 +478,8 @@ export default {
         },
 
         handlePlayClick() {
-
-            this.$sound.play('play');
-
             if (this.firstPlay) {
+                this.$sound.play('play');
                 this.index = 0;
             }
 
@@ -506,7 +511,6 @@ export default {
         },
 
         handleResetClick() {
-            this.$sound.play('play');
             this.reset();
             this.play();
         },
@@ -612,8 +616,8 @@ export default {
         reset() {
             this.cards = this.$deepClone(this.originalCards);
             this.firstPlay = true;
-            this.completed = false
-            this.index = -1;
+            this.completed = false;
+            this.index = 0;
             this.resetTime(new Date());
         },
 

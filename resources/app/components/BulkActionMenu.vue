@@ -90,22 +90,23 @@
                 />
             </template>
             <template #buttons>
-                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="bulking" :disabled="bulking" color="primary" large @click="handleEditComplete">
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="bulking" :disabled="!canBulkSave" color="primary" large @click="handleEditComplete">
                     <span v-text="$t('btn.save')"></span>
                 </v-btn>
                 <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="bulking" outlined large @click="editDialog.visible = false">
                     <span v-text="$t('btn.cancel')"></span>
                 </v-btn>
                 <template v-if="selected.length > 1">
-                    <v-divider class="my-3" />
+                    <v-divider v-if="$vuetify.breakpoint.smAndDown" class="my-3" />
+                    <v-spacer v-else />
                     <div class="d-flex align-center" style="gap: 1rem">
-                        <v-btn :disabled="bulking" outlined large @click="handlePrevious">
+                        <v-btn :disabled="bulking" icon @click="handlePrevious">
                             <v-icon>mdi-arrow-left</v-icon>
                         </v-btn>
                         <span class="text-center" style="flex: 1">
                             {{ index + 1 }} or {{ selected.length }}
                         </span>
-                        <v-btn :disabled="bulking" outlined large @click="handleNext">
+                        <v-btn :disabled="bulking" icon @click="handleNext">
                             <v-icon>mdi-arrow-right</v-icon>
                         </v-btn>
                     </div>
@@ -265,6 +266,8 @@ export default {
             visible: false,
             formErrors: {},
             data: [],
+            originalData: [],
+            originalDataStr: '',
         },
         moveToDialog: {
             visible: false,
@@ -320,6 +323,9 @@ export default {
                     || (this.copyToDialog.newDeck.name || '').trim() !== ''
                 );
         },
+        canBulkSave() {
+            return !this.bulking && JSON.stringify(this.editDialog.data) !== this.editDialog.originalDataStr;
+        }
     },
 
     watch: {
@@ -348,15 +354,19 @@ export default {
         handleEdit() {
             Object.assign(this.editDialog, {
                 visible: true,
-                data: this.$deepClone(this.selected)
+                data: this.$deepClone(this.selected),
+                originalData: this.$deepClone(this.selected),
             });
+            this.editDialog.originalDataStr = JSON.stringify(this.editDialog.originalData);
         },
 
         handleEditComplete() {
             this.edit((selected, index) => ({
                 ...selected,
                 ...this.editDialog.data[index],
-            }))
+            }), (item, itemIdx) => {
+                return JSON.stringify(item) !== JSON.stringify(this.editDialog.originalData[itemIdx]);
+            })
                 .then(() => {
                     this.editDialog.visible = false;
                 });
@@ -495,8 +505,8 @@ export default {
                 .finally(() => this.bulking = false);
         },
 
-        update(mapper = item => item) {
-            const cards = this.selected.map(mapper);
+        update(mapper = item => item, filter = () => true) {
+            const cards = this.selected.map(mapper).filter(filter);
 
             this.bulking = true;
             return Services.bulkUpdateCards(cards)
@@ -517,8 +527,8 @@ export default {
                 .finally(() => this.bulking = false);
         },
 
-        edit(mapper) {
-            return this.update(mapper)
+        edit(mapper, filter) {
+            return this.update(mapper, filter)
                 .then(() => {
                     this.$snack(this.$i18n.t('snack.cardBulkEdited'));
                 });

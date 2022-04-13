@@ -5,7 +5,7 @@
         <td align="center" bgcolor="#1B8E8A" class="container-padding">
 
             <!-- Content -->
-            <table border="0" align="center" cellpadding="0" cellspacing="0" role="presentation" class="row" width="580"
+            <table border="0" align="center" cellpadding="30" cellspacing="0" role="presentation" class="row" width="580"
                    style="width:580px;max-width:580px;">
 {{--                <tr>--}}
 {{--                    <td height="40" style="font-size:40px;line-height:40px;">&nbsp;</td>--}}
@@ -67,23 +67,17 @@
 {{--                        <!-- Logo & Webview -->--}}
 {{--                    </td>--}}
 {{--                </tr>--}}
-                @if(!empty($image))
-                    <tr>
-                        <td height="40" style="font-size:40px;line-height:40px;">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td align="center" class="center-text">
-                            <img style="width:190px;border:0px;display: inline!important;"
-                                 src="{{ $image }}" width="190" border="0"
-                                 alt="intro">
-                        </td>
-                    </tr>
-                @endif
+
+                <tr>
+                    <td align="center" class="center-text">
+                        <img style="width:190px;border:0px;display: inline!important;"
+                             src="{{ url('assets/images/emails/logo-light.png') }}" width="190" border="0"
+                             alt="intro">
+                    </td>
+                </tr>
+
 
                 @if (! empty($greeting))
-                    <tr>
-                        <td height="40" style="font-size:40px;line-height:40px;">&nbsp;</td>
-                    </tr>
                     <tr>
                         <td class="center-text" align="center"
                             style="font-family:'Roboto Slab',Arial,Helvetica,sans-serif;font-size:42px;line-height:52px;font-weight:400;font-style:normal;color:#FFFFFF;text-decoration:none;letter-spacing:0px;">
@@ -115,9 +109,6 @@
                 {{-- Intro Lines --}}
                 @foreach ($introLines as $line)
                     <tr>
-                        <td height="20" style="font-size:20px;line-height:20px;">&nbsp;</td>
-                    </tr>
-                    <tr>
                         <td class="center-text" align="center"
                             style="font-family:'Poppins',Arial,Helvetica,sans-serif;font-size:16px;line-height:26px;font-weight:300;font-style:normal;color:#FFFFFF;text-decoration:none;letter-spacing:0px;">
 
@@ -131,9 +122,6 @@
 
                 @if (!empty($actionUrl) && !empty($actionText))
                     <tr>
-                        <td height="40" style="font-size:40px;line-height:40px;">&nbsp;</td>
-                    </tr>
-                    <tr>
                         <td align="center">
                             <!-- Header Button -->
                             <table border="0" cellspacing="0" cellpadding="0" role="presentation" align="center"
@@ -144,7 +132,7 @@
                                         <table border="0" cellpadding="0" cellspacing="0" align="center">
                                             <tr>
                                                 <td align="center" width="50"></td>
-                                                <td align="center" height="50" style="height:50px;">
+                                                <td align="center" height="20" style="height:50px;">
                                         <![endif]-->
 
                                         <a href="{{ $actionUrl }}" target="_blank"
@@ -163,9 +151,6 @@
                         </td>
                     </tr>
                 @endif
-                <tr>
-                    <td height="40" style="font-size:40px;line-height:40px;">&nbsp;</td>
-                </tr>
             </table>
             <!-- Content -->
 

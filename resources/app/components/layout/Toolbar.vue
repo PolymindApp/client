@@ -10,7 +10,7 @@
         <v-spacer v-if="$vuetify.breakpoint.smAndDown" />
 
         <div v-if="$vuetify.breakpoint.mdAndUp" :class="{
-            'd-flex align-center px-md-6 no-select': true,
+            'd-flex align-center pr-md-6 no-select': true,
             'ml-3': !$vuetify.rtl,
             'mr-3': $vuetify.rtl,
         }" style="gap: 1rem">

@@ -165,6 +165,7 @@
 	"snack.itemsCleared": "تم مسح العناصر بنجاح!",
 	"state.unclassified": "غير مصنف",
 	"table.itemsPerPageText": "مواد لكل صفحة",
+	"table.loading": "تحميل البيانات...",
 	"table.noData": "ليس هناك بطاقة حتى الآن",
 	"table.noResults": "لم يتم العثور على شيء بناء على معايير البحث الخاصة بك",
 	"toolbar.logoutTooltip": "الخروج",

@@ -165,6 +165,7 @@
 	"snack.itemsCleared": "Items cleared successfully!",
 	"state.unclassified": "Unclassified",
 	"table.itemsPerPageText": "Items per page",
+	"table.loading": "Loading data...",
 	"table.noData": "No card yet",
 	"table.noResults": "Nothing found based on your search criteria",
 	"toolbar.logoutTooltip": "Logout",

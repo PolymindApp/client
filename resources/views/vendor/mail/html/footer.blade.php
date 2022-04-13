@@ -1,4 +1,4 @@
-<table border="0" align="center" cellpadding="0" cellspacing="0" role="presentation" width="100%"
+<table border="0" align="center" cellpadding="30" cellspacing="0" role="presentation" width="100%"
        style="width:100%;max-width:100%;">
     <!-- lotus-footer-4 -->
     <tr>
@@ -7,9 +7,6 @@
             <!-- Content -->
             <table border="0" align="center" cellpadding="0" cellspacing="0" role="presentation" class="row" width="580"
                    style="width:580px;max-width:580px;">
-                <tr>
-                    <td height="50" style="font-size:50px;line-height:50px;">&nbsp;</td>
-                </tr>
                 <tr>
                     <td align="center">
                         <!-- Social Icons -->
@@ -115,9 +112,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <td height="30" style="font-size:30px;line-height:30px;">&nbsp;</td>
-                </tr>
-                <tr>
                     <td align="center">
                     @if( config('polymind.google_play_url') != '' || config('polymind.apple_store_url') != '' )
                         <!-- Buttons -->
@@ -153,17 +147,6 @@
                             <!-- Buttons -->
                         @endif
                     </td>
-                </tr>
-                <tr>
-                    <td height="30" style="font-size:30px;line-height:30px;">&nbsp;</td>
-                </tr>
-                <tr>
-                    <td align="center">
-
-                    </td>
-                </tr>
-                <tr>
-                    <td height="50" style="font-size:50px;line-height:50px;">&nbsp;</td>
                 </tr>
             </table>
             <!-- Content -->

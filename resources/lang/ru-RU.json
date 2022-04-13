@@ -165,6 +165,7 @@
 	"snack.itemsCleared": "Товар успешно очищен!",
 	"state.unclassified": "неклассифицированный",
 	"table.itemsPerPageText": "Элементы на странице",
+	"table.loading": "Загрузка данных...",
 	"table.noData": "Пока нет карты",
 	"table.noResults": "Ничего не найдено в соответствии с вашими критериями поиска",
 	"toolbar.logoutTooltip": "Выход из системы",

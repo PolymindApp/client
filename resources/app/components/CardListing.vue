@@ -19,15 +19,30 @@
         >
             <template #footer.prepend>
                 <BulkActionMenu
-                    ref="bulkAction"
                     :cards.sync="_cards"
-                    :selected.sync="_bulkSelected"
+                    :selected.sync="_selected"
                     :voices="voices"
                     :btn-attrs="{ outlined: true }"
                     top
                     offset-y
                     @update="handleUpdate"
                 />
+
+                <!-- HIDDEN BULK ACTION FOR SINGLE ACTION -->
+                <BulkActionMenu
+                    ref="bulkAction"
+                    v-show="false"
+                    :cards.sync="_cards"
+                    :selected.sync="singleSelected"
+                    :voices="voices"
+                    :btn-attrs="{ outlined: true }"
+                    top
+                    offset-y
+                    @update="handleUpdate"
+                />
+            </template>
+            <template #loading>
+                {{ $t('table.loading') }}
             </template>
             <template #no-data>
                 {{ $t('table.noData') }}
@@ -177,16 +192,6 @@ export default {
             },
             set(value) {
                 this.$emit('update:cards', value);
-            },
-        },
-        _bulkSelected: {
-            get() {
-                return this.singleSelected.length === 0
-                    ? this.selected
-                    : this.singleSelected;
-            },
-            set(value) {
-                this.$emit('update:selected', value);
             },
         },
         _selected: {

@@ -165,6 +165,7 @@
 	"snack.itemsCleared": "¡Artículos borrados exitosamente!",
 	"state.unclassified": "Sin clasificar",
 	"table.itemsPerPageText": "Artículos por página",
+	"table.loading": "Cargando datos...",
 	"table.noData": "Aún no hay tarjetas",
 	"table.noResults": "No se encontró nada basado en sus criterios de búsqueda",
 	"toolbar.logoutTooltip": "Cerrar sesión",

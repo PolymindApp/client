@@ -88,3 +88,10 @@
         margin: 0 0.5rem;
     }
 }
+
+.v-application .v-btn.v-btn--height-auto,
+.v-btn.v-size--height-auto {
+    height: auto !important;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}

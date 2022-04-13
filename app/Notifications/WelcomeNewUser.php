@@ -41,9 +41,7 @@ class WelcomeNewUser extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->markdown('notifications::email', [
-                'image' => asset('assets/images/emails/Email-1_Intro.png'),
-            ])
+            ->markdown('notifications::email')
             ->subject(__('notification.welcomeNewUrl.subject'))
             ->greeting(__('notification.welcomeNewUrl.greeting'))
             ->line(__('notification.welcomeNewUrl.description'))

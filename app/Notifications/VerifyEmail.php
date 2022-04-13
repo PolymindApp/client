@@ -45,9 +45,7 @@ class VerifyEmail extends Notification
     protected function buildMailMessage($url)
     {
         return (new MailMessage)
-            ->markdown('notifications::email', [
-                'image' => asset('assets/images/emails/Email-2_Intro.png')
-            ])
+            ->markdown('notifications::email')
             ->subject(__('notification.verifyEmail.subject'))
             ->greeting(__('notification.verifyEmail.greeting'))
             ->line(__('notification.verifyEmail.description', [

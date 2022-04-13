@@ -43,9 +43,7 @@ class RequestPasswordReset extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->markdown('notifications::email', [
-                'image' => asset('assets/images/emails/Email-4_Intro.png')
-            ])
+            ->markdown('notifications::email')
             ->subject(__('notification.requestPasswordReset.subject'))
             ->greeting(__('notification.requestPasswordReset.greeting'))
             ->line(__('notification.requestPasswordReset.description', [

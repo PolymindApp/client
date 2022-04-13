@@ -165,6 +165,7 @@
 	"snack.itemsCleared": "Articles effacés avec succès !",
 	"state.unclassified": "Non classé",
 	"table.itemsPerPageText": "Objets par page",
+	"table.loading": "Chargement des données...",
 	"table.noData": "Pas encore de cartes",
 	"table.noResults": "Rien trouvé selon vos critères de recherche",
 	"toolbar.logoutTooltip": "Se déconnecter",
