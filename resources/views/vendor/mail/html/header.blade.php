@@ -1,11 +1,11 @@
-<table border="0" align="center" cellpadding="0" cellspacing="0" role="presentation" width="100%"
+<table border="0" align="center" cellpadding="30" cellspacing="0" role="presentation" width="100%"
        style="width:100%;max-width:100%;">
     <!-- lotus-header-18-->
     <tr>
         <td align="center" bgcolor="#1B8E8A" class="container-padding">
 
             <!-- Content -->
-            <table border="0" align="center" cellpadding="30" cellspacing="0" role="presentation" class="row" width="580"
+            <table border="0" align="center" cellpadding="10" cellspacing="0" role="presentation" class="row" width="580"
                    style="width:580px;max-width:580px;">
 {{--                <tr>--}}
 {{--                    <td height="40" style="font-size:40px;line-height:40px;">&nbsp;</td>--}}
@@ -71,7 +71,7 @@
                 <tr>
                     <td align="center" class="center-text">
                         <img style="width:190px;border:0px;display: inline!important;"
-                             src="{{ url('assets/images/emails/logo-light.png') }}" width="190" border="0"
+                             src="{{ url('assets/images/emails/logo-light.png') }}" width="100" border="0"
                              alt="intro">
                     </td>
                 </tr>

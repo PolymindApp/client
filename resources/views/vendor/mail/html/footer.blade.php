@@ -1,4 +1,4 @@
-<table border="0" align="center" cellpadding="30" cellspacing="0" role="presentation" width="100%"
+<table border="0" align="center" cellpadding="10" cellspacing="0" role="presentation" width="100%"
        style="width:100%;max-width:100%;">
     <!-- lotus-footer-4 -->
     <tr>
