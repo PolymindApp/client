@@ -75,3 +75,16 @@
 .text-capitalize-first:first-letter {
     text-transform: capitalize
 }
+
+
+.v-application.theme--dark {
+    input:-webkit-autofill,
+    textarea:-webkit-autofill,
+    select:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 1000px var(--v-primary-base) inset !important;
+        -webkit-text-fill-color: white !important;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        margin: 0 0.5rem;
+    }
+}

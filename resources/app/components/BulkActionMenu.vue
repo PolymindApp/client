@@ -174,7 +174,7 @@
         <!-- BULK MENU -->
         <v-menu v-bind="$attrs" v-on="$listeners" transition="slide-y-reverse-transition" nudge-top="15">
             <template #activator="{ on, attrs }">
-                <v-btn v-bind="{ ...attrs, ...btnAttrs }" v-on="{ ...on, ...btnOn }" :disabled="selected.length === 0">
+                <v-btn v-bind="{ ...attrs, ...btnAttrs }" v-on="{ ...on, ...btnOn }" :disabled="disabled || selected.length === 0">
                     <span v-text="$t('menu.bulk')"></span>
                     <v-icon right>mdi-chevron-up</v-icon>
                 </v-btn>
@@ -250,6 +250,10 @@ export default {
         btnOn: {
             type: Object,
             default: null,
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
         },
     },
 
