@@ -159,6 +159,12 @@ export default Vue.extend({
         languageSwitchBus = EventBus.subscribe('LANGUAGE_SWITCH', lang => {
             this.$vuetify.rtl = rtlLanguages.indexOf(lang) !== -1;
         });
+
+        this.$router.beforeEach((to, from, next) => {
+            document.title = this.$i18n.t('route.' + to.name);
+            next();
+        });
+        document.title = this.$i18n.t('route.' + this.$route.name);
 	},
 
     destroyed() {

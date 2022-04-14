@@ -10,9 +10,9 @@
         <v-spacer v-if="$vuetify.breakpoint.smAndDown" />
 
         <div v-if="$vuetify.breakpoint.mdAndUp" :class="{
-            'd-flex align-center pr-md-6 no-select': true,
-            'ml-3': !$vuetify.rtl,
-            'mr-3': $vuetify.rtl,
+            'd-flex align-center no-select ml-3': true,
+            'ml-3 pr-md-6': !$vuetify.rtl,
+            'mr-3 pl-md-6': $vuetify.rtl,
         }" style="gap: 1rem">
             <v-img :src="logo" width="2rem" />
             <div class="title mb-n1">Polymind</div>

@@ -26,6 +26,7 @@
 
 <script>
 import languages from '@/assets/languages.json';
+import { rtlLanguages } from "@/locales";
 
 export default {
 	name: "LanguageSwitcher",
@@ -50,6 +51,7 @@ export default {
 	},
 
 	data: () => ({
+        rtlLanguages,
 		items: [],
 	}),
 
