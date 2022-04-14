@@ -315,12 +315,14 @@ export default {
                 .then(csv => {
                     const json = Papa.parse(csv, {
                         header: true,
+                        skipEmptyLines: true,
                     });
                     const keys = ['front', 'back', 'front_voice', 'back_voice'];
                     let hasError = false;
                     if (json.errors.length > 0) {
                         hasError = true;
                     }
+                    debugger;
                     if (Object.keys(json.data[0]).filter(key => keys.indexOf(key) !== -1).length !== keys.length) {
                         hasError = true;
                     }

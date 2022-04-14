@@ -97,6 +97,7 @@
 	"header.createdAt": "Created at",
 	"header.front": "Front",
 	"home.selected": "Selected ({amount})",
+	"import.incorrectFormat": "CSV format incorrect",
 	"language.en-CA": "English (Canada)",
 	"language.es-MX": "Spanish (Mexico)",
 	"language.fr-CA": "French (Canada)",

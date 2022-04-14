@@ -97,6 +97,7 @@
 	"header.createdAt": "Создан по адресу",
 	"header.front": "Фронт",
 	"home.selected": "Selected ({amount})",
+	"import.incorrectFormat": "Неверный формат CSV",
 	"language.en-CA": "Английский (Канада)",
 	"language.es-MX": "Испанский (Мексика)",
 	"language.fr-CA": "Французский (Канада)",

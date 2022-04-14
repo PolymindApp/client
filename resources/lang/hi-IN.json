@@ -97,6 +97,7 @@
 	"header.createdAt": "पर बनाया गया",
 	"header.front": "मोर्चा",
 	"home.selected": "चयनित ({amount})",
+	"import.incorrectFormat": "सीएसवी प्रारूप गलत",
 	"language.en-CA": "अंग्रेज़ी (कनाडा)",
 	"language.es-MX": "स्पेनिश (मेक्सिको)",
 	"language.fr-CA": "फ्रेंच (कनाडा)",
