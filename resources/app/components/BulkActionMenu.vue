@@ -540,7 +540,7 @@ export default {
             this.bulking = true;
             return Services.bulkCreateCards(cards)
                 .then(response => {
-                    this.$snack(this.$i18n.t('snack.cardBulkCopied'));
+                    this.$snack(this.$i18n.t('snack.cardBulkCreated'));
                     return response;
                 })
                 .catch(this.$handleError)

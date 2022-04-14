@@ -1,6 +1,19 @@
 <template>
     <div class="fill-height">
 
+        <!-- IMPORTING -->
+        <v-overlay :value="importing">
+            <v-card min-width="10rem">
+                <v-card-title class="justify-center">
+                    <span v-text="$t('state.importing')"></span>
+                </v-card-title>
+                <v-card-text class="text-center">
+                    <v-progress-linear color="primary" indeterminate></v-progress-linear>
+                    <p class="mb-0 mt-4" v-text="$t('state.pleaseWait')"></p>
+                </v-card-text>
+            </v-card>
+        </v-overlay>
+
         <!-- ADD/EDIT DECK -->
         <v-form ref="form" :disabled="deckModal.loading" v-model="deckModal.formIsValid" @submit="handleDeckFormSubmit" lazy-validation>
             <Modal v-model="deckModal.visible" :title="$t('deckModal.title' + (deckModal.clonedData.id ? 'Edit' : 'New'))" max-width="500" scrollable :fullscreen="$vuetify.breakpoint.smAndDown">
@@ -107,6 +120,21 @@
                 </v-list-item-icon>
                 <v-list-item-content v-text="$t('btn.delete')"></v-list-item-content>
             </v-list-item>
+            <template v-if="!showBulkActionMenu">
+                <v-divider class="my-2" />
+                <v-list-item :disabled="!canImport" @click="handleImportClick()">
+                    <v-list-item-icon>
+                        <v-icon>mdi-file-import-outline</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content v-text="$t('btn.import')"></v-list-item-content>
+                </v-list-item>
+                <v-list-item :disabled="!canExport" @click="handleExportClick(deck, cards)">
+                    <v-list-item-icon>
+                        <v-icon>mdi-file-export-outline</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content v-text="$t('btn.export')"></v-list-item-content>
+                </v-list-item>
+            </template>
             <v-divider class="my-2" />
         </portal>
 
@@ -192,6 +220,8 @@ import VAutocomplete from 'vuetify/lib/components/VAutocomplete/VAutocomplete';
 import VSelect from 'vuetify/lib/components/VSelect/VSelect';
 import Services from '@/utils/Services';
 import Rules from "@/utils/Rules";
+import File from "@/utils/File";
+import * as Papa from 'papaparse';
 
 export default {
 	name: 'Home',
@@ -201,6 +231,7 @@ export default {
     data: () => ({
         skeleton: true,
         loading: false,
+        importing: false,
         deleting: false,
         selected: [],
         deck: null,
@@ -230,8 +261,14 @@ export default {
         _voices() {
             return this.$formatVoices(this.voices);
         },
+        canImport() {
+            return !this.loading && !this.skeleton;
+        },
+        canExport() {
+            return !this.loading && !this.skeleton && this.cards.length > 0;
+        },
         canEditDeck() {
-            return this.deck && this.deck.id;
+            return this.deck && this.deck.id && !this.loading && !this.skeleton;
         },
         showCardEditorForm() {
             return !this.fullCardView;
@@ -273,6 +310,55 @@ export default {
     },
 
     methods: {
+        handleImportClick() {
+            File.promptForFile('.csv')
+                .then(csv => {
+                    const json = Papa.parse(csv, {
+                        header: true,
+                    });
+                    const keys = ['front', 'back', 'front_voice', 'back_voice'];
+                    let hasError = false;
+                    if (json.errors.length > 0) {
+                        hasError = true;
+                    }
+                    if (Object.keys(json.data[0]).filter(key => keys.indexOf(key) !== -1).length !== keys.length) {
+                        hasError = true;
+                    }
+                    if (hasError) {
+                        return this.$handleError({ message: this.$i18n.t('import.incorrectFormat') });
+                    }
+
+                    const cards = json.data.map(item => ({
+                        ...item,
+                        deck_id: this.deck && this.deck.id,
+                        front_voice_id: (this._voices.find(voice => voice.originalName === item.front_voice) || {}).id,
+                        back_voice_id: (this._voices.find(voice => voice.originalName === item.back_voice) || {}).id,
+                    }));
+
+                    this.importing = true;
+                    return Services.bulkCreateCards(cards)
+                        .then(response => {
+                            this.$snack(this.$i18n.t('snack.cardBulkCreated'));
+                            this.cards.unshift(...response);
+                            return response;
+                        })
+                        .catch(this.$handleError)
+                        .finally(() => this.importing = false);
+                });
+        },
+
+        handleExportClick(deck, cards) {
+            const csv = Papa.unparse(cards.map(card => ({
+                front: card.front,
+                back: card.back,
+                front_voice: card.front_voice.name,
+                back_voice: card.back_voice.name,
+            })));
+
+            File.downloadStringAsFilename(csv, this.deckName + '.csv');
+
+            this.$snack(this.$i18n.t('snack.cardsExported'));
+        },
 
         handleSelectAll() {
             this.selected = this.cards.map(item => ({...item}));

@@ -2,8 +2,8 @@
     "version": "0.3.14-beta",
     "private": true,
     "author": {
-        "name" : "Danny Coulombe",
-        "url" : "https://www.coulombe.dev"
+        "name": "Danny Coulombe",
+        "url": "https://www.coulombe.dev"
     },
     "scripts": {
         "dev": "npm run development",
@@ -46,6 +46,7 @@
     },
     "dependencies": {
         "mic-recorder-to-mp3": "^2.2.2",
+        "papaparse": "^5.3.2",
         "vue-keypress": "^2.1.1"
     }
 }

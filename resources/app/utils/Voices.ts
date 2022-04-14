@@ -9,6 +9,7 @@ export default {
                 language.voices.forEach((voice: any) => {
                     items.push({
                         ...voice,
+                        originalName: voice.name,
                         name: voice.language.name + ' - ' + voice.name,
                     });
                 });
