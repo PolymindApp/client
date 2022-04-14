@@ -479,7 +479,7 @@ export default {
 
         handlePlayClick() {
             if (this.firstPlay) {
-                this.$sound.play('play');
+                this.$sound.play('play', 0.15);
                 this.index = 0;
             }
 
@@ -492,7 +492,7 @@ export default {
 
         handleRemoveClick() {
 
-            this.$sound.play('remove');
+            this.$sound.play('remove', 0.5);
 
             this.cards.splice(this.index, 1);
             if (this.index > this.cards.length - 1) {
@@ -555,9 +555,7 @@ export default {
                 this.index = this.cards.length - 1;
             }
 
-            if (this.playing) {
-                this.resetTime(new Date());
-            }
+            this.resetTime(new Date());
         },
 
         next() {
@@ -571,9 +569,7 @@ export default {
                 }
             }
 
-            if (this.playing) {
-                this.resetTime(new Date());
-            }
+            this.resetTime(new Date());
         },
 
         play() {
