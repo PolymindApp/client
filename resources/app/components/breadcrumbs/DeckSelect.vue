@@ -13,7 +13,7 @@
         @change="handleDeckSelect"
     >
         <template #selection="{ item }">
-            {{ item.i18n ? $t(item.i18n) : item.name }}
+            <span class="v-select__selection v-select__selection--comma" v-text="item.i18n ? $t(item.i18n) : item.name"></span>
         </template>
         <template #item="{ item }">
             <template v-if="item.id === '__new__'">

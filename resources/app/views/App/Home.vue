@@ -67,7 +67,7 @@
         <!-- DESKTOP NAV -->
         <portal to="desktop_nav">
             <div class="d-flex align-center" style="gap: 1rem">
-                <DeckSelect v-model="deck" route="deck.edit" style="width: 25rem" outlined dense global />
+                <DeckSelect v-model="deck" route="deck.edit" style="min-width: 15rem; width: 15rem" outlined dense global />
                 <DesktopNav :deck="deck" background-color="transparent" />
             </div>
         </portal>
