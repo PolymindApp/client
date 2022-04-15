@@ -474,7 +474,7 @@ export default {
         },
 
         handleNextClick() {
-            this.next();
+            this.next(true);
         },
 
         handlePlayClick() {
@@ -550,6 +550,7 @@ export default {
         },
 
         prev() {
+            this.repeat = 0;
             this.index--;
             if (this.index < 0) {
                 this.index = this.cards.length - 1;
@@ -558,8 +559,8 @@ export default {
             this.resetTime(new Date());
         },
 
-        next() {
-            if (this.repeat < this.settings.repeat - 1) {
+        next(forced = false) {
+            if (!forced && this.repeat < this.settings.repeat - 1) {
                 this.repeat++;
             } else {
                 this.repeat = 0;
