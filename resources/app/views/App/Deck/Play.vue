@@ -271,19 +271,11 @@ import DeckSelect from '@/components/breadcrumbs/DeckSelect';
 import MobileNav from '@/components/layout/MobileNav';
 import DesktopNav from '@/components/layout/DesktopNav';
 import Modal from '@/components/generic/Modal';
+import PlaybackSettingsModel from '@/models/PlaybackSettingsModel';
 import Services from "@/utils/Services";
 import Keypress from 'vue-keypress';
 
 let autoPlayBus;
-const defaultSettings = {
-    mode: null,
-    repeat: 1,
-    delay: 5,
-    flipped: false,
-    reversed: false,
-    frontVoiceEnabled: true,
-    backVoiceEnabled: true,
-};
 
 export default {
     name: "Play",
@@ -464,9 +456,25 @@ export default {
         },
 
         handleSavePlaybackSettings() {
-            this.settings = this.$deepClone(this.playbackSettingsDialog.data);
-            this.playbackSettingsDialog.visible = false;
-            this.$snack(this.$i18n.t('deck.play.playbackSettings.applied'));
+            const callback = () => {
+                this.settings = this.$deepClone(this.playbackSettingsDialog.data);
+                this.playbackSettingsDialog.visible = false;
+                this.$snack(this.$i18n.t('deck.play.playbackSettings.applied'));
+            };
+
+            if (this.deck && this.deck.id) {
+                this.deck.playback_settings = this.$deepClone(this.playbackSettingsDialog.data);
+                this.savingSettings = true;
+                return Services.updateDeck(this.deck.id, this.deck)
+                    .then(response => {
+                        callback();
+                        return response;
+                    })
+                    .catch(this.$handleError)
+                    .finally(() => this.savingSettings = false);
+            } else {
+                callback();
+            }
         },
 
         handlePrevClick() {
@@ -723,7 +731,7 @@ export default {
         this.deck = this.$root.decks.find(deck => deck.id === this.$route.params.uuid) || null;
         document.title = this.deckName;
 
-        this.settings = this.$deepClone(defaultSettings);
+        this.settings = this.$deepClone(this.deck ? this.deck.playback_settings.data : new PlaybackSettingsModel().data);
 
         this.load();
     },

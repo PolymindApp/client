@@ -18,6 +18,7 @@ class Deck extends Model
         'name',
         'default_front_voice_id',
         'default_back_voice_id',
+        'playback_settings'
     ];
 
 
@@ -29,6 +30,7 @@ class Deck extends Model
     protected $casts = [
         'default_front_voice_id' => 'integer',
         'default_back_voice_id' => 'integer',
+        'playback_settings' => 'json',
     ];
 
     public function cards()

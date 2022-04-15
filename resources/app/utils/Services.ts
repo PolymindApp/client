@@ -1,5 +1,6 @@
 import EventBus from "@/utils/EventBus";
 import Query from '@/utils/Query';
+import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
 
 export default class Services {
 
@@ -134,28 +135,46 @@ export default class Services {
 	 * Get all decks
 	 */
 	static getDecks(): Promise<any> {
-		return Query.get('/deck');
+		return Query.get('/deck')
+            .then(response => {
+                return response.map((deck: any) => ({
+                    ...deck,
+                    playback_settings: new PlaybackSettingsModel(deck.playback_settings),
+                }));
+            });
 	}
 
 	/**
 	 * Get specific deck
 	 */
 	static getDeck(id: string): Promise<any> {
-		return Query.get('/deck/' + id);
+		return Query.get('/deck/' + id)
+            .then(response => {
+                response.playback_settings = new PlaybackSettingsModel(response.playback_settings);
+                return response;
+            })
 	}
 
 	/**
 	 * Create new deck
 	 */
 	static createDeck(data: any): Promise<any> {
-		return Query.post('/deck', data);
+		return Query.post('/deck', data)
+            .then(response => {
+                response.playback_settings = new PlaybackSettingsModel(response.playback_settings);
+                return response;
+            });
 	}
 
 	/**
 	 * Update specific deck
 	 */
 	static updateDeck(id: string, data: any): Promise<any> {
-		return Query.put('/deck/' + id, data);
+		return Query.put('/deck/' + id, data)
+            .then(response => {
+                response.playback_settings = new PlaybackSettingsModel(response.playback_settings);
+                return response;
+            });
 	}
 
 	/**
