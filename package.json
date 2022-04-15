@@ -45,6 +45,8 @@
         "vuetify": "^2.4.0"
     },
     "dependencies": {
+        "@types/js-cookie": "^3.0.1",
+        "js-cookie": "^3.0.1",
         "mic-recorder-to-mp3": "^2.2.2",
         "papaparse": "^5.3.2",
         "vue-keypress": "^2.1.1"

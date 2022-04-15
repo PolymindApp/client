@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DeckController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +18,14 @@ Route::get('/', function () {
     return view('main');
 });
 
+Route::get('/login', function () {
+    return view('main');
+})->name('login');
+
+Route::group(['middleware' => ['auth:sanctum', 'verified', 'lang']], function() {
+    Route::get('/deck/{id}/play', [DeckController::class, 'web']);
+});
+
 Route::any('{all}', function () {
     return view('main');
-})->where('all', '^((?!api).)*');;
+})->where('all', '^((?!api).)*');

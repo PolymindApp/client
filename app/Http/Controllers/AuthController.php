@@ -99,15 +99,14 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = User::where(['email' => $fields['email']])->first();
-
-        if (!$user || !Hash::check($fields['password'], $user->password)) {
+        if (!auth()->attempt($fields)) {
             return response(['message' => 'BAD_CREDENTIALS', 'errors' => [
                 'email' => __('errors.input.badCredentials'),
                 'password' => __('errors.input.badCredentials'),
             ]], 401);
         }
 
+        $user = User::where(['email' => $fields['email']])->first();
         if (!$user->hasVerifiedEmail()) {
             return response(['message' => 'EMAIL_NOT_VERIFIED'], 403);
         }

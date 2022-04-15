@@ -8,6 +8,19 @@ use Illuminate\Http\Response;
 
 class DeckController extends Controller
 {
+    public function web(Request $request, string $id)
+    {
+        $deck = Deck::find($id);
+        return view('main', isset($deck) ? [
+            'title' => $deck['name'],
+            'description' => trans_choice('seo.deck.play.desc', $deck['total_cards'], [
+                'total' => $deck['total_cards'] ?? "0",
+                'front_language' => $deck['default_front_voice']['language']['name'],
+                'back_language' => $deck['default_back_voice']['language']['name'],
+            ])
+        ] : []);
+    }
+
     /**
      * Display a listing of the resource.
      *

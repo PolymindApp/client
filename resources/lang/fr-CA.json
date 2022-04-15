@@ -162,6 +162,8 @@
 	"rules.email": "Veuillez saisir un format d'adresse courriel valide",
 	"rules.passwordConfirmation": "Vos mots de passe ne correspondent pas",
 	"rules.required": "Ce champ est requis",
+	"seo.deck.play.desc": ":total cartes à pratiquer de :front_language à :back_language. | Une carte pour s'entraîner du :front_language au :back_language. | :total cartes à pratiquer du :front_language au :back_language.",
+	"seo.default.description": "Un programme gratuit et open-source pour pratiquer la mémorisation au niveau subconscient.",
 	"sidebar.decks.title": "Paquets",
 	"snack.cardAdded": "Carte ajoutée avec succès !",
 	"snack.cardBulkCopied": "Cartes copiées avec succès !",

@@ -162,6 +162,8 @@
 	"rules.email": "请输入一个有效的电子邮件地址格式",
 	"rules.passwordConfirmation": "你的密码不匹配",
 	"rules.required": "此栏为必填项",
+	"seo.deck.play.desc": ":total 张卡片从 :front_language 到 :back_language练习。 |从 :front_language 到 :back_language练习一张牌。 |从 :front_language 到 :back_language练习 :total 张卡片。",
+	"seo.default.description": "一个免费的开源程序，用于在潜意识层面练习记忆。",
 	"sidebar.decks.title": "甲板",
 	"snack.cardAdded": "卡片添加成功!",
 	"snack.cardBulkCopied": "卡片复制成功!",

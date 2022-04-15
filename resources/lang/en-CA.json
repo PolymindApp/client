@@ -162,6 +162,8 @@
 	"rules.email": "Please enter a valid email address format",
 	"rules.passwordConfirmation": "Your passwords does not match",
 	"rules.required": "This field is required",
+	"seo.deck.play.desc": ":total cards to practice from :front_language to :back_language. | One card to practice from :front_language to :back_language. | :total cards to practice from :front_language to :back_language.",
+	"seo.default.description": "A free and open-source program to practice memorization at the subconscious level.",
 	"sidebar.decks.title": "Decks",
 	"snack.cardAdded": "Card added successfully!",
 	"snack.cardBulkCopied": "Cards copied successfully!",

@@ -162,6 +162,8 @@
 	"rules.email": "الرجاء إدخال تنسيق عنوان بريد إلكتروني صالح",
 	"rules.passwordConfirmation": "كلمات السر الخاصة بك لا تتطابق",
 	"rules.required": "هذه الخانة مطلوبه",
+	"seo.deck.play.desc": ":total بطاقات للتدريب من :front_language إلى :back_language. | بطاقة واحدة للتدريب من :front_language إلى :back_language. | :total بطاقات للتدريب من :front_language إلى :back_language.",
+	"seo.default.description": "برنامج مجاني ومفتوح المصدر لممارسة الحفظ على مستوى اللاوعي.",
 	"sidebar.decks.title": "الطوابق",
 	"snack.cardAdded": "تمت إضافة البطاقة بنجاح!",
 	"snack.cardBulkCopied": "تم نسخ البطاقات بنجاح!",

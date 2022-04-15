@@ -1,10 +1,15 @@
-import EventBus from "@/utils/EventBus";
 import Query from '@/utils/Query';
 import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
 
 export default class Services {
 
 	static token: string|null = localStorage.getItem('token');
+
+    private static setLoginToken(response: any) {
+        this.token = response.token;
+        localStorage.setItem('token', response.token);
+        return response;
+    }
 
 	/**
 	 * Login to platform
@@ -15,11 +20,7 @@ export default class Services {
 	 */
 	static login(email: string, password: string, path: string|null): Promise<any> {
 		return Query.post('/login', { email, password })
-			.then((response: any) => {
-				this.token = response.token;
-				localStorage.setItem('token', response.token);
-				return response;
-			});
+            .then(response => this.setLoginToken(response));
 	}
 
 	/**
@@ -32,11 +33,7 @@ export default class Services {
 	 */
 	static register(email: string, password: string, confirmation: string, path: string|null): Promise<any> {
 		return Query.post('/register', { email, password, password_confirmation: confirmation })
-			.then((response: any) => {
-				this.token = response.token;
-				localStorage.setItem('token', response.token);
-				return response;
-			});
+			.then(response => this.setLoginToken(response));
 	}
 
 	/**
@@ -84,11 +81,7 @@ export default class Services {
 	 */
 	static verifyEmail(signature: string): Promise<any> {
 		return Query.post('/register/verify?signature=' + signature)
-            .then(response => {
-                this.token = response.token;
-                localStorage.setItem('token', response.token);
-                return response;
-            });
+            .then(response => this.setLoginToken(response));
 	}
 
 	/**

@@ -60,6 +60,11 @@ export default {
         },
 
         init() {
+
+            if (!this.value) {
+                return;
+            }
+
             this.audio = new Audio(this.value);
             this.audio.onplay = () => {
                 this.playing = true;

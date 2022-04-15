@@ -15,7 +15,7 @@
                 <v-list-item v-if="$root.user.id" class="mt-2">
                     <v-menu offset-y>
                         <template #activator="{ on, attrs }">
-                            <v-btn v-bind="attrs" v-on="on" outlined>
+                            <v-btn v-bind="attrs" v-on="on" text outlined>
                                 <span class="text-truncate caption" style="width: 180px" v-text="$root.user.email"></span>
                                 <v-icon right>mdi-chevron-down</v-icon>
                             </v-btn>

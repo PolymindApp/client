@@ -158,7 +158,7 @@
                     :loading="loading"
                     :skeleton="skeleton"
                     :autofocus="$vuetify.breakpoint.mdAndUp"
-                    class="mb-md-8"
+                    class="mb-md-8 w-100"
                     @add="handleAddCardClick"
                 />
             </v-expand-transition>

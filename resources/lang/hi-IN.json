@@ -162,6 +162,8 @@
 	"rules.email": "कृपया एक मान्य ईमेल पता प्रारूप दर्ज करें",
 	"rules.passwordConfirmation": "आपके पासवर्ड मेल नहीं खाते",
 	"rules.required": "यह फ़ील्ड आवश्यक है",
+	"seo.deck.play.desc": " :front_language से :back_languageतक अभ्यास करने के लिए:total कार्ड। | :front_language से :back_languageतक अभ्यास करने के लिए एक कार्ड। | :total कार्ड :front_language से :back_languageतक अभ्यास करने के लिए।",
+	"seo.default.description": "अवचेतन स्तर पर याद करने का अभ्यास करने के लिए एक स्वतंत्र और खुला स्रोत कार्यक्रम।",
 	"sidebar.decks.title": "डेक्स",
 	"snack.cardAdded": "कार्ड सफलतापूर्वक जोड़ा गया!",
 	"snack.cardBulkCopied": "कार्ड सफलतापूर्वक कॉपी किए गए!",
