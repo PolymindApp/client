@@ -11,14 +11,26 @@
                         <v-icon>mdi-close</v-icon>
                     </v-btn>
                 </v-list-item>
-    <!--            <v-list-item class="justify-center">-->
-    <!--                <span v-text="$t('toolbar.welcome', {-->
-    <!--                    name: $root.user.name-->
-    <!--                })"></span>-->
-    <!--            </v-list-item>-->
 
-                <v-list-item class="mt-4">
-                    <LanguageSwitcher v-model="$i18n.locale" btn-class="px-0" color="secondaryDark" outlined dense hide-details @input="handleLanguageSwitch" />
+                <v-list-item v-if="$root.user.id" class="mt-2">
+                    <v-menu offset-y>
+                        <template #activator="{ on, attrs }">
+                            <v-btn v-bind="attrs" v-on="on" outlined>
+                                <span class="text-truncate caption" style="width: 180px" v-text="$root.user.email"></span>
+                                <v-icon right>mdi-chevron-down</v-icon>
+                            </v-btn>
+                        </template>
+                        <v-list>
+                            <v-list-item @click="$emit('logout')">
+                                <v-list-item-icon>
+                                    <v-icon color="secondaryDark" left>mdi-logout-variant</v-icon>
+                                </v-list-item-icon>
+                                <v-list-item-content>
+                                    <span v-text="$t('accountMenu.logout')"></span>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-list>
+                    </v-menu>
                 </v-list-item>
                 <v-divider class="mt-4"></v-divider>
             </v-sheet>
@@ -33,16 +45,8 @@
 
         <template #append>
             <v-sheet color="background">
-
                 <v-divider></v-divider>
                 <div class="pa-4">
-                    <div v-if="$root.user.id" class="mb-4">
-                        <v-btn color="secondaryDark" block text @click="$emit('logout')">
-                            <v-icon color="secondaryDark" left>mdi-logout-variant</v-icon>
-                            <span v-text="$t('accountMenu.logout')"></span>
-                        </v-btn>
-                    </div>
-
                     <div v-if="socialLinks.length > 0" class="d-flex align-center justify-center">
                         <v-tooltip :key="linkIdx" v-for="(link, linkIdx) in socialLinks" bottom>
                             <template #activator="{ attrs, on }">
@@ -52,6 +56,10 @@
                             </template>
                             <span v-text="link.tooltip"></span>
                         </v-tooltip>
+                    </div>
+
+                    <div class="mt-2">
+                        <LanguageSwitcher v-model="$i18n.locale" btn-class="px-0" color="secondaryDark" outlined dense hide-details @input="handleLanguageSwitch" />
                     </div>
 
                     <div class="caption opacity-75 text-center mt-2">
