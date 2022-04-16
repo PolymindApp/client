@@ -71,7 +71,7 @@ export default {
         },
 
         stop() {
-            this.recorder.stop()
+            this.recorder.stop().getMp3()
                 .then(([buffer, blob]) => {
                     const reader = new FileReader();
                     reader.readAsDataURL(blob);

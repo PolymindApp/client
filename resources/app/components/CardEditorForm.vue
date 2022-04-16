@@ -70,7 +70,7 @@
                         <div>
                             <v-tooltip bottom>
                                 <template #activator="{ attrs, on }">
-                                    <MicAudioRecorder v-model="_frontSynthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(_voiceFront, () => _voiceFront = null)" :disabled="!canRecord(_voiceFront)" icon />
+                                    <MicAudioRecorder v-model="_frontSynthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(_voiceFront, _front, () => _voiceFront = null)" :disabled="!canRecord(_voiceFront, _front)" icon />
                                 </template>
                                 <span v-text="$t('btn.record')"></span>
                             </v-tooltip>
@@ -116,7 +116,7 @@
                                 <div>
                                     <v-tooltip bottom>
                                         <template #activator="{ attrs, on }">
-                                            <MicAudioRecorder v-model="_backSynthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(_voiceBack, () => _voiceBack = null)" :disabled="!canRecord(_voiceBack)" icon />
+                                            <MicAudioRecorder v-model="_backSynthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(_voiceBack, _back, () => _voiceBack = null)" :disabled="!canRecord(_voiceBack, _back)" icon />
                                         </template>
                                         <span v-text="$t('btn.record')"></span>
                                     </v-tooltip>
@@ -325,9 +325,10 @@ export default {
 
     methods: {
 
-        handleBeforeRecord(voice, callback = () => ({})) {
+        handleBeforeRecord(voice, text, callback = () => ({})) {
             return new Promise((resolve, reject) => {
-                if (!voice) {
+                if (!voice || !text) {
+                    callback();
                     resolve();
                 } else {
                     this.$confirm(
@@ -335,7 +336,7 @@ export default {
                         this.$i18n.t('cardEditorForm.confirmBeforeRecord.body'),
                         this.$i18n.t('btn.continue'),
                         (modal, btn) => {
-                            callback()
+                            callback();
                             modal.visible = false;
                             resolve();
                         }
@@ -408,7 +409,7 @@ export default {
             this._backSynthesized = null;
         },
 
-        canRecord(voice) {
+        canRecord(voice, text) {
             return !this.loading;
         },
 

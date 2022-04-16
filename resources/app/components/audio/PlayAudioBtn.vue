@@ -35,6 +35,8 @@ export default {
             handler(value) {
                 if (this.audio) {
                     this.audio.src = value;
+                } else {
+                    this.init(value);
                 }
             },
         },
@@ -59,13 +61,13 @@ export default {
             this.audio.play();
         },
 
-        init() {
+        init(value) {
 
-            if (!this.value) {
+            if (!value) {
                 return;
             }
 
-            this.audio = new Audio(this.value);
+            this.audio = new Audio(value);
             this.audio.onplay = () => {
                 this.playing = true;
                 this.paused = false;
@@ -97,7 +99,7 @@ export default {
     },
 
     created() {
-        this.init();
+        this.init(this.value);
     },
 }
 </script>
