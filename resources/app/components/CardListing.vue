@@ -10,9 +10,11 @@
             ]"
             :items="cards"
             :footer-props="{
-                itemsPerPageText: $t('table.itemsPerPageText')
+                itemsPerPageText: $t('table.itemsPerPageText'),
+                itemsPerPageOptions: [10,25,50,100,-1],
             }"
             :loading="loading"
+            :items-per-page="50"
             sort-by="created_at"
             sort-desc
             show-select
