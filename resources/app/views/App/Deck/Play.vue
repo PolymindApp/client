@@ -392,6 +392,7 @@ export default {
 
     watch: {
         '$i18n.locale'() {
+            this.title = this.deckName;
             document.title = this.deckName;
         },
         index: {
