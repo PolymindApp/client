@@ -163,7 +163,7 @@
                 />
             </v-expand-transition>
 
-            <div :class="{
+            <div id="listing" :class="{
                 'w-100 pa-3 px-md-0': true,
                 'overflow-y-auto': $vuetify.breakpoint.smAndDown,
             }" :style="{
@@ -380,6 +380,9 @@ export default {
 
         handleAddCardClick(card) {
             this.cards.unshift(card);
+            this.$vuetify.goTo('#listing', {
+                container: '#listing'
+            });
         },
 
         handleNewDeckClick() {
