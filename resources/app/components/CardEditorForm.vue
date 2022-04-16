@@ -55,7 +55,7 @@
                     <v-text-field
                         ref="front"
                         v-model="_front"
-                        :placeholder="$t('translateForm.frontPlaceholder')"
+                        :placeholder="frontPlaceholder"
                         :style="style"
                         :autofocus="autofocus"
                         :height="$vuetify.breakpoint.mdAndUp ? 100 : 70"
@@ -102,7 +102,7 @@
                             <v-text-field
                                 ref="back"
                                 v-model="_back"
-                                :placeholder="$t('translateForm.backPlaceholder')"
+                                :placeholder="backPlaceholder"
                                 :style="style"
                                 :height="$vuetify.breakpoint.mdAndUp ? 100 : 70"
                                 :disabled="loading"
@@ -291,6 +291,14 @@ export default {
             return {
                 fontSize: '1.5rem',
             };
+        },
+        frontPlaceholder() {
+            const lang = this._voiceFront && this._voiceFront.language.code.substring(0, 2).toUpperCase();
+            return this.$t('translateForm.frontPlaceholder') + (lang ? (' (' + lang + ')') : '')
+        },
+        backPlaceholder() {
+            const lang = this._voiceBack && this._voiceBack.language.code.substring(0, 2).toUpperCase();
+            return this.$t('translateForm.backPlaceholder') + (lang ? (' (' + lang + ')') : '')
         },
         canFlip() {
             return !this.loading && (this._front || '').length > 0 || (this._back || '').length > 0;
