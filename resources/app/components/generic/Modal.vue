@@ -1,5 +1,5 @@
 <template>
-	<v-dialog v-model="_value" v-bind="$attrs" v-on="$listeners" :persistent="disabled" :dark="dark" :fullscreen="fullscreen">
+	<v-dialog v-model="_value" v-bind="$attrs" v-on="$listeners" :persistent="persistent || disabled" :dark="dark" :fullscreen="fullscreen">
 		<v-card :color="color" :disabled="disabled" :tile="$vuetify.breakpoint.smAndDown" class="d-flex flex-column">
             <v-expand-transition>
                 <v-card-title v-if="!hideMobileFocus" :class="{
@@ -55,6 +55,10 @@ export default {
 
 	props: {
 		value: {
+			type: Boolean,
+			default: false,
+		},
+		persistent: {
 			type: Boolean,
 			default: false,
 		},

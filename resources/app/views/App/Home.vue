@@ -16,7 +16,7 @@
 
         <!-- ADD/EDIT DECK -->
         <v-form ref="form" :disabled="deckModal.loading" v-model="deckModal.formIsValid" @submit="handleDeckFormSubmit" lazy-validation>
-            <Modal v-model="deckModal.visible" :title="$t('deckModal.title' + (deckModal.clonedData.id ? 'Edit' : 'New'))" max-width="500" scrollable :fullscreen="$vuetify.breakpoint.smAndDown">
+            <Modal v-model="deckModal.visible" :title="$t('deckModal.title' + (deckModal.clonedData.id ? 'Edit' : 'New'))" max-width="500" scrollable :fullscreen="$vuetify.breakpoint.smAndDown" persistent>
                 <template #body>
                     <v-text-field
                         v-model="deckModal.clonedData.name"

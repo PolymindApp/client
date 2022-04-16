@@ -51,7 +51,7 @@
         </portal>
 
         <!-- PLAYBACK SETTINGS -->
-        <Modal v-model="playbackSettingsDialog.visible" :title="$t('deck.play.playbackSettingsDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
+        <Modal v-model="playbackSettingsDialog.visible" :title="$t('deck.play.playbackSettingsDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" persistent scrollable>
             <template #body>
                 <v-row>
                     <v-col cols="12" md="6" class="d-flex align-center">
@@ -165,8 +165,8 @@
             </template>
         </Modal>
 
-        <!-- EXPORT SESSION SETTINGS -->
-        <Modal v-model="exportSessionDialog.visible" :title="$t('deck.play.exportSessionDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
+        <!-- EXPORT TO MP3 SETTINGS -->
+        <Modal v-model="exportSessionDialog.visible" :title="$t('deck.play.exportSessionDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" persistent scrollable>
             <template #body>
                 <div v-text="$t('deck.play.exportSessionDialog.desc')"></div>
             </template>
@@ -464,14 +464,14 @@ export default {
 
             if (this.deck && this.deck.id) {
                 this.deck.playback_settings = this.$deepClone(this.playbackSettingsDialog.data);
-                this.savingSettings = true;
+                this.playbackSettingsDialog.saving = true;
                 return Services.updateDeck(this.deck.id, this.deck)
                     .then(response => {
                         callback();
                         return response;
                     })
                     .catch(this.$handleError)
-                    .finally(() => this.savingSettings = false);
+                    .finally(() => this.playbackSettingsDialog.saving = false);
             } else {
                 callback();
             }
