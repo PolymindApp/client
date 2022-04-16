@@ -294,11 +294,11 @@ export default {
         },
         frontPlaceholder() {
             const lang = this._voiceFront && this._voiceFront.language.code.substring(0, 2).toUpperCase();
-            return this.$t('translateForm.frontPlaceholder') + (lang ? (' (' + lang + ')') : '')
+            return this.$t('translateForm.frontPlaceholder') + (lang && this.$vuetify.breakpoint.smAndDown && this.$root.inputFocused ? (' (' + lang + ')') : '')
         },
         backPlaceholder() {
             const lang = this._voiceBack && this._voiceBack.language.code.substring(0, 2).toUpperCase();
-            return this.$t('translateForm.backPlaceholder') + (lang ? (' (' + lang + ')') : '')
+            return this.$t('translateForm.backPlaceholder') + (lang && this.$vuetify.breakpoint.smAndDown && this.$root.inputFocused ? (' (' + lang + ')') : '')
         },
         canFlip() {
             return !this.loading && (this._front || '').length > 0 || (this._back || '').length > 0;
