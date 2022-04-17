@@ -14,7 +14,7 @@
                 itemsPerPageOptions: [10,25,50,100,-1],
             }"
             :loading="loading"
-            :items-per-page="50"
+            :items-per-page="25"
             sort-by="created_at"
             sort-desc
             show-select
