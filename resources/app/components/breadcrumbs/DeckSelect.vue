@@ -21,7 +21,8 @@
                 <span v-text="item.i18n ? $t(item.i18n) : item.name"></span>
             </template>
             <template v-else>
-                {{ item.i18n ? $t(item.i18n) : item.name }}
+                <span style="flex: 1" v-text="item.i18n ? $t(item.i18n) : item.name"></span>
+                <v-chip v-if="item.total_card !== undefined" x-small v-text="item.total_card"></v-chip>
             </template>
         </template>
     </v-select>
