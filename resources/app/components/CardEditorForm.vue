@@ -65,7 +65,7 @@
                         solo
                         flat
                         hide-details
-                        @focus="$root.lockFocus = true"
+                        @focus="handleFocus"
                     />
                     <v-btn v-if="!_front && $vuetify.breakpoint.smAndDown" style="position: absolute; bottom: 1.25rem; left: 1.5rem" color="discreet" outlined rounded small @click="handlePasteClick('front')">
                         <v-icon left>mdi-clipboard-outline</v-icon>
@@ -122,7 +122,7 @@
                                 solo
                                 flat
                                 hide-details
-                                @focus="$root.lockFocus = true"
+                                @focus="handleFocus"
                             />
                             <v-btn v-if="!_back && $vuetify.breakpoint.smAndDown" style="position: absolute; bottom: 1.25rem; left: 1.5rem" color="discreet" outlined rounded small @click="handlePasteClick('back')">
                                 <v-icon left>mdi-clipboard-outline</v-icon>
@@ -349,6 +349,10 @@ export default {
     },
 
     methods: {
+        handleFocus() {
+            this.$root.lockFocus = true;
+            this.$vuetify.goTo('#app');
+        },
         async handlePasteClick(side) {
             const text = await navigator.clipboard.readText();
             if (text.trim().length > 0) {
