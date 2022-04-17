@@ -173,7 +173,7 @@
                             <v-btn v-if="$vuetify.breakpoint.mdAndUp" text :block="$vuetify.breakpoint.smAndDown" :disabled="!canClear" @click="handleClearClick">
                                 <span v-text="$t('btn.clear')"></span>
                             </v-btn>
-                            <v-btn v-else outlined large :block="$vuetify.breakpoint.smAndDown" @click="handleClearClick">
+                            <v-btn v-else outlined large :block="$vuetify.breakpoint.smAndDown" @click="() => handleClearClick(false)">
                                 <span v-text="$t('btn.cancel')"></span>
                             </v-btn>
                         </div>
@@ -423,9 +423,11 @@ export default {
                 .finally(() => (this.adding = false));
         },
 
-        handleClearClick() {
+        handleClearClick(showSnack = true) {
             this.clear();
-            this.$snack(this.$i18n.t('snack.itemsCleared'));
+            if (showSnack) {
+                this.$snack(this.$i18n.t('snack.itemsCleared'));
+            }
             this.$root.lockFocus = false;
         },
 
