@@ -159,7 +159,7 @@
                         <label v-text="$t('deck.play.playbackSettings.fromDate')"></label>
                     </v-col>
                     <v-col cols="6" class="d-flex align-center justify-end">
-                        <v-btn outlined small @click="playbackSettingsDialog.data.fromDate = null">
+                        <v-btn :disabled="playbackSettingsDialog.data.fromDate === null" outlined small @click="playbackSettingsDialog.data.fromDate = null">
                             <span v-text="$t('btn.clear')"></span>
                         </v-btn>
                     </v-col>
@@ -179,7 +179,7 @@
                         <label v-text="$t('deck.play.playbackSettings.toDate')"></label>
                     </v-col>
                     <v-col cols="6" class="d-flex align-center justify-end">
-                        <v-btn outlined small @click="playbackSettingsDialog.data.toDate = null">
+                        <v-btn :disabled="playbackSettingsDialog.data.toDate === null" outlined small @click="playbackSettingsDialog.data.toDate = null">
                             <span v-text="$t('btn.clear')"></span>
                         </v-btn>
                     </v-col>
