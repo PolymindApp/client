@@ -43,6 +43,7 @@
 	"bulkActionMenu.confirmDelete.body": "Voulez-vous vraiment supprimer les cartes sélectionnées ?",
 	"bulkActionMenu.confirmDelete.title": "Supprimer les cartes sélectionnées",
 	"bulkActionMenu.confirmFlip.body": "Voulez-vous vraiment retourner les cartes sélectionnées ?",
+	"bulkActionMenu.confirmFlip.includeVoices": "Inversez également les voix",
 	"bulkActionMenu.confirmFlip.title": "Retourner les cartes sélectionnées",
 	"bulkActionMenu.copyToDialog.title": "Copie groupée vers...",
 	"bulkActionMenu.editDialog.title": "Modification de cartes en masse",

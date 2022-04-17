@@ -43,6 +43,7 @@
 	"bulkActionMenu.confirmDelete.body": "Tem a certeza de que quer apagar os cartões seleccionados?",
 	"bulkActionMenu.confirmDelete.title": "Apagar cartões seleccionados",
 	"bulkActionMenu.confirmFlip.body": "Tem a certeza de que quer virar os cartões seleccionados?",
+	"bulkActionMenu.confirmFlip.includeVoices": "Também virar vozes",
 	"bulkActionMenu.confirmFlip.title": "Virar cartões seleccionados",
 	"bulkActionMenu.copyToDialog.title": "Cópia a granel para...",
 	"bulkActionMenu.editDialog.title": "Cartões de edição a granel",

@@ -43,6 +43,7 @@
 	"bulkActionMenu.confirmDelete.body": "هل أنت متأكد أنك تريد حذف البطاقات المحددة؟",
 	"bulkActionMenu.confirmDelete.title": "حذف البطاقات المحددة",
 	"bulkActionMenu.confirmFlip.body": "هل أنت متأكد أنك تريد قلب البطاقات المختارة؟",
+	"bulkActionMenu.confirmFlip.includeVoices": "اقلب الأصوات أيضًا",
 	"bulkActionMenu.confirmFlip.title": "اقلب البطاقات المحددة",
 	"bulkActionMenu.copyToDialog.title": "نسخ مجمّع إلى ...",
 	"bulkActionMenu.editDialog.title": "بطاقات التحرير المجمعة",

@@ -43,6 +43,7 @@
 	"bulkActionMenu.confirmDelete.body": "你确定要删除所选卡片吗？",
 	"bulkActionMenu.confirmDelete.title": "删除选定的卡片",
 	"bulkActionMenu.confirmFlip.body": "你确定你要翻转所选的牌吗？",
+	"bulkActionMenu.confirmFlip.includeVoices": "也可以翻转声音",
 	"bulkActionMenu.confirmFlip.title": "翻转选定的卡片",
 	"bulkActionMenu.copyToDialog.title": "批量复制到...",
 	"bulkActionMenu.editDialog.title": "批量编辑卡片",

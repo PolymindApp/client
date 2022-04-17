@@ -1,6 +1,26 @@
 <template>
     <div>
 
+        <!--FLIP -->
+        <Modal v-model="flipDialog.visible" :title="$t('bulkActionMenu.confirmFlip.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
+            <template #body>
+                <p v-text="$t('bulkActionMenu.confirmFlip.body')"></p>
+                <v-checkbox
+                    v-model="flipDialog.includeVoices"
+                    :label="$t('bulkActionMenu.confirmFlip.includeVoices')"
+                    hide-details
+                ></v-checkbox>
+            </template>
+            <template #buttons>
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="bulking" :disabled="bulking" color="primary" large @click="handleFlipComplete">
+                    <span v-text="$t('btn.flip')"></span>
+                </v-btn>
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="bulking" outlined large @click="flipDialog.visible = false">
+                    <span v-text="$t('btn.cancel')"></span>
+                </v-btn>
+            </template>
+        </Modal>
+
         <!-- BULK EDIT -->
         <Modal v-model="editDialog.visible" :title="$t('bulkActionMenu.editDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
             <template v-if="editDialog.data[index]" #body>
@@ -262,6 +282,10 @@ export default {
         index: 0,
         loading: false,
         bulking: false,
+        flipDialog: {
+            visible: false,
+            includeVoices: false,
+        },
         editDialog: {
             visible: false,
             formErrors: {},
@@ -373,18 +397,16 @@ export default {
         },
 
         handleFlip() {
-            this.$confirm(
-                this.$i18n.t('bulkActionMenu.confirmFlip.title'),
-                this.$i18n.t('bulkActionMenu.confirmFlip.body'),
-                this.$i18n.t('btn.flip'),
-                (modal, btn) => {
-                    modal.disabled = true;
-                    btn.attrs.loading = true;
-                    this.flip().then(() => {
-                        modal.visible = false;
-                    });
-                }
-            );
+            Object.assign(this.flipDialog, {
+                visible: true,
+                includeVoices: false,
+            });
+        },
+
+        handleFlipComplete() {
+            this.flip(this.flipDialog.includeVoices).then(() => {
+                this.flipDialog.visible = false;
+            });
         },
 
         handleMoveTo() {
@@ -547,15 +569,15 @@ export default {
                 .finally(() => this.bulking = false);
         },
 
-        flip() {
+        flip(includeVoices = false) {
             return this.update(selected => ({
                 ...selected,
                 front: selected.back,
-                front_voice_id: selected.back_voice_id,
-                front_synthesized: selected.back_synthesized,
+                front_voice_id: includeVoices ? selected.back_voice_id : selected.front_voice_id,
+                front_synthesized: includeVoices ? selected.back_synthesized : selected.front_synthesized,
                 back: selected.front,
-                back_voice_id: selected.front_voice_id,
-                back_synthesized: selected.front_synthesized,
+                back_voice_id: includeVoices ? selected.front_voice_id : selected.back_voice_id,
+                back_synthesized: includeVoices ? selected.front_synthesized : selected.back_synthesized,
             }))
                 .then(() => {
                     this.$snack(this.$i18n.t('snack.cardBulkFlipped'));

@@ -43,6 +43,7 @@
 	"bulkActionMenu.confirmDelete.body": "আপনি কি নির্বাচিত কার্ডগুলি মুছতে চান?",
 	"bulkActionMenu.confirmDelete.title": "নির্বাচিত কার্ড মুছুন",
 	"bulkActionMenu.confirmFlip.body": "আপনি কি নিশ্চিত যে আপনি নির্বাচিত কার্ডগুলি ফ্লিপ করতে চান?",
+	"bulkActionMenu.confirmFlip.includeVoices": "এছাড়াও ভয়েস উল্টানো",
 	"bulkActionMenu.confirmFlip.title": "নির্বাচিত কার্ড ফ্লিপ করুন",
 	"bulkActionMenu.copyToDialog.title": "এতে বাল্ক কপি...",
 	"bulkActionMenu.editDialog.title": "বাল্ক সম্পাদনা কার্ড",

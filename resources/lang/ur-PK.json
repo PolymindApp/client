@@ -43,6 +43,7 @@
 	"bulkActionMenu.confirmDelete.body": "کیا آپ واقعی منتخب کارڈز کو حذف کرنا چاہتے ہیں؟",
 	"bulkActionMenu.confirmDelete.title": "منتخب کردہ کارڈز کو حذف کریں۔",
 	"bulkActionMenu.confirmFlip.body": "کیا آپ واقعی منتخب کارڈز کو پلٹنا چاہتے ہیں؟",
+	"bulkActionMenu.confirmFlip.includeVoices": "آوازیں بھی پلٹائیں۔",
 	"bulkActionMenu.confirmFlip.title": "منتخب کردہ کارڈز کو پلٹائیں۔",
 	"bulkActionMenu.copyToDialog.title": "بلک کاپی اس میں...",
 	"bulkActionMenu.editDialog.title": "بلک ایڈٹ کارڈز",

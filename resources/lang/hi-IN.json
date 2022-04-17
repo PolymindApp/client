@@ -43,6 +43,7 @@
 	"bulkActionMenu.confirmDelete.body": "क्या आप वाकई चयनित कार्ड हटाना चाहते हैं?",
 	"bulkActionMenu.confirmDelete.title": "चयनित कार्ड हटाएं",
 	"bulkActionMenu.confirmFlip.body": "क्या आप वाकई चयनित कार्ड फ्लिप करना चाहते हैं?",
+	"bulkActionMenu.confirmFlip.includeVoices": "आवाज भी पलटें",
 	"bulkActionMenu.confirmFlip.title": "चयनित कार्ड फ्लिप करें",
 	"bulkActionMenu.copyToDialog.title": "इसके लिए थोक प्रतिलिपि...",
 	"bulkActionMenu.editDialog.title": "थोक संपादन कार्ड",

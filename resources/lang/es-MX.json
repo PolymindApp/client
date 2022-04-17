@@ -43,6 +43,7 @@
 	"bulkActionMenu.confirmDelete.body": "¿Está seguro de que desea eliminar las tarjetas seleccionadas?",
 	"bulkActionMenu.confirmDelete.title": "Eliminar tarjetas seleccionadas",
 	"bulkActionMenu.confirmFlip.body": "¿Está seguro de que quiere voltear las cartas seleccionadas?",
+	"bulkActionMenu.confirmFlip.includeVoices": "También voltear voces",
 	"bulkActionMenu.confirmFlip.title": "Voltear las cartas seleccionadas",
 	"bulkActionMenu.copyToDialog.title": "Copia masiva a...",
 	"bulkActionMenu.editDialog.title": "Edición de tarjetas en masa",

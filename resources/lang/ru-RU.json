@@ -43,6 +43,7 @@
 	"bulkActionMenu.confirmDelete.body": "Вы уверены, что хотите удалить выбранные карты?",
 	"bulkActionMenu.confirmDelete.title": "Удаление выбранных карт",
 	"bulkActionMenu.confirmFlip.body": "Вы уверены, что хотите перевернуть выбранные карты?",
+	"bulkActionMenu.confirmFlip.includeVoices": "Также переворачивать голоса",
 	"bulkActionMenu.confirmFlip.title": "Переверните выбранные карты",
 	"bulkActionMenu.copyToDialog.title": "Массовое копирование в...",
 	"bulkActionMenu.editDialog.title": "Массовое редактирование карточек",

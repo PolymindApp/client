@@ -43,6 +43,7 @@
 	"bulkActionMenu.confirmDelete.body": "Are you sure you want to delete the selected cards?",
 	"bulkActionMenu.confirmDelete.title": "Delete selected cards",
 	"bulkActionMenu.confirmFlip.body": "Are you sure you want to flip the selected cards?",
+	"bulkActionMenu.confirmFlip.includeVoices": "Also flip voices",
 	"bulkActionMenu.confirmFlip.title": "Flip selected cards",
 	"bulkActionMenu.copyToDialog.title": "Bulk copy to...",
 	"bulkActionMenu.editDialog.title": "Bulk edit cards",
