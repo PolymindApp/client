@@ -67,7 +67,7 @@
                         hide-details
                         @focus="handleFocus"
                     />
-                    <v-btn v-if="!_front && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click="handlePasteClick('front')">
+                    <v-btn v-if="canPaste && !_front && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click.stop="handlePasteClick('front')">
                         <v-icon left>mdi-clipboard-outline</v-icon>
                         <span v-text="$t('btn.paste')"></span>
                     </v-btn>
@@ -87,7 +87,7 @@
                             </v-tooltip>
                         </div>
                         <div>
-                            <v-btn v-if="!_front && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click="handlePasteClick('front')">
+                            <v-btn v-if="canPaste && !_front && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click.stop="handlePasteClick('front')">
                                 <v-icon small left>mdi-clipboard-outline</v-icon>
                                 <span v-text="$t('btn.paste')"></span>
                             </v-btn>
@@ -124,7 +124,7 @@
                                 hide-details
                                 @focus="handleFocus"
                             />
-                            <v-btn v-if="!_back && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click="handlePasteClick('back')">
+                            <v-btn v-if="canPaste && !_back && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click="handlePasteClick('back')">
                                 <v-icon left>mdi-clipboard-outline</v-icon>
                                 <span v-text="$t('btn.paste')"></span>
                             </v-btn>
@@ -144,7 +144,7 @@
                                     </v-tooltip>
                                 </div>
                                 <div>
-                                    <v-btn v-if="!_back && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click="handlePasteClick('back')">
+                                    <v-btn v-if="canPaste && !_back && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click="handlePasteClick('back')">
                                         <v-icon small left>mdi-clipboard-outline</v-icon>
                                         <span v-text="$t('btn.paste')"></span>
                                     </v-btn>
@@ -337,6 +337,9 @@ export default {
         canDelete() {
             return !this.loading;
         },
+        canPaste() {
+            return ['iphone'].indexOf(navigator.platform.toLowerCase()) === -1;
+        },
     },
 
     watch: {
@@ -353,14 +356,16 @@ export default {
             this.$root.lockFocus = true;
             this.$vuetify.goTo('#app');
         },
-        async handlePasteClick(side) {
-            const text = await navigator.clipboard.readText();
-            if (text.trim().length > 0) {
-                this['_' + side] = text;
-                this.$refs[side].$el.querySelector('input').select();
-            } else {
-                this.$snack(this.$i18n.t('snack.nothingToPaste'));
-            }
+        handlePasteClick(side) {
+            navigator.clipboard.readText().then(text => {
+                console.log(text);
+                if (text.trim().length > 0) {
+                    this['_' + side] = text;
+                    this.$refs[side].$el.querySelector('input').select();
+                } else {
+                    this.$snack(this.$i18n.t('snack.nothingToPaste'));
+                }
+            });
         },
         handleBeforeRecord(voice, text, callback = () => ({})) {
             return new Promise((resolve, reject) => {
