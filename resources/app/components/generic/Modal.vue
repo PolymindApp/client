@@ -3,20 +3,24 @@
 		<v-card :color="color" :disabled="disabled" :tile="$vuetify.breakpoint.smAndDown" class="d-flex flex-column">
             <v-expand-transition>
                 <v-card-title v-if="!hideMobileFocus" :class="{
-                    'd-flex align-center flex-nowrap justify-space-between': true,
                     'background': !dense && !dark && !$vuetify.breakpoint.smAndDown,
                     'primary white--text': !dense && !dark && $vuetify.breakpoint.smAndDown,
-                    'py-3': $vuetify.breakpoint.smAndDown,
+                    'py-0': $vuetify.breakpoint.smAndDown,
                 }">
-                    <slot name="title">
-                        <div class="d-flex align-center overflow-hidden">
-                            <v-icon v-if="icon" :left="!$vuetify.rtl" :right="$vuetify.rtl" v-text="icon"></v-icon>
-                            <span class="headline text-truncate" v-text="title"></span>
-                        </div>
-                    </slot>
-                    <v-btn @click="_value = false" :dark="!dense && $vuetify.breakpoint.smAndDown" icon>
-                        <v-icon>mdi-close</v-icon>
-                    </v-btn>
+                    <div :class="{
+                        'w-100 d-flex align-center flex-nowrap justify-space-between': true,
+                        'py-3': $vuetify.breakpoint.smAndDown,
+                    }">
+                        <slot name="title">
+                            <div class="d-flex align-center overflow-hidden">
+                                <v-icon v-if="icon" :left="!$vuetify.rtl" :right="$vuetify.rtl" v-text="icon"></v-icon>
+                                <span class="headline text-truncate" v-text="title"></span>
+                            </div>
+                        </slot>
+                        <v-btn @click="_value = false" :dark="!dense && $vuetify.breakpoint.smAndDown" icon>
+                            <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                    </div>
                 </v-card-title>
             </v-expand-transition>
 			<v-card-text :class="{ 'py-8': !dense }" style="flex: 1">
