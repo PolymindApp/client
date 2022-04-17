@@ -349,6 +349,7 @@ export default {
         showMobileNav() {
             return this.$vuetify.breakpoint.smAndDown
                 && !this.$root.inputFocused
+                && !this.$root.lockFocus
                 && this.$root.orientation === 'portrait';
         },
 

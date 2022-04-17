@@ -2,7 +2,7 @@
     <v-form v-bind="$attrs" v-on="$listeners" @submit.prevent="handleSubmit">
         <v-card :flat="$vuetify.breakpoint.smAndDown" :tile="$vuetify.breakpoint.smAndDown">
             <v-expand-transition>
-                <v-row v-if="!$vuetify.breakpoint.smAndDown || !$root.inputFocused" style="position: relative" no-gutters>
+                <v-row v-if="!$vuetify.breakpoint.smAndDown || (!$root.inputFocused && !$root.lockFocus)" style="position: relative" no-gutters>
                     <v-col cols="6" class="d-flex align-center pr-6 pr-2">
                         <v-skeleton-loader v-if="skeleton" style="flex: 1" height="48" type="text" class="ml-2 pt-4 pb-3"></v-skeleton-loader>
                         <component
@@ -49,23 +49,28 @@
                     </v-col>
                 </v-row>
             </v-expand-transition>
-            <v-divider v-if="!$vuetify.breakpoint.smAndDown || !$root.inputFocused" /> <!-- NEEDS TO BE HERE -->
+            <v-divider v-if="!$vuetify.breakpoint.smAndDown || (!$root.inputFocused && !$root.lockFocus)" /> <!-- NEEDS TO BE HERE -->
             <v-row no-gutters>
-                <v-col cols="12" md="6" class="pa-3 d-flex d-md-block">
+                <v-col cols="12" md="6" class="pa-3 d-flex d-md-block" style="position: relative">
                     <v-text-field
                         ref="front"
                         v-model="_front"
                         :placeholder="frontPlaceholder"
                         :style="style"
                         :autofocus="autofocus"
-                        :height="$vuetify.breakpoint.mdAndUp ? 100 : 70"
+                        :height="$vuetify.breakpoint.mdAndUp ? 100 : 90"
                         :disabled="loading"
                         class="main-input"
                         no-resize
                         solo
                         flat
                         hide-details
+                        @focus="$root.lockFocus = true"
                     />
+                    <v-btn v-if="!_front && $vuetify.breakpoint.smAndDown" style="position: absolute; bottom: 1.25rem; left: 1.5rem" color="discreet" outlined rounded small @click="handlePasteClick('front')">
+                        <v-icon left>mdi-clipboard-outline</v-icon>
+                        <span v-text="$t('btn.paste')"></span>
+                    </v-btn>
                     <div style="flex: 0" class="ml-3 ml-md-0 d-flex align-center justify-space-between">
                         <div>
                             <v-tooltip bottom>
@@ -81,14 +86,20 @@
                                 <span v-text="$t('btn.listen')"></span>
                             </v-tooltip>
                         </div>
-                        <v-tooltip v-if="$vuetify.breakpoint.mdAndUp" bottom>
-                            <template #activator="{ attrs, on }">
-                                <v-btn tabindex="-1" v-bind="attrs" v-on="on" :disabled="!canCopyClipboard(_front)" icon @mousedown.stop.prevent="handleCopyClipboardClick(_front)">
-                                    <v-icon>mdi-content-copy</v-icon>
-                                </v-btn>
-                            </template>
-                            <span v-text="$t('btn.copyClipboard')"></span>
-                        </v-tooltip>
+                        <div>
+                            <v-btn v-if="!_front && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click="handlePasteClick('front')">
+                                <v-icon small left>mdi-clipboard-outline</v-icon>
+                                <span v-text="$t('btn.paste')"></span>
+                            </v-btn>
+                            <v-tooltip v-if="$vuetify.breakpoint.mdAndUp" bottom>
+                                <template #activator="{ attrs, on }">
+                                    <v-btn tabindex="-1" v-bind="attrs" v-on="on" :disabled="!canCopyClipboard(_front)" icon @mousedown.stop.prevent="handleCopyClipboardClick(_front)">
+                                        <v-icon>mdi-content-copy</v-icon>
+                                    </v-btn>
+                                </template>
+                                <span v-text="$t('btn.copyClipboard')"></span>
+                            </v-tooltip>
+                        </div>
                     </div>
                 </v-col>
                 <v-col v-if="$vuetify.breakpoint.smAndDown" cols="12">
@@ -97,21 +108,26 @@
                 <v-divider v-if="$vuetify.breakpoint.mdAndUp" vertical />
 
                 <v-expand-transition>
-                    <v-col v-if="$root.inputFocused || $vuetify.breakpoint.mdAndUp" cols="12" md="6">
-                        <div class="pa-3 d-flex d-md-block">
+                    <v-col v-if="$root.lockFocus || $root.inputFocused || $vuetify.breakpoint.mdAndUp" cols="12" md="6">
+                        <div class="pa-3 d-flex d-md-block" style="position: relative;">
                             <v-text-field
                                 ref="back"
                                 v-model="_back"
                                 :placeholder="backPlaceholder"
                                 :style="style"
-                                :height="$vuetify.breakpoint.mdAndUp ? 100 : 70"
+                                :height="$vuetify.breakpoint.mdAndUp ? 100 : 90"
                                 :disabled="loading"
                                 class="main-input"
                                 no-resize
                                 solo
                                 flat
                                 hide-details
+                                @focus="$root.lockFocus = true"
                             />
+                            <v-btn v-if="!_back && $vuetify.breakpoint.smAndDown" style="position: absolute; bottom: 1.25rem; left: 1.5rem" color="discreet" outlined rounded small @click="handlePasteClick('back')">
+                                <v-icon left>mdi-clipboard-outline</v-icon>
+                                <span v-text="$t('btn.paste')"></span>
+                            </v-btn>
                             <div style="flex: 0" class="ml-3 ml-md-0 d-flex align-center justify-space-between">
                                 <div>
                                     <v-tooltip bottom>
@@ -127,29 +143,38 @@
                                         <span v-text="$t('btn.listen')"></span>
                                     </v-tooltip>
                                 </div>
-                                <v-tooltip v-if="$vuetify.breakpoint.mdAndUp" bottom>
-                                    <template #activator="{ attrs, on }">
-                                        <v-btn tabindex="-1" v-bind="attrs" v-on="on" :disabled="!canCopyClipboard(_back)" icon @mousedown.stop.prevent="handleCopyClipboardClick(_back)">
-                                            <v-icon>mdi-content-copy</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span v-text="$t('btn.copyClipboard')"></span>
-                                </v-tooltip>
+                                <div>
+                                    <v-btn v-if="!_back && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click="handlePasteClick('back')">
+                                        <v-icon small left>mdi-clipboard-outline</v-icon>
+                                        <span v-text="$t('btn.paste')"></span>
+                                    </v-btn>
+                                    <v-tooltip v-if="$vuetify.breakpoint.mdAndUp" bottom>
+                                        <template #activator="{ attrs, on }">
+                                            <v-btn tabindex="-1" v-bind="attrs" v-on="on" :disabled="!canCopyClipboard(_back)" icon @mousedown.stop.prevent="handleCopyClipboardClick(_back)">
+                                                <v-icon>mdi-content-copy</v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <span v-text="$t('btn.copyClipboard')"></span>
+                                    </v-tooltip>
+                                </div>
                             </div>
                         </div>
                     </v-col>
                 </v-expand-transition>
             </v-row>
             <v-expand-transition>
-                <v-sheet v-if="$root.inputFocused || $vuetify.breakpoint.mdAndUp" color="surface">
-                    <div class="pa-3 d-flex align-center justify-space-between">
-                        <div class="w-100 d-flex d-md-block" style="gap: 1rem">
-                            <v-btn type="submit" style="flex: 1" color="primary" :disabled="!canAdd" :loading="adding" @click="handleSubmit">
-                                <v-icon left>mdi-plus</v-icon>
+                <v-sheet v-if="$root.lockFocus || $root.inputFocused || $vuetify.breakpoint.mdAndUp" color="surface">
+                    <div class="pa-3 d-block d-md-flex align-center justify-space-between">
+                        <div class="w-100 d-flex flex-column flex-md-row" style="gap: 0.5rem">
+                            <v-btn type="submit" color="primary" :large="$vuetify.breakpoint.smAndDown" :block="$vuetify.breakpoint.smAndDown" :disabled="!canAdd" :loading="adding" @click="handleSubmit">
+                                <v-icon v-if="$vuetify.breakpoint.mdAndUp" left>mdi-plus</v-icon>
                                 <span v-text="$t('btn.add')"></span>
                             </v-btn>
-                            <v-btn style="flex: 1" text :disabled="!canClear" @click="handleClearClick">
+                            <v-btn v-if="$vuetify.breakpoint.mdAndUp" text :block="$vuetify.breakpoint.smAndDown" :disabled="!canClear" @click="handleClearClick">
                                 <span v-text="$t('btn.clear')"></span>
+                            </v-btn>
+                            <v-btn v-else outlined large :block="$vuetify.breakpoint.smAndDown" @click="handleClearClick">
+                                <span v-text="$t('btn.cancel')"></span>
                             </v-btn>
                         </div>
         <!--                <div>-->
@@ -294,11 +319,11 @@ export default {
         },
         frontPlaceholder() {
             const lang = this._voiceFront && this._voiceFront.language.code.substring(0, 2).toUpperCase();
-            return this.$t('translateForm.frontPlaceholder') + (lang && this.$vuetify.breakpoint.smAndDown && this.$root.inputFocused ? (' (' + lang + ')') : '')
+            return this.$t('translateForm.frontPlaceholder') + (lang && this.$vuetify.breakpoint.smAndDown && (this.$root.inputFocused || this.$root.lockFocus) ? (' (' + lang + ')') : '')
         },
         backPlaceholder() {
             const lang = this._voiceBack && this._voiceBack.language.code.substring(0, 2).toUpperCase();
-            return this.$t('translateForm.backPlaceholder') + (lang && this.$vuetify.breakpoint.smAndDown && this.$root.inputFocused ? (' (' + lang + ')') : '')
+            return this.$t('translateForm.backPlaceholder') + (lang && this.$vuetify.breakpoint.smAndDown && (this.$root.inputFocused || this.$root.lockFocus) ? (' (' + lang + ')') : '')
         },
         canFlip() {
             return !this.loading && (this._front || '').length > 0 || (this._back || '').length > 0;
@@ -324,7 +349,15 @@ export default {
     },
 
     methods: {
-
+        async handlePasteClick(side) {
+            const text = await navigator.clipboard.readText();
+            if (text.trim().length > 0) {
+                this['_' + side] = text;
+                this.$refs[side].$el.querySelector('input').select();
+            } else {
+                this.$snack(this.$i18n.t('snack.nothingToPaste'));
+            }
+        },
         handleBeforeRecord(voice, text, callback = () => ({})) {
             return new Promise((resolve, reject) => {
                 if (!voice || !text) {
@@ -380,6 +413,7 @@ export default {
                     this.$emit('add', card);
                     this.clear();
                     this.$snack(this.$i18n.t('snack.cardAdded'));
+                    this.$root.lockFocus = false;
                 })
                 .catch(this.$handleError)
                 .finally(() => (this.adding = false));
@@ -388,6 +422,7 @@ export default {
         handleClearClick() {
             this.clear();
             this.$snack(this.$i18n.t('snack.itemsCleared'));
+            this.$root.lockFocus = false;
         },
 
         handleDeleteCard() {

@@ -12,8 +12,9 @@ export default new Vuetify({
 		},
 		themes: {
 			light: {
-				background: '#EEEEEE',
-				surface: '#DDDDDD',
+				background: '#EEE',
+				surface: '#DDD',
+				discreet: '#888',
 				primary: '#1B8E8A',
 				secondary: '#FF7383',
 				third: '#F9BE6C',
@@ -24,8 +25,9 @@ export default new Vuetify({
 				warning: '#F9BE6C'
 			},
 			dark: {
-				background: '#333333',
+				background: '#333',
                 surface: '#444',
+                discreet: '#888',
 				primary: '#1B8E8A',
 				secondary: '#FF7383',
 				third: '#F9BE6C',

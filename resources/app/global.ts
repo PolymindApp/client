@@ -1,4 +1,5 @@
 export default {
+    lockFocus: false,
     inputFocused: false,
     orientation: (window.orientation === 90 || window.orientation === -90) ? 'landscape' : 'portrait',
 	error: {

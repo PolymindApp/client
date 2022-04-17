@@ -74,11 +74,11 @@ export default Vue.extend({
 
     computed: {
         showToolbar() {
-            return (!this.$root.inputFocused || this.$vuetify.breakpoint.mdAndUp)
+            return ((!this.$root.inputFocused && !this.$root.lockFocus) || this.$vuetify.breakpoint.mdAndUp)
             && (this.$vuetify.breakpoint.mdAndUp || this.$root.orientation === 'portrait');
         },
         hideMobileFocus() {
-            return this.$root.inputFocused && this.$vuetify.breakpoint.smAndDown;
+            return (this.$root.inputFocused || this.$root.lockFocus) && this.$vuetify.breakpoint.smAndDown;
         },
     },
 
