@@ -67,7 +67,7 @@
                         hide-details
                         @focus="handleFocus"
                     />
-                    <v-btn v-if="!_front && $vuetify.breakpoint.smAndDown" style="position: absolute; bottom: 1.25rem; left: 1.5rem" color="discreet" outlined rounded small @click="handlePasteClick('front')">
+                    <v-btn v-if="!_front && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click="handlePasteClick('front')">
                         <v-icon left>mdi-clipboard-outline</v-icon>
                         <span v-text="$t('btn.paste')"></span>
                     </v-btn>
@@ -124,7 +124,7 @@
                                 hide-details
                                 @focus="handleFocus"
                             />
-                            <v-btn v-if="!_back && $vuetify.breakpoint.smAndDown" style="position: absolute; bottom: 1.25rem; left: 1.5rem" color="discreet" outlined rounded small @click="handlePasteClick('back')">
+                            <v-btn v-if="!_back && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click="handlePasteClick('back')">
                                 <v-icon left>mdi-clipboard-outline</v-icon>
                                 <span v-text="$t('btn.paste')"></span>
                             </v-btn>
@@ -469,5 +469,14 @@ export default {
 .main-input ::v-deep .v-input__slot {
     align-items: start;
     padding-top: 0.5rem !important;
+}
+.paste-btn {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 1.5rem;
+}
+.v-application--is-rtl .paste-btn {
+    left: auto;
+    right: 1.5rem;
 }
 </style>
