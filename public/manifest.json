@@ -7,7 +7,7 @@
         "education"
     ],
     "start_url": "./",
-    "display": "standalone",
+    "display": "fullscreen",
     "orientation": "portrait-primary",
     "background_color": "#1B8E8A",
     "theme_color": "#1B8E8A",
