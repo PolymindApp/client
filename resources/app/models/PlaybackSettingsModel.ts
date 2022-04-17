@@ -10,6 +10,8 @@ export default class PlaybackSettingsModel {
         reversed: false,
         frontVoiceEnabled: true,
         backVoiceEnabled: true,
+        fromDate: null,
+        toDate: null,
     };
 
     constructor(data = {}) {

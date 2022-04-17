@@ -154,6 +154,46 @@
                         ></v-switch>
                     </v-col>
                 </v-row>
+                <v-row>
+                    <v-col cols="6" class="d-flex align-center">
+                        <label v-text="$t('deck.play.playbackSettings.fromDate')"></label>
+                    </v-col>
+                    <v-col cols="6" class="d-flex align-center justify-end">
+                        <v-btn outlined small @click="playbackSettingsDialog.data.fromDate = null">
+                            <span v-text="$t('btn.clear')"></span>
+                        </v-btn>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-date-picker
+                            v-model="playbackSettingsDialog.data.fromDate"
+                            :events="events"
+                            :max="playbackSettingsDialog.data.toDate"
+                            event-color="primary"
+                            no-title
+                            full-width
+                        ></v-date-picker>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <v-col cols="6" class="d-flex align-center">
+                        <label v-text="$t('deck.play.playbackSettings.toDate')"></label>
+                    </v-col>
+                    <v-col cols="6" class="d-flex align-center justify-end">
+                        <v-btn outlined small @click="playbackSettingsDialog.data.toDate = null">
+                            <span v-text="$t('btn.clear')"></span>
+                        </v-btn>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-date-picker
+                            v-model="playbackSettingsDialog.data.toDate"
+                            :events="events"
+                            :min="playbackSettingsDialog.data.fromDate"
+                            event-color="primary"
+                            no-title
+                            full-width
+                        ></v-date-picker>
+                    </v-col>
+                </v-row>
             </template>
             <template #buttons>
                 <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="playbackSettingsDialog.saving" :disabled="playbackSettingsDialog.saving" color="primary" large @click="handleSavePlaybackSettings">
@@ -205,21 +245,21 @@
                     <v-btn v-else-if="firstPlay" height="15vh" width="15vh" text fab x-large :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
                         <v-icon size="7.5vh" v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
                     </v-btn>
-                    <div v-else-if="_cards[index]" class="px-4 text-center abs_middle">
+                    <div v-else-if="filteredCards[index]" class="px-4 text-center abs_middle">
                         <transition name="slide">
                             <v-card v-if="!firstPlay && showFront">
-                                <h1 v-ripple @click="handleClickCard(_cards[index], 'front')" :class="{
+                                <h1 v-ripple @click="handleClickCard(filteredCards[index], 'front')" :class="{
                                     'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !settings.flipped,
                                     'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': settings.flipped,
-                                }" v-text="_cards[index].front"></h1>
+                                }" v-text="filteredCards[index].front"></h1>
                             </v-card>
                         </transition>
                         <transition name="slide">
                             <v-card v-if="!firstPlay && showBack">
-                                <h1 v-ripple @click="handleClickCard(_cards[index], 'back')" :class="{
+                                <h1 v-ripple @click="handleClickCard(filteredCards[index], 'back')" :class="{
                                     'text-capitalize-first text-h4 text-md-h3 text-lg-h2': settings.flipped,
                                     'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !settings.flipped,
-                                }" v-text="_cards[index].back"></h1>
+                                }" v-text="filteredCards[index].back"></h1>
                             </v-card>
                         </transition>
                     </div>
@@ -239,11 +279,11 @@
                     </v-col>
                     <v-col cols="6" class="d-flex align-center justify-center text-center">
                         <span v-if="firstPlay"></span>
-                        <span v-else-if="cards.length > 0" v-text="$t('deck.play.indexOf', {
+                        <span v-else-if="filteredCards.length > 0" v-text="$t('deck.play.indexOf', {
                             current: index + 1,
-                            total: cards.length,
+                            total: filteredCards.length,
                         })"></span>
-                        <span v-else-if="cards.length < originalCards.length" v-text="$t('deck.play.noCardsLeft')"></span>
+                        <span v-else-if="filteredCards.length < originalCards.length" v-text="$t('deck.play.noCardsLeft')"></span>
                     </v-col>
                     <v-col cols="3" class="d-flex align-center justify-end">
                         <v-expand-transition>
@@ -292,6 +332,7 @@ export default {
         showFront: false,
         showBack: false,
         cards: [],
+        filteredCards: [],
         originalCards: [],
         index: -1,
         progress: 0,
@@ -315,11 +356,11 @@ export default {
 
     computed: {
         canGoPrevious() {
-            return !this.loading && !this.skeleton && this.cards.length > 1 && !this.firstPlay;
+            return !this.loading && !this.skeleton && this.filteredCards.length > 1 && !this.firstPlay;
         },
 
         canPlay() {
-            return !this.loading && !this.skeleton && !this.playing && !this.completed && this.cards.length > 0;
+            return !this.loading && !this.skeleton && !this.playing && !this.completed && this.filteredCards.length > 0;
         },
 
         canPause() {
@@ -327,15 +368,15 @@ export default {
         },
 
         canGoNext() {
-            return !this.loading && !this.skeleton && this.cards.length > 1 && !this.firstPlay;
+            return !this.loading && !this.skeleton && this.filteredCards.length > 1 && !this.firstPlay;
         },
 
         canRemove() {
-            return this.cards.length > 0;
+            return this.filteredCards.length > 0;
         },
 
         canResetSession() {
-            return !this.skeleton && this.originalCards.length !== this.cards.length;
+            return !this.skeleton && this.originalCards.length !== this.filteredCards.length;
         },
 
         canAdjustPlaybackSettings() {
@@ -344,6 +385,10 @@ export default {
 
         canExport() {
             return !this.skeleton && this.originalCards.length > 0;
+        },
+
+        events() {
+            return this.cards.map(card => new Date(card.created_at).toISOString().substr(0, 10));
         },
 
         showMobileNav() {
@@ -379,15 +424,11 @@ export default {
         },
 
         currentAudio() {
-            return (this.audios[(this.cards[this.index] || {}).id] || {});
+            return (this.audios[(this.filteredCards[this.index] || {}).id] || {});
         },
 
         deckName() {
             return this.deck && this.deck.name || this.$i18n.t('state.unclassified');
-        },
-
-        _cards() {
-            return this.settings.reversed ? this.cards.reverse() : this.cards;
         },
     },
 
@@ -401,7 +442,7 @@ export default {
             handler(newValue, oldValue) {
 
                 if (oldValue) {
-                    const audio = this.audios[(this.cards[oldValue] || {}).id] || {};
+                    const audio = this.audios[(this.filteredCards[oldValue] || {}).id] || {};
                     if (audio.front) {
                         audio.front.element.pause();
                     }
@@ -462,6 +503,15 @@ export default {
                 this.settings = this.$deepClone(this.playbackSettingsDialog.data);
                 this.playbackSettingsDialog.visible = false;
                 this.$snack(this.$i18n.t('deck.play.playbackSettings.applied'));
+
+                this.filteredCards = this.filterCards(this.cards);
+                this.calculateAudioLength(this.filteredCards);
+
+                if (this.index > this.filteredCards.length - 1) {
+                    this.index = this.filteredCards.length - 1;
+                }
+
+                return this.filteredCards;
             };
 
             if (this.deck && this.deck.id) {
@@ -504,9 +554,9 @@ export default {
 
             this.$sound.play('remove', 0.5);
 
-            this.cards.splice(this.index, 1);
-            if (this.index > this.cards.length - 1) {
-                this.index = this.cards.length - 1;
+            this.filteredCards.splice(this.index, 1);
+            if (this.index > this.filteredCards.length - 1) {
+                this.index = this.filteredCards.length - 1;
             }
             if (this.index === -1) {
                 this.playing = false;
@@ -523,6 +573,13 @@ export default {
         handleResetClick() {
             this.reset();
             this.play();
+        },
+
+        filterCards(cards) {
+            const from = this.settings.fromDate ? new Date(this.settings.fromDate) : null;
+            const to = this.settings.toDate ? new Date(this.settings.toDate) : null;
+            const result = cards.filter(card => (!from || new Date(card.created_at) >= from) && (!to || new Date(card.created_at) <= to));
+            return this.settings.reversed ? result.reverse() : result;
         },
 
         resetTime(date) {
@@ -563,7 +620,7 @@ export default {
             this.repeat = 0;
             this.index--;
             if (this.index < 0) {
-                this.index = this.cards.length - 1;
+                this.index = this.filteredCards.length - 1;
             }
 
             this.resetTime(new Date());
@@ -575,7 +632,7 @@ export default {
             } else {
                 this.repeat = 0;
                 this.index++;
-                if (this.index > this.cards.length - 1) {
+                if (this.index > this.filteredCards.length - 1) {
                     this.index = 0;
                 }
             }
@@ -613,7 +670,9 @@ export default {
                         cards,
                         originalCards: this.$deepClone(cards),
                     });
-                    return this.calculateAudioLength(cards);
+                    this.filteredCards = this.filterCards(cards);
+                    this.calculateAudioLength(this.filteredCards);
+                    return this.filteredCards;
                 })
                 .then(() => this.skeleton = false)
                 .catch(this.$handleError)
@@ -622,6 +681,8 @@ export default {
 
         reset() {
             this.cards = this.$deepClone(this.originalCards);
+            this.filteredCards = this.filterCards(this.cards);
+            this.calculateAudioLength(this.filteredCards);
             this.firstPlay = true;
             this.completed = false;
             this.index = 0;
@@ -716,7 +777,7 @@ export default {
 
         exportSession() {
             this.exportSessionDialog.loading = true;
-            const ids = this._cards.map(card => card.id);
+            const ids = this.filteredCards.map(card => card.id);
             Services.export(ids, 'audio', this.deck.name, this.settings)
                 .then(() => {
                     this.exportSessionDialog.visible = false;
