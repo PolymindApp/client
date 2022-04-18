@@ -786,44 +786,46 @@ export default {
                 promises.push(audioDecode(atob(card.front_synthesized.substring(22))));
                 promises.push(audioDecode(atob(card.back_synthesized.substring(22))));
             });
-            Promise.all(promises)
+            return Promise.all(promises)
                 .then(buffers => {
                     let buffer = new AudioBuffer({
                         length: 1,
                         sampleRate: 44100,
                     });
-                    let crunker = new Crunker();
-                    crunker.fetchAudio([
-                        '/assets/sounds/test.mp3',
-                    ]).then(ambiences => {
+                    const crunker = new Crunker();
+                    // crunker.fetchAudio([
+                    //     '/assets/sounds/test.mp3',
+                    // ]).then(ambiences => {
                         this.filteredCards.forEach((card, cardIdx) => {
                             buffer = crunker.concatAudio([buffer, buffers[cardIdx]]);
                             buffer = crunker.padAudio(buffer, buffer.duration - 0.0001, this.settings.delay);
                         });
-                        ambiences.forEach((ambience, ambienceIdx) => {
-                            const newBuffer = new AudioBuffer({
-                                length: ambience.length,
-                                numberOfChannels: ambience.numberOfChannels,
-                                sampleRate: ambience.sampleRate
-                            });
-                            for (let channel = 0; channel < ambience.numberOfChannels; channel += 1) {
-                                const channelData = ambience.getChannelData(channel);
-                                const newChannelData = newBuffer.getChannelData(channel);
-
-                                for (let sample = 0; sample < channelData.length; sample += 1) {
-                                    newChannelData[sample] = channelData[sample] * 0.2;
-                                }
-                            }
-                            ambiences[ambienceIdx] = newBuffer;
-                        });
-                        buffer = crunker.mergeAudio([buffer, ...ambiences]);
+                        // ambiences.forEach((ambience, ambienceIdx) => {
+                        //     const newBuffer = new AudioBuffer({
+                        //         length: ambience.length,
+                        //         numberOfChannels: ambience.numberOfChannels,
+                        //         sampleRate: ambience.sampleRate
+                        //     });
+                        //     for (let channel = 0; channel < ambience.numberOfChannels; channel += 1) {
+                        //         const channelData = ambience.getChannelData(channel);
+                        //         const newChannelData = newBuffer.getChannelData(channel);
+                        //
+                        //         for (let sample = 0; sample < channelData.length; sample += 1) {
+                        //             newChannelData[sample] = channelData[sample] * 0.2;
+                        //         }
+                        //     }
+                        //     ambiences[ambienceIdx] = newBuffer;
+                        // });
+                        // buffer = crunker.mergeAudio([buffer, ...ambiences]);
                         this.buffer = buffer;
 
-                        const crunker = new Crunker();
                         const output = crunker.export(this.buffer, 'audio/wav');
                         crunker.download(output.blob, this.deckName);
                         this.exportSessionDialog.loading = false;
-                    })
+                        this.exportSessionDialog.visible = false;
+
+                        this.$snack(this.$i18n.t('snack.exportSessionCompleted'));
+                    // })
                 });
         },
     },

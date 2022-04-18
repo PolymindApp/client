@@ -183,6 +183,7 @@
 	"snack.cardsExported": "Cartes exportées au format CSV avec succès !",
 	"snack.close": "Fermer",
 	"snack.emailNotVerifiedConfirmSent": "Courriel de vérification envoyé avec succès !",
+	"snack.exportSessionCompleted": "Votre session a été exportée en MP3 avec succès !",
 	"snack.itemsCleared": "Articles effacés avec succès !",
 	"snack.nothingToPaste": "Votre presse-papiers est vide !",
 	"state.importing": "Importation",

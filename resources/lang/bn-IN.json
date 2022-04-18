@@ -183,6 +183,7 @@
 	"snack.cardsExported": "কার্ডগুলি সফলভাবে CSV এ রপ্তানি হয়েছে!",
 	"snack.close": "ঘনিষ্ঠ",
 	"snack.emailNotVerifiedConfirmSent": "যাচাইকরণ ইমেল সফলভাবে পাঠানো হয়েছে!",
+	"snack.exportSessionCompleted": "আপনার সেশন সফলভাবে MP3 রপ্তানি করা হয়েছে!",
 	"snack.itemsCleared": "আইটেম সফলভাবে সাফ করা হয়েছে!",
 	"snack.nothingToPaste": "আপনার ক্লিপবোর্ড খালি!",
 	"state.importing": "আমদানি করা হচ্ছে",

@@ -183,6 +183,7 @@
 	"snack.cardsExported": "卡片成功导出为 CSV！",
 	"snack.close": "关闭",
 	"snack.emailNotVerifiedConfirmSent": "验证邮件已成功发送!",
+	"snack.exportSessionCompleted": "您的会话已成功导出为 MP3！",
 	"snack.itemsCleared": "物品成功清仓!",
 	"snack.nothingToPaste": "您的剪贴板是空的！",
 	"state.importing": "输入",

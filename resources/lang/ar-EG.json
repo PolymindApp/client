@@ -183,6 +183,7 @@
 	"snack.cardsExported": "تم تصدير البطاقات إلى CSV بنجاح!",
 	"snack.close": "قريب",
 	"snack.emailNotVerifiedConfirmSent": "تم إرسال البريد الإلكتروني للتحقق بنجاح!",
+	"snack.exportSessionCompleted": "تم تصدير جلستك إلى MP3 بنجاح!",
 	"snack.itemsCleared": "تم مسح العناصر بنجاح!",
 	"snack.nothingToPaste": "الحافظة الخاصة بك فارغة!",
 	"state.importing": "استيراد",

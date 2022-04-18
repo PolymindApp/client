@@ -183,6 +183,7 @@
 	"snack.cardsExported": "सीएसवी को कार्ड सफलतापूर्वक निर्यात किए गए!",
 	"snack.close": "बंद करे",
 	"snack.emailNotVerifiedConfirmSent": "सत्यापन ईमेल सफलतापूर्वक भेजा गया!",
+	"snack.exportSessionCompleted": "आपका सत्र सफलतापूर्वक MP3 में निर्यात कर दिया गया है!",
 	"snack.itemsCleared": "आइटम सफलतापूर्वक साफ़ हो गए!",
 	"snack.nothingToPaste": "आपका क्लिपबोर्ड खाली है!",
 	"state.importing": "आयात कर रहा है",
