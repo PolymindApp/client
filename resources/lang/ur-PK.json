@@ -102,6 +102,7 @@
 	"header.front": "سامنے",
 	"home.selected": "منتخب ({amount})",
 	"import.incorrectFormat": "CSV فارمیٹ غلط ہے۔",
+	"import.nothingToImport": "درآمد کرنے کے لیے کوئی نئی چیز نہیں ہے۔",
 	"language.en-CA": "انگریزی (کینیڈا)",
 	"language.es-MX": "ہسپانوی (میکسیکو)",
 	"language.fr-CA": "فرانسیسی (کینیڈا)",

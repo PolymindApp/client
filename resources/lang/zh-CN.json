@@ -102,6 +102,7 @@
 	"header.front": "正面",
 	"home.selected": "选定 ({amount})",
 	"import.incorrectFormat": "CSV 格式不正确",
+	"import.nothingToImport": "没有什么新东西要导入",
 	"language.en-CA": "英语(加拿大)",
 	"language.es-MX": "西班牙语（墨西哥）",
 	"language.fr-CA": "法语（加拿大）",

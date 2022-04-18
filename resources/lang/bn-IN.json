@@ -102,6 +102,7 @@
 	"header.front": "সামনে",
 	"home.selected": "নির্বাচিত ({amount})",
 	"import.incorrectFormat": "CSV বিন্যাস ভুল",
+	"import.nothingToImport": "আমদানি করার জন্য নতুন কিছু নেই",
 	"language.en-CA": "ইংরেজি (কানাডা)",
 	"language.es-MX": "স্প্যানিশ (মেক্সিকো)",
 	"language.fr-CA": "ফরাসি (কানাডা)",

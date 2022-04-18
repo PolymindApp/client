@@ -102,6 +102,7 @@
 	"header.front": "Frente",
 	"home.selected": "Seleccionado ({amount})",
 	"import.incorrectFormat": "Formato CSV incorrecto",
+	"import.nothingToImport": "Nada nuevo para importar",
 	"language.en-CA": "Inglés (Canadá)",
 	"language.es-MX": "Español (México)",
 	"language.fr-CA": "Francés (Canadá)",

@@ -102,6 +102,7 @@
 	"header.front": "أمامي",
 	"home.selected": "محدد ({amount})",
 	"import.incorrectFormat": "تنسيق CSV غير صحيح",
+	"import.nothingToImport": "لا شيء جديد للاستيراد",
 	"language.en-CA": "الإنجليزية (كندا)",
 	"language.es-MX": "الإسبانية (المكسيك)",
 	"language.fr-CA": "الفرنسية (كندا)",

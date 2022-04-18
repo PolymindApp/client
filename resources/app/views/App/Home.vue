@@ -327,7 +327,6 @@ export default {
                     if (json.errors.length > 0) {
                         hasError = true;
                     }
-                    debugger;
                     if (Object.keys(json.data[0]).filter(key => keys.indexOf(key) !== -1).length !== keys.length) {
                         hasError = true;
                     }
@@ -340,7 +339,19 @@ export default {
                         deck_id: this.deck && this.deck.id,
                         front_voice_id: (this._voices.find(voice => voice.originalName === item.front_voice) || {}).id,
                         back_voice_id: (this._voices.find(voice => voice.originalName === item.back_voice) || {}).id,
-                    }));
+                    })).filter(item => {
+                        return !this.cards.find(card => (
+                            card.deck_id === item.deck_id
+                            && card.front === item.front
+                            && card.back === item.back
+                            && card.front_voice_id === item.front_voice_id
+                            && card.back_voice_id === item.back_voice_id
+                        ));
+                    });
+
+                    if (cards.length === 0) {
+                        return this.$handleError({ message: this.$i18n.t('import.nothingToImport') });
+                    }
 
                     this.importing = true;
                     return Services.bulkCreateCards(cards)
