@@ -13,12 +13,30 @@
                 itemsPerPageText: $t('table.itemsPerPageText'),
                 itemsPerPageOptions: [10,25,50,100,-1],
             }"
+            :search="search"
             :loading="loading"
             :items-per-page="25"
             sort-by="created_at"
             sort-desc
             show-select
         >
+            <template v-if="cards.length > 10" #header>
+                <thead>
+                    <tr>
+                        <td colspan="10" class="py-3">
+                            <v-text-field
+                                v-model="search"
+                                :placeholder="$t('cardListing.searchPlaceholder')"
+                                prepend-inner-icon="mdi-magnify"
+                                class="w-100"
+                                outlined
+                                dense
+                                hide-details
+                            ></v-text-field>
+                        </td>
+                    </tr>
+                </thead>
+            </template>
             <template #footer.prepend>
                 <BulkActionMenu
                     :cards.sync="_cards"
@@ -186,6 +204,7 @@ export default {
     },
 
     data: () => ({
+        search: '',
         singleSelected: [],
     }),
 

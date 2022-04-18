@@ -53,6 +53,7 @@
 	"card.total": "Aún no hay tarjetas | Una tarjeta | {amount} tarjetas",
 	"cardEditorForm.confirmBeforeRecord.body": "¿Está seguro de que desea grabar su voz y desarmar el sintetizado seleccionado?",
 	"cardEditorForm.confirmBeforeRecord.title": "Grabar voz",
+	"cardListing.searchPlaceholder": "Buscar tarjetas...",
 	"chevronSelector.selectTooltip": "Idiomas",
 	"deck.defaultVoiceBack": "Voz de fondo predeterminada",
 	"deck.defaultVoiceFront": "Voz frontal predeterminada",

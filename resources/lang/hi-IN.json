@@ -53,6 +53,7 @@
 	"card.total": "अभी तक कोई कार्ड नहीं | एक कार्ड | {amount} कार्ड",
 	"cardEditorForm.confirmBeforeRecord.body": "क्या आप वाकई अपनी आवाज रिकॉर्ड करना चाहते हैं और चयनित संश्लेषित आवाज को अनसेट करना चाहते हैं?",
 	"cardEditorForm.confirmBeforeRecord.title": "आवाज रिकॉर्ड करना",
+	"cardListing.searchPlaceholder": "कार्ड खोजें...",
 	"chevronSelector.selectTooltip": "भाषाओं",
 	"deck.defaultVoiceBack": "डिफ़ॉल्ट वापस आवाज",
 	"deck.defaultVoiceFront": "डिफ़ॉल्ट सामने की आवाज",

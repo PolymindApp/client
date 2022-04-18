@@ -53,6 +53,7 @@
 	"card.total": "এখনো কোনো কার্ড নেই | একটি কার্ড | {amount} টি কার্ড",
 	"cardEditorForm.confirmBeforeRecord.body": "আপনি কি আপনার ভয়েস রেকর্ড করতে এবং নির্বাচিত সংশ্লেষিত একটি আনসেট করার বিষয়ে নিশ্চিত?",
 	"cardEditorForm.confirmBeforeRecord.title": "ভয়েস রেকর্ড করুন",
+	"cardListing.searchPlaceholder": "কার্ড অনুসন্ধান করুন...",
 	"chevronSelector.selectTooltip": "ভাষাসমূহ",
 	"deck.defaultVoiceBack": "ডিফল্ট ব্যাক ভয়েস",
 	"deck.defaultVoiceFront": "ডিফল্ট সামনের ভয়েস",

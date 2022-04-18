@@ -53,6 +53,7 @@
 	"card.total": "No cards yet | One card | {amount} cards",
 	"cardEditorForm.confirmBeforeRecord.body": "Are you sure you want to record your voice and unset the selected synthesized one?",
 	"cardEditorForm.confirmBeforeRecord.title": "Record voice",
+	"cardListing.searchPlaceholder": "Search for cards...",
 	"chevronSelector.selectTooltip": "Languages",
 	"deck.defaultVoiceBack": "Default back voice",
 	"deck.defaultVoiceFront": "Default front voice",

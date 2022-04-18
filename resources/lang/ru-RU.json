@@ -53,6 +53,7 @@
 	"card.total": "Еще нет карт | Одна карта | {amount} карт",
 	"cardEditorForm.confirmBeforeRecord.body": "Вы уверены, что хотите записать свой голос и отменить выбранный синтезированный?",
 	"cardEditorForm.confirmBeforeRecord.title": "Запись голоса",
+	"cardListing.searchPlaceholder": "Поиск карт...",
 	"chevronSelector.selectTooltip": "Языки",
 	"deck.defaultVoiceBack": "Обратный голос по умолчанию",
 	"deck.defaultVoiceFront": "Передний голос по умолчанию",
