@@ -206,7 +206,7 @@
         </Modal>
 
         <!-- EXPORT TO MP3 SETTINGS -->
-        <Modal v-model="exportSessionDialog.visible" :title="$t('deck.play.exportSessionDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" persistent scrollable>
+        <Modal v-model="exportSessionDialog.visible" :disabled="exportSessionDialog.loading" :title="$t('deck.play.exportSessionDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" persistent scrollable>
             <template #body>
                 <div v-text="$t('deck.play.exportSessionDialog.desc')"></div>
             </template>
@@ -314,6 +314,8 @@ import Modal from '@/components/generic/Modal';
 import PlaybackSettingsModel from '@/models/PlaybackSettingsModel';
 import Services from "@/utils/Services";
 import Keypress from 'vue-keypress';
+import audioDecode from 'audio-decode';
+import Crunker from 'crunker';
 
 let autoPlayBus;
 
@@ -352,6 +354,7 @@ export default {
             loading: false,
             data: {},
         },
+        buffer: null,
     }),
 
     computed: {
@@ -777,13 +780,51 @@ export default {
 
         exportSession() {
             this.exportSessionDialog.loading = true;
-            const ids = this.filteredCards.map(card => card.id);
-            Services.export(ids, 'audio', this.deck.name, this.settings)
-                .then(() => {
-                    this.exportSessionDialog.visible = false;
-                })
-                .catch(reason => this.$handleError(reason))
-                .finally(() => this.exportSessionDialog.loading = false)
+
+            const promises = [];
+            this.filteredCards.forEach(card => {
+                promises.push(audioDecode(atob(card.front_synthesized.substring(22))));
+                promises.push(audioDecode(atob(card.back_synthesized.substring(22))));
+            });
+            Promise.all(promises)
+                .then(buffers => {
+                    let buffer = new AudioBuffer({
+                        length: 1,
+                        sampleRate: 44100,
+                    });
+                    let crunker = new Crunker();
+                    crunker.fetchAudio([
+                        '/assets/sounds/test.mp3',
+                    ]).then(ambiences => {
+                        cards.forEach((card, cardIdx) => {
+                            buffer = crunker.concatAudio([buffer, buffers[cardIdx]]);
+                            buffer = crunker.padAudio(buffer, buffer.duration - 0.0001, this.settings.delay);
+                        });
+                        ambiences.forEach((ambience, ambienceIdx) => {
+                            const newBuffer = new AudioBuffer({
+                                length: ambience.length,
+                                numberOfChannels: ambience.numberOfChannels,
+                                sampleRate: ambience.sampleRate
+                            });
+                            for (let channel = 0; channel < ambience.numberOfChannels; channel += 1) {
+                                const channelData = ambience.getChannelData(channel);
+                                const newChannelData = newBuffer.getChannelData(channel);
+
+                                for (let sample = 0; sample < channelData.length; sample += 1) {
+                                    newChannelData[sample] = channelData[sample] * 0.2;
+                                }
+                            }
+                            ambiences[ambienceIdx] = newBuffer;
+                        })
+                        buffer = crunker.mergeAudio([buffer, ...ambiences]);
+                        this.buffer = buffer;
+
+                        const crunker = new Crunker();
+                        const output = crunker.export(this.buffer, 'audio/wav');
+                        crunker.download(output.blob, this.deckName);
+                        this.exportSessionDialog.loading = false;
+                    })
+                });
         },
     },
 
