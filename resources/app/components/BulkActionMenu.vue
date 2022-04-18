@@ -563,6 +563,8 @@ export default {
             return Services.bulkCreateCards(cards)
                 .then(response => {
                     this.$snack(this.$i18n.t('snack.cardBulkCreated'));
+                    this.$emit('update', response);
+                    this.$emit('totalCard', cards.length)
                     return response;
                 })
                 .catch(this.$handleError)
@@ -608,6 +610,7 @@ export default {
         },
 
         removeSelected() {
+            this.$emit('totalCard', -this.selected.length);
             this._cards = this.cards.filter(item => !this.selected.find(selected => selected.id === item.id));
             this._selected = [];
         },

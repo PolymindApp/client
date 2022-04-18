@@ -28,6 +28,7 @@
                     top
                     offset-y
                     @update="handleUpdate"
+                    @totalCard="amount => $emit('totalCard', amount)"
                 />
 
                 <!-- HIDDEN BULK ACTION FOR SINGLE ACTION -->
@@ -41,6 +42,7 @@
                     top
                     offset-y
                     @update="handleUpdate"
+                    @totalCard="amount => $emit('totalCard', amount)"
                 />
             </template>
             <template #loading>
@@ -251,7 +253,8 @@ export default {
             return Services.deleteCard(card.id)
                 .then(response => {
                     this._cards = this.cards.filter(item => item.id !== card.id);
-                    this.$emit('update');
+                    this.$emit('update', response);
+                    this.$emit('totalCard', -1);
                 })
                 .catch(this.$handleError)
                 .finally(() => this.deleting = false);

@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Http\Helpers\Polly;
 use App\Models\Card;
+use App\Models\Deck;
 use App\Models\Voice;
 
 class CardObserver
@@ -21,6 +22,17 @@ class CardObserver
                 $voice = Voice::find($voiceId);
                 $stream = $polly->getDataStream($text, $voice->language->code, $voice->name, $voice->standard === 1);
                 $model[$side . '_synthesized'] = 'data:audio/mp3;base64,' . base64_encode($stream);
+            }
+        }
+    }
+
+    private function updateDeckTotalCards($model)
+    {
+        if ($model['deck_id']) {
+            $deck = Deck::find($model['deck_id']);
+            if ($deck) {
+                $deck->total_card = Card::where('deck_id', '=', $model['deck_id'])->count();
+                $deck->save();
             }
         }
     }
@@ -43,5 +55,15 @@ class CardObserver
     public function updating(Card $model)
     {
         $this->updateStreams($model);
+    }
+
+    public function created(Card $model)
+    {
+        $this->updateDeckTotalCards($model);
+    }
+
+    public function deleted(Card $model)
+    {
+        $this->updateDeckTotalCards($model);
     }
 }

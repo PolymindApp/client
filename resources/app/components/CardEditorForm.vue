@@ -420,6 +420,7 @@ export default {
                         this.$refs.front.$el.querySelector('input').focus();
                     }
                     this.$emit('add', card);
+                    this.$emit('totalCard', 1);
                     this.clear();
                     this.$snack(this.$i18n.t('snack.cardAdded'));
                     this.$root.lockFocus = false;
