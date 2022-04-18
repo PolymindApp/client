@@ -17,7 +17,7 @@
                                 <span class="headline text-truncate" v-text="title"></span>
                             </div>
                         </slot>
-                        <v-btn @click="_value = false" :dark="!dense && $vuetify.breakpoint.smAndDown" icon>
+                        <v-btn @click="_value = false" :disabled="disabled" :dark="!dense && $vuetify.breakpoint.smAndDown" icon>
                             <v-icon>mdi-close</v-icon>
                         </v-btn>
                     </div>
