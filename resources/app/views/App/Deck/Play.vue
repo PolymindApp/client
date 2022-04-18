@@ -503,7 +503,7 @@ export default {
 
         handleSavePlaybackSettings() {
             const callback = () => {
-                this.settings = this.$deepClone(this.playbackSettingsDialog.data);
+                this.settings = new this.$deepClone(this.playbackSettingsDialog.data);
                 this.playbackSettingsDialog.visible = false;
                 this.$snack(this.$i18n.t('deck.play.playbackSettings.applied'));
 
@@ -518,7 +518,7 @@ export default {
             };
 
             if (this.deck && this.deck.id) {
-                this.deck.playback_settings = this.$deepClone(this.playbackSettingsDialog.data);
+                this.deck.playback_settings = new PlaybackSettingsModel(this.$deepClone(this.playbackSettingsDialog.data));
                 this.playbackSettingsDialog.saving = true;
                 return Services.updateDeck(this.deck.id, this.deck)
                     .then(response => {
@@ -796,7 +796,7 @@ export default {
                     crunker.fetchAudio([
                         '/assets/sounds/test.mp3',
                     ]).then(ambiences => {
-                        cards.forEach((card, cardIdx) => {
+                        this.filteredCards.forEach((card, cardIdx) => {
                             buffer = crunker.concatAudio([buffer, buffers[cardIdx]]);
                             buffer = crunker.padAudio(buffer, buffer.duration - 0.0001, this.settings.delay);
                         });
@@ -815,7 +815,7 @@ export default {
                                 }
                             }
                             ambiences[ambienceIdx] = newBuffer;
-                        })
+                        });
                         buffer = crunker.mergeAudio([buffer, ...ambiences]);
                         this.buffer = buffer;
 
@@ -836,7 +836,6 @@ export default {
         document.title = this.deckName;
 
         this.settings = this.$deepClone(this.deck ? this.deck.playback_settings.data : new PlaybackSettingsModel().data);
-
         this.load();
     },
 }
