@@ -53,6 +53,7 @@
 	"card.total": "ابھی تک کوئی کارڈ نہیں | ایک کارڈ | {amount} کارڈز",
 	"cardEditorForm.confirmBeforeRecord.body": "کیا آپ واقعی اپنی آواز کو ریکارڈ کرنا چاہتے ہیں اور منتخب کردہ سنتھیسائز کو غیر سیٹ کرنا چاہتے ہیں؟",
 	"cardEditorForm.confirmBeforeRecord.title": "آواز ریکارڈ کریں۔",
+	"cardListing.noResults": "آپ کے تلاش کے معیار کی بنیاد پر کوئی نتیجہ نہیں ملا۔",
 	"cardListing.searchPlaceholder": "کارڈز تلاش کریں...",
 	"chevronSelector.selectTooltip": "زبانیں",
 	"deck.defaultVoiceBack": "ڈیفالٹ بیک آواز",

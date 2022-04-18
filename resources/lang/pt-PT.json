@@ -53,6 +53,7 @@
 	"card.total": "Ainda sem cartões | Um cartão | {amount} cartões",
 	"cardEditorForm.confirmBeforeRecord.body": "Tem a certeza de que quer gravar a sua voz e desajustar a sintetizada seleccionada?",
 	"cardEditorForm.confirmBeforeRecord.title": "Gravar voz",
+	"cardListing.noResults": "Nenhum resultado encontrado com base em seus critérios de pesquisa.",
 	"cardListing.searchPlaceholder": "Pesquisar cartões...",
 	"chevronSelector.selectTooltip": "Línguas",
 	"deck.defaultVoiceBack": "Voz de retorno por defeito",

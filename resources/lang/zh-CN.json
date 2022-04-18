@@ -53,6 +53,7 @@
 	"card.total": "还没有牌 | 一张牌 | {amount} 牌",
 	"cardEditorForm.confirmBeforeRecord.body": "你确定要录下你的声音并取消所选的合成声音吗？",
 	"cardEditorForm.confirmBeforeRecord.title": "录制语音",
+	"cardListing.noResults": "根据您的搜索条件未找到任何结果。",
 	"cardListing.searchPlaceholder": "搜索卡片...",
 	"chevronSelector.selectTooltip": "语言",
 	"deck.defaultVoiceBack": "默认的回声",

@@ -104,6 +104,20 @@
         </v-data-table>
     </v-card>
     <v-sheet v-else color="transparent" v-bind="$attrs" v-on="$listeners">
+        <div v-if="cards.length > 10" class="mb-3">
+            <v-text-field
+                v-model="search"
+                :placeholder="$t('cardListing.searchPlaceholder')"
+                prepend-inner-icon="mdi-magnify"
+                class="w-100"
+                solo
+                dense
+                hide-details
+            ></v-text-field>
+        </div>
+        <v-alert v-if="search.length > 0 && _cards.length === 0" type="info" text outlined prominent>
+            <span v-text="$t('cardListing.noResults')"></span>
+        </v-alert>
         <v-card :color="isSelected(card) ? 'primary' : null" :dark="isSelected(card)" :key="card.id" v-for="(card, cardIdx) in _cards" :class="{
             'mt-3': cardIdx > 0,
         }" @click="handleCardClick(card)">
@@ -211,7 +225,16 @@ export default {
     computed: {
         _cards: {
             get() {
-                return this.skeleton ? [{},{},{}] : this.cards;
+                return this.skeleton
+                    ? [{},{},{}]
+                    : this.$vuetify.breakpoint.smAndDown
+                        ? this.cards.filter(card => {
+                            const front = card.front.trim().toLowerCase();
+                            const back = card.back.trim().toLowerCase();
+                            const search = this.search.trim().toLowerCase();
+                            return search.length === 0 || front.indexOf(search) !== -1 || back.indexOf(search) !== -1;
+                        })
+                        : this.cards;
             },
             set(value) {
                 this.$emit('update:cards', value);

@@ -53,6 +53,7 @@
 	"card.total": "Pas encore de cartes | Une carte | {amount} cartes",
 	"cardEditorForm.confirmBeforeRecord.body": "Êtes-vous sûr de vouloir enregistrer votre voix et désactiver celle synthétisée sélectionnée ?",
 	"cardEditorForm.confirmBeforeRecord.title": "Enregistrer la voix",
+	"cardListing.noResults": "Aucun résultat trouvé selon vos critères de recherche.",
 	"cardListing.searchPlaceholder": "Rechercher des cartes...",
 	"chevronSelector.selectTooltip": "Langues",
 	"deck.defaultVoiceBack": "Voix de fond par défaut",

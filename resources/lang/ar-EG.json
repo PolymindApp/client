@@ -53,6 +53,7 @@
 	"card.total": "لا توجد بطاقات بعد | بطاقة واحدة | {amount} بطاقات",
 	"cardEditorForm.confirmBeforeRecord.body": "هل أنت متأكد من أنك تريد تسجيل صوتك وإلغاء ضبط الصوت المركب المحدد؟",
 	"cardEditorForm.confirmBeforeRecord.title": "سجل صوت",
+	"cardListing.noResults": "لا توجد نتائج بناء على معايير البحث الخاصة بك.",
 	"cardListing.searchPlaceholder": "البحث عن بطاقات ...",
 	"chevronSelector.selectTooltip": "اللغات",
 	"deck.defaultVoiceBack": "الصوت الخلفي الافتراضي",
