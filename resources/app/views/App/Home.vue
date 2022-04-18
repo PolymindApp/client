@@ -160,7 +160,7 @@
                     :autofocus="$vuetify.breakpoint.mdAndUp"
                     class="mb-md-8 w-100"
                     @add="handleAddCardClick"
-                    @totalCard="amount => deck.total_card += amount"
+                    @totalCard="handleTotalCard"
                 />
             </v-expand-transition>
 
@@ -179,7 +179,7 @@
                     :selected.sync="selected"
                     @update="resetVoices"
                     @selected="handleSelected"
-                    @totalCard="amount => deck.total_card += amount"
+                    @totalCard="handleTotalCard"
                 />
             </div>
 
@@ -200,7 +200,7 @@
                         top
                         offset-y
                         @update="resetVoices"
-                        @totalCard="amount => this.deck.total_card += amount"
+                        @totalCard="handleTotalCard"
                     />
                     <v-btn class="mt-2" text large block @click="selected = []">
                         <span v-text="$t('btn.cancel')"></span>
@@ -315,6 +315,11 @@ export default {
     },
 
     methods: {
+        handleTotalCard(amount) {
+            if (this.deck) {
+                this.deck.total_card += amount;
+            }
+        },
         handleImportClick() {
             File.promptForFile('.csv')
                 .then(csv => {
@@ -356,7 +361,7 @@ export default {
                     this.importing = true;
                     return Services.bulkCreateCards(cards)
                         .then(response => {
-                            this.deck.total_card += cards.length;
+                            this.handleTotalCard(cards.length);
                             this.$snack(this.$i18n.t('snack.cardBulkCreated'));
                             this.cards.unshift(...response);
                             return response;
