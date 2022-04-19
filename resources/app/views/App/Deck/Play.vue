@@ -356,6 +356,7 @@ export default {
         deck: new DeckModel(),
         settings: {},
         audios: {},
+        ambience: new Audio(),
         startTime: new Date(),
         pauseTime: new Date(),
         playbackSettingsDialog: {
@@ -545,6 +546,8 @@ export default {
         handleSavePlaybackSettings() {
             const callback = () => {
                 this.settings = new this.$deepClone(this.playbackSettingsDialog.data);
+                this.applySettings();
+
                 this.playbackSettingsDialog.visible = false;
                 this.$snack(this.$i18n.t('deck.play.playbackSettings.applied'));
 
@@ -688,6 +691,7 @@ export default {
         play() {
             this.playing = true;
             this.firstPlay = false;
+            this.ambience.play();
 
             const date = new Date();
             if (this.pauseTime) {
@@ -706,6 +710,7 @@ export default {
         pause() {
             this.playing = false;
             this.pauseTime = new Date();
+            this.ambience.pause();
         },
 
         load() {
@@ -732,6 +737,7 @@ export default {
             this.firstPlay = true;
             this.completed = false;
             this.index = 0;
+            this.ambience.pause();
             this.resetTime(new Date());
         },
 
@@ -871,6 +877,17 @@ export default {
                     })
                 });
         },
+
+        applySettings() {
+            this.ambience.volume = 0.2;
+            if (this._settings.ambience) {
+                this.ambience.src = this._settings.ambience;
+
+                if (this.playing) {
+                    this.ambience.play();
+                }
+            }
+        },
     },
 
     created() {
@@ -882,6 +899,7 @@ export default {
 
         this.settings = this.$deepClone(this.deck ? this.deck.data.playback_settings.data : new PlaybackSettingsModel().data);
         this.load();
+        this.applySettings();
     },
 }
 </script>
