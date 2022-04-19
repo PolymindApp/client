@@ -37,13 +37,28 @@
         </template>
 
         <v-list dense>
-            <v-subheader v-text="$t('sidebar.decks.title')"></v-subheader>
-            <v-list-item :key="deck.data.id" v-for="deck in $root.decks" :to="{ name: $route.name, params: { uuid: deck.data.id || 'unclassified' }}">
+            <div v-if="$root.decks.length > 10" class="px-2 pb-4">
+                <v-text-field
+                    v-model="search"
+                    :placeholder="$t('sidebar.decks.title')"
+                    prepend-inner-icon="mdi-magnify"
+                    solo
+                    dense
+                    hide-details
+                ></v-text-field>
+            </div>
+            <v-subheader v-else v-text="$t('sidebar.decks.title')"></v-subheader>
+            <v-list-item :key="deck.data.id" v-for="deck in _decks" :to="{ name: $route.name, params: { uuid: deck.data.id || 'unclassified' }}">
                 <v-list-item-content v-text="deck.data.i18n ? $t(deck.data.i18n) : deck.data.name"></v-list-item-content>
                 <v-list-item-icon v-if="deck.data.total_card !== undefined" class="d-flex align-center">
                     <v-chip v-text="deck.data.total_card" x-small></v-chip>
                 </v-list-item-icon>
             </v-list-item>
+            <div v-if="_decks.length === 0 && search.trim().length > 0" class="px-2">
+                <v-alert type="info" text outlined>
+                    <span v-text="$t('sidebar.decks.noResults')"></span>
+                </v-alert>
+            </div>
         </v-list>
 
         <template #append>
@@ -103,6 +118,7 @@ export default {
     },
 
     data: () => ({
+        search: '',
         year: new Date().getFullYear(),
         version: packageJson.version,
     }),
@@ -115,6 +131,10 @@ export default {
             set(value) {
                 this.$emit('input', value);
             },
+        },
+
+        _decks() {
+            return this.$root.decks.filter(deck => this.search.trim().length === 0 || (deck.data.name || this.$i18n.t(deck.data.i18n)).trim().toLowerCase().indexOf(this.search.trim().toLowerCase()) !== -1)
         },
 
         logo() {

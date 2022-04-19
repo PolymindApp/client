@@ -174,6 +174,7 @@
 	"rules.required": "ঘরটি অবশ্যই পূরণ করতে হবে",
 	"seo.deck.play.desc": " :front_language থেকে :back_languageপর্যন্ত অনুশীলন করার জন্য:total কার্ড। | :front_language থেকে :back_languageপর্যন্ত অনুশীলন করার জন্য একটি কার্ড। | :front_language থেকে :back_languageপর্যন্ত অনুশীলন করার জন্য :total কার্ড।",
 	"seo.default.description": "অবচেতন স্তরে মুখস্থ অনুশীলন করার জন্য একটি বিনামূল্যে এবং ওপেন সোর্স প্রোগ্রাম।",
+	"sidebar.decks.noResults": "আপনার অনুসন্ধানের মানদণ্ডের উপর ভিত্তি করে কোন ডেক পাওয়া যায়নি।",
 	"sidebar.decks.title": "ডেক",
 	"snack.cardAdded": "কার্ড সফলভাবে যোগ করা হয়েছে!",
 	"snack.cardBulkCopied": "কার্ড সফলভাবে অনুলিপি করা হয়েছে!",
