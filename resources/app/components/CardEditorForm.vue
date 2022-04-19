@@ -2,7 +2,7 @@
     <v-form v-bind="$attrs" v-on="$listeners" @submit.prevent="handleSubmit">
         <v-card :flat="$vuetify.breakpoint.smAndDown" :tile="$vuetify.breakpoint.smAndDown">
             <v-expand-transition>
-                <v-row v-if="(!$root.inputFocused || focusedOnCardEditorField) && !$vuetify.breakpoint.smAndDown || (!$root.inputFocused && !$root.lockFocus)" class="flex-nowrap" style="position: relative" no-gutters>
+                <v-row v-if="(!$root.inputFocused || focusedOnCardEditorField) || !$vuetify.breakpoint.smAndDown" class="flex-nowrap" style="position: relative" no-gutters>
                     <v-col :cols="deck.data.single ? 12 : 6" :class="{
                         'd-flex align-center pr-2': true,
                         'pr-2': deck.data.single,
@@ -57,7 +57,7 @@
             </v-expand-transition>
             <v-divider v-if="!$vuetify.breakpoint.smAndDown || (!$root.inputFocused && !$root.lockFocus)" /> <!-- NEEDS TO BE HERE -->
             <v-expand-transition>
-                <v-row v-if="!$root.inputFocused || focusedOnCardEditorField" no-gutters>
+                <v-row v-if="(!$root.inputFocused || focusedOnCardEditorField) || !$vuetify.breakpoint.smAndDown" no-gutters>
                     <v-col cols="12" :md="deck.data.single ? 12 : 6" class="pa-3 d-flex d-md-block" style="position: relative">
                         <v-text-field
                             ref="front"
@@ -356,7 +356,7 @@ export default {
             return [
                 'card_editor_form_front',
                 'card_editor_form_back',
-            ].indexOf(this.$root.inputFocused) !== -1;
+            ].indexOf(this.$root.inputFocused) !== -1 || this.$root.lockFocus;
         }
     },
 
