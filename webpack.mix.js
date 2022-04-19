@@ -17,9 +17,9 @@ mix.ts('resources/app/main.ts', 'public/js/app.js')
     // .sass('resources/app/index.scss', 'public/css')
     .webpackConfig({
         devtool: 'source-map',
-        devServer: {
-            port: 8079,
-        },
+        // devServer: {
+        //     port: 8079,
+        // },
         resolve: {
             alias: {
                 '@': path.resolve('resources/app')
@@ -27,11 +27,11 @@ mix.ts('resources/app/main.ts', 'public/js/app.js')
         }
     })
 
-mix.options({
-    hmrOptions: {
-        host: 'bs-local.com',
-        port: 8079,
-    },
-});
+// mix.options({
+//     hmrOptions: {
+//         host: 'bs-local.com',
+//         port: 8079,
+//     },
+// });
 
 mix.disableNotifications();
