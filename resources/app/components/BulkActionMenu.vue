@@ -586,7 +586,7 @@ export default {
                 .then(response => {
                     this.$snack(this.$i18n.t('snack.cardBulkCreated'));
                     this.$emit('update', response);
-                    this.$emit('totalCard', cards.length)
+                    this.$emit('totalCard', cards.length);
                     return response;
                 })
                 .catch(this.$handleError)

@@ -206,7 +206,7 @@
             />
             <v-sheet v-if="showBulkActionMenu" class="w-100">
                 <v-divider />
-                <v-sheet class=" py-2 px-3">
+                <v-sheet class="py-2 px-3">
                     <BulkActionMenu
                         :deck="deck"
                         :cards.sync="cards"

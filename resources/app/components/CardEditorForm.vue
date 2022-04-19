@@ -2,7 +2,7 @@
     <v-form v-bind="$attrs" v-on="$listeners" @submit.prevent="handleSubmit">
         <v-card :flat="$vuetify.breakpoint.smAndDown" :tile="$vuetify.breakpoint.smAndDown">
             <v-expand-transition>
-                <v-row v-if="!$vuetify.breakpoint.smAndDown || (!$root.inputFocused && !$root.lockFocus)" style="position: relative" no-gutters>
+                <v-row v-if="(!$root.inputFocused || focusedOnCardEditorField) && !$vuetify.breakpoint.smAndDown || (!$root.inputFocused && !$root.lockFocus)" class="flex-nowrap" style="position: relative" no-gutters>
                     <v-col :cols="deck.data.single ? 12 : 6" :class="{
                         'd-flex align-center pr-2': true,
                         'pr-2': deck.data.single,
@@ -56,122 +56,126 @@
                 </v-row>
             </v-expand-transition>
             <v-divider v-if="!$vuetify.breakpoint.smAndDown || (!$root.inputFocused && !$root.lockFocus)" /> <!-- NEEDS TO BE HERE -->
-            <v-row no-gutters>
-                <v-col cols="12" :md="deck.data.single ? 12 : 6" class="pa-3 d-flex d-md-block" style="position: relative">
-                    <v-text-field
-                        ref="front"
-                        v-model="_front"
-                        :placeholder="frontPlaceholder"
-                        :style="style"
-                        :autofocus="autofocus"
-                        :height="$vuetify.breakpoint.mdAndUp ? 100 : 90"
-                        :disabled="loading"
-                        class="main-input"
-                        no-resize
-                        solo
-                        flat
-                        hide-details
-                        @focus="handleFocus"
-                    />
-                    <v-btn v-if="canPaste && !_front && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click.stop="handlePasteClick('front')">
-                        <v-icon left>mdi-clipboard-outline</v-icon>
-                        <span v-text="$t('btn.paste')"></span>
-                    </v-btn>
-                    <div style="flex: 0" class="ml-3 ml-md-0 d-flex align-center justify-space-between">
-                        <div>
-                            <v-tooltip bottom>
-                                <template #activator="{ attrs, on }">
-                                    <MicAudioRecorder v-model="_frontSynthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(_voiceFront, _front, () => _voiceFront = null)" :disabled="!canRecord(_voiceFront, _front)" icon />
-                                </template>
-                                <span v-text="$t('btn.record')"></span>
-                            </v-tooltip>
-                            <v-tooltip bottom>
-                                <template #activator="{ attrs, on }">
-                                    <PlayAudioBtn v-model="_frontSynthesized" tabindex="-1" v-bind="attrs" v-on="on" />
-                                </template>
-                                <span v-text="$t('btn.listen')"></span>
-                            </v-tooltip>
-                        </div>
-                        <div>
-                            <v-btn v-if="canPaste && !_front && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click.stop="handlePasteClick('front')">
-                                <v-icon small left>mdi-clipboard-outline</v-icon>
-                                <span v-text="$t('btn.paste')"></span>
-                            </v-btn>
-                            <v-tooltip v-if="$vuetify.breakpoint.mdAndUp" bottom>
-                                <template #activator="{ attrs, on }">
-                                    <v-btn tabindex="-1" v-bind="attrs" v-on="on" :disabled="!canCopyClipboard(_front)" icon @mousedown.stop.prevent="handleCopyClipboardClick(_front)">
-                                        <v-icon>mdi-content-copy</v-icon>
-                                    </v-btn>
-                                </template>
-                                <span v-text="$t('btn.copyClipboard')"></span>
-                            </v-tooltip>
-                        </div>
-                    </div>
-                </v-col>
-                <v-col v-if="$vuetify.breakpoint.smAndDown" cols="12">
-                    <v-divider />
-                </v-col>
-                <template v-if="!deck.data.single">
-                    <v-divider v-if="$vuetify.breakpoint.mdAndUp" vertical />
-
-                    <v-expand-transition>
-                        <v-col v-if="$root.lockFocus || $root.inputFocused || $vuetify.breakpoint.mdAndUp" cols="12" md="6">
-                            <div class="pa-3 d-flex d-md-block" style="position: relative;">
-                                <v-text-field
-                                    ref="back"
-                                    v-model="_back"
-                                    :placeholder="backPlaceholder"
-                                    :style="style"
-                                    :height="$vuetify.breakpoint.mdAndUp ? 100 : 90"
-                                    :disabled="loading"
-                                    class="main-input"
-                                    no-resize
-                                    solo
-                                    flat
-                                    hide-details
-                                    @focus="handleFocus"
-                                />
-                                <v-btn v-if="canPaste && !_back && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click="handlePasteClick('back')">
-                                    <v-icon left>mdi-clipboard-outline</v-icon>
+            <v-expand-transition>
+                <v-row v-if="!$root.inputFocused || focusedOnCardEditorField" no-gutters>
+                    <v-col cols="12" :md="deck.data.single ? 12 : 6" class="pa-3 d-flex d-md-block" style="position: relative">
+                        <v-text-field
+                            ref="front"
+                            id="card_editor_form_front"
+                            v-model="_front"
+                            :placeholder="frontPlaceholder"
+                            :style="style"
+                            :autofocus="autofocus"
+                            :height="$vuetify.breakpoint.mdAndUp ? 100 : 90"
+                            :disabled="loading"
+                            class="main-input"
+                            no-resize
+                            solo
+                            flat
+                            hide-details
+                            @focus="handleFocus"
+                        />
+                        <v-btn v-if="canPaste && !_front && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click.stop="handlePasteClick('front')">
+                            <v-icon left>mdi-clipboard-outline</v-icon>
+                            <span v-text="$t('btn.paste')"></span>
+                        </v-btn>
+                        <div style="flex: 0" class="ml-3 ml-md-0 d-flex align-center justify-space-between">
+                            <div>
+                                <v-tooltip bottom>
+                                    <template #activator="{ attrs, on }">
+                                        <MicAudioRecorder v-model="_frontSynthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(_voiceFront, _front, () => _voiceFront = null)" :disabled="!canRecord(_voiceFront, _front)" icon />
+                                    </template>
+                                    <span v-text="$t('btn.record')"></span>
+                                </v-tooltip>
+                                <v-tooltip bottom>
+                                    <template #activator="{ attrs, on }">
+                                        <PlayAudioBtn v-model="_frontSynthesized" tabindex="-1" v-bind="attrs" v-on="on" />
+                                    </template>
+                                    <span v-text="$t('btn.listen')"></span>
+                                </v-tooltip>
+                            </div>
+                            <div>
+                                <v-btn v-if="canPaste && !_front && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click.stop="handlePasteClick('front')">
+                                    <v-icon small left>mdi-clipboard-outline</v-icon>
                                     <span v-text="$t('btn.paste')"></span>
                                 </v-btn>
-                                <div style="flex: 0" class="ml-3 ml-md-0 d-flex align-center justify-space-between">
-                                    <div>
-                                        <v-tooltip bottom>
-                                            <template #activator="{ attrs, on }">
-                                                <MicAudioRecorder v-model="_backSynthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(_voiceBack, _back, () => _voiceBack = null)" :disabled="!canRecord(_voiceBack, _back)" icon />
-                                            </template>
-                                            <span v-text="$t('btn.record')"></span>
-                                        </v-tooltip>
-                                        <v-tooltip bottom>
-                                            <template #activator="{ attrs, on }">
-                                                <PlayAudioBtn v-model="_backSynthesized" tabindex="-1" v-bind="attrs" v-on="on" />
-                                            </template>
-                                            <span v-text="$t('btn.listen')"></span>
-                                        </v-tooltip>
-                                    </div>
-                                    <div>
-                                        <v-btn v-if="canPaste && !_back && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click="handlePasteClick('back')">
-                                            <v-icon small left>mdi-clipboard-outline</v-icon>
-                                            <span v-text="$t('btn.paste')"></span>
+                                <v-tooltip v-if="$vuetify.breakpoint.mdAndUp" bottom>
+                                    <template #activator="{ attrs, on }">
+                                        <v-btn tabindex="-1" v-bind="attrs" v-on="on" :disabled="!canCopyClipboard(_front)" icon @mousedown.stop.prevent="handleCopyClipboardClick(_front)">
+                                            <v-icon>mdi-content-copy</v-icon>
                                         </v-btn>
-                                        <v-tooltip v-if="$vuetify.breakpoint.mdAndUp" bottom>
-                                            <template #activator="{ attrs, on }">
-                                                <v-btn tabindex="-1" v-bind="attrs" v-on="on" :disabled="!canCopyClipboard(_back)" icon @mousedown.stop.prevent="handleCopyClipboardClick(_back)">
-                                                    <v-icon>mdi-content-copy</v-icon>
-                                                </v-btn>
-                                            </template>
-                                            <span v-text="$t('btn.copyClipboard')"></span>
-                                        </v-tooltip>
+                                    </template>
+                                    <span v-text="$t('btn.copyClipboard')"></span>
+                                </v-tooltip>
+                            </div>
+                        </div>
+                    </v-col>
+                    <v-col v-if="$vuetify.breakpoint.smAndDown" cols="12">
+                        <v-divider />
+                    </v-col>
+                    <template v-if="!deck.data.single">
+                        <v-divider v-if="$vuetify.breakpoint.mdAndUp" vertical />
+
+                        <v-expand-transition>
+                            <v-col v-if="focusedOnCardEditorField || $vuetify.breakpoint.mdAndUp" cols="12" md="6">
+                                <div class="pa-3 d-flex d-md-block" style="position: relative;">
+                                    <v-text-field
+                                        ref="back"
+                                        id="card_editor_form_back"
+                                        v-model="_back"
+                                        :placeholder="backPlaceholder"
+                                        :style="style"
+                                        :height="$vuetify.breakpoint.mdAndUp ? 100 : 90"
+                                        :disabled="loading"
+                                        class="main-input"
+                                        no-resize
+                                        solo
+                                        flat
+                                        hide-details
+                                        @focus="handleFocus"
+                                    />
+                                    <v-btn v-if="canPaste && !_back && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click="handlePasteClick('back')">
+                                        <v-icon left>mdi-clipboard-outline</v-icon>
+                                        <span v-text="$t('btn.paste')"></span>
+                                    </v-btn>
+                                    <div style="flex: 0" class="ml-3 ml-md-0 d-flex align-center justify-space-between">
+                                        <div>
+                                            <v-tooltip bottom>
+                                                <template #activator="{ attrs, on }">
+                                                    <MicAudioRecorder v-model="_backSynthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(_voiceBack, _back, () => _voiceBack = null)" :disabled="!canRecord(_voiceBack, _back)" icon />
+                                                </template>
+                                                <span v-text="$t('btn.record')"></span>
+                                            </v-tooltip>
+                                            <v-tooltip bottom>
+                                                <template #activator="{ attrs, on }">
+                                                    <PlayAudioBtn v-model="_backSynthesized" tabindex="-1" v-bind="attrs" v-on="on" />
+                                                </template>
+                                                <span v-text="$t('btn.listen')"></span>
+                                            </v-tooltip>
+                                        </div>
+                                        <div>
+                                            <v-btn v-if="canPaste && !_back && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click="handlePasteClick('back')">
+                                                <v-icon small left>mdi-clipboard-outline</v-icon>
+                                                <span v-text="$t('btn.paste')"></span>
+                                            </v-btn>
+                                            <v-tooltip v-if="$vuetify.breakpoint.mdAndUp" bottom>
+                                                <template #activator="{ attrs, on }">
+                                                    <v-btn tabindex="-1" v-bind="attrs" v-on="on" :disabled="!canCopyClipboard(_back)" icon @mousedown.stop.prevent="handleCopyClipboardClick(_back)">
+                                                        <v-icon>mdi-content-copy</v-icon>
+                                                    </v-btn>
+                                                </template>
+                                                <span v-text="$t('btn.copyClipboard')"></span>
+                                            </v-tooltip>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </v-col>
-                    </v-expand-transition>
-                </template>
-            </v-row>
+                            </v-col>
+                        </v-expand-transition>
+                    </template>
+                </v-row>
+            </v-expand-transition>
             <v-expand-transition>
-                <v-sheet v-if="$root.lockFocus || $root.inputFocused || $vuetify.breakpoint.mdAndUp" color="surface">
+                <v-sheet v-if="focusedOnCardEditorField || $vuetify.breakpoint.mdAndUp" color="surface">
                     <div class="pa-3 d-block d-md-flex align-center justify-space-between">
                         <div class="w-100 d-flex flex-column flex-md-row" style="gap: 0.5rem">
                             <v-btn type="submit" color="primary" :large="$vuetify.breakpoint.smAndDown" :block="$vuetify.breakpoint.smAndDown" :disabled="!canAdd || adding" :loading="adding" @click="handleSubmit">
@@ -348,6 +352,12 @@ export default {
         canPaste() {
             return ['iphone'].indexOf(navigator.platform.toLowerCase()) === -1;
         },
+        focusedOnCardEditorField() {
+            return [
+                'card_editor_form_front',
+                'card_editor_form_back',
+            ].indexOf(this.$root.inputFocused) !== -1;
+        }
     },
 
     watch: {

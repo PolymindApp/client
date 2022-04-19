@@ -21,6 +21,7 @@
                         <td colspan="10" class="py-3">
                             <v-text-field
                                 v-model="search"
+                                id="card_listing_search_mobile"
                                 :placeholder="$t('cardListing.searchPlaceholder')"
                                 prepend-inner-icon="mdi-magnify"
                                 class="w-100"

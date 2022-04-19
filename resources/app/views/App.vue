@@ -97,7 +97,9 @@ export default Vue.extend({
         handleCheckFocus(args) {
             clearTimeout(checkFocusTimeout);
             checkFocusTimeout = setTimeout(() => {
-                this.$root.inputFocused = ['input', 'textarea'].indexOf(document.activeElement.nodeName.toLowerCase()) !== -1 && !document.activeElement.getAttribute('readonly');
+                const focused = ['input', 'textarea'].indexOf(document.activeElement.nodeName.toLowerCase()) !== -1 && !document.activeElement.getAttribute('readonly');
+                const id = document.activeElement.getAttribute('id');
+                this.$root.inputFocused = focused && id ? id : focused;
                 this.$forceUpdate();
             }, args.type === 'focusout' ? 100 : 0);
         },
