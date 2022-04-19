@@ -233,7 +233,7 @@
                 <v-btn v-if="showNavigation" :disabled="!canGoPrevious" height="30vh" text x-large @click="handlePrevClick">
                     <v-icon size="7.5vh" v-text="$vuetify.rtl ? 'mdi-chevron-right' : 'mdi-chevron-left'"></v-icon>
                 </v-btn>
-                <div class="d-flex align-center justify-center fill-height" style="flex: 1; position: relative">
+                <div class="d-flex flex-nowrap align-center justify-center fill-height" style="flex: 1; position: relative">
                     <v-progress-circular v-if="skeleton" color="primary" size="64" indeterminate></v-progress-circular>
                     <div v-else-if="originalCards.length === 0" class="text-center" style="max-width: 15rem">
                         <v-icon color="warning" x-large>mdi-alert</v-icon>
@@ -295,7 +295,7 @@
                 </v-row>
             </v-container>
             <v-expand-transition>
-                <v-progress-linear v-if="showProgress" :value="progress" height="5" />
+                <v-progress-linear v-if="showProgress" v-once id="progress_bar" :value="progress" height="5" />
             </v-expand-transition>
         </div>
 
@@ -602,7 +602,7 @@ export default {
             this.pauseTime = null;
         },
 
-        onFrame() {
+        onFrame(progressBarElement) {
             if (!this.playing || this._isBeingDestroyed) {
                 return false;
             }
@@ -616,6 +616,7 @@ export default {
                 this.setOtherSide(this._settings.mode === 'back');
             } else {
                 this.progress = (this.totalDelay - remainingTime) * 100 / this.totalDelay;
+                progressBarElement.style.width = this.progress + '%';
 
                 if (this._settings.mode === null) {
                     const midProgress = originalRange - (((this.currentAudio.front || {}).duration || 0) * 1000) - (this._settings.delay * 1000);
@@ -626,7 +627,7 @@ export default {
                 }
             }
 
-            requestAnimationFrame(this.onFrame);
+            requestAnimationFrame(() => this.onFrame(progressBarElement));
         },
 
         prev() {
@@ -665,7 +666,10 @@ export default {
             }
             this.resetTime(date);
 
-            requestAnimationFrame(this.onFrame);
+            this.$nextTick(() => {
+                const progressBarElement = document.getElementById('progress_bar').querySelector('.v-progress-linear__determinate');
+                requestAnimationFrame(() => this.onFrame(progressBarElement));
+            });
         },
 
         pause() {
@@ -675,10 +679,8 @@ export default {
 
         load() {
             this.loading = true;
-            Promise.all([
-                Services.getCards(this.deck ? this.deck.data.id : undefined),
-            ])
-                .then(([cards]) => {
+            Services.getCards(this.deck ? this.deck.data.id : undefined)
+                .then(cards => {
                     Object.assign(this, {
                         cards,
                         originalCards: this.$deepClone(cards),
