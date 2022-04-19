@@ -26,12 +26,12 @@ class CardObserver
         }
     }
 
-    private function updateDeckTotalCards($model)
+    private function updateDeckTotalCards(string $deckId, int $diff = 0)
     {
-        if ($model['deck_id']) {
-            $deck = Deck::find($model['deck_id']);
+        if ($deckId) {
+            $deck = Deck::find($deckId);
             if ($deck) {
-                $deck->total_card = Card::where('deck_id', '=', $model['deck_id'])->count();
+                $deck->total_card = Card::where('deck_id', '=', $deckId)->count() + $diff;
                 $deck->save();
             }
         }
@@ -55,15 +55,29 @@ class CardObserver
     public function updating(Card $model)
     {
         $this->updateStreams($model);
+
+        $oldModel = Card::find($model['id']);
+        if ($oldModel['deck_id'] !== $model['deck_id']) {
+            if ($oldModel['deck_id']) {
+                $this->updateDeckTotalCards($oldModel['deck_id'], -1);
+            }
+            if ($model['deck_id']) {
+                $this->updateDeckTotalCards($model['deck_id'], 1);
+            }
+        }
     }
 
     public function created(Card $model)
     {
-        $this->updateDeckTotalCards($model);
+        if ($model['deck_id']) {
+            $this->updateDeckTotalCards($model['deck_id']);
+        }
     }
 
     public function deleted(Card $model)
     {
-        $this->updateDeckTotalCards($model);
+        if ($model['deck_id']) {
+            $this->updateDeckTotalCards($model['deck_id']);
+        }
     }
 }
