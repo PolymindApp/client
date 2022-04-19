@@ -31,13 +31,7 @@ class CardController extends Controller
      */
     public function store(Request $request): Response
     {
-        $request->validate([
-            'deck_id' => 'string|nullable',
-            'front_voice_id' => 'int|nullable',
-            'back_voice_id' => 'int|nullable',
-            'front' => 'string|required',
-            'back' => 'string|required',
-        ]);
+        $this->validateRequest($request);
 
         $data = $request->all();
         $card = Card::find(Card::create($data)->id);
@@ -79,6 +73,8 @@ class CardController extends Controller
      */
     public function update(Request $request, int $id): Response
     {
+        $this->validateRequest($request);
+
         $card = Card::find($id);
         $card->update($request->all());
         return response($card);
@@ -136,5 +132,19 @@ class CardController extends Controller
     public function search(string $query): Response
     {
         return response();
+    }
+
+    private function validateRequest(Request $request)
+    {
+        $fields = [
+            'deck_id' => 'string|nullable',
+            'front_voice_id' => 'int|nullable',
+            'back_voice_id' => 'int|nullable',
+            'front' => 'string|required',
+        ];
+        if ($request->get('single')) {
+            $fields['back'] = 'string|required';
+        }
+        $request->validate($fields);
     }
 }

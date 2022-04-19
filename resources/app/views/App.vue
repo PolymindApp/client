@@ -54,6 +54,7 @@ import Footer from "@/components/layout/Footer";
 import ErrorHandler from "@/components/generic/ErrorHandler";
 import GlobalModal from "@/components/generic/Modal";
 import Snack from "@/components/generic/Snack";
+import DeckModel from "@/models/DeckModel";
 import Services from "@/utils/Services";
 import EventBus from "@/utils/EventBus";
 import { rtlLanguages } from "@/locales";
@@ -127,11 +128,9 @@ export default Vue.extend({
 		},
         load() {
             this.loading = true;
-            Promise.all([
-                Services.getDecks(),
-            ])
-                .then(([decks]) => {
-                    decks.unshift({ i18n: 'state.unclassified', id: null });
+            return Services.getDecks()
+                .then(decks => {
+                    decks.unshift(new DeckModel({ i18n: 'state.unclassified', id: null }));
                     Object.assign(this.$root, { decks });
                 })
                 .catch(this.$handleError)

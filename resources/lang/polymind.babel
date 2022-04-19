@@ -2897,6 +2897,109 @@
             <folder_node>
                 <name>deck</name>
                 <children>
+                    <folder_node>
+                        <name>data</name>
+                        <children>
+                            <concept_node>
+                                <name>single</name>
+                                <definition_loaded>false</definition_loaded>
+                                <description/>
+                                <comment/>
+                                <default_text/>
+                                <translations>
+                                    <translation>
+                                        <language>ar-EG</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>bn-IN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>en-CA</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>es-MX</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>fr-CA</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>hi-IN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>pt-PT</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ru-RU</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ur-PK</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>zh-CN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                </translations>
+                            </concept_node>
+                            <concept_node>
+                                <name>singleHint</name>
+                                <definition_loaded>false</definition_loaded>
+                                <description/>
+                                <comment/>
+                                <default_text/>
+                                <translations>
+                                    <translation>
+                                        <language>ar-EG</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>bn-IN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>en-CA</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>es-MX</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>fr-CA</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>hi-IN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>pt-PT</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ru-RU</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ur-PK</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>zh-CN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                </translations>
+                            </concept_node>
+                        </children>
+                    </folder_node>
                     <concept_node>
                         <name>defaultVoiceBack</name>
                         <definition_loaded>false</definition_loaded>
@@ -4047,6 +4150,55 @@
                                     </concept_node>
                                     <concept_node>
                                         <name>toDate</name>
+                                        <definition_loaded>false</definition_loaded>
+                                        <description/>
+                                        <comment/>
+                                        <default_text/>
+                                        <translations>
+                                            <translation>
+                                                <language>ar-EG</language>
+                                                <approved>false</approved>
+                                            </translation>
+                                            <translation>
+                                                <language>bn-IN</language>
+                                                <approved>false</approved>
+                                            </translation>
+                                            <translation>
+                                                <language>en-CA</language>
+                                                <approved>false</approved>
+                                            </translation>
+                                            <translation>
+                                                <language>es-MX</language>
+                                                <approved>false</approved>
+                                            </translation>
+                                            <translation>
+                                                <language>fr-CA</language>
+                                                <approved>false</approved>
+                                            </translation>
+                                            <translation>
+                                                <language>hi-IN</language>
+                                                <approved>false</approved>
+                                            </translation>
+                                            <translation>
+                                                <language>pt-PT</language>
+                                                <approved>false</approved>
+                                            </translation>
+                                            <translation>
+                                                <language>ru-RU</language>
+                                                <approved>false</approved>
+                                            </translation>
+                                            <translation>
+                                                <language>ur-PK</language>
+                                                <approved>false</approved>
+                                            </translation>
+                                            <translation>
+                                                <language>zh-CN</language>
+                                                <approved>false</approved>
+                                            </translation>
+                                        </translations>
+                                    </concept_node>
+                                    <concept_node>
+                                        <name>voiceEnabled</name>
                                         <definition_loaded>false</definition_loaded>
                                         <description/>
                                         <comment/>
@@ -10015,6 +10167,14 @@
                         <default_text/>
                         <translations>
                             <translation>
+                                <language>ar-EG</language>
+                                <approved>false</approved>
+                            </translation>
+                            <translation>
+                                <language>bn-IN</language>
+                                <approved>false</approved>
+                            </translation>
+                            <translation>
                                 <language>en-CA</language>
                                 <approved>false</approved>
                             </translation>
@@ -10027,23 +10187,11 @@
                                 <approved>false</approved>
                             </translation>
                             <translation>
-                                <language>zh-CN</language>
-                                <approved>false</approved>
-                            </translation>
-                            <translation>
                                 <language>hi-IN</language>
                                 <approved>false</approved>
                             </translation>
                             <translation>
-                                <language>ar-EG</language>
-                                <approved>false</approved>
-                            </translation>
-                            <translation>
                                 <language>pt-PT</language>
-                                <approved>false</approved>
-                            </translation>
-                            <translation>
-                                <language>bn-IN</language>
                                 <approved>false</approved>
                             </translation>
                             <translation>
@@ -10052,6 +10200,10 @@
                             </translation>
                             <translation>
                                 <language>ur-PK</language>
+                                <approved>false</approved>
+                            </translation>
+                            <translation>
+                                <language>zh-CN</language>
                                 <approved>false</approved>
                             </translation>
                         </translations>
@@ -10265,6 +10417,14 @@
                         <default_text/>
                         <translations>
                             <translation>
+                                <language>ar-EG</language>
+                                <approved>false</approved>
+                            </translation>
+                            <translation>
+                                <language>bn-IN</language>
+                                <approved>false</approved>
+                            </translation>
+                            <translation>
                                 <language>en-CA</language>
                                 <approved>false</approved>
                             </translation>
@@ -10277,23 +10437,11 @@
                                 <approved>false</approved>
                             </translation>
                             <translation>
-                                <language>zh-CN</language>
-                                <approved>false</approved>
-                            </translation>
-                            <translation>
                                 <language>hi-IN</language>
                                 <approved>false</approved>
                             </translation>
                             <translation>
-                                <language>ar-EG</language>
-                                <approved>false</approved>
-                            </translation>
-                            <translation>
                                 <language>pt-PT</language>
-                                <approved>false</approved>
-                            </translation>
-                            <translation>
-                                <language>bn-IN</language>
                                 <approved>false</approved>
                             </translation>
                             <translation>
@@ -10302,6 +10450,10 @@
                             </translation>
                             <translation>
                                 <language>ur-PK</language>
+                                <approved>false</approved>
+                            </translation>
+                            <translation>
+                                <language>zh-CN</language>
                                 <approved>false</approved>
                             </translation>
                         </translations>

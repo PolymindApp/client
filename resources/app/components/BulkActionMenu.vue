@@ -54,6 +54,7 @@
                 </v-text-field>
 
                 <v-text-field
+                    v-if="!deck.data.single"
                     v-model="editDialog.data[index].back"
                     :error-messages="editDialog.formErrors.back"
                     :label="$t('header.back')"
@@ -96,6 +97,7 @@
                 />
 
                 <component
+                    v-if="!deck.data.single"
                     v-model="editDialog.data[index].back_voice_id"
                     :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
                     :items="voices"
@@ -138,7 +140,7 @@
         <Modal v-model="moveToDialog.visible" :title="$t('bulkActionMenu.moveToDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
             <template #body>
                 <DeckSelect v-model="moveToDialog.deck" :exclude="moveToDialog.exclude" outlined include-new />
-                <template v-if="moveToDialog.deck && moveToDialog.deck.id === '__new__'">
+                <template v-if="moveToDialog.deck && moveToDialog.deck.data.id === '__new__'">
                     <v-text-field
                         v-model="moveToDialog.newDeck.name"
                         :error-messages="moveToDialog.formErrors.newDeck"
@@ -167,7 +169,7 @@
         <Modal v-model="copyToDialog.visible" :title="$t('bulkActionMenu.copyToDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
             <template #body>
                 <DeckSelect v-model="copyToDialog.deck" :exclude="copyToDialog.exclude" outlined include-new />
-                <template v-if="copyToDialog.deck && copyToDialog.deck.id === '__new__'">
+                <template v-if="copyToDialog.deck && copyToDialog.deck.data.id === '__new__'">
                     <v-text-field
                         v-model="copyToDialog.newDeck.name"
                         :error-messages="copyToDialog.formErrors.newDeck"
@@ -201,31 +203,31 @@
                 </v-btn>
             </template>
             <v-list>
-                <v-list-item @click="handleEdit">
+                <v-list-item :disabled="!canEdit" @click="handleEdit">
                     <v-list-item-icon>
                         <v-icon>mdi-pencil</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title v-text="$t('btn.edit')"></v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="handleFlip">
+                <v-list-item :disabled="!canFlip" @click="handleFlip">
                     <v-list-item-icon>
                         <v-icon class="mdi-rotate-90">mdi-menu-swap</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title v-text="$t('btn.flip')"></v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="handleMoveTo">
+                <v-list-item :disabled="!canMove" @click="handleMoveTo">
                     <v-list-item-icon>
                         <v-icon>mdi-file-move-outline</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title v-text="$t('btn.moveTo')"></v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="handleCopyTo">
+                <v-list-item :disabled="!canCopy" @click="handleCopyTo">
                     <v-list-item-icon>
                         <v-icon>mdi-content-copy</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title v-text="$t('btn.copyTo')"></v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="handleDelete">
+                <v-list-item :disabled="!canDelete" @click="handleDelete">
                     <v-list-item-icon>
                         <v-icon>mdi-trash-can-outline</v-icon>
                     </v-list-item-icon>
@@ -237,11 +239,12 @@
 </template>
 
 <script>
-import Modal from "./generic/Modal";
-import DeckSelect from "./breadcrumbs/DeckSelect";
+import Modal from "@/components/generic/Modal";
+import DeckSelect from "@/components/breadcrumbs/DeckSelect";
 import MicAudioRecorder from "./audio/MicAudioRecorder";
 import PlayAudioBtn from "./audio/PlayAudioBtn";
-import Services from "../utils/Services";
+import DeckModel from "@/models/DeckModel";
+import Services from "@/utils/Services";
 import VAutocomplete from 'vuetify/lib/components/VAutocomplete/VAutocomplete';
 import VSelect from 'vuetify/lib/components/VSelect/VSelect';
 import Rules from "@/utils/Rules";
@@ -255,6 +258,10 @@ export default {
         selected: {
             type: Array,
             default: () => ([]),
+        },
+        deck: {
+            type: DeckModel,
+            default: () => new DeckModel(),
         },
         cards: {
             type: Array,
@@ -329,8 +336,23 @@ export default {
                 this.$emit('update:selected', value);
             },
         },
+        canEdit() {
+            return true;
+        },
+        canFlip() {
+            return !this.deck.data.single;
+        },
+        canMove() {
+            return true;
+        },
+        canCopy() {
+            return true;
+        },
+        canDelete() {
+            return true;
+        },
         canMoveTo() {
-            const deckId = this.moveToDialog.deck ? this.moveToDialog.deck.id : null;
+            const deckId = this.moveToDialog.deck ? this.moveToDialog.deck.data.id : null;
             return !this.bulking
                 && this.moveToDialog.exclude.indexOf(deckId) === -1
                 && (
@@ -339,7 +361,7 @@ export default {
                 );
         },
         canCopyTo() {
-            const deckId = this.copyToDialog.deck ? this.copyToDialog.deck.id : null;
+            const deckId = this.copyToDialog.deck ? this.copyToDialog.deck.data.id : null;
             return !this.bulking
                 && this.copyToDialog.exclude.indexOf(deckId) === -1
                 && (
@@ -437,7 +459,7 @@ export default {
 
         handleMoveToComplete() {
             const callback = () => {
-                const deckId = this.moveToDialog.deck && this.moveToDialog.deck.id || null;
+                const deckId = this.moveToDialog.deck && this.moveToDialog.deck.data.id || null;
                 this.edit(selected => ({
                     ...selected,
                     deck_id: deckId,
@@ -448,7 +470,7 @@ export default {
                     });
             }
 
-            if (this.moveToDialog.deck && this.moveToDialog.deck.id === '__new__') {
+            if (this.moveToDialog.deck && this.moveToDialog.deck.data.id === '__new__') {
                 this.createDeck(this.moveToDialog.newDeck)
                     .then(deck => {
                         this.moveToDialog.deck = deck;
@@ -461,7 +483,7 @@ export default {
 
         handleCopyToComplete() {
             const callback = () => {
-                const deckId = this.copyToDialog.deck && this.copyToDialog.deck.id || null;
+                const deckId = this.copyToDialog.deck && this.copyToDialog.deck.data.id || null;
                 this.create(selected => ({
                     ...selected,
                     deck_id: deckId,
@@ -471,7 +493,7 @@ export default {
                     });
             }
 
-            if (this.copyToDialog.deck && this.copyToDialog.deck.id === '__new__') {
+            if (this.copyToDialog.deck && this.copyToDialog.deck.data.id === '__new__') {
                 this.createDeck(this.copyToDialog.newDeck)
                     .then(deck => {
                         this.copyToDialog.deck = deck;

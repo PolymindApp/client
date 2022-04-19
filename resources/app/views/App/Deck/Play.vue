@@ -53,7 +53,7 @@
         <!-- PLAYBACK SETTINGS -->
         <Modal v-model="playbackSettingsDialog.visible" :title="$t('deck.play.playbackSettingsDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" persistent scrollable>
             <template #body>
-                <v-row>
+                <v-row v-if="!deck.data.single">
                     <v-col cols="12" md="6" class="d-flex align-center">
                         <label v-text="$tc('deck.play.playbackSettings.mode.title')"></label>
                     </v-col>
@@ -102,7 +102,7 @@
                         />
                     </v-col>
                 </v-row>
-                <v-row v-if="playbackSettingsDialog.data.mode === null">
+                <v-row v-if="!deck.data.single && playbackSettingsDialog.data.mode === null">
                     <v-col cols="12" md="6" class="d-flex align-center">
                         <label v-text="$t('deck.play.playbackSettings.flipped')"></label>
                     </v-col>
@@ -130,7 +130,7 @@
                 </v-row>
                 <v-row>
                     <v-col cols="12" md="6" class="d-flex align-center">
-                        <label v-text="$t('deck.play.playbackSettings.frontVoiceEnabled')"></label>
+                        <label v-text="$t('deck.play.playbackSettings.' + (deck.data.single ? 'voiceEnabled' : 'frontVoiceEnabled'))"></label>
                     </v-col>
                     <v-col cols="12" md="6" class="d-flex align-center">
                         <v-switch
@@ -141,7 +141,7 @@
                         ></v-switch>
                     </v-col>
                 </v-row>
-                <v-row>
+                <v-row v-if="!deck.data.single">
                     <v-col cols="12" md="6" class="d-flex align-center">
                         <label v-text="$t('deck.play.playbackSettings.backVoiceEnabled')"></label>
                     </v-col>
@@ -249,16 +249,16 @@
                         <transition name="slide">
                             <v-card v-if="!firstPlay && showFront">
                                 <h1 v-ripple @click="handleClickCard(filteredCards[index], 'front')" :class="{
-                                    'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !settings.flipped,
-                                    'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': settings.flipped,
+                                    'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !_settings.flipped,
+                                    'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': _settings.flipped,
                                 }" v-text="filteredCards[index].front"></h1>
                             </v-card>
                         </transition>
                         <transition name="slide">
                             <v-card v-if="!firstPlay && showBack">
                                 <h1 v-ripple @click="handleClickCard(filteredCards[index], 'back')" :class="{
-                                    'text-capitalize-first text-h4 text-md-h3 text-lg-h2': settings.flipped,
-                                    'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !settings.flipped,
+                                    'text-capitalize-first text-h4 text-md-h3 text-lg-h2': _settings.flipped,
+                                    'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !_settings.flipped,
                                 }" v-text="filteredCards[index].back"></h1>
                             </v-card>
                         </transition>
@@ -311,6 +311,7 @@ import DeckSelect from '@/components/breadcrumbs/DeckSelect';
 import MobileNav from '@/components/layout/MobileNav';
 import DesktopNav from '@/components/layout/DesktopNav';
 import Modal from '@/components/generic/Modal';
+import DeckModel from '@/models/DeckModel';
 import PlaybackSettingsModel from '@/models/PlaybackSettingsModel';
 import Services from "@/utils/Services";
 import Keypress from 'vue-keypress';
@@ -339,7 +340,7 @@ export default {
         index: -1,
         progress: 0,
         repeat: 0,
-        deck: null,
+        deck: new DeckModel(),
         settings: {},
         audios: {},
         startTime: new Date(),
@@ -358,6 +359,15 @@ export default {
     }),
 
     computed: {
+        _settings() {
+            return {
+                ...this.settings,
+                mode: this.deck.data.single ? 'front' : this.settings.mode,
+                backVoiceEnabled: this.deck.data.single ? false : this.settings.backVoiceEnabled,
+                flipped: this.deck.data.single ? false : this.settings.flipped,
+            };
+        },
+
         canGoPrevious() {
             return !this.loading && !this.skeleton && this.filteredCards.length > 1 && !this.firstPlay;
         },
@@ -410,20 +420,20 @@ export default {
         },
 
         totalDelay() {
-            return (this.settings.delay
-                * (this.settings.mode === null ? 2 : 1) * 1000)
+            return (this._settings.delay
+                * (this._settings.mode === null ? 2 : 1) * 1000)
                 + (((this.currentAudio.front || {}).duration || 0) * 1000)
                 + (((this.currentAudio.back || {}).duration || 0) * 1000);
         },
 
         isFirstSide() {
-            return (!this.settings.flipped && this.showFront)
-                || (this.settings.flipped && this.showBack);
+            return (!this._settings.flipped && this.showFront)
+                || (this._settings.flipped && this.showBack);
         },
 
         isOtherSide() {
-            return (!this.settings.flipped && this.showBack)
-                || (this.settings.flipped && this.showFront);
+            return (!this._settings.flipped && this.showBack)
+                || (this._settings.flipped && this.showFront);
         },
 
         currentAudio() {
@@ -431,7 +441,7 @@ export default {
         },
 
         deckName() {
-            return this.deck && this.deck.name || this.$i18n.t('state.unclassified');
+            return this.deck.data.name || this.$i18n.t('state.unclassified');
         },
     },
 
@@ -454,8 +464,8 @@ export default {
                     }
                 }
 
-                this.setFirstSide(this.settings.mode !== 'back');
-                this.setOtherSide(this.settings.mode === 'back');
+                this.setFirstSide(this._settings.mode !== 'back');
+                this.setOtherSide(this._settings.mode === 'back');
             },
         },
     },
@@ -517,10 +527,10 @@ export default {
                 return this.filteredCards;
             };
 
-            if (this.deck && this.deck.id) {
-                this.deck.playback_settings = new PlaybackSettingsModel(this.$deepClone(this.playbackSettingsDialog.data));
+            if (this.deck.data.id) {
+                this.deck.data.playback_settings = new PlaybackSettingsModel(this.$deepClone(this.playbackSettingsDialog.data));
                 this.playbackSettingsDialog.saving = true;
-                return Services.updateDeck(this.deck.id, this.deck)
+                return Services.updateDeck(this.deck.data.id, this.deck)
                     .then(response => {
                         callback();
                         return response;
@@ -566,8 +576,8 @@ export default {
                 this.completed = true;
                 this.$sound.play('completed');
             } else {
-                this.setFirstSide(this.settings.mode !== 'back');
-                this.setOtherSide(this.settings.mode === 'back');
+                this.setFirstSide(this._settings.mode !== 'back');
+                this.setOtherSide(this._settings.mode === 'back');
             }
 
             this.resetTime(new Date());
@@ -579,10 +589,10 @@ export default {
         },
 
         filterCards(cards) {
-            const from = this.settings.fromDate ? new Date(this.settings.fromDate) : null;
-            const to = this.settings.toDate ? new Date(this.settings.toDate) : null;
+            const from = this._settings.fromDate ? new Date(this._settings.fromDate) : null;
+            const to = this._settings.toDate ? new Date(this._settings.toDate) : null;
             const result = cards.filter(card => (!from || new Date(card.created_at) >= from) && (!to || new Date(card.created_at) <= to));
-            return this.settings.reversed ? result.reverse() : result;
+            return this._settings.reversed ? result.reverse() : result;
         },
 
         resetTime(date) {
@@ -602,16 +612,16 @@ export default {
             const originalRange = this.endTime.getTime() - this.startTime.getTime();
             if (remainingTime <= 0) {
                 this.next();
-                this.setFirstSide(this.settings.mode !== 'back');
-                this.setOtherSide(this.settings.mode === 'back');
+                this.setFirstSide(this._settings.mode !== 'back');
+                this.setOtherSide(this._settings.mode === 'back');
             } else {
                 this.progress = (this.totalDelay - remainingTime) * 100 / this.totalDelay;
 
-                if (this.settings.mode === null) {
-                    const midProgress = originalRange - (((this.currentAudio.front || {}).duration || 0) * 1000) - (this.settings.delay * 1000);
+                if (this._settings.mode === null) {
+                    const midProgress = originalRange - (((this.currentAudio.front || {}).duration || 0) * 1000) - (this._settings.delay * 1000);
                     if (!this.isOtherSide && remainingTime < midProgress) {
-                        this.setFirstSide(this.settings.mode === 'back');
-                        this.setOtherSide(this.settings.mode !== 'back');
+                        this.setFirstSide(this._settings.mode === 'back');
+                        this.setOtherSide(this._settings.mode !== 'back');
                     }
                 }
             }
@@ -630,7 +640,7 @@ export default {
         },
 
         next(forced = false) {
-            if (!forced && this.repeat < this.settings.repeat - 1) {
+            if (!forced && this.repeat < this._settings.repeat - 1) {
                 this.repeat++;
             } else {
                 this.repeat = 0;
@@ -666,7 +676,7 @@ export default {
         load() {
             this.loading = true;
             Promise.all([
-                Services.getCards(this.deck ? this.deck.id : undefined),
+                Services.getCards(this.deck ? this.deck.data.id : undefined),
             ])
                 .then(([cards]) => {
                     Object.assign(this, {
@@ -693,9 +703,9 @@ export default {
         },
 
         setFirstSide(visible) {
-            if (this.settings.flipped) {
+            if (this._settings.flipped) {
                 this.showBack = visible;
-                if (visible && this.settings.backVoiceEnabled) {
+                if (visible && this._settings.backVoiceEnabled) {
                     const audio = this.currentAudio.back;
                     if (audio) {
                         audio.element.currentTime = 0;
@@ -704,7 +714,7 @@ export default {
                 }
             } else {
                 this.showFront = visible;
-                if (visible && this.settings.frontVoiceEnabled) {
+                if (visible && this._settings.frontVoiceEnabled) {
                     const audio = this.currentAudio.front;
                     if (audio) {
                         audio.element.currentTime = 0;
@@ -715,9 +725,9 @@ export default {
         },
 
         setOtherSide(visible) {
-            if (this.settings.flipped) {
+            if (this._settings.flipped) {
                 this.showFront = visible;
-                if (visible && this.settings.frontVoiceEnabled) {
+                if (visible && this._settings.frontVoiceEnabled) {
                     const audio = this.currentAudio.front;
                     if (audio) {
                         audio.element.currentTime = 0;
@@ -726,7 +736,7 @@ export default {
                 }
             } else {
                 this.showBack = visible;
-                if (visible && this.settings.backVoiceEnabled) {
+                if (visible && this._settings.backVoiceEnabled) {
                     const audio = this.currentAudio.back;
                     if (audio) {
                         audio.element.currentTime = 0;
@@ -798,7 +808,7 @@ export default {
                     // ]).then(ambiences => {
                         this.filteredCards.forEach((card, cardIdx) => {
                             buffer = crunker.concatAudio([buffer, buffers[cardIdx]]);
-                            buffer = crunker.padAudio(buffer, buffer.duration - 0.0001, this.settings.delay);
+                            buffer = crunker.padAudio(buffer, buffer.duration - 0.0001, this._settings.delay);
                         });
                         // ambiences.forEach((ambience, ambienceIdx) => {
                         //     const newBuffer = new AudioBuffer({
@@ -834,10 +844,10 @@ export default {
         if (!this.$route.params.uuid) {
             this.$router.replace({ name: 'deck.edit', params: { uuid: 'unclassified' } })
         }
-        this.deck = this.$root.decks.find(deck => deck.id === this.$route.params.uuid) || null;
+        this.deck = this.$root.decks.find(deck => deck.data.id === this.$route.params.uuid) || new DeckModel();
         document.title = this.deckName;
 
-        this.settings = this.$deepClone(this.deck ? this.deck.playback_settings.data : new PlaybackSettingsModel().data);
+        this.settings = this.$deepClone(this.deck ? this.deck.data.playback_settings.data : new PlaybackSettingsModel().data);
         this.load();
     },
 }

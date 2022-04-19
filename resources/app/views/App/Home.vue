@@ -16,10 +16,10 @@
 
         <!-- ADD/EDIT DECK -->
         <v-form ref="form" :disabled="deckModal.loading" v-model="deckModal.formIsValid" @submit="handleDeckFormSubmit" lazy-validation>
-            <Modal v-model="deckModal.visible" :title="$t('deckModal.title' + (deckModal.clonedData.id ? 'Edit' : 'New'))" max-width="500" scrollable :fullscreen="$vuetify.breakpoint.smAndDown" persistent>
+            <Modal v-model="deckModal.visible" :title="$t('deckModal.title' + (deckModal.clonedData.data.id ? 'Edit' : 'New'))" max-width="500" scrollable :fullscreen="$vuetify.breakpoint.smAndDown" persistent>
                 <template #body>
                     <v-text-field
-                        v-model="deckModal.clonedData.name"
+                        v-model="deckModal.clonedData.data.name"
                         :error-messages="deckModal.formErrors.name"
                         :label="$t('placeholder.name')"
                         :rules="[rules.required]"
@@ -29,7 +29,7 @@
                         @input="handleInput"
                     />
                     <v-autocomplete
-                        v-model="deckModal.clonedData.default_front_voice_id"
+                        v-model="deckModal.clonedData.data.default_front_voice_id"
                         :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
                         :items="_voices"
                         :label="$t('deck.defaultVoiceFront')"
@@ -43,25 +43,39 @@
                         clearable
                         @input="handleInput"
                     />
-                    <v-autocomplete
-                        v-model="deckModal.clonedData.default_back_voice_id"
-                        :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
-                        :items="_voices"
-                        :label="$t('deck.defaultVoiceBack')"
+
+                    <v-checkbox
+                        v-model="deckModal.clonedData.data.single"
+                        :label="$t('deck.data.single')"
+                        :hint="$t('deck.data.singleHint')"
                         :loading="loading"
-                        :messages="$t('field.optional')"
-                        prepend-inner-icon="mdi-volume-high"
-                        item-text="name"
-                        item-value="id"
-                        class="ma-0 pa-0"
-                        outlined
-                        clearable
+                        persistent-hint
+                        class="mb-6"
                         @input="handleInput"
-                    />
+                    ></v-checkbox>
+
+                    <v-expand-transition>
+                        <v-autocomplete
+                            v-if="!deckModal.clonedData.data.single"
+                            v-model="deckModal.clonedData.data.default_back_voice_id"
+                            :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
+                            :items="_voices"
+                            :label="$t('deck.defaultVoiceBack')"
+                            :loading="loading"
+                            :messages="$t('field.optional')"
+                            prepend-inner-icon="mdi-volume-high"
+                            item-text="name"
+                            item-value="id"
+                            class="ma-0 pa-0"
+                            outlined
+                            clearable
+                            @input="handleInput"
+                        />
+                    </v-expand-transition>
                 </template>
                 <template #buttons>
                     <v-btn color="primary" large type="submit" :loading="deckModal.loading" :disabled="deckModal.loading" :block="$vuetify.breakpoint.smAndDown" @click="handleDeckFormSubmit">
-                        <span v-text="$t('btn.' + (deckModal.clonedData.id ? 'save' : 'create'))"></span>
+                        <span v-text="$t('btn.' + (deckModal.clonedData.data.id ? 'save' : 'create'))"></span>
                     </v-btn>
                     <v-btn outlined large :block="$vuetify.breakpoint.smAndDown" @click="deckModal.visible = false">
                         <span v-text="$t('btn.cancel')"></span>
@@ -174,6 +188,7 @@
                 <CardListing
                     :cards.sync="cards"
                     :voices="_voices"
+                    :deck="deck"
                     :loading="loading"
                     :skeleton="skeleton"
                     :selected.sync="selected"
@@ -193,6 +208,7 @@
                 <v-divider />
                 <v-sheet class=" py-2 px-3">
                     <BulkActionMenu
+                        :deck="deck"
                         :cards.sync="cards"
                         :selected.sync="selected"
                         :voices="_voices"
@@ -219,6 +235,7 @@ import DeckSelect from '@/components/breadcrumbs/DeckSelect';
 import MobileNav from '@/components/layout/MobileNav';
 import DesktopNav from '@/components/layout/DesktopNav';
 import BulkActionMenu from '@/components/BulkActionMenu';
+import DeckModel from '@/models/DeckModel';
 import VAutocomplete from 'vuetify/lib/components/VAutocomplete/VAutocomplete';
 import VSelect from 'vuetify/lib/components/VSelect/VSelect';
 import Services from '@/utils/Services';
@@ -237,7 +254,7 @@ export default {
         importing: false,
         deleting: false,
         selected: [],
-        deck: null,
+        deck: new DeckModel(),
         cards: [],
         voices: [],
         voiceFront: null,
@@ -251,8 +268,8 @@ export default {
             visible: false,
             loading: false,
             formIsValid: false,
-            clonedData: {},
-            referencedData: {},
+            clonedData: new DeckModel(),
+            referencedData: new DeckModel(),
             formErrors: {},
         },
         VAutocomplete,
@@ -271,7 +288,7 @@ export default {
             return !this.loading && !this.skeleton && this.cards.length > 0;
         },
         canEditDeck() {
-            return this.deck && this.deck.id && !this.loading && !this.skeleton;
+            return this.deck.data.id && !this.loading && !this.skeleton;
         },
         showCardEditorForm() {
             return !this.fullCardView;
@@ -290,7 +307,7 @@ export default {
             return this.$vuetify.breakpoint.smAndDown && this.selected.length > 0;
         },
         deckName() {
-            return this.deck && this.deck.name || this.$i18n.t('state.unclassified');
+            return this.deck.data.name || this.$i18n.t('state.unclassified');
         },
     },
 
@@ -316,9 +333,7 @@ export default {
 
     methods: {
         handleTotalCard(amount) {
-            if (this.deck) {
-                this.deck.total_card += amount;
-            }
+            this.deck.data.total_card += amount;
         },
         handleImportClick() {
             File.promptForFile('.csv')
@@ -341,7 +356,7 @@ export default {
 
                     const cards = json.data.map(item => ({
                         ...item,
-                        deck_id: this.deck && this.deck.id,
+                        deck_id: this.deck.data.id,
                         front_voice_id: (this._voices.find(voice => voice.originalName === item.front_voice) || {}).id,
                         back_voice_id: (this._voices.find(voice => voice.originalName === item.back_voice) || {}).id,
                     })).filter(item => {
@@ -430,7 +445,7 @@ export default {
                     btn.attrs.loading = true;
                     modal.disabled = true;
                     this.deleteDeck(deck).then(() => {
-                        this.deck = null;
+                        this.deck = new DeckModel();
                         this.$snack(this.$i18n.t('deck.deleteConfirm.deleted'));
                         modal.visible = false;
                     });
@@ -444,19 +459,19 @@ export default {
                 loading: false,
                 formIsValid: false,
                 formErrors: {},
-                clonedData: this.$deepClone(deck),
+                clonedData: new DeckModel(this.$deepClone(deck.data)),
                 referencedData: deck,
             });
         },
 
         saveDeck(deck, refDeck) {
             this.deckModal.loading = true;
-            return (deck.id ? Services.updateDeck(deck.id, deck) : Services.createDeck(deck))
+            return (deck.data.id ? Services.updateDeck(deck.data.id, deck.data) : Services.createDeck(deck.data))
                 .then(response => {
                     Object.assign(refDeck, response);
-                    if (!deck.id && response.id) {
+                    if (!deck.data.id && response.data.id) {
                         this.$root.decks.push(response);
-                        this.$router.replace({ name: 'deck.edit', params: { uuid: response.id } });
+                        this.$router.replace({ name: 'deck.edit', params: { uuid: response.data.id } });
                         this.$snack(this.$i18n.t('deckModal.created'));
                     } else {
                         this.deck = refDeck;
@@ -472,7 +487,7 @@ export default {
             this.loading = true;
             Promise.all([
                 Services.getVoices(),
-                Services.getCards(this.deck ? this.deck.id : undefined),
+                Services.getCards(this.deck.data.id ? this.deck.data.id : undefined),
             ])
                 .then(([voices, cards]) => {
                     Object.assign(this, { voices, cards });
@@ -484,15 +499,15 @@ export default {
         },
 
         resetVoices() {
-            this.voiceFront = (this.deck && this.deck.default_front_voice_id) || (this.cards.length > 0 && this.cards[this.cards.length - 1].front_voice_id) || null;
-            this.voiceBack = (this.deck && this.deck.default_back_voice_id) || (this.cards.length > 0 && this.cards[this.cards.length - 1].back_voice_id) || null;
+            this.voiceFront = this.deck.data.default_front_voice_id || (this.cards.length > 0 && this.cards[this.cards.length - 1].front_voice_id) || null;
+            this.voiceBack = this.deck.data.default_back_voice_id || (this.cards.length > 0 && this.cards[this.cards.length - 1].back_voice_id) || null;
         },
 
         deleteDeck(deck) {
-            this.deleting = deck.id;
-            return Services.deleteDeck(deck.id)
+            this.deleting = deck.data.id;
+            return Services.deleteDeck(deck.data.id)
                 .then(response => {
-                    this.$root.decks = this.$root.decks.filter(item => item.id !== deck.id);
+                    this.$root.decks = this.$root.decks.filter(item => item.data.id !== deck.data.id);
                     this.$router.replace({ name: 'deck.edit', params: { uuid: 'unclassified' } });
                 })
                 .catch(this.$handleError)
@@ -508,7 +523,7 @@ export default {
         if (!this.$route.params.uuid) {
             this.$router.replace({ name: 'deck.edit', params: { uuid: 'unclassified' } })
         }
-        this.deck = this.$root.decks.find(deck => deck.id === this.$route.params.uuid) || null;
+        this.deck = this.$root.decks.find(deck => deck.data.id === this.$route.params.uuid) || new DeckModel();
         this.title = this.deckName;
         document.title = this.title;
 

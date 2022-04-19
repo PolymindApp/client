@@ -3,7 +3,11 @@
         <v-card :flat="$vuetify.breakpoint.smAndDown" :tile="$vuetify.breakpoint.smAndDown">
             <v-expand-transition>
                 <v-row v-if="!$vuetify.breakpoint.smAndDown || (!$root.inputFocused && !$root.lockFocus)" style="position: relative" no-gutters>
-                    <v-col cols="6" class="d-flex align-center pr-6 pr-2">
+                    <v-col :cols="deck.data.single ? 12 : 6" :class="{
+                        'd-flex align-center pr-2': true,
+                        'pr-2': deck.data.single,
+                        'pr-6': !deck.data.single,
+                    }">
                         <v-skeleton-loader v-if="skeleton" style="flex: 1" height="48" type="text" class="ml-2 pt-4 pb-3"></v-skeleton-loader>
                         <component
                             v-else
@@ -21,37 +25,39 @@
                             hide-details
                         />
                     </v-col>
-                    <v-tooltip bottom>
-                        <template #activator="{ attrs, on }">
-                            <v-btn v-bind="attrs" v-on="on" style="position: absolute; z-index: 1; left: 50%; top: 50%; transform: translateX(-50%) translateY(-50%)" :disabled="!canFlip" icon @click="handleFlipClick">
-                                <v-icon class="mdi-rotate-90">mdi-menu-swap</v-icon>
-                            </v-btn>
-                        </template>
-                        <span v-text="$t('translateForm.flipTooltip')"></span>
-                    </v-tooltip>
-                    <v-col cols="6" class="d-flex align-center pl-6">
-                        <v-skeleton-loader v-if="skeleton" style="flex: 1" height="48" type="text" class="mr-2 pt-4 pb-3"></v-skeleton-loader>
-                        <component
-                            v-else
-                            v-model="_voiceBack"
-                            :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
-                            :items="_voices"
-                            :placeholder="$t('translateForm.voice')"
-                            :loading="loading"
-                            :prepend-inner-icon="$vuetify.breakpoint.mdAndUp ? 'mdi-volume-high' : null"
-                            item-text="name"
-                            item-value="id"
-                            class="ma-0 pa-0"
-                            solo
-                            flat
-                            hide-details
-                        />
-                    </v-col>
+                    <template v-if="!deck.data.single">
+                        <v-tooltip bottom>
+                            <template #activator="{ attrs, on }">
+                                <v-btn v-bind="attrs" v-on="on" style="position: absolute; z-index: 1; left: 50%; top: 50%; transform: translateX(-50%) translateY(-50%)" :disabled="!canFlip" icon @click="handleFlipClick">
+                                    <v-icon class="mdi-rotate-90">mdi-menu-swap</v-icon>
+                                </v-btn>
+                            </template>
+                            <span v-text="$t('translateForm.flipTooltip')"></span>
+                        </v-tooltip>
+                        <v-col cols="6" class="d-flex align-center pl-6">
+                            <v-skeleton-loader v-if="skeleton" style="flex: 1" height="48" type="text" class="mr-2 pt-4 pb-3"></v-skeleton-loader>
+                            <component
+                                v-else
+                                v-model="_voiceBack"
+                                :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
+                                :items="_voices"
+                                :placeholder="$t('translateForm.voice')"
+                                :loading="loading"
+                                :prepend-inner-icon="$vuetify.breakpoint.mdAndUp ? 'mdi-volume-high' : null"
+                                item-text="name"
+                                item-value="id"
+                                class="ma-0 pa-0"
+                                solo
+                                flat
+                                hide-details
+                            />
+                        </v-col>
+                    </template>
                 </v-row>
             </v-expand-transition>
             <v-divider v-if="!$vuetify.breakpoint.smAndDown || (!$root.inputFocused && !$root.lockFocus)" /> <!-- NEEDS TO BE HERE -->
             <v-row no-gutters>
-                <v-col cols="12" md="6" class="pa-3 d-flex d-md-block" style="position: relative">
+                <v-col cols="12" :md="deck.data.single ? 12 : 6" class="pa-3 d-flex d-md-block" style="position: relative">
                     <v-text-field
                         ref="front"
                         v-model="_front"
@@ -105,68 +111,70 @@
                 <v-col v-if="$vuetify.breakpoint.smAndDown" cols="12">
                     <v-divider />
                 </v-col>
-                <v-divider v-if="$vuetify.breakpoint.mdAndUp" vertical />
+                <template v-if="!deck.data.single">
+                    <v-divider v-if="$vuetify.breakpoint.mdAndUp" vertical />
 
-                <v-expand-transition>
-                    <v-col v-if="$root.lockFocus || $root.inputFocused || $vuetify.breakpoint.mdAndUp" cols="12" md="6">
-                        <div class="pa-3 d-flex d-md-block" style="position: relative;">
-                            <v-text-field
-                                ref="back"
-                                v-model="_back"
-                                :placeholder="backPlaceholder"
-                                :style="style"
-                                :height="$vuetify.breakpoint.mdAndUp ? 100 : 90"
-                                :disabled="loading"
-                                class="main-input"
-                                no-resize
-                                solo
-                                flat
-                                hide-details
-                                @focus="handleFocus"
-                            />
-                            <v-btn v-if="canPaste && !_back && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click="handlePasteClick('back')">
-                                <v-icon left>mdi-clipboard-outline</v-icon>
-                                <span v-text="$t('btn.paste')"></span>
-                            </v-btn>
-                            <div style="flex: 0" class="ml-3 ml-md-0 d-flex align-center justify-space-between">
-                                <div>
-                                    <v-tooltip bottom>
-                                        <template #activator="{ attrs, on }">
-                                            <MicAudioRecorder v-model="_backSynthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(_voiceBack, _back, () => _voiceBack = null)" :disabled="!canRecord(_voiceBack, _back)" icon />
-                                        </template>
-                                        <span v-text="$t('btn.record')"></span>
-                                    </v-tooltip>
-                                    <v-tooltip bottom>
-                                        <template #activator="{ attrs, on }">
-                                            <PlayAudioBtn v-model="_backSynthesized" tabindex="-1" v-bind="attrs" v-on="on" />
-                                        </template>
-                                        <span v-text="$t('btn.listen')"></span>
-                                    </v-tooltip>
-                                </div>
-                                <div>
-                                    <v-btn v-if="canPaste && !_back && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click="handlePasteClick('back')">
-                                        <v-icon small left>mdi-clipboard-outline</v-icon>
-                                        <span v-text="$t('btn.paste')"></span>
-                                    </v-btn>
-                                    <v-tooltip v-if="$vuetify.breakpoint.mdAndUp" bottom>
-                                        <template #activator="{ attrs, on }">
-                                            <v-btn tabindex="-1" v-bind="attrs" v-on="on" :disabled="!canCopyClipboard(_back)" icon @mousedown.stop.prevent="handleCopyClipboardClick(_back)">
-                                                <v-icon>mdi-content-copy</v-icon>
-                                            </v-btn>
-                                        </template>
-                                        <span v-text="$t('btn.copyClipboard')"></span>
-                                    </v-tooltip>
+                    <v-expand-transition>
+                        <v-col v-if="$root.lockFocus || $root.inputFocused || $vuetify.breakpoint.mdAndUp" cols="12" md="6">
+                            <div class="pa-3 d-flex d-md-block" style="position: relative;">
+                                <v-text-field
+                                    ref="back"
+                                    v-model="_back"
+                                    :placeholder="backPlaceholder"
+                                    :style="style"
+                                    :height="$vuetify.breakpoint.mdAndUp ? 100 : 90"
+                                    :disabled="loading"
+                                    class="main-input"
+                                    no-resize
+                                    solo
+                                    flat
+                                    hide-details
+                                    @focus="handleFocus"
+                                />
+                                <v-btn v-if="canPaste && !_back && $vuetify.breakpoint.smAndDown" class="paste-btn" color="discreet" outlined rounded small @click="handlePasteClick('back')">
+                                    <v-icon left>mdi-clipboard-outline</v-icon>
+                                    <span v-text="$t('btn.paste')"></span>
+                                </v-btn>
+                                <div style="flex: 0" class="ml-3 ml-md-0 d-flex align-center justify-space-between">
+                                    <div>
+                                        <v-tooltip bottom>
+                                            <template #activator="{ attrs, on }">
+                                                <MicAudioRecorder v-model="_backSynthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(_voiceBack, _back, () => _voiceBack = null)" :disabled="!canRecord(_voiceBack, _back)" icon />
+                                            </template>
+                                            <span v-text="$t('btn.record')"></span>
+                                        </v-tooltip>
+                                        <v-tooltip bottom>
+                                            <template #activator="{ attrs, on }">
+                                                <PlayAudioBtn v-model="_backSynthesized" tabindex="-1" v-bind="attrs" v-on="on" />
+                                            </template>
+                                            <span v-text="$t('btn.listen')"></span>
+                                        </v-tooltip>
+                                    </div>
+                                    <div>
+                                        <v-btn v-if="canPaste && !_back && $vuetify.breakpoint.mdAndUp" color="discreet" outlined rounded small @click="handlePasteClick('back')">
+                                            <v-icon small left>mdi-clipboard-outline</v-icon>
+                                            <span v-text="$t('btn.paste')"></span>
+                                        </v-btn>
+                                        <v-tooltip v-if="$vuetify.breakpoint.mdAndUp" bottom>
+                                            <template #activator="{ attrs, on }">
+                                                <v-btn tabindex="-1" v-bind="attrs" v-on="on" :disabled="!canCopyClipboard(_back)" icon @mousedown.stop.prevent="handleCopyClipboardClick(_back)">
+                                                    <v-icon>mdi-content-copy</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <span v-text="$t('btn.copyClipboard')"></span>
+                                        </v-tooltip>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </v-col>
-                </v-expand-transition>
+                        </v-col>
+                    </v-expand-transition>
+                </template>
             </v-row>
             <v-expand-transition>
                 <v-sheet v-if="$root.lockFocus || $root.inputFocused || $vuetify.breakpoint.mdAndUp" color="surface">
                     <div class="pa-3 d-block d-md-flex align-center justify-space-between">
                         <div class="w-100 d-flex flex-column flex-md-row" style="gap: 0.5rem">
-                            <v-btn type="submit" color="primary" :large="$vuetify.breakpoint.smAndDown" :block="$vuetify.breakpoint.smAndDown" :disabled="!canAdd" :loading="adding" @click="handleSubmit">
+                            <v-btn type="submit" color="primary" :large="$vuetify.breakpoint.smAndDown" :block="$vuetify.breakpoint.smAndDown" :disabled="!canAdd || adding" :loading="adding" @click="handleSubmit">
                                 <v-icon v-if="$vuetify.breakpoint.mdAndUp" left>mdi-plus</v-icon>
                                 <span v-text="$t('btn.add')"></span>
                             </v-btn>
@@ -329,7 +337,7 @@ export default {
             return !this.loading && (this._front || '').length > 0 || (this._back || '').length > 0;
         },
         canAdd() {
-            return !this.loading && (this._front || '').trim().length > 0 && (this._back || '').trim().length > 0 && !this.adding;
+            return !this.loading && (this._front || '').trim().length > 0 && (this.deck.data.single || (this._back || '').trim().length > 0 && !this.adding);
         },
         canClear() {
             return !this.loading && (this._front || '').length > 0 || (this._back || '').length > 0 || this.frontSynthesized || this.backSynthesized;
@@ -413,7 +421,7 @@ export default {
                 this._voiceBack && this._voiceBack.id,
                 this._frontSynthesized,
                 this._backSynthesized,
-                this.deck ? this.deck.id : null
+                this.deck ? this.deck.data.id : null
             )
                 .then(card => {
                     if (this.autofocus) {

@@ -2,12 +2,7 @@
     <v-card v-if="$vuetify.breakpoint.mdAndUp" v-bind="$attrs" v-on="$listeners">
         <v-data-table
             v-model="_selected"
-            :headers="[
-                { text: $t('header.front'), value: 'front', width: '50%' },
-                { text: $t('header.back'), value: 'back', width: '50%' },
-                { text: $t('header.createdAt'), value: 'created_at', width: '14em' },
-                { text: '', value: '_action', width: 'auto', sortable: false, },
-            ]"
+            :headers="headers"
             :items="cards"
             :footer-props="{
                 itemsPerPageText: $t('table.itemsPerPageText'),
@@ -39,6 +34,7 @@
             </template>
             <template #footer.prepend>
                 <BulkActionMenu
+                    :deck="deck"
                     :cards.sync="_cards"
                     :selected.sync="_selected"
                     :voices="voices"
@@ -53,6 +49,7 @@
                 <BulkActionMenu
                     ref="bulkAction"
                     v-show="false"
+                    :deck="deck"
                     :cards.sync="_cards"
                     :selected.sync="singleSelected"
                     :voices="voices"
@@ -123,11 +120,11 @@
         }" @click="handleCardClick(card)">
             <v-card-text class="text-break">
                 <v-row>
-                    <v-col cols="12" sm="6">
+                    <v-col cols="12" :sm="deck.data.single ? 12 : 6">
                         <v-skeleton-loader v-if="skeleton" type="text" class="mb-n2"></v-skeleton-loader>
                         <ItemSide v-else v-model="card.front" :audio="card.front_synthesized" :voice="card.front_voice" :selected="isSelected(card)" />
                     </v-col>
-                    <v-col cols="12" sm="6">
+                    <v-col v-if="!deck.data.single" cols="12" sm="6">
                         <v-skeleton-loader v-if="skeleton" type="text" class="mb-n2"></v-skeleton-loader>
                         <ItemSide v-else v-model="card.back" :audio="card.back_synthesized" :voice="card.back_voice" primary :selected="isSelected(card)" />
                     </v-col>
@@ -140,6 +137,7 @@
 <script>
 import BulkActionMenu from '@/components/BulkActionMenu';
 import PlayAudioBtn from '@/components/audio/PlayAudioBtn';
+import DeckModel from '@/models/DeckModel';
 import Services from "../utils/Services";
 
 const ItemSide = {
@@ -199,6 +197,10 @@ export default {
             type: Array,
             default: () => ([]),
         },
+        deck: {
+            type: DeckModel,
+            default: () => new DeckModel(),
+        },
         loading: {
             type: Boolean,
             default: false,
@@ -230,7 +232,7 @@ export default {
                     : this.$vuetify.breakpoint.smAndDown
                         ? this.cards.filter(card => {
                             const front = card.front.trim().toLowerCase();
-                            const back = card.back.trim().toLowerCase();
+                            const back = (card.back || '').trim().toLowerCase();
                             const search = this.search.trim().toLowerCase();
                             return search.length === 0 || front.indexOf(search) !== -1 || back.indexOf(search) !== -1;
                         })
@@ -248,6 +250,22 @@ export default {
                 this.$emit('update:selected', value);
             },
         },
+        headers() {
+            const headers = [
+                { text: this.$i18n.t('header.front'), value: 'front', width: this.deck.data.single ? '100%' : '50%' },
+            ];
+
+            if (!this.deck.data.single) {
+                headers.push({ text: this.$i18n.t('header.back'), value: 'back', width: '50%' });
+            }
+
+            headers.push(...[
+                { text: this.$i18n.t('header.createdAt'), value: 'created_at', width: '14em' },
+                { text: '', value: '_action', width: 'auto', sortable: false, },
+            ]);
+
+            return headers;
+        }
     },
 
     methods: {

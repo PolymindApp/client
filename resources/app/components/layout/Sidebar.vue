@@ -38,10 +38,10 @@
 
         <v-list dense>
             <v-subheader v-text="$t('sidebar.decks.title')"></v-subheader>
-            <v-list-item :key="deck.id" v-for="deck in $root.decks" :to="{ name: $route.name, params: { uuid: deck && deck.id || 'unclassified' }}">
-                <v-list-item-content v-text="deck.i18n ? $t(deck.i18n) : deck.name"></v-list-item-content>
-                <v-list-item-icon v-if="deck.total_card !== undefined" class="d-flex align-center">
-                    <v-chip v-text="deck.total_card" x-small></v-chip>
+            <v-list-item :key="deck.data.id" v-for="deck in $root.decks" :to="{ name: $route.name, params: { uuid: deck.data.id || 'unclassified' }}">
+                <v-list-item-content v-text="deck.data.i18n ? $t(deck.data.i18n) : deck.data.name"></v-list-item-content>
+                <v-list-item-icon v-if="deck.data.total_card !== undefined" class="d-flex align-center">
+                    <v-chip v-text="deck.data.total_card" x-small></v-chip>
                 </v-list-item-icon>
             </v-list-item>
         </v-list>

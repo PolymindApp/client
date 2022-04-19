@@ -16,11 +16,11 @@ class Deck extends Model
 
     protected $fillable = [
         'name',
+        'single',
         'default_front_voice_id',
         'default_back_voice_id',
         'playback_settings'
     ];
-
 
     /**
      * The attributes that should be cast.
@@ -28,6 +28,7 @@ class Deck extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'single' => 'boolean',
         'default_front_voice_id' => 'integer',
         'default_back_voice_id' => 'integer',
         'playback_settings' => 'json',

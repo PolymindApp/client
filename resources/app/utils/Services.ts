@@ -1,4 +1,5 @@
 import Query from '@/utils/Query';
+import DeckModel from "@/models/DeckModel";
 import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
 
 export default class Services {
@@ -129,12 +130,7 @@ export default class Services {
 	 */
 	static getDecks(): Promise<any> {
 		return Query.get('/deck')
-            .then(response => {
-                return response.map((deck: any) => ({
-                    ...deck,
-                    playback_settings: new PlaybackSettingsModel(deck.playback_settings),
-                }));
-            });
+            .then(response => response.map((deck: any) => new DeckModel(deck)));
 	}
 
 	/**
@@ -142,10 +138,7 @@ export default class Services {
 	 */
 	static getDeck(id: string): Promise<any> {
 		return Query.get('/deck/' + id)
-            .then(response => {
-                response.playback_settings = new PlaybackSettingsModel(response.playback_settings);
-                return response;
-            })
+            .then(response => new DeckModel(response))
 	}
 
 	/**
@@ -153,10 +146,7 @@ export default class Services {
 	 */
 	static createDeck(data: any): Promise<any> {
 		return Query.post('/deck', data)
-            .then(response => {
-                response.playback_settings = new PlaybackSettingsModel(response.playback_settings);
-                return response;
-            });
+            .then(response => new DeckModel(response))
 	}
 
 	/**
@@ -164,10 +154,7 @@ export default class Services {
 	 */
 	static updateDeck(id: string, data: any): Promise<any> {
 		return Query.put('/deck/' + id, data)
-            .then(response => {
-                response.playback_settings = new PlaybackSettingsModel(response.playback_settings);
-                return response;
-            });
+            .then(response => new DeckModel(response))
 	}
 
 	/**
