@@ -27,9 +27,9 @@ export default {
 		attrs: {},
 	},
     socialLinks: [
-        { icon: 'mdi-facebook', tooltip: 'Facebook', href: 'https://www.facebook.com/polymindapp' },
-        { icon: 'mdi-twitter', tooltip: 'Twitter', href: 'https://twitter.com/polymindapp' },
-        { icon: 'mdi-youtube', tooltip: 'Youtube', href: 'https://www.youtube.com/channel/UCX8r3RbWCk9VSWp7EO9zqcA' },
-        { icon: 'mdi-github', tooltip: 'Github', href: 'https://github.com/PolymindApp' },
+        { icon: 'mdi-facebook', tooltip: 'Facebook', href: process.env.FACEBOOK_URL },
+        { icon: 'mdi-twitter', tooltip: 'Twitter', href: process.env.TWITTER_URL },
+        { icon: 'mdi-youtube', tooltip: 'Youtube', href: process.env.YOUTUBE_URL },
+        { icon: 'mdi-github', tooltip: 'Github', href: process.env.GITHUB_URL },
     ],
 }

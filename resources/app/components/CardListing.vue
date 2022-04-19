@@ -10,7 +10,7 @@
             }"
             :search="search"
             :loading="loading"
-            :items-per-page="25"
+            :items-per-page="10"
             sort-by="created_at"
             sort-desc
             show-select

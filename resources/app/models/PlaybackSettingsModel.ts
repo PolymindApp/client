@@ -12,6 +12,7 @@ export default class PlaybackSettingsModel {
         backVoiceEnabled: true,
         fromDate: null,
         toDate: null,
+        ambience: process.env.AMBIENCE1_URL || null,
     };
 
     constructor(data = {}) {

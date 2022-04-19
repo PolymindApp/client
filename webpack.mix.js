@@ -1,5 +1,20 @@
 const mix = require('laravel-mix');
 const path = require('path');
+const webpack = require('webpack')
+require('dotenv').config();
+
+const dotenvPlugin = new webpack.DefinePlugin({
+    'process.env': {
+        FACEBOOK_URL: JSON.stringify(process.env.FACEBOOK_URL),
+        TWITTER_URL: JSON.stringify(process.env.TWITTER_URL),
+        LINKEDIN_URL: JSON.stringify(process.env.LINKEDIN_URL),
+        GITHUB_URL: JSON.stringify(process.env.GITHUB_URL),
+        TWITTER_TAG: JSON.stringify(process.env.TWITTER_TAG),
+
+        AMBIENCE1_TITLE: JSON.stringify(process.env.AMBIENCE1_TITLE),
+        AMBIENCE1_URL: JSON.stringify(process.env.AMBIENCE1_URL),
+    },
+})
 
 /*
  |--------------------------------------------------------------------------
@@ -17,6 +32,9 @@ mix.ts('resources/app/main.ts', 'public/js/app.js')
     // .sass('resources/app/index.scss', 'public/css')
     .webpackConfig({
         devtool: 'source-map',
+        plugins: [
+            dotenvPlugin,
+        ],
         // devServer: {
         //     port: 8079,
         // },

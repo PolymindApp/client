@@ -423,9 +423,7 @@ export default {
         },
 
         handleNewDeckClick() {
-            this.editDeck({
-                name: '',
-            });
+            this.editDeck(new DeckModel());
         },
 
         handleEditDeckClick(deck) {

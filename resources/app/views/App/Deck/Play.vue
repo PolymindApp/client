@@ -55,7 +55,7 @@
             <template #body>
                 <v-row v-if="!deck.data.single">
                     <v-col cols="12" md="6" class="d-flex align-center">
-                        <label v-text="$tc('deck.play.playbackSettings.mode.title')"></label>
+                        <label v-text="$t('deck.play.playbackSettings.mode.title')"></label>
                     </v-col>
                     <v-col cols="12" md="6" class="d-flex align-center">
                         <v-select
@@ -152,6 +152,19 @@
                             inset
                             hide-details
                         ></v-switch>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <v-col cols="12" md="6" class="d-flex align-center">
+                        <label v-text="$t('deck.play.playbackSettings.ambience.title')"></label>
+                    </v-col>
+                    <v-col cols="12" md="6" class="d-flex align-center">
+                        <v-select
+                            v-model="playbackSettingsDialog.data.ambience"
+                            :items="ambiences"
+                            outlined
+                            hide-details
+                        />
                     </v-col>
                 </v-row>
                 <v-row>
@@ -442,6 +455,24 @@ export default {
 
         deckName() {
             return this.deck.data.name || this.$i18n.t('state.unclassified');
+        },
+
+        ambiences() {
+            const ambiences = [{
+                text: this.$i18n.t('state.none'),
+                value: null,
+            }];
+            for (let i = 0; i < 5; i++) {
+                const title = process.env['AMBIENCE' + i + '_TITLE'];
+                const url = process.env['AMBIENCE' + i + '_URL'];
+                if (title && url) {
+                    ambiences.push({
+                        text: title,
+                        value: url,
+                    });
+                }
+            }
+            return ambiences;
         },
     },
 
@@ -805,30 +836,30 @@ export default {
                         sampleRate: 44100,
                     });
                     const crunker = new Crunker();
-                    // crunker.fetchAudio([
-                    //     '/assets/sounds/test.mp3',
-                    // ]).then(ambiences => {
+                    crunker.fetchAudio(this._settings.ambience ? [
+                        this._settings.ambience,
+                    ] : []).then(ambiences => {
                         this.filteredCards.forEach((card, cardIdx) => {
                             buffer = crunker.concatAudio([buffer, buffers[cardIdx]]);
                             buffer = crunker.padAudio(buffer, buffer.duration - 0.0001, this._settings.delay);
                         });
-                        // ambiences.forEach((ambience, ambienceIdx) => {
-                        //     const newBuffer = new AudioBuffer({
-                        //         length: ambience.length,
-                        //         numberOfChannels: ambience.numberOfChannels,
-                        //         sampleRate: ambience.sampleRate
-                        //     });
-                        //     for (let channel = 0; channel < ambience.numberOfChannels; channel += 1) {
-                        //         const channelData = ambience.getChannelData(channel);
-                        //         const newChannelData = newBuffer.getChannelData(channel);
-                        //
-                        //         for (let sample = 0; sample < channelData.length; sample += 1) {
-                        //             newChannelData[sample] = channelData[sample] * 0.2;
-                        //         }
-                        //     }
-                        //     ambiences[ambienceIdx] = newBuffer;
-                        // });
-                        // buffer = crunker.mergeAudio([buffer, ...ambiences]);
+                        ambiences.forEach((ambience, ambienceIdx) => {
+                            const newBuffer = new AudioBuffer({
+                                length: ambience.length,
+                                numberOfChannels: ambience.numberOfChannels,
+                                sampleRate: ambience.sampleRate
+                            });
+                            for (let channel = 0; channel < ambience.numberOfChannels; channel += 1) {
+                                const channelData = ambience.getChannelData(channel);
+                                const newChannelData = newBuffer.getChannelData(channel);
+
+                                for (let sample = 0; sample < channelData.length; sample += 1) {
+                                    newChannelData[sample] = channelData[sample] * 0.2;
+                                }
+                            }
+                            ambiences[ambienceIdx] = newBuffer;
+                        });
+                        buffer = crunker.mergeAudio([buffer, ...ambiences]);
                         this.buffer = buffer;
 
                         const output = crunker.export(this.buffer, 'audio/wav');
@@ -837,7 +868,7 @@ export default {
                         this.exportSessionDialog.visible = false;
 
                         this.$snack(this.$i18n.t('snack.exportSessionCompleted'));
-                    // })
+                    })
                 });
         },
     },
