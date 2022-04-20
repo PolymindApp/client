@@ -63,6 +63,7 @@
 	"deck.deleteConfirm.body": "আপনি কি নিশ্চিত আপনি এই ডেক মুছে ফেলতে চান?",
 	"deck.deleteConfirm.deleted": "ডেক সফলভাবে মুছে ফেলা হয়েছে!",
 	"deck.deleteConfirm.title": "ডেক মুছুন",
+	"deck.play.eject": "কার্ড বের করুন",
 	"deck.play.emptyWarning": "আপনাকে প্রথমে এই ডেকে কিছু কার্ড যোগ করতে হবে।",
 	"deck.play.exportSessionDialog.desc": "নীচের রপ্তানি বোতামে ক্লিক করে, আপনি বর্তমান সেশনের একটি MP3 সংস্করণ রপ্তানি করবেন যা আপনি শুনতে সক্ষম হবেন৷ রেন্ডার হতে কয়েক সেকেন্ড সময় লাগতে পারে, তাই ধৈর্য ধরুন।",
 	"deck.play.exportSessionDialog.title": "রপ্তানি অধিবেশন",

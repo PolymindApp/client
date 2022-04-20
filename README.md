@@ -36,6 +36,23 @@ php artisan db:seed --class=VoiceSeeder
 2) Attach the existing policy ```AmazonPollyFullAccess``` to the user.
 3) Copy-paste the access and secret key into your ```.env``` file.
 
+### Setup ambiences
+
+You can easily add your custom ambiences by creating a  ```.ambience.json``` file at the root folder of the project.
+
+The structure of the JSON file is an array containing the following properties:
+
+```json
+[{
+    "title": "My ambience",
+    "url": "https://website.com/music.mp3",
+    "bg": "https://website.com/background.jpg",
+    "thumbnail": "https://website.com/thumbnail.jpg",
+    "opacity": 0.75,
+    "volume": 0.2
+}]
+```
+
 ### Launch the application
 
 In your terminal, run:

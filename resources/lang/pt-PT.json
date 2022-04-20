@@ -63,6 +63,7 @@
 	"deck.deleteConfirm.body": "Tem a certeza de que quer apagar este baralho?",
 	"deck.deleteConfirm.deleted": "Deck apagado com sucesso!",
 	"deck.deleteConfirm.title": "Apagar convés",
+	"deck.play.eject": "Ejetar cartão",
 	"deck.play.emptyWarning": "É necessário adicionar primeiro algumas cartas neste baralho.",
 	"deck.play.exportSessionDialog.desc": "Ao clicar no botão de exportação abaixo, irá exportar uma versão MP3 da sessão actual que poderá ouvir. Pode demorar alguns segundos a renderizar, por isso, seja paciente.",
 	"deck.play.exportSessionDialog.title": "Sessão de exportação",

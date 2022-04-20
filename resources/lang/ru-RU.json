@@ -63,6 +63,7 @@
 	"deck.deleteConfirm.body": "Вы уверены, что хотите удалить эту колоду?",
 	"deck.deleteConfirm.deleted": "Палуба успешно удалена!",
 	"deck.deleteConfirm.title": "Удалить палубу",
+	"deck.play.eject": "Извлечь карту",
 	"deck.play.emptyWarning": "Сначала вы должны добавить несколько карт в эту колоду.",
 	"deck.play.exportSessionDialog.desc": "Нажав на кнопку экспорта ниже, вы экспортируете MP3-версию текущей сессии, которую вы сможете прослушать. Это может занять несколько секунд, поэтому, пожалуйста, будьте терпеливы.",
 	"deck.play.exportSessionDialog.title": "Сеанс экспорта",

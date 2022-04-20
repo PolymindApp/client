@@ -8,8 +8,10 @@
 /public/images
 /public/js
 /public/assets/musics
+/public/assets/backgrounds
 .env
 .env.backup
+.ambiences.json
 .phpunit.result.cache
 docker-compose.override.yml
 Homestead.json

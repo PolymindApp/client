@@ -1,3 +1,5 @@
+import ambiences from '../../../.ambiences.json';
+
 export default class PlaybackSettingsModel {
 
     public data: any = {};
@@ -12,7 +14,7 @@ export default class PlaybackSettingsModel {
         backVoiceEnabled: true,
         fromDate: null,
         toDate: null,
-        ambience: process.env.AMBIENCE1_URL || null,
+        ambience: ambiences.length > 0 ? ambiences[0].url : null,
     };
 
     constructor(data = {}) {

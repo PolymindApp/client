@@ -7,12 +7,9 @@ const dotenvPlugin = new webpack.DefinePlugin({
     'process.env': {
         FACEBOOK_URL: JSON.stringify(process.env.FACEBOOK_URL),
         TWITTER_URL: JSON.stringify(process.env.TWITTER_URL),
-        LINKEDIN_URL: JSON.stringify(process.env.LINKEDIN_URL),
+        YOUTUBE_URL: JSON.stringify(process.env.YOUTUBE_URL),
         GITHUB_URL: JSON.stringify(process.env.GITHUB_URL),
         TWITTER_TAG: JSON.stringify(process.env.TWITTER_TAG),
-
-        AMBIENCE1_TITLE: JSON.stringify(process.env.AMBIENCE1_TITLE),
-        AMBIENCE1_URL: JSON.stringify(process.env.AMBIENCE1_URL),
     },
 })
 
@@ -35,9 +32,9 @@ mix.ts('resources/app/main.ts', 'public/js/app.js')
         plugins: [
             dotenvPlugin,
         ],
-        // devServer: {
-        //     port: 8079,
-        // },
+        devServer: {
+            port: 8079,
+        },
         resolve: {
             alias: {
                 '@': path.resolve('resources/app')
@@ -45,11 +42,11 @@ mix.ts('resources/app/main.ts', 'public/js/app.js')
         }
     })
 
-// mix.options({
-//     hmrOptions: {
-//         host: 'bs-local.com',
-//         port: 8079,
-//     },
-// });
+mix.options({
+    hmrOptions: {
+        host: 'localhost',
+        port: '8079'
+    },
+});
 
 mix.disableNotifications();

@@ -138,7 +138,7 @@ export default {
         },
 
         logo() {
-            return this.$vuetify.breakpoint.smAndDown || this.$vuetify.theme.dark ? logoLight : logoDark;
+            return this.$vuetify.breakpoint.smAndDown ? logoLight : logoDark;
         },
     },
 

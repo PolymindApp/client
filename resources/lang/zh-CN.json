@@ -63,6 +63,7 @@
 	"deck.deleteConfirm.body": "你确定要删除这副牌吗？",
 	"deck.deleteConfirm.deleted": "甲板成功删除!",
 	"deck.deleteConfirm.title": "删除甲板",
+	"deck.play.eject": "弹出卡",
 	"deck.play.emptyWarning": "你必须先在这副牌中加入一些牌。",
 	"deck.play.exportSessionDialog.desc": "点击下面的导出按钮，你将导出当前会话的MP3版本，你就可以收听了。它可能需要几秒钟的时间来渲染，所以请耐心等待。",
 	"deck.play.exportSessionDialog.title": "出口会议",

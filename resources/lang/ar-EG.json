@@ -63,6 +63,7 @@
 	"deck.deleteConfirm.body": "هل أنت متأكد أنك تريد حذف هذه المجموعة؟",
 	"deck.deleteConfirm.deleted": "تم حذف سطح السفينة بنجاح!",
 	"deck.deleteConfirm.title": "حذف سطح السفينة",
+	"deck.play.eject": "بطاقة الإخراج",
 	"deck.play.emptyWarning": "يجب عليك إضافة بعض البطاقات في هذه المجموعة أولاً.",
 	"deck.play.exportSessionDialog.desc": "بالنقر فوق الزر \"تصدير\" أدناه ، ستقوم بتصدير إصدار MP3 من الجلسة الحالية التي ستتمكن من الاستماع إليها. قد يستغرق العرض بضع ثوانٍ ، لذا يُرجى التحلي بالصبر.",
 	"deck.play.exportSessionDialog.title": "جلسة التصدير",

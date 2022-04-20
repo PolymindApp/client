@@ -63,6 +63,7 @@
 	"deck.deleteConfirm.body": "क्या आप वाकई इस डेक को हटाना चाहते हैं?",
 	"deck.deleteConfirm.deleted": "डेक सफलतापूर्वक हटा दिया गया!",
 	"deck.deleteConfirm.title": "डेक हटाएं",
+	"deck.play.eject": "कार्ड निकालें",
 	"deck.play.emptyWarning": "आपको पहले इस डेक में कुछ कार्ड जोड़ने होंगे।",
 	"deck.play.exportSessionDialog.desc": "नीचे दिए गए निर्यात बटन पर क्लिक करके, आप वर्तमान सत्र का एक एमपी3 संस्करण निर्यात करेंगे जिसे आप सुन सकेंगे। इसे प्रस्तुत करने में कुछ सेकंड लग सकते हैं, इसलिए कृपया धैर्य रखें।",
 	"deck.play.exportSessionDialog.title": "निर्यात सत्र",

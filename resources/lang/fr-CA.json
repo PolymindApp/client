@@ -63,6 +63,7 @@
 	"deck.deleteConfirm.body": "Voulez-vous vraiment supprimer ce paquet ?",
 	"deck.deleteConfirm.deleted": "Paquet supprimé avec succès !",
 	"deck.deleteConfirm.title": "Supprimer le paquet",
+	"deck.play.eject": "Éjecter la carte",
 	"deck.play.emptyWarning": "Vous devez d'abord ajouter quelques cartes dans ce paquet.",
 	"deck.play.exportSessionDialog.desc": "En cliquant sur le bouton d'exportation ci-dessous, vous exporterez une version MP3 de la session en cours que vous pourrez écouter. Le rendu peut prendre quelques secondes, alors soyez patient.",
 	"deck.play.exportSessionDialog.title": "Exporter la session",

@@ -7,9 +7,10 @@
         <!-- SHORTCUTS -->
         <Keypress v-if="canGoPrevious" key-event="keyup" :key-code="37" @success="handlePrevClick" />
         <Keypress v-if="canGoNext" key-event="keyup" :key-code="39" @success="handleNextClick" />
-        <Keypress v-if="canRemove" key-event="keyup" :key-code="27" @success="handleRemoveClick" />
+        <Keypress v-if="canRemove" key-event="keyup" :key-code="46" @success="handleRemoveClick" />
         <Keypress v-if="canPlay" key-event="keyup" :key-code="32" @success="handlePlayClick" />
         <Keypress v-else-if="canPause" key-event="keyup" :key-code="32" @success="handlePauseClick" />
+        <Keypress v-if="canFullscreen" key-event="keyup" :key-code="70" @success="() => setFullscreen(!fullscreen)" />
 
         <!-- TITLE -->
         <portal v-if="$vuetify.breakpoint.smAndDown" to="title">
@@ -155,16 +156,29 @@
                     </v-col>
                 </v-row>
                 <v-row>
-                    <v-col cols="12" md="6" class="d-flex align-center">
+                    <v-col cols="12" class="d-flex align-center">
                         <label v-text="$t('deck.play.playbackSettings.ambience.title')"></label>
                     </v-col>
-                    <v-col cols="12" md="6" class="d-flex align-center">
+                    <v-col cols="12" class="d-flex align-center">
                         <v-select
                             v-model="playbackSettingsDialog.data.ambience"
                             :items="ambiences"
                             outlined
                             hide-details
-                        />
+                        >
+                            <template #selection="{ item }">
+                                <div class="d-flex align-center" style="gap: 1rem">
+                                    <v-img :src="item.thumbnail" width="48" height="48"></v-img>
+                                    <span v-text="item.text"></span>
+                                </div>
+                            </template>
+                            <template #item="{ item }">
+                                <div class="d-flex align-center" style="gap: 1rem">
+                                    <v-img :src="item.thumbnail" width="64" height="64"></v-img>
+                                    <span v-text="item.text"></span>
+                                </div>
+                            </template>
+                        </v-select>
                     </v-col>
                 </v-row>
                 <v-row>
@@ -234,82 +248,97 @@
         </Modal>
 
         <!-- LAYOUT -->
-        <div style="flex: 1" class="w-100 fill-height d-flex flex-column align-content-between justify-center">
-            <v-container style="flex: 0" class="pa-4" fluid>
-                <v-row>
-                    <v-col cols="4"></v-col>
-                    <v-col cols="4" class="text-center"></v-col>
-                    <v-col cols="4"></v-col>
-                </v-row>
-            </v-container>
-            <div style="flex: 1" class="pa-4 d-flex align-center justify-space-between">
-                <v-btn v-if="showNavigation" :disabled="!canGoPrevious" height="30vh" text x-large @click="handlePrevClick">
-                    <v-icon size="7.5vh" v-text="$vuetify.rtl ? 'mdi-chevron-right' : 'mdi-chevron-left'"></v-icon>
-                </v-btn>
-                <div class="d-flex flex-nowrap align-center justify-center fill-height" style="flex: 1; position: relative">
-                    <v-progress-circular v-if="skeleton" color="primary" size="64" indeterminate></v-progress-circular>
-                    <div v-else-if="originalCards.length === 0" class="text-center" style="max-width: 15rem">
-                        <v-icon color="warning" x-large>mdi-alert</v-icon>
-                        <h3 class="mt-2" v-text="$t('deck.play.emptyWarning')"></h3>
-                    </div>
-                    <v-btn v-else-if="completed" height="15vh" width="15vh" text fab x-large @click="handleResetClick">
-                        <v-icon size="7.5vh">mdi-refresh</v-icon>
+        <div ref="layout" :style="layoutStyle" class="w-100 fill-height background">
+            <v-overlay v-if="background" :color="$vuetify.theme.dark ? 'black' : 'white'" :opacity="opacity" z-index="0" absolute></v-overlay>
+            <div style="z-index: 1; position: relative" class="w-100 fill-height d-flex flex-column align-content-between justify-center">
+                <v-container style="flex: 0" class="pa-4" fluid>
+                    <v-row>
+                        <v-col cols="4"></v-col>
+                        <v-col cols="4" class="text-center"></v-col>
+                        <v-col cols="4" class="d-flex align-center justify-end">
+                            <v-expand-transition>
+                                <v-tooltip v-if="!firstPlay" left>
+                                    <template #activator="{ attrs, on }">
+                                        <v-btn v-bind="attrs" v-on="on" icon :disabled="!canRemove" @click="handleRemoveClick">
+                                            <v-icon>mdi-eject-outline</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span v-text="$t('deck.play.eject')"></span>
+                                </v-tooltip>
+                            </v-expand-transition>
+                        </v-col>
+                    </v-row>
+                </v-container>
+                <div style="flex: 1" class="pa-4 d-flex align-center justify-space-between">
+                    <v-btn v-if="showNavigation" :disabled="!canGoPrevious" height="30vh" text x-large @click="handlePrevClick">
+                        <v-icon size="7.5vh" v-text="$vuetify.rtl ? 'mdi-chevron-right' : 'mdi-chevron-left'"></v-icon>
                     </v-btn>
-                    <v-btn v-else-if="firstPlay" height="15vh" width="15vh" text fab x-large :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
-                        <v-icon size="7.5vh" v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
-                    </v-btn>
-                    <div v-else-if="filteredCards[index]" class="px-4 text-center abs_middle">
-                        <transition name="slide">
-                            <v-card v-if="!firstPlay && showFront">
-                                <h1 v-ripple @click="handleClickCard(filteredCards[index], 'front')" :class="{
-                                    'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !_settings.flipped,
-                                    'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': _settings.flipped,
-                                }" v-text="filteredCards[index].front"></h1>
-                            </v-card>
-                        </transition>
-                        <transition name="slide">
-                            <v-card v-if="!firstPlay && showBack">
-                                <h1 v-ripple @click="handleClickCard(filteredCards[index], 'back')" :class="{
-                                    'text-capitalize-first text-h4 text-md-h3 text-lg-h2': _settings.flipped,
-                                    'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !_settings.flipped,
-                                }" v-text="filteredCards[index].back"></h1>
-                            </v-card>
-                        </transition>
+                    <div class="d-flex flex-nowrap align-center justify-center fill-height" style="flex: 1; position: relative">
+                        <v-progress-circular v-if="skeleton" color="primary" size="64" indeterminate></v-progress-circular>
+                        <div v-else-if="originalCards.length === 0" class="text-center" style="max-width: 15rem">
+                            <v-icon color="warning" x-large>mdi-alert</v-icon>
+                            <h3 class="mt-2" v-text="$t('deck.play.emptyWarning')"></h3>
+                        </div>
+                        <v-btn v-else-if="completed" height="15vh" width="15vh" text fab x-large @click="handleResetClick">
+                            <v-icon size="7.5vh">mdi-refresh</v-icon>
+                        </v-btn>
+                        <v-btn v-else-if="firstPlay" height="15vh" width="15vh" text fab x-large :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
+                            <v-icon size="7.5vh" v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
+                        </v-btn>
+                        <div v-else-if="filteredCards[index]" class="px-4 text-center abs_middle">
+                            <transition name="slide">
+                                <v-card v-if="!firstPlay && showFront">
+                                    <h1 v-ripple @click="handleClickCard(filteredCards[index], 'front')" :class="{
+                                        'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !_settings.flipped,
+                                        'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': _settings.flipped,
+                                    }" v-text="filteredCards[index].front"></h1>
+                                </v-card>
+                            </transition>
+                            <transition name="slide">
+                                <v-card v-if="!firstPlay && showBack">
+                                    <h1 v-ripple @click="handleClickCard(filteredCards[index], 'back')" :class="{
+                                        'text-capitalize-first text-h4 text-md-h3 text-lg-h2': _settings.flipped,
+                                        'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !_settings.flipped,
+                                    }" v-text="filteredCards[index].back"></h1>
+                                </v-card>
+                            </transition>
+                        </div>
                     </div>
+                    <v-btn v-if="showNavigation" :disabled="!canGoNext" height="30vh" text x-large @click="handleNextClick">
+                        <v-icon size="7.5vh" v-text="$vuetify.rtl ? 'mdi-chevron-left' : 'mdi-chevron-right'"></v-icon>
+                    </v-btn>
                 </div>
-                <v-btn v-if="showNavigation" :disabled="!canGoNext" height="30vh" text x-large @click="handleNextClick">
-                    <v-icon size="7.5vh" v-text="$vuetify.rtl ? 'mdi-chevron-left' : 'mdi-chevron-right'"></v-icon>
-                </v-btn>
+                <v-container style="flex: 0" class="pa-4" fluid>
+                    <v-row>
+                        <v-col cols="3" class="d-flex align-center justify-start">
+                            <v-expand-transition>
+                                <v-btn v-if="!firstPlay" icon :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
+                                    <v-icon v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
+                                </v-btn>
+                            </v-expand-transition>
+                        </v-col>
+                        <v-col cols="6" class="d-flex align-center justify-center text-center">
+                            <span v-if="firstPlay"></span>
+                            <span v-else-if="filteredCards.length > 0" v-text="$t('deck.play.indexOf', {
+                                current: index + 1,
+                                total: filteredCards.length,
+                            })"></span>
+                            <span v-else-if="filteredCards.length < originalCards.length" v-text="$t('deck.play.noCardsLeft')"></span>
+                        </v-col>
+                        <v-col cols="3" class="d-flex align-center justify-end">
+                            <v-expand-transition>
+                                <v-btn v-if="!firstPlay" v-bind="attrs" v-on="on" icon :disabled="!canFullscreen" @click="() => fullscreen ? handleExitFullScreenClick() : handleEnterFullScreenClick()">
+                                    <v-icon v-if="!fullscreen">mdi-fullscreen</v-icon>
+                                    <v-icon v-else>mdi-fullscreen-exit</v-icon>
+                                </v-btn>
+                            </v-expand-transition>
+                        </v-col>
+                    </v-row>
+                </v-container>
+                <v-expand-transition>
+                    <v-progress-linear v-if="showProgress" v-once id="progress_bar" :value="progress" height="5" />
+                </v-expand-transition>
             </div>
-            <v-container style="flex: 0" class="pa-4" fluid>
-                <v-row>
-                    <v-col cols="3" class="d-flex align-center justify-start">
-                        <v-expand-transition>
-                            <v-btn v-if="!firstPlay" icon :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
-                                <v-icon v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
-                            </v-btn>
-                        </v-expand-transition>
-                    </v-col>
-                    <v-col cols="6" class="d-flex align-center justify-center text-center">
-                        <span v-if="firstPlay"></span>
-                        <span v-else-if="filteredCards.length > 0" v-text="$t('deck.play.indexOf', {
-                            current: index + 1,
-                            total: filteredCards.length,
-                        })"></span>
-                        <span v-else-if="filteredCards.length < originalCards.length" v-text="$t('deck.play.noCardsLeft')"></span>
-                    </v-col>
-                    <v-col cols="3" class="d-flex align-center justify-end">
-                        <v-expand-transition>
-                            <v-btn v-if="!firstPlay" icon :disabled="!canRemove" @click="handleRemoveClick">
-                                <v-icon>mdi-close-box-outline</v-icon>
-                            </v-btn>
-                        </v-expand-transition>
-                    </v-col>
-                </v-row>
-            </v-container>
-            <v-expand-transition>
-                <v-progress-linear v-if="showProgress" v-once id="progress_bar" :value="progress" height="5" />
-            </v-expand-transition>
         </div>
 
         <!-- MOBILE FOOTER -->
@@ -330,6 +359,7 @@ import Services from "@/utils/Services";
 import Keypress from 'vue-keypress';
 import audioDecode from 'audio-decode';
 import Crunker from 'crunker';
+import ambiencesJson from '../../../../../.ambiences.json';
 
 let autoPlayBus;
 
@@ -347,6 +377,7 @@ export default {
         completed: false,
         showFront: false,
         showBack: false,
+        fullscreen: false,
         cards: [],
         filteredCards: [],
         originalCards: [],
@@ -392,6 +423,10 @@ export default {
 
         canPause() {
             return !this.loading && !this.skeleton && this.playing;
+        },
+
+        canFullscreen() {
+            return true;
         },
 
         canGoNext() {
@@ -458,21 +493,37 @@ export default {
             return this.deck.data.name || this.$i18n.t('state.unclassified');
         },
 
+        background() {
+            return (this.ambiences.find(ambience => ambience.value === this._settings.ambience) || {}).bg;
+        },
+
+        opacity() {
+            return (this.ambiences.find(ambience => ambience.value === this._settings.ambience) || {}).opacity || (this.$vuetify.theme.dark ? 0.85 : 0.75);
+        },
+
+        volume() {
+            return (this.ambiences.find(ambience => ambience.value === this._settings.ambience) || {}).volume || 0.2;
+        },
+
+        layoutStyle() {
+            return {
+                flex: 1,
+                backgroundImage: 'url(' + this.background + ')',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center center',
+            };
+        },
+
         ambiences() {
             const ambiences = [{
                 text: this.$i18n.t('state.none'),
                 value: null,
             }];
-            for (let i = 0; i < 5; i++) {
-                const title = process.env['AMBIENCE' + i + '_TITLE'];
-                const url = process.env['AMBIENCE' + i + '_URL'];
-                if (title && url) {
-                    ambiences.push({
-                        text: title,
-                        value: url,
-                    });
-                }
-            }
+            ambiences.push(...ambiencesJson.map(ambience => ({
+                ...ambience,
+                text: ambience.title,
+                value: ambience.url,
+            })));
             return ambiences;
         },
     },
@@ -503,6 +554,12 @@ export default {
     },
 
     methods: {
+        handleEnterFullScreenClick() {
+            this.setFullscreen(true);
+        },
+        handleExitFullScreenClick() {
+            this.setFullscreen(false);
+        },
         handleClickCard(card, side) {
             if (this.audios[card.id] && this.audios[card.id][side]) {
                 this.audios[card.id][side].element.currentTime = 0;
@@ -622,6 +679,46 @@ export default {
             this.play();
         },
 
+        setFullscreen(state) {
+            if (state) {
+                const element = this.$refs.layout;
+                if (element.requestFullscreen) {
+                    element.requestFullscreen();
+                } else if (element.mozRequestFullScreen) {
+                    element.mozRequestFullScreen();
+                } else if (element.webkitRequestFullScreen) {
+                    element.webkitRequestFullScreen();
+                } else if (element.msRequestFullscreen) {
+                    element.msRequestFullscreen();
+                }
+
+                this.fullscreen = true;
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+
+                const element = this.$refs.layout;
+                if (element.exitFullscreen) {
+                    element.exitFullscreen();
+                } else if (element.webkitExitFullscreen) {
+                    element.webkitExitFullscreen();
+                } else if (element.mozCancelFullScreen) {
+                    element.mozCancelFullScreen();
+                } else if (element.msExitFullscreen) {
+                    element.msExitFullscreen();
+                }
+
+                this.fullscreen = false;
+            }
+        },
+
         filterCards(cards) {
             const from = this._settings.fromDate ? new Date(this._settings.fromDate) : null;
             const to = this._settings.toDate ? new Date(this._settings.toDate) : null;
@@ -698,6 +795,7 @@ export default {
                 const pauseTime = this.pauseTime.getTime() - this.startTime.getTime();
                 date.setTime(date.getTime() - pauseTime);
                 this.pauseTime = null;
+                this.playAudio();
             }
             this.resetTime(date);
 
@@ -710,7 +808,27 @@ export default {
         pause() {
             this.playing = false;
             this.pauseTime = new Date();
+            this.pauseAudio();
+        },
+
+        playAudio() {
+            this.ambience.play();
+
+            const side = this.showFront ? 'front' : 'back';
+            if (this.currentAudio[side] && this.currentAudio[side].element.currentTime > 0) {
+                this.currentAudio[side].element.play();
+            }
+        },
+
+        pauseAudio() {
             this.ambience.pause();
+
+            if (this.currentAudio.front) {
+                this.currentAudio.front.element.pause();
+            }
+            if (this.currentAudio.back) {
+                this.currentAudio.back.element.pause();
+            }
         },
 
         load() {
@@ -750,6 +868,8 @@ export default {
                         audio.element.currentTime = 0;
                         audio.element.play();
                     }
+
+                    document.title = this.filteredCards[this.index].back + ' | ' + this.deckName;
                 }
             } else {
                 this.showFront = visible;
@@ -759,6 +879,8 @@ export default {
                         audio.element.currentTime = 0;
                         audio.element.play();
                     }
+
+                    document.title = this.filteredCards[this.index].front + ' | ' + this.deckName;
                 }
             }
         },
@@ -772,6 +894,8 @@ export default {
                         audio.element.currentTime = 0;
                         audio.element.play();
                     }
+
+                    document.title = this.filteredCards[this.index].front + ' | ' + this.deckName;
                 }
             } else {
                 this.showBack = visible;
@@ -781,6 +905,8 @@ export default {
                         audio.element.currentTime = 0;
                         audio.element.play();
                     }
+
+                    document.title = this.filteredCards[this.index].back + ' | ' + this.deckName;
                 }
             }
         },
@@ -860,7 +986,7 @@ export default {
                                 const newChannelData = newBuffer.getChannelData(channel);
 
                                 for (let sample = 0; sample < channelData.length; sample += 1) {
-                                    newChannelData[sample] = channelData[sample] * 0.2;
+                                    newChannelData[sample] = channelData[sample] * this.volume;
                                 }
                             }
                             ambiences[ambienceIdx] = newBuffer;
@@ -879,14 +1005,21 @@ export default {
         },
 
         applySettings() {
-            this.ambience.volume = 0.2;
+            this.ambience.volume = this.volume;
+            this.ambience.loop = true;
             if (this._settings.ambience) {
                 this.ambience.src = this._settings.ambience;
 
                 if (this.playing) {
                     this.ambience.play();
                 }
+            } else {
+                this.ambience.pause();
             }
+        },
+
+        checkFullscreen() {
+            this.fullscreen = this.$refs.layout.offsetHeight === window.screen.availHeight;
         },
     },
 
@@ -897,10 +1030,22 @@ export default {
         this.deck = this.$root.decks.find(deck => deck.data.id === this.$route.params.uuid) || new DeckModel();
         document.title = this.deckName;
 
+        window.addEventListener('resize', this.checkFullscreen, false);
+
         this.settings = this.$deepClone(this.deck ? this.deck.data.playback_settings.data : new PlaybackSettingsModel().data);
         this.load();
         this.applySettings();
     },
+
+    mounted() {
+        this.checkFullscreen();
+    },
+
+    destroyed() {
+        this.pauseAudio();
+
+        window.removeEventListener('resize', this.checkFullscreen, false);
+    }
 }
 </script>
 
@@ -933,5 +1078,19 @@ export default {
 .slide-leave-active {
     opacity: 0;
     transform: translateY(calc(-50% + 1.5rem));
+}
+.background {
+    animation: background 240s infinite;
+    background-size: cover;
+}
+@keyframes background {
+    0% { background-position: 50% 50%; }
+    20% { background-position: 0 100%; }
+    40% { background-position: 100% 0; }
+    60% { background-position: 100% 100%; }
+    80% { background-position: 0 0; }
+}
+.v-select.v-text-field ::v-deep input {
+    position: absolute;
 }
 </style>

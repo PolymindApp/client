@@ -63,6 +63,7 @@
 	"deck.deleteConfirm.body": "Are you sure you want to delete this deck?",
 	"deck.deleteConfirm.deleted": "Deck successfully deleted!",
 	"deck.deleteConfirm.title": "Delete deck",
+	"deck.play.eject": "Eject card",
 	"deck.play.emptyWarning": "You must add some cards in this deck first.",
 	"deck.play.exportSessionDialog.desc": "By clicking on the export button below, you will export a MP3 version of the current session that you'll be able to listen to. It may take a couple of seconds to render, so please be patient.",
 	"deck.play.exportSessionDialog.title": "Export session",

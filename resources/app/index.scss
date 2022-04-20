@@ -7,6 +7,9 @@
 	font-display: swap;
 }
 
+html, body {
+    overflow: auto;
+}
 @media all and (max-width: 767px) {
     html, body {
         overscroll-behavior-y: none;
