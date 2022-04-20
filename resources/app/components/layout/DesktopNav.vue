@@ -8,24 +8,19 @@
             <v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-play</v-icon>
             <span v-text="$t('btn.play')"></span>
         </v-tab>
-<!--        <v-btn color="primary" >-->
-<!--            <v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-pencil</v-icon>-->
-<!--        </v-btn>-->
-<!--        <v-btn color="primary" :to="{ name: 'deck.play', params: { uuid: deck.data.id || 'unclassified' } }">-->
-<!--            <v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-play</v-icon>-->
-<!--            <span v-text="$t('btn.play')"></span>-->
-<!--        </v-btn>-->
     </v-tabs>
 </template>
 
 <script>
+import DeckModel from '@/models/DeckModel';
+
 export default {
     name: "DesktopNav",
 
     props: {
         deck: {
-            type: Object,
-            default: () => ({}),
+            type: DeckModel,
+            default: () => new DeckModel(),
         },
     },
 }

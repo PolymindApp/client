@@ -327,7 +327,7 @@
                         </v-col>
                         <v-col cols="3" class="d-flex align-center justify-end">
                             <v-expand-transition>
-                                <v-btn v-if="!firstPlay" v-bind="attrs" v-on="on" icon :disabled="!canFullscreen" @click="() => fullscreen ? handleExitFullScreenClick() : handleEnterFullScreenClick()">
+                                <v-btn v-if="!firstPlay" icon :disabled="!canFullscreen" @click="() => fullscreen ? handleExitFullScreenClick() : handleEnterFullScreenClick()">
                                     <v-icon v-if="!fullscreen">mdi-fullscreen</v-icon>
                                     <v-icon v-else>mdi-fullscreen-exit</v-icon>
                                 </v-btn>
