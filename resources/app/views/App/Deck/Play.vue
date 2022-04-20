@@ -682,7 +682,7 @@ export default {
                     this.filteredCards = this.filterCards(cards);
                     this.calculateAudioLength(this.filteredCards);
 
-                    if (this.originalCards.length === this.settings.data.ejected.length) {
+                    if (this.originalCards.length > 0 && this.originalCards.length === this.settings.data.ejected.length) {
                         this.completed = true;
                     }
 

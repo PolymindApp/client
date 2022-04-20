@@ -141,10 +141,8 @@ class CardController extends Controller
             'front_voice_id' => 'int|nullable',
             'back_voice_id' => 'int|nullable',
             'front' => 'string|required',
+            'back' => 'string|nullable',
         ];
-        if ($request->get('single')) {
-            $fields['back'] = 'string|required';
-        }
         $request->validate($fields);
     }
 }

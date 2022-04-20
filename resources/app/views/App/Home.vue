@@ -28,13 +28,14 @@
                         required
                         @input="handleInput"
                     />
+
                     <v-autocomplete
                         v-model="deckModal.clonedData.data.default_front_voice_id"
                         :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
                         :items="_voices"
                         :label="$t('deck.defaultVoiceFront')"
                         :loading="loading"
-                        :messages="$t('field.optional')"
+                        :error-messages="deckModal.formErrors.default_front_voice_id"
                         prepend-inner-icon="mdi-volume-high"
                         item-text="name"
                         item-value="id"
@@ -62,7 +63,7 @@
                             :items="_voices"
                             :label="$t('deck.defaultVoiceBack')"
                             :loading="loading"
-                            :messages="$t('field.optional')"
+                            :error-messages="deckModal.formErrors.default_back_voice_id"
                             prepend-inner-icon="mdi-volume-high"
                             item-text="name"
                             item-value="id"
@@ -477,7 +478,7 @@ export default {
                     }
                     this.deckModal.visible = false;
                 })
-                .catch(reason => this.$handleError(reason, this.deckModal.formErrors))
+                .catch(reason => this.$handleError(reason, this.deckModal.formErrors, false))
                 .finally(() => this.deckModal.loading = false);
         },
 

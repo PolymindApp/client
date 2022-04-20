@@ -39,11 +39,7 @@ class DeckController extends Controller
      */
     public function store(Request $request): Response
     {
-        $request->validate([
-            'name' => 'string|required',
-            'default_front_voice_id' => 'int',
-            'default_back_voice_id' => 'int',
-        ]);
+        $this->validateRequest($request);
 
         $deck = Deck::create($request->all());
         return response($deck);
@@ -73,6 +69,8 @@ class DeckController extends Controller
      */
     public function update(Request $request, string $id): Response
     {
+        $this->validateRequest($request);
+
         $deck = Deck::find($id);
         $deck->update($request->all());
         return response($deck);
@@ -102,5 +100,17 @@ class DeckController extends Controller
         $query = trim($_GET['q']);
         $results = Deck::where('name', 'LIKE', '%' . $query . '%')->get();
         return response($results);
+    }
+
+    private function validateRequest(Request $request)
+    {
+        $fields = [
+            'name' => 'string|required',
+            'default_front_voice_id' => 'int|required',
+        ];
+        if (!$request->get('single')) {
+            $fields['default_back_voice_id'] = 'int|required';
+        }
+        $request->validate($fields);
     }
 }
