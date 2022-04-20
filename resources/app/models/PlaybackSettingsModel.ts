@@ -14,6 +14,7 @@ export default class PlaybackSettingsModel {
         backVoiceEnabled: true,
         fromDate: null,
         toDate: null,
+        ejected: [],
         ambience: ambiences.length > 0 ? ambiences[0].url : null,
     };
 

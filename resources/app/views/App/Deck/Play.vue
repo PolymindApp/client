@@ -52,185 +52,20 @@
         </portal>
 
         <!-- PLAYBACK SETTINGS -->
-        <Modal v-model="playbackSettingsDialog.visible" :title="$t('deck.play.playbackSettingsDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" persistent scrollable>
-            <template #body>
-                <v-row v-if="!deck.data.single">
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <label v-text="$t('deck.play.playbackSettings.mode.title')"></label>
-                    </v-col>
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <v-select
-                            v-model="playbackSettingsDialog.data.mode"
-                            :items="[
-                                { text: $t('deck.play.playbackSettings.mode.both'), value: null },
-                                { text: $t('deck.play.playbackSettings.mode.front'), value: 'front' },
-                                { text: $t('deck.play.playbackSettings.mode.back'), value: 'back' },
-                            ]"
-                            outlined
-                            hide-details
-                        />
-                    </v-col>
-                </v-row>
-                <v-row>
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <label v-text="$tc('deck.play.playbackSettings.delay', playbackSettingsDialog.data.delay, {
-                            amount: playbackSettingsDialog.data.delay,
-                        })"></label>
-                    </v-col>
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <v-slider
-                            v-model="playbackSettingsDialog.data.delay"
-                            min="1"
-                            max="20"
-                            thumb-label
-                            hide-details
-                        />
-                    </v-col>
-                </v-row>
-                <v-row>
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <label v-text="$tc('deck.play.playbackSettings.repeat', playbackSettingsDialog.data.repeat, {
-                            amount: playbackSettingsDialog.data.repeat,
-                        })"></label>
-                    </v-col>
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <v-slider
-                            v-model="playbackSettingsDialog.data.repeat"
-                            min="1"
-                            max="5"
-                            thumb-label
-                            hide-details
-                        />
-                    </v-col>
-                </v-row>
-                <v-row v-if="!deck.data.single && playbackSettingsDialog.data.mode === null">
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <label v-text="$t('deck.play.playbackSettings.flipped')"></label>
-                    </v-col>
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <v-switch
-                            v-model="playbackSettingsDialog.data.flipped"
-                            class="mt-0 pt-0 ml-1"
-                            inset
-                            hide-details
-                        ></v-switch>
-                    </v-col>
-                </v-row>
-                <v-row>
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <label v-text="$t('deck.play.playbackSettings.reversed')"></label>
-                    </v-col>
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <v-switch
-                            v-model="playbackSettingsDialog.data.reversed"
-                            class="mt-0 pt-0 ml-1"
-                            inset
-                            hide-details
-                        ></v-switch>
-                    </v-col>
-                </v-row>
-                <v-row>
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <label v-text="$t('deck.play.playbackSettings.' + (deck.data.single ? 'voiceEnabled' : 'frontVoiceEnabled'))"></label>
-                    </v-col>
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <v-switch
-                            v-model="playbackSettingsDialog.data.frontVoiceEnabled"
-                            class="mt-0 pt-0 ml-1"
-                            inset
-                            hide-details
-                        ></v-switch>
-                    </v-col>
-                </v-row>
-                <v-row v-if="!deck.data.single">
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <label v-text="$t('deck.play.playbackSettings.backVoiceEnabled')"></label>
-                    </v-col>
-                    <v-col cols="12" md="6" class="d-flex align-center">
-                        <v-switch
-                            v-model="playbackSettingsDialog.data.backVoiceEnabled"
-                            class="mt-0 pt-0 ml-1"
-                            inset
-                            hide-details
-                        ></v-switch>
-                    </v-col>
-                </v-row>
-                <v-row>
-                    <v-col cols="12" class="d-flex align-center">
-                        <label v-text="$t('deck.play.playbackSettings.ambience.title')"></label>
-                    </v-col>
-                    <v-col cols="12" class="d-flex align-center">
-                        <v-select
-                            v-model="playbackSettingsDialog.data.ambience"
-                            :items="ambiences"
-                            outlined
-                            hide-details
-                        >
-                            <template #selection="{ item }">
-                                <div class="d-flex align-center" style="gap: 1rem">
-                                    <v-img :src="item.thumbnail" width="48" height="48"></v-img>
-                                    <span v-text="item.text"></span>
-                                </div>
-                            </template>
-                            <template #item="{ item }">
-                                <div class="d-flex align-center" style="gap: 1rem">
-                                    <v-img :src="item.thumbnail" width="64" height="64"></v-img>
-                                    <span v-text="item.text"></span>
-                                </div>
-                            </template>
-                        </v-select>
-                    </v-col>
-                </v-row>
-                <v-row>
-                    <v-col cols="6" class="d-flex align-center">
-                        <label v-text="$t('deck.play.playbackSettings.fromDate')"></label>
-                    </v-col>
-                    <v-col cols="6" class="d-flex align-center justify-end">
-                        <v-btn :disabled="playbackSettingsDialog.data.fromDate === null" outlined small @click="playbackSettingsDialog.data.fromDate = null">
-                            <span v-text="$t('btn.clear')"></span>
-                        </v-btn>
-                    </v-col>
-                    <v-col cols="12">
-                        <v-date-picker
-                            v-model="playbackSettingsDialog.data.fromDate"
-                            :events="events"
-                            :max="playbackSettingsDialog.data.toDate"
-                            event-color="primary"
-                            no-title
-                            full-width
-                        ></v-date-picker>
-                    </v-col>
-                </v-row>
-                <v-row>
-                    <v-col cols="6" class="d-flex align-center">
-                        <label v-text="$t('deck.play.playbackSettings.toDate')"></label>
-                    </v-col>
-                    <v-col cols="6" class="d-flex align-center justify-end">
-                        <v-btn :disabled="playbackSettingsDialog.data.toDate === null" outlined small @click="playbackSettingsDialog.data.toDate = null">
-                            <span v-text="$t('btn.clear')"></span>
-                        </v-btn>
-                    </v-col>
-                    <v-col cols="12">
-                        <v-date-picker
-                            v-model="playbackSettingsDialog.data.toDate"
-                            :events="events"
-                            :min="playbackSettingsDialog.data.fromDate"
-                            event-color="primary"
-                            no-title
-                            full-width
-                        ></v-date-picker>
-                    </v-col>
-                </v-row>
-            </template>
-            <template #buttons>
-                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="playbackSettingsDialog.saving" :disabled="playbackSettingsDialog.saving" color="primary" large @click="handleSavePlaybackSettings">
-                    <span v-text="$t('btn.apply')"></span>
-                </v-btn>
-                <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="playbackSettingsDialog.saving" outlined large @click="playbackSettingsDialog.visible = false">
-                    <span v-text="$t('btn.cancel')"></span>
-                </v-btn>
-            </template>
-        </Modal>
+        <PlaybackSettingsModal
+            :data.sync="playbackSettingsDialog.data"
+            :original="settings"
+            :visible.sync="playbackSettingsDialog.visible"
+            :ambiences="ambiences"
+            :events="events"
+            :cards="originalCards"
+            :deck="deck"
+            :fullscreen="$vuetify.breakpoint.smAndDown"
+            :max-width="900"
+            persistent
+            scrollable
+            @update="handleUpdateSettings"
+        />
 
         <!-- EXPORT TO MP3 SETTINGS -->
         <Modal v-model="exportSessionDialog.visible" :disabled="exportSessionDialog.loading" :title="$t('deck.play.exportSessionDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" persistent scrollable>
@@ -275,13 +110,17 @@
                     </v-btn>
                     <div class="d-flex flex-nowrap align-center justify-center fill-height" style="flex: 1; position: relative">
                         <v-progress-circular v-if="skeleton" color="primary" size="64" indeterminate></v-progress-circular>
+                        <v-btn v-else-if="completed" height="15vh" width="15vh" text fab x-large @click="handleResetClick">
+                            <v-icon size="7.5vh">mdi-refresh</v-icon>
+                        </v-btn>
                         <div v-else-if="originalCards.length === 0" class="text-center" style="max-width: 15rem">
                             <v-icon color="warning" x-large>mdi-alert</v-icon>
                             <h3 class="mt-2" v-text="$t('deck.play.emptyWarning')"></h3>
                         </div>
-                        <v-btn v-else-if="completed" height="15vh" width="15vh" text fab x-large @click="handleResetClick">
-                            <v-icon size="7.5vh">mdi-refresh</v-icon>
-                        </v-btn>
+                        <div v-else-if="filteredCards.length === 0 && firstPlay" class="text-center" style="max-width: 15rem">
+                            <v-icon color="warning" x-large>mdi-alert</v-icon>
+                            <h3 class="mt-2" v-text="$t('deck.play.emptyFiltersWarning')"></h3>
+                        </div>
                         <v-btn v-else-if="firstPlay" height="15vh" width="15vh" text fab x-large :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
                             <v-icon size="7.5vh" v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
                         </v-btn>
@@ -289,16 +128,16 @@
                             <transition name="slide">
                                 <v-card v-if="!firstPlay && showFront">
                                     <h1 v-ripple @click="handleClickCard(filteredCards[index], 'front')" :class="{
-                                        'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !_settings.flipped,
-                                        'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': _settings.flipped,
+                                        'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !_settings.data.flipped,
+                                        'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': _settings.data.flipped,
                                     }" v-text="filteredCards[index].front"></h1>
                                 </v-card>
                             </transition>
                             <transition name="slide">
                                 <v-card v-if="!firstPlay && showBack">
                                     <h1 v-ripple @click="handleClickCard(filteredCards[index], 'back')" :class="{
-                                        'text-capitalize-first text-h4 text-md-h3 text-lg-h2': _settings.flipped,
-                                        'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !_settings.flipped,
+                                        'text-capitalize-first text-h4 text-md-h3 text-lg-h2': _settings.data.flipped,
+                                        'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !_settings.data.flipped,
                                     }" v-text="filteredCards[index].back"></h1>
                                 </v-card>
                             </transition>
@@ -352,6 +191,7 @@
 import DeckSelect from '@/components/breadcrumbs/DeckSelect';
 import MobileNav from '@/components/layout/MobileNav';
 import DesktopNav from '@/components/layout/DesktopNav';
+import PlaybackSettingsModal from '@/components/PlaybackSettingsModal';
 import Modal from '@/components/generic/Modal';
 import DeckModel from '@/models/DeckModel';
 import PlaybackSettingsModel from '@/models/PlaybackSettingsModel';
@@ -366,7 +206,7 @@ let autoPlayBus;
 export default {
     name: "Play",
 
-    components: { DeckSelect, MobileNav, Modal, DesktopNav, Keypress },
+    components: { DeckSelect, MobileNav, Modal, DesktopNav, Keypress, PlaybackSettingsModal },
 
     data: () => ({
         loading: false,
@@ -378,6 +218,7 @@ export default {
         showFront: false,
         showBack: false,
         fullscreen: false,
+        settingsHasBeenUpdated: false,
         cards: [],
         filteredCards: [],
         originalCards: [],
@@ -385,15 +226,14 @@ export default {
         progress: 0,
         repeat: 0,
         deck: new DeckModel(),
-        settings: {},
+        settings: new PlaybackSettingsModel(),
         audios: {},
         ambience: new Audio(),
-        startTime: new Date(),
-        pauseTime: new Date(),
+        startTime: null,
+        pauseTime: null,
         playbackSettingsDialog: {
             visible: false,
-            saving: false,
-            data: {},
+            data: new PlaybackSettingsModel(),
         },
         exportSessionDialog: {
             visible: false,
@@ -405,12 +245,12 @@ export default {
 
     computed: {
         _settings() {
-            return {
-                ...this.settings,
-                mode: this.deck.data.single ? 'front' : this.settings.mode,
-                backVoiceEnabled: this.deck.data.single ? false : this.settings.backVoiceEnabled,
-                flipped: this.deck.data.single ? false : this.settings.flipped,
-            };
+            return new PlaybackSettingsModel({
+                ...this.settings.data,
+                mode: this.deck.data.single ? 'front' : this.settings.data.mode,
+                backVoiceEnabled: this.deck.data.single ? false : this.settings.data.backVoiceEnabled,
+                flipped: this.deck.data.single ? false : this.settings.data.flipped,
+            });
         },
 
         canGoPrevious() {
@@ -469,20 +309,20 @@ export default {
         },
 
         totalDelay() {
-            return (this._settings.delay
-                * (this._settings.mode === null ? 2 : 1) * 1000)
+            return (this._settings.data.delay
+                * (this._settings.data.mode === null ? 2 : 1) * 1000)
                 + (((this.currentAudio.front || {}).duration || 0) * 1000)
                 + (((this.currentAudio.back || {}).duration || 0) * 1000);
         },
 
         isFirstSide() {
-            return (!this._settings.flipped && this.showFront)
-                || (this._settings.flipped && this.showBack);
+            return (!this._settings.data.flipped && this.showFront)
+                || (this._settings.data.flipped && this.showBack);
         },
 
         isOtherSide() {
-            return (!this._settings.flipped && this.showBack)
-                || (this._settings.flipped && this.showFront);
+            return (!this._settings.data.flipped && this.showBack)
+                || (this._settings.data.flipped && this.showFront);
         },
 
         currentAudio() {
@@ -494,15 +334,15 @@ export default {
         },
 
         background() {
-            return (this.ambiences.find(ambience => ambience.value === this._settings.ambience) || {}).bg;
+            return (this.ambiences.find(ambience => ambience.value === this._settings.data.ambience) || {}).bg;
         },
 
         opacity() {
-            return (this.ambiences.find(ambience => ambience.value === this._settings.ambience) || {}).opacity || (this.$vuetify.theme.dark ? 0.85 : 0.75);
+            return (this.ambiences.find(ambience => ambience.value === this._settings.data.ambience) || {}).opacity || (this.$vuetify.theme.dark ? 0.85 : 0.75);
         },
 
         volume() {
-            return (this.ambiences.find(ambience => ambience.value === this._settings.ambience) || {}).volume || 0.2;
+            return (this.ambiences.find(ambience => ambience.value === this._settings.data.ambience) || {}).volume || 0.2;
         },
 
         layoutStyle() {
@@ -547,13 +387,32 @@ export default {
                     }
                 }
 
-                this.setFirstSide(this._settings.mode !== 'back');
-                this.setOtherSide(this._settings.mode === 'back');
+                this.setFirstSide(this._settings.data.mode !== 'back');
+                this.setOtherSide(this._settings.data.mode === 'back');
             },
         },
+        'playbackSettingsDialog.visible'(visible) {
+            if (visible && this.playing) {
+                this.pause();
+            } else if (this.pauseTime) {
+                this.play();
+            }
+        }
     },
 
     methods: {
+        handleUpdateSettings(settings) {
+            this.settings = settings;
+            this.applySettings();
+            this.$snack(this.$i18n.t('deck.play.playbackSettings.applied'));
+
+            this.filteredCards = this.filterCards(this.cards);
+            this.calculateAudioLength(this.filteredCards);
+
+            if (this.index > this.filteredCards.length - 1) {
+                this.index = this.filteredCards.length - 1;
+            }
+        },
         handleEnterFullScreenClick() {
             this.setFullscreen(true);
         },
@@ -595,42 +454,8 @@ export default {
         handlePlaybackSettingsClick() {
             Object.assign(this.playbackSettingsDialog, {
                 visible: true,
-                saving: false,
-                data: this.$deepClone(this.settings),
+                data: new PlaybackSettingsModel(this.$deepClone(this._settings.data)),
             });
-        },
-
-        handleSavePlaybackSettings() {
-            const callback = () => {
-                this.settings = new this.$deepClone(this.playbackSettingsDialog.data);
-                this.applySettings();
-
-                this.playbackSettingsDialog.visible = false;
-                this.$snack(this.$i18n.t('deck.play.playbackSettings.applied'));
-
-                this.filteredCards = this.filterCards(this.cards);
-                this.calculateAudioLength(this.filteredCards);
-
-                if (this.index > this.filteredCards.length - 1) {
-                    this.index = this.filteredCards.length - 1;
-                }
-
-                return this.filteredCards;
-            };
-
-            if (this.deck.data.id) {
-                this.deck.data.playback_settings = new PlaybackSettingsModel(this.$deepClone(this.playbackSettingsDialog.data));
-                this.playbackSettingsDialog.saving = true;
-                return Services.updateDeck(this.deck.data.id, this.deck)
-                    .then(response => {
-                        callback();
-                        return response;
-                    })
-                    .catch(this.$handleError)
-                    .finally(() => this.playbackSettingsDialog.saving = false);
-            } else {
-                callback();
-            }
         },
 
         handlePrevClick() {
@@ -658,7 +483,12 @@ export default {
 
             this.$sound.play('remove', 0.5);
 
-            this.filteredCards.splice(this.index, 1);
+            const card = this.filteredCards[this.index];
+            this.settings.data.ejected.push(card.id);
+
+            this.filteredCards = this.filterCards(this.cards);
+            this.settingsHasBeenUpdated = true;
+
             if (this.index > this.filteredCards.length - 1) {
                 this.index = this.filteredCards.length - 1;
             }
@@ -667,8 +497,8 @@ export default {
                 this.completed = true;
                 this.$sound.play('completed');
             } else {
-                this.setFirstSide(this._settings.mode !== 'back');
-                this.setOtherSide(this._settings.mode === 'back');
+                this.setFirstSide(this._settings.data.mode !== 'back');
+                this.setOtherSide(this._settings.data.mode === 'back');
             }
 
             this.resetTime(new Date());
@@ -677,6 +507,16 @@ export default {
         handleResetClick() {
             this.reset();
             this.play();
+        },
+
+        saveSettings() {
+            Services.updateDeck(this.deck.data.id, this._settings)
+                .then(() => {
+                    this.settingsHasBeenUpdated = false;
+                    this.deck.data.playback_settings = new PlaybackSettingsModel(this.$deepClone(this._settings.data));
+                })
+                .catch(this.$handleError)
+                .finally(() => this.saving = false);
         },
 
         setFullscreen(state) {
@@ -720,10 +560,10 @@ export default {
         },
 
         filterCards(cards) {
-            const from = this._settings.fromDate ? new Date(this._settings.fromDate) : null;
-            const to = this._settings.toDate ? new Date(this._settings.toDate) : null;
-            const result = cards.filter(card => (!from || new Date(card.created_at) >= from) && (!to || new Date(card.created_at) <= to));
-            return this._settings.reversed ? result.reverse() : result;
+            const from = this._settings.data.fromDate ? new Date(this._settings.data.fromDate) : null;
+            const to = this._settings.data.toDate ? new Date(this._settings.data.toDate).setDate(new Date(this._settings.data.toDate).getDate() + 1) : null;
+            const result = cards.filter(card => (!from || new Date(card.created_at) >= from) && (!to || new Date(card.created_at) <= to) && this._settings.data.ejected.indexOf(card.id) === -1);
+            return this._settings.data.reversed ? result.reverse() : result;
         },
 
         resetTime(date) {
@@ -743,17 +583,17 @@ export default {
             const originalRange = this.endTime.getTime() - this.startTime.getTime();
             if (remainingTime <= 0) {
                 this.next();
-                this.setFirstSide(this._settings.mode !== 'back');
-                this.setOtherSide(this._settings.mode === 'back');
+                this.setFirstSide(this._settings.data.mode !== 'back');
+                this.setOtherSide(this._settings.data.mode === 'back');
             } else {
                 this.progress = (this.totalDelay - remainingTime) * 100 / this.totalDelay;
                 progressBarElement.style.width = this.progress + '%';
 
-                if (this._settings.mode === null) {
-                    const midProgress = originalRange - (((this.currentAudio.front || {}).duration || 0) * 1000) - (this._settings.delay * 1000);
+                if (this._settings.data.mode === null) {
+                    const midProgress = originalRange - (((this.currentAudio.front || {}).duration || 0) * 1000) - (this._settings.data.delay * 1000);
                     if (!this.isOtherSide && remainingTime < midProgress) {
-                        this.setFirstSide(this._settings.mode === 'back');
-                        this.setOtherSide(this._settings.mode !== 'back');
+                        this.setFirstSide(this._settings.data.mode === 'back');
+                        this.setOtherSide(this._settings.data.mode !== 'back');
                     }
                 }
             }
@@ -772,7 +612,7 @@ export default {
         },
 
         next(forced = false) {
-            if (!forced && this.repeat < this._settings.repeat - 1) {
+            if (!forced && this.repeat < this._settings.data.repeat - 1) {
                 this.repeat++;
             } else {
                 this.repeat = 0;
@@ -841,6 +681,11 @@ export default {
                     });
                     this.filteredCards = this.filterCards(cards);
                     this.calculateAudioLength(this.filteredCards);
+
+                    if (this.originalCards.length === this.settings.data.ejected.length) {
+                        this.completed = true;
+                    }
+
                     return this.filteredCards;
                 })
                 .then(() => this.skeleton = false)
@@ -849,9 +694,13 @@ export default {
         },
 
         reset() {
+            this.settings.data.ejected = [];
+            this.saveSettings();
+
             this.cards = this.$deepClone(this.originalCards);
             this.filteredCards = this.filterCards(this.cards);
             this.calculateAudioLength(this.filteredCards);
+
             this.firstPlay = true;
             this.completed = false;
             this.index = 0;
@@ -860,35 +709,39 @@ export default {
         },
 
         setFirstSide(visible) {
-            if (this._settings.flipped) {
+            if (this._settings.data.flipped) {
                 this.showBack = visible;
-                if (visible && this._settings.backVoiceEnabled) {
+                if (visible && this._settings.data.backVoiceEnabled) {
                     const audio = this.currentAudio.back;
                     if (audio) {
                         audio.element.currentTime = 0;
                         audio.element.play();
                     }
 
-                    document.title = this.filteredCards[this.index].back + ' | ' + this.deckName;
+                    if (this.filteredCards[this.index]) {
+                        document.title = this.filteredCards[this.index].back + ' | ' + this.deckName;
+                    }
                 }
             } else {
                 this.showFront = visible;
-                if (visible && this._settings.frontVoiceEnabled) {
+                if (visible && this._settings.data.frontVoiceEnabled) {
                     const audio = this.currentAudio.front;
                     if (audio) {
                         audio.element.currentTime = 0;
                         audio.element.play();
                     }
 
-                    document.title = this.filteredCards[this.index].front + ' | ' + this.deckName;
+                    if (this.filteredCards[this.index]) {
+                        document.title = this.filteredCards[this.index].front + ' | ' + this.deckName;
+                    }
                 }
             }
         },
 
         setOtherSide(visible) {
-            if (this._settings.flipped) {
+            if (this._settings.data.flipped) {
                 this.showFront = visible;
-                if (visible && this._settings.frontVoiceEnabled) {
+                if (visible && this._settings.data.frontVoiceEnabled) {
                     const audio = this.currentAudio.front;
                     if (audio) {
                         audio.element.currentTime = 0;
@@ -899,7 +752,7 @@ export default {
                 }
             } else {
                 this.showBack = visible;
-                if (visible && this._settings.backVoiceEnabled) {
+                if (visible && this._settings.data.backVoiceEnabled) {
                     const audio = this.currentAudio.back;
                     if (audio) {
                         audio.element.currentTime = 0;
@@ -968,12 +821,12 @@ export default {
                         sampleRate: 44100,
                     });
                     const crunker = new Crunker();
-                    crunker.fetchAudio(this._settings.ambience ? [
-                        this._settings.ambience,
+                    crunker.fetchAudio(this._settings.data.ambience ? [
+                        this._settings.data.ambience,
                     ] : []).then(ambiences => {
                         this.filteredCards.forEach((card, cardIdx) => {
                             buffer = crunker.concatAudio([buffer, buffers[cardIdx]]);
-                            buffer = crunker.padAudio(buffer, buffer.duration - 0.0001, this._settings.delay);
+                            buffer = crunker.padAudio(buffer, buffer.duration - 0.0001, this._settings.data.delay);
                         });
                         ambiences.forEach((ambience, ambienceIdx) => {
                             const newBuffer = new AudioBuffer({
@@ -1007,8 +860,8 @@ export default {
         applySettings() {
             this.ambience.volume = this.volume;
             this.ambience.loop = true;
-            if (this._settings.ambience) {
-                this.ambience.src = this._settings.ambience;
+            if (this._settings.data.ambience) {
+                this.ambience.src = this._settings.data.ambience;
 
                 if (this.playing) {
                     this.ambience.play();
@@ -1032,7 +885,7 @@ export default {
 
         window.addEventListener('resize', this.checkFullscreen, false);
 
-        this.settings = this.$deepClone(this.deck ? this.deck.data.playback_settings.data : new PlaybackSettingsModel().data);
+        this.settings = new PlaybackSettingsModel(this.$deepClone(this.deck ? this.deck.data.playback_settings.data : {}));
         this.load();
         this.applySettings();
     },
@@ -1043,6 +896,10 @@ export default {
 
     destroyed() {
         this.pauseAudio();
+
+        if (this.settingsHasBeenUpdated) {
+            this.saveSettings();
+        }
 
         window.removeEventListener('resize', this.checkFullscreen, false);
     }
@@ -1089,8 +946,5 @@ export default {
     40% { background-position: 100% 0; }
     60% { background-position: 100% 100%; }
     80% { background-position: 0 0; }
-}
-.v-select.v-text-field ::v-deep input {
-    position: absolute;
 }
 </style>
