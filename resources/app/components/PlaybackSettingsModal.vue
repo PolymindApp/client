@@ -288,14 +288,16 @@ export default {
         },
 
         handleSavePlaybackSettings() {
-            const clone = new PlaybackSettingsModel(this.$deepClone(this._model.data));
+            const clone = this._model.clone();
             const callback = () => {
                 this.$emit('update', clone);
                 this._visible = false;
             };
             if (this.deck.data.id) {
                 this.saving = true;
-                return Services.updateDeck(this.deck.data.id, this.deck)
+                const deck = this.deck.clone();
+                deck.data.playback_settings.data = clone.data;
+                return Services.updateDeck(this.deck.data.id, deck)
                     .then(response => {
                         callback();
                         return response;

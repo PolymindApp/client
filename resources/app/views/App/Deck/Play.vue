@@ -409,6 +409,8 @@ export default {
             this.applySettings();
             this.$snack(this.$i18n.t('deck.play.playbackSettings.applied'));
 
+            this.deck.data.playback_settings = settings.clone();
+
             this.filteredCards = this.filterCards(this.cards);
             this.calculateAudioLength(this.filteredCards);
 

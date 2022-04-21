@@ -1,6 +1,7 @@
 import ambiences from '../../../.ambiences.json';
+import BaseModel from "@/models/BaseModel";
 
-export default class PlaybackSettingsModel {
+export default class PlaybackSettingsModel extends BaseModel {
 
     public data: any = {};
 
@@ -19,6 +20,7 @@ export default class PlaybackSettingsModel {
     };
 
     constructor(data = {}) {
+        super();
         const defaultKeys = Object.keys(this.defaultStructure);
         Object.assign(this.data, this.defaultStructure, data);
         Object.keys(this.data).forEach(key => {

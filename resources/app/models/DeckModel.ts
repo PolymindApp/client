@@ -1,6 +1,7 @@
+import BaseModel from './BaseModel';
 import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
 
-export default class DeckModel {
+export default class DeckModel extends BaseModel {
 
     public data: any = {};
 
@@ -16,6 +17,7 @@ export default class DeckModel {
     };
 
     constructor(data: any = {}) {
+        super();
         const defaultKeys = Object.keys(this.defaultStructure);
         Object.assign(this.data, this.defaultStructure, data);
         Object.keys(this.data).forEach(key => {
