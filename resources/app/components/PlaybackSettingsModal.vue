@@ -16,13 +16,17 @@
                             >
                                 <template #selection="{ item }">
                                     <div class="d-flex align-center" style="gap: 1rem">
-                                        <v-img :src="item.thumbnail" width="48" height="48"></v-img>
+                                        <v-img :src="item.thumbnail" width="48" height="48" class="d-flex align-center justify-center text-center">
+                                            <v-icon v-if="item.value === null" x-large>mdi-close</v-icon>
+                                        </v-img>
                                         <span v-text="item.text"></span>
                                     </div>
                                 </template>
                                 <template #item="{ item }">
                                     <div class="d-flex align-center" style="gap: 1rem">
-                                        <v-img :src="item.thumbnail" width="64" height="64"></v-img>
+                                        <v-img :src="item.thumbnail" width="64" height="64" class="d-flex align-center justify-center text-center">
+                                            <v-icon v-if="item.value === null" x-large>mdi-close</v-icon>
+                                        </v-img>
                                         <span v-text="item.text"></span>
                                     </div>
                                 </template>
