@@ -108,7 +108,7 @@
                             ></v-switch>
                         </v-col>
                     </v-row>
-                    <v-row>
+                    <v-row v-if="_model.data.mode !== 'back'">
                         <v-col cols="12" md="6" class="d-flex align-center">
                             <label v-text="$t('deck.play.playbackSettings.' + (deck.data.single ? 'voiceEnabled' : 'frontVoiceEnabled'))"></label>
                         </v-col>
@@ -121,7 +121,7 @@
                             ></v-switch>
                         </v-col>
                     </v-row>
-                    <v-row v-if="!deck.data.single">
+                    <v-row v-if="!deck.data.single && _model.data.mode !== 'front'">
                         <v-col cols="12" md="6" class="d-flex align-center">
                             <label v-text="$t('deck.play.playbackSettings.backVoiceEnabled')"></label>
                         </v-col>
