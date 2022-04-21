@@ -9,7 +9,7 @@ export default class PlaybackSettingsModel {
         repeat: 1,
         delay: 5,
         flipped: false,
-        reversed: false,
+        reversed: true,
         frontVoiceEnabled: true,
         backVoiceEnabled: true,
         fromDate: null,

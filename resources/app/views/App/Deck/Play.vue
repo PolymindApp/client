@@ -562,7 +562,8 @@ export default {
         filterCards(cards) {
             const from = this._settings.data.fromDate ? new Date(this._settings.data.fromDate) : null;
             const to = this._settings.data.toDate ? new Date(this._settings.data.toDate).setDate(new Date(this._settings.data.toDate).getDate() + 1) : null;
-            const result = cards.filter(card => (!from || new Date(card.created_at) >= from) && (!to || new Date(card.created_at) <= to) && this._settings.data.ejected.indexOf(card.id) === -1);
+            const result = cards.filter(card => (!from || new Date(card.created_at) >= from) && (!to || new Date(card.created_at) <= to) && this._settings.data.ejected.indexOf(card.id) === -1)
+                .sort((a, b) => a.created_at < b.created_at ? -1 : 1);
             return this._settings.data.reversed ? result.reverse() : result;
         },
 
