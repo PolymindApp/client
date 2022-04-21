@@ -173,7 +173,7 @@
                             </template>
                             <div v-else class="d-flex flex-wrap" style="gap: 0.5rem">
                                 <v-chip :key="item" v-for="(item, itemIdx) in _model.data.ejected" close @click:close="handleReinjectClick(item, itemIdx)">
-                                    <span v-text="getEjectedTitle(item)"></span>
+                                    <span class="text-truncate" v-text="getEjectedTitle(item)"></span>
                                 </v-chip>
                             </div>
                         </v-col>
