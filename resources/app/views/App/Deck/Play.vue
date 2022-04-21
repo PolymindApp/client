@@ -125,22 +125,24 @@
                             <v-icon size="7.5vh" v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
                         </v-btn>
                         <div v-else-if="filteredCards[index]" class="px-4 text-center abs_middle">
-                            <transition name="slide">
-                                <v-card v-if="!firstPlay && showFront">
-                                    <h1 v-ripple @click="handleClickCard(filteredCards[index], 'front')" :class="{
-                                        'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !_settings.data.flipped,
-                                        'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': _settings.data.flipped,
-                                    }" v-text="filteredCards[index].front"></h1>
-                                </v-card>
-                            </transition>
-                            <transition name="slide">
-                                <v-card v-if="!firstPlay && showBack">
-                                    <h1 v-ripple @click="handleClickCard(filteredCards[index], 'back')" :class="{
-                                        'text-capitalize-first text-h4 text-md-h3 text-lg-h2': _settings.data.flipped,
-                                        'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !_settings.data.flipped,
-                                    }" v-text="filteredCards[index].back"></h1>
-                                </v-card>
-                            </transition>
+                            <template v-for="range in indexes">
+                                <transition :key="'front_' + filteredCards[range].id" :name="transition">
+                                    <v-card v-if="!firstPlay && showFront && index === range">
+                                        <h1 v-ripple @click="handleClickCard(filteredCards[range], 'front')" :class="{
+                                            'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !_settings.data.flipped,
+                                            'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': _settings.data.flipped,
+                                        }" v-text="filteredCards[range].front"></h1>
+                                    </v-card>
+                                </transition>
+                                <transition :key="'back_' + filteredCards[range].id" :name="transition">
+                                    <v-card v-if="!firstPlay && showBack && index === range">
+                                        <h1 v-ripple @click="handleClickCard(filteredCards[range], 'back')" :class="{
+                                            'text-capitalize-first text-h4 text-md-h3 text-lg-h2': _settings.data.flipped,
+                                            'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !_settings.data.flipped,
+                                        }" v-text="filteredCards[range].back"></h1>
+                                    </v-card>
+                                </transition>
+                            </template>
                         </div>
                     </div>
                     <v-btn v-if="showNavigation" :disabled="!canGoNext" height="30vh" text x-large @click="handleNextClick">
@@ -241,6 +243,7 @@ export default {
             data: {},
         },
         buffer: null,
+        transition: 'slide',
     }),
 
     computed: {
@@ -369,6 +372,14 @@ export default {
             })));
             return ambiences;
         },
+
+        indexes() {
+            const indexes = [];
+            for (let i = 0; i < this.filteredCards.length; i++) {
+                indexes.push(i);
+            }
+            return indexes;
+        },
     },
 
     watch: {
@@ -433,13 +444,21 @@ export default {
 
         handleSwipeLeft() {
             if (this.canGoPrevious) {
-                this.next();
+                this.transition = 'slide-left';
+                this.next(true);
+                setTimeout(() => {
+                    this.transition = 'slide';
+                }, 400);
             }
         },
 
         handleSwipeRight() {
             if (this.canGoNext) {
+                this.transition = 'slide-right';
                 this.prev();
+                setTimeout(() => {
+                    this.transition = 'slide';
+                }, 400);
             }
         },
 
@@ -464,11 +483,19 @@ export default {
         },
 
         handlePrevClick() {
+            this.transition = 'slide-right';
             this.prev();
+            setTimeout(() => {
+                this.transition = 'slide';
+            }, 400);
         },
 
         handleNextClick() {
+            this.transition = 'slide-left';
             this.next(true);
+            setTimeout(() => {
+                this.transition = 'slide';
+            }, 400);
         },
 
         handlePlayClick() {
@@ -944,6 +971,30 @@ export default {
 .slide-leave-active {
     opacity: 0;
     transform: translateY(calc(-50% + 1.5rem));
+}
+.slide-left-enter-active,
+.slide-left-leave-active {
+    transition-duration: 0.2s;
+    transition-property: opacity, transform;
+    transition-timing-function: ease;
+    transform: translateY(-50%) translateX(0);
+}
+.slide-left-enter,
+.slide-left-leave-active {
+    opacity: 0;
+    transform: translateY(-50%) translateX(1.5rem);
+}
+.slide-right-enter-active,
+.slide-right-leave-active {
+    transition-duration: 0.2s;
+    transition-property: opacity, transform;
+    transition-timing-function: ease;
+    transform: translateY(-50%) translateX(0);
+}
+.slide-right-enter,
+.slide-right-leave-active {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-1.5rem);
 }
 .background {
     animation: background 240s infinite;
