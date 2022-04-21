@@ -266,7 +266,10 @@ export default {
         },
 
         canFullscreen() {
-            return true;
+            return document.documentElement.requestFullscreen
+                || document.documentElement.mozRequestFullScreen
+                || document.documentElement.webkitRequestFullScreen
+                || document.documentElement.msRequestFullscreen;
         },
 
         canGoNext() {
