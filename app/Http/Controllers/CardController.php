@@ -46,11 +46,13 @@ class CardController extends Controller
      */
     public function bulkStore(Request $request): Response
     {
-        $newCards = [];
+        $cards = [];
         foreach($request->all() as $data) {
-            $newCards[] = Card::find(Card::create($data)->id);
+            $card = Card::create($data);
+            $cards[] = Card::find($card->id);
+            sleep(1);
         }
-        return response($newCards);
+        return response($cards);
     }
 
     /**
