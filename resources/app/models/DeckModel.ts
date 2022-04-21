@@ -11,7 +11,7 @@ export default class DeckModel {
         name: null,
         i18n: null,
         single: false,
-        total_card: undefined,
+        total_card: 0,
         playback_settings: new PlaybackSettingsModel(),
     };
 

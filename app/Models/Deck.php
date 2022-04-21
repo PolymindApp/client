@@ -32,6 +32,7 @@ class Deck extends Model
         'default_front_voice_id' => 'integer',
         'default_back_voice_id' => 'integer',
         'playback_settings' => 'json',
+        'total_cards' => 'int',
     ];
 
     public function cards()

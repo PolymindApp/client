@@ -465,7 +465,7 @@ export default {
 
         saveDeck(deck, refDeck) {
             this.deckModal.loading = true;
-            return (deck.data.id ? Services.updateDeck(deck.data.id, deck.data) : Services.createDeck(deck.data))
+            return (deck.data.id ? Services.updateDeck(deck.data.id, deck) : Services.createDeck(deck))
                 .then(response => {
                     Object.assign(refDeck, response);
                     if (!deck.data.id && response.data.id) {

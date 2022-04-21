@@ -1,6 +1,7 @@
 import Query from '@/utils/Query';
 import DeckModel from "@/models/DeckModel";
 import Vue from 'vue';
+import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
 
 export default class Services {
 
@@ -144,8 +145,10 @@ export default class Services {
 	/**
 	 * Create new deck
 	 */
-	static createDeck(data: any): Promise<any> {
-		return Query.post('/deck', data)
+	static createDeck(deck: any): Promise<any> {
+        const clone = Vue.prototype.$deepClone(deck.data);
+        clone.playback_settings = new PlaybackSettingsModel().data;
+		return Query.post('/deck', clone)
             .then(response => new DeckModel(response))
 	}
 
@@ -154,7 +157,7 @@ export default class Services {
 	 */
 	static updateDeck(id: string, deck: any): Promise<any> {
         const clone = Vue.prototype.$deepClone(deck.data);
-        clone.playback_settings = Vue.prototype.$deepClone(clone);
+        clone.playback_settings = Vue.prototype.$deepClone(clone.playback_settings.data);
 		return Query.put('/deck/' + id, clone)
             .then(response => new DeckModel(response))
 	}

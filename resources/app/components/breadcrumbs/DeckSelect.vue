@@ -23,7 +23,7 @@
             <template v-else>
                 <div class="d-flex align-center w-100" style="gap: 1rem">
                     <span style="flex: 1" v-text="item.data.i18n ? $t(item.data.i18n) : item.data.name"></span>
-                    <v-chip v-if="item.data.total_card !== undefined" x-small v-text="item.data.total_card"></v-chip>
+                    <v-chip v-if="item.data.id" x-small v-text="item.data.total_card"></v-chip>
                 </div>
             </template>
         </template>
