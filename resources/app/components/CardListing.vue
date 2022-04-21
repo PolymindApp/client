@@ -101,7 +101,10 @@
             </template>
         </v-data-table>
     </v-card>
-    <v-sheet v-else color="transparent" v-bind="$attrs" v-on="$listeners">
+    <v-sheet v-else :class="{
+        'fill-height': true,
+        'd-flex align-center justify-center': !loading && cards.length === 0,
+    }" color="transparent" v-bind="$attrs" v-on="$listeners">
         <div v-if="cards.length > 10" class="mb-3">
             <v-text-field
                 v-model="search"
@@ -116,6 +119,10 @@
         <v-alert v-if="search.length > 0 && _cards.length === 0" type="info" text outlined prominent>
             <span v-text="$t('cardListing.noResults')"></span>
         </v-alert>
+        <div v-else-if="!loading && cards.length === 0" class="text-center mx-auto" style="max-width: 15rem">
+            <v-icon color="warning" x-large>mdi-alert</v-icon>
+            <h3 class="mt-2" v-text="$t('cardListing.emptyWarning')"></h3>
+        </div>
         <v-card :color="isSelected(card) ? 'primary' : null" :dark="isSelected(card)" :key="card.id" v-for="(card, cardIdx) in _cards" :class="{
             'mt-3': cardIdx > 0,
         }" @click="handleCardClick(card)">
