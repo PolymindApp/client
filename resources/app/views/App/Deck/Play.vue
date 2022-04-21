@@ -510,10 +510,10 @@ export default {
         },
 
         saveSettings() {
-            Services.updateDeck(this.deck.data.id, this._settings)
+            this.deck.data.playback_settings = new PlaybackSettingsModel(this.$deepClone(this._settings.data));
+            Services.updateDeck(this.deck.data.id, this.deck)
                 .then(() => {
                     this.settingsHasBeenUpdated = false;
-                    this.deck.data.playback_settings = new PlaybackSettingsModel(this.$deepClone(this._settings.data));
                 })
                 .catch(this.$handleError)
                 .finally(() => this.saving = false);
@@ -696,7 +696,10 @@ export default {
 
         reset() {
             this.settings.data.ejected = [];
-            this.saveSettings();
+
+            if (this.deck.data.id) {
+                this.saveSettings();
+            }
 
             this.cards = this.$deepClone(this.originalCards);
             this.filteredCards = this.filterCards(this.cards);
@@ -898,7 +901,7 @@ export default {
     destroyed() {
         this.pauseAudio();
 
-        if (this.settingsHasBeenUpdated) {
+        if (this.settingsHasBeenUpdated && this.deck.data.id) {
             this.saveSettings();
         }
 
