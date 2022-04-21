@@ -220,6 +220,7 @@ export default {
         showFront: false,
         showBack: false,
         fullscreen: false,
+        mustSaveSettings: false,
         settingsHasBeenUpdated: false,
         cards: [],
         filteredCards: [],
@@ -409,7 +410,12 @@ export default {
             if (visible && this.playing) {
                 this.pause();
             } else if (this.pauseTime) {
-                this.play();
+                if (this.settingsHasBeenUpdated) {
+                    this.resetTime(new Date());
+                    this.playCurrentWordAudio();
+                    this.settingsHasBeenUpdated = false;
+                }
+                this.play(false);
             }
         }
     },
@@ -421,6 +427,7 @@ export default {
             this.$snack(this.$i18n.t('deck.play.playbackSettings.applied'));
 
             this.deck.data.playback_settings = settings.clone();
+            this.settingsHasBeenUpdated = true;
 
             this.filteredCards = this.filterCards(this.cards);
             this.calculateAudioLength(this.filteredCards);
@@ -519,7 +526,7 @@ export default {
             this.settings.data.ejected.push(card.id);
 
             this.filteredCards = this.filterCards(this.cards);
-            this.settingsHasBeenUpdated = true;
+            this.mustSaveSettings = true;
 
             if (this.index > this.filteredCards.length - 1) {
                 this.index = this.filteredCards.length - 1;
@@ -532,8 +539,6 @@ export default {
                 this.setFirstSide(this._settings.data.mode !== 'back');
                 this.setOtherSide(this._settings.data.mode === 'back');
             }
-
-            this.resetTime(new Date());
         },
 
         handleResetClick() {
@@ -545,7 +550,7 @@ export default {
             this.deck.data.playback_settings = new PlaybackSettingsModel(this.$deepClone(this._settings.data));
             Services.updateDeck(this.deck.data.id, this.deck)
                 .then(() => {
-                    this.settingsHasBeenUpdated = false;
+                    this.mustSaveSettings = false;
                 })
                 .catch(this.$handleError)
                 .finally(() => this.saving = false);
@@ -658,7 +663,7 @@ export default {
             this.resetTime(new Date());
         },
 
-        play() {
+        play(playAudio = true) {
             this.playing = true;
             this.firstPlay = false;
             this.ambience.play();
@@ -668,7 +673,10 @@ export default {
                 const pauseTime = this.pauseTime.getTime() - this.startTime.getTime();
                 date.setTime(date.getTime() - pauseTime);
                 this.pauseTime = null;
-                this.playAudio();
+
+                if (playAudio) {
+                    this.playAudio();
+                }
             }
             this.resetTime(date);
 
@@ -691,6 +699,12 @@ export default {
             if (this.currentAudio[side] && this.currentAudio[side].element.currentTime > 0) {
                 this.currentAudio[side].element.play();
             }
+        },
+
+        playCurrentWordAudio() {
+            const side = this.showFront ? 'front' : 'back';
+            this.currentAudio[side].element.currentTime = 0;
+            this.currentAudio[side].element.play();
         },
 
         pauseAudio() {
@@ -933,7 +947,7 @@ export default {
     destroyed() {
         this.pauseAudio();
 
-        if (this.settingsHasBeenUpdated && this.deck.data.id) {
+        if (this.mustSaveSettings && this.deck.data.id) {
             this.saveSettings();
         }
 
