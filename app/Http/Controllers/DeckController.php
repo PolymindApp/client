@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Card;
 use App\Models\Deck;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -84,6 +85,7 @@ class DeckController extends Controller
      */
     public function destroy(string $id): Response
     {
+        Card::where('deck_id', '=', $id)->delete();
         return response(Deck::destroy($id));
     }
 
