@@ -22,7 +22,7 @@ Route::get('/login', function () {
     return view('main');
 })->name('login');
 
-Route::group(['middleware' => ['auth:sanctum', 'verified', 'lang']], function() {
+Route::group(['middleware' => ['lang']], function() {
     Route::get('/deck/{id}/play', [DeckController::class, 'web']);
 });
 
