@@ -1,12 +1,14 @@
 <template>
     <v-treeview
-        v-model="tree"
-        :items="groups"
-        item-key="id"
-        open-on-click
-        dense
         v-bind="$attrs"
         v-on="$listeners"
+        :items="groups"
+        :active.sync="actives"
+        item-key="id"
+        open-on-click
+        activatable
+        dense
+        @update:active="handleItemClick"
     >
         <template #prepend="{ item, open }">
             <v-icon v-if="item.children.length > 0" color="third">{{ open ? 'mdi-folder-open' : 'mdi-folder' }}</v-icon>
@@ -19,6 +21,8 @@
 </template>
 
 <script>
+import DeckModel from '@/models/DeckModel';
+
 export default {
     name: "DeckTree",
 
@@ -30,7 +34,8 @@ export default {
     },
 
     data: () => ({
-        tree: [],
+        deck: new DeckModel(),
+        actives: [],
     }),
 
     computed: {
@@ -61,7 +66,9 @@ export default {
                 const names = (deck.data.i18n ? this.$i18n.t(deck.data.i18n) : deck.data.name).split(' - ');
                 names.forEach((name, depth) => {
                     serie.push({
-                        id: deck.data.id,
+                        id: deck.data.id
+                            ? (deck.data.id + ((names.length - 1) === depth ? '' : depth))
+                            : null,
                         total_card: ((names.length - 1) === depth) ? deck.data.total_card : 0,
                         name: name.trim(),
                         children: [],
@@ -71,6 +78,24 @@ export default {
             });
             return groups.children;
         },
+    },
+
+    methods: {
+        handleItemClick(id) {
+            if (id.length > 0 && this.deck.data.id !== id[0]) {
+                this.$router.push({
+                    name: this.$route.name,
+                    params: { uuid: id[0] || 'unclassified' }
+                });
+            }
+        },
+    },
+
+    mounted() {
+        this.deck = this.$root.decks.find(deck => deck.data.id === this.$route.params.uuid) || new DeckModel();
+        setTimeout(() => {
+            this.actives = [this.deck.data.id];
+        }, 500);
     },
 }
 </script>

@@ -24,6 +24,7 @@
         </v-expand-transition>
 
         <Sidebar
+            v-if="showSidebar"
             v-model="drawer"
             :social-links="$root.socialLinks"
             width="270"
@@ -33,8 +34,8 @@
             @logout="handleLogoutClick"
         />
 
-		<v-main v-if="loaded">
-			<v-sheet class="fill-height" color="background">
+		<v-main>
+			<v-sheet v-if="loaded" class="fill-height" color="background">
 				<router-view :key="$route.path" />
 			</v-sheet>
 		</v-main>
@@ -75,8 +76,11 @@ export default Vue.extend({
 
     computed: {
         showToolbar() {
-            return ((!this.$root.inputFocused && !this.$root.lockFocus) || this.$vuetify.breakpoint.mdAndUp)
+            return this.loaded && ((!this.$root.inputFocused && !this.$root.lockFocus) || this.$vuetify.breakpoint.mdAndUp)
             && (this.$vuetify.breakpoint.mdAndUp || this.$root.orientation === 'portrait');
+        },
+        showSidebar() {
+            return this.loaded;
         },
         hideMobileFocus() {
             return (this.$root.inputFocused || this.$root.lockFocus) && this.$vuetify.breakpoint.smAndDown;
@@ -116,12 +120,6 @@ export default Vue.extend({
                             modal.visible = false;
                             this.$root.user = {};
                             EventBus.publish('RENDER_RESTRICTED');
-
-                            // Clear v-main padding-top on logout
-                            this.$vuetify.application.top = 0;
-                            Object.keys(this.$vuetify.application.application.top).forEach(key => {
-                                this.$vuetify.application.application.top[key] = 0;
-                            });
                         })
                         .catch(this.$handleError)
                         .finally(() => btn.attrs.loading = false);
@@ -147,6 +145,7 @@ export default Vue.extend({
         window.addEventListener('orientationchange', this.handleOrientationChange);
 
         this.load();
+        this.$root.accounts = this.$accounts.load();
 
         document.addEventListener('focusin', this.handleCheckFocus);
         document.addEventListener('focusout', this.handleCheckFocus);

@@ -7,6 +7,7 @@ import VueRouter from 'vue-router'
 import PortalVue from 'portal-vue'
 import i18n, { rtlLanguages } from './locales'
 import vuetify from '@/plugins/vuetify'
+import Accounts from '@/utils/Accounts'
 import DeepClone from '@/utils/DeepClone'
 import Error from '@/utils/Error'
 import Modal from '@/utils/Modal'
@@ -26,6 +27,7 @@ import './index.scss'
 Vue.config.productionTip = false
 
 Vue.use(VueRouter)
+Vue.use(Accounts)
 Vue.use(Confirm)
 Vue.use(DeepClone)
 Vue.use(Error)
@@ -42,6 +44,12 @@ const render = (
 	path?: string|null
 ) => {
 	if (currentInstance) {
+        // Clear v-main padding-top on logout
+        currentInstance.$vuetify.application.top = 0;
+        Object.keys(currentInstance.$vuetify.application.application.top).forEach((key: any) => {
+            currentInstance.$vuetify.application.application.top[key] = 0;
+        });
+
 		currentInstance.$destroy();
 	}
 	const router = new VueRouter({
@@ -53,7 +61,8 @@ const render = (
 		router.replace(path);
 	}
     vuetify.preset.rtl = rtlLanguages.indexOf(i18n.locale) !== -1;
-	new Vue({
+
+    currentInstance = new Vue({
 		router,
 		vuetify,
 		i18n,
@@ -71,3 +80,4 @@ Services.isLoggedIn()
 
 EventBus.subscribe('RENDER_APP', () => render(App, appRoutes));
 EventBus.subscribe('RENDER_RESTRICTED', () => render(Restricted, restrictedRoutes));
+EventBus.subscribe('APP_RELOAD', () => render(App, appRoutes));

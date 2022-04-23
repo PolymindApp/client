@@ -8,6 +8,7 @@ export default {
         line: null,
         trace: [],
     },
+    accounts: [],
     user: {
         name: 'Anonymous',
     },

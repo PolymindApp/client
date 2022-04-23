@@ -87,6 +87,10 @@ export default Vue.extend({
 				Services.login(this.data.email, this.data.password, this.$route.query.redirect)
 					.then(response => {
 						Object.assign(this.$root.user, response.user);
+                        this.$accounts.set({
+                            ...response.user,
+                            token: response.token
+                        });
 						EventBus.publish('RENDER_APP');
 					})
 					.catch(reason => {

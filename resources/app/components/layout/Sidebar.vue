@@ -21,6 +21,14 @@
                             </v-btn>
                         </template>
                         <v-list>
+                            <v-list-item :key="account.email" v-for="account in accounts" @click="() => handleSwitchAccountClick(account)">
+                                <v-list-item-icon>
+                                    <v-icon color="secondaryDark" left>mdi-account</v-icon>
+                                </v-list-item-icon>
+                                <v-list-item-content>
+                                    <span v-text="account.email"></span>
+                                </v-list-item-content>
+                            </v-list-item>
                             <v-list-item @click="$emit('logout')">
                                 <v-list-item-icon>
                                     <v-icon color="secondaryDark" left>mdi-logout-variant</v-icon>
@@ -39,6 +47,7 @@
         <v-list dense>
             <div class="px-2 pb-4">
                 <v-text-field
+                    id="sidebar_search"
                     v-model="search"
                     :placeholder="$t('sidebar.decks.title')"
                     prepend-inner-icon="mdi-magnify"
@@ -48,7 +57,9 @@
                     hide-details
                 ></v-text-field>
             </div>
-            <DeckTree v-model="_decks" />
+            <DeckTree
+                v-model="_decks"
+            />
             <div v-if="_decks.length === 0 && _search.length > 0" class="px-2">
                 <v-alert type="info" text outlined>
                     <span v-text="$t('sidebar.decks.noResults')"></span>
@@ -95,6 +106,7 @@ import logoDark from '@/assets/images/polymind-dark.svg'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import DeckTree from '@/components/DeckTree'
 import EventBus from '@/utils/EventBus'
+import Services from '@/utils/Services'
 import packageJson from "../../../../package.json";
 
 export default {
@@ -140,11 +152,20 @@ export default {
         logo() {
             return this.$vuetify.breakpoint.smAndDown ? logoLight : logoDark;
         },
+
+        accounts() {
+            return this.$root.accounts.filter(account => account.email !== this.$root.user.email);
+        },
     },
 
     methods: {
         handleLanguageSwitch(value) {
             EventBus.publish('LANGUAGE_SWITCH', value);
+        },
+        handleSwitchAccountClick(account) {
+            Services.switchToken(account.token);
+            this.$root.user = account;
+            EventBus.publish('APP_RELOAD');
         },
     },
 }

@@ -13,6 +13,10 @@ export default class Services {
         return response;
     }
 
+    static switchToken(token: string) {
+        this.setLoginToken({ token });
+    }
+
 	/**
 	 * Login to platform
 	 *
@@ -42,12 +46,17 @@ export default class Services {
 	 * Logout from platform
 	 */
 	static logout(): Promise<any> {
-		return Query.post('/logout')
-			.then((response: any) => {
-				this.token = null;
-				localStorage.removeItem('token');
-				return response;
-			});
+        return new Promise((resolve, reject) => {
+            this.token = null;
+            localStorage.removeItem('token');
+            resolve(1);
+        });
+		// return Query.post('/logout')
+		// 	.then((response: any) => {
+		// 		this.token = null;
+		// 		localStorage.removeItem('token');
+		// 		return response;
+		// 	});
 	}
 
 	/**
