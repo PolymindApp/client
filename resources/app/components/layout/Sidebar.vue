@@ -37,24 +37,19 @@
         </template>
 
         <v-list dense>
-            <div v-if="$root.decks.length > 10" class="px-2 pb-4">
+            <div class="px-2 pb-4">
                 <v-text-field
                     v-model="search"
                     :placeholder="$t('sidebar.decks.title')"
                     prepend-inner-icon="mdi-magnify"
                     solo
                     dense
+                    clearable
                     hide-details
                 ></v-text-field>
             </div>
-            <v-subheader v-else v-text="$t('sidebar.decks.title')"></v-subheader>
-            <v-list-item :key="deck.data.id" v-for="deck in _decks" :to="{ name: $route.name, params: { uuid: deck.data.id || 'unclassified' }}">
-                <v-list-item-content v-text="deck.data.i18n ? $t(deck.data.i18n) : deck.data.name"></v-list-item-content>
-                <v-list-item-icon v-if="deck.data.id" class="d-flex align-center">
-                    <v-chip v-text="deck.data.total_card" x-small></v-chip>
-                </v-list-item-icon>
-            </v-list-item>
-            <div v-if="_decks.length === 0 && search.trim().length > 0" class="px-2">
+            <DeckTree v-model="_decks" />
+            <div v-if="_decks.length === 0 && _search.length > 0" class="px-2">
                 <v-alert type="info" text outlined>
                     <span v-text="$t('sidebar.decks.noResults')"></span>
                 </v-alert>
@@ -98,13 +93,14 @@
 import logoLight from '@/assets/images/polymind-light.svg'
 import logoDark from '@/assets/images/polymind-dark.svg'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import DeckTree from '@/components/DeckTree'
 import EventBus from '@/utils/EventBus'
 import packageJson from "../../../../package.json";
 
 export default {
     name: "Sidebar",
 
-    components: { LanguageSwitcher },
+    components: { LanguageSwitcher, DeckTree },
 
     props: {
         value: {
@@ -133,8 +129,12 @@ export default {
             },
         },
 
+        _search() {
+            return (this.search || '').trim();
+        },
+
         _decks() {
-            return this.$root.decks.filter(deck => this.search.trim().length === 0 || (deck.data.name || this.$i18n.t(deck.data.i18n)).trim().toLowerCase().indexOf(this.search.trim().toLowerCase()) !== -1)
+            return this.$root.decks.filter(deck => this._search.length === 0 || (deck.data.name || this.$i18n.t(deck.data.i18n)).trim().toLowerCase().indexOf(this._search.toLowerCase()) !== -1)
         },
 
         logo() {

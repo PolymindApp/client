@@ -64,6 +64,7 @@
             :max-width="900"
             persistent
             scrollable
+            attach="#layout"
             @update="handleUpdateSettings"
         />
 
@@ -83,7 +84,7 @@
         </Modal>
 
         <!-- LAYOUT -->
-        <div ref="layout" :style="layoutStyle" :class="{
+        <div id="layout" ref="layout" :style="layoutStyle" :class="{
             'w-100 fill-height background': true,
             'paused': !playing,
         }">
@@ -91,7 +92,18 @@
             <div style="z-index: 1; position: relative" class="w-100 fill-height d-flex flex-column align-content-between justify-center">
                 <v-container style="flex: 0" class="pa-4" fluid>
                     <v-row>
-                        <v-col cols="4"></v-col>
+                        <v-col cols="4">
+                            <v-expand-transition>
+                                <v-tooltip v-if="!firstPlay && fullscreen" left>
+                                    <template #activator="{ attrs, on }">
+                                        <v-btn v-bind="attrs" v-on="on" icon :disabled="!canAdjustPlaybackSettings" @click="handlePlaybackSettingsClick">
+                                            <v-icon>mdi-headphones-settings</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span v-text="$t('deck.play.settings')"></span>
+                                </v-tooltip>
+                            </v-expand-transition>
+                        </v-col>
                         <v-col cols="4" class="text-center"></v-col>
                         <v-col cols="4" class="d-flex align-center justify-end">
                             <v-expand-transition>
@@ -284,7 +296,7 @@ export default {
         },
 
         canRemove() {
-            return this.filteredCards.length > 0;
+            return !this.firstPlay && this.filteredCards.length > 0;
         },
 
         canResetSession() {
