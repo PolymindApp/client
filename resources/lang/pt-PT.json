@@ -67,7 +67,7 @@
 	"deck.play.eject": "Ejetar cartão",
 	"deck.play.emptyFiltersWarning": "Nenhum cartão encontrado com base em seus critérios de pesquisa.",
 	"deck.play.emptyWarning": "Você deve adicionar cartas neste baralho primeiro.",
-	"deck.play.exportSessionDialog.desc": "Ao clicar no botão de exportação abaixo, irá exportar uma versão MP3 da sessão actual que poderá ouvir. Pode demorar alguns segundos a renderizar, por isso, seja paciente.",
+	"deck.play.exportSessionDialog.desc": "Ao clicar no botão de exportação abaixo, você exportará uma versão em MP3 da sessão atual que poderá ouvir. Pode levar de alguns segundos a vários minutos para renderizar dependendo do lado do seu deck, então seja paciente.",
 	"deck.play.exportSessionDialog.title": "Sessão de exportação",
 	"deck.play.indexOf": "{current} de {total}",
 	"deck.play.noCards": "Sem cartões",

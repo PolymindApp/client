@@ -67,7 +67,7 @@
 	"deck.play.eject": "Éjecter la carte",
 	"deck.play.emptyFiltersWarning": "Aucune carte trouvée selon vos critères de recherche.",
 	"deck.play.emptyWarning": "Vous devez d'abord ajouter des cartes dans ce paquet.",
-	"deck.play.exportSessionDialog.desc": "En cliquant sur le bouton d'exportation ci-dessous, vous exporterez une version MP3 de la session en cours que vous pourrez écouter. Le rendu peut prendre quelques secondes, alors soyez patient.",
+	"deck.play.exportSessionDialog.desc": "En cliquant sur le bouton d'exportation ci-dessous, vous exporterez une version MP3 de la session en cours que vous pourrez écouter. Le rendu peut prendre de quelques secondes à plusieurs minutes selon le côté de votre paquet de cartes, alors soyez patient.",
 	"deck.play.exportSessionDialog.title": "Exporter la session",
 	"deck.play.indexOf": "{current} de {total}",
 	"deck.play.noCards": "Pas de cartes",

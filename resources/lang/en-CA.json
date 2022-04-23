@@ -67,7 +67,7 @@
 	"deck.play.eject": "Eject card",
 	"deck.play.emptyFiltersWarning": "No cards found based on your search criteria.",
 	"deck.play.emptyWarning": "You must add cards in this deck first.",
-	"deck.play.exportSessionDialog.desc": "By clicking on the export button below, you will export a MP3 version of the current session that you'll be able to listen to. It may take a couple of seconds to render, so please be patient.",
+	"deck.play.exportSessionDialog.desc": "By clicking on the export button below, you will export a MP3 version of the current session that you'll be able to listen to. It may take from a couple of seconds to multiple minutes to render depending on the side of your deck, so please be patient.",
 	"deck.play.exportSessionDialog.title": "Export session",
 	"deck.play.indexOf": "{current} of {total}",
 	"deck.play.noCards": "No cards",

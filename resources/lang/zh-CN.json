@@ -67,7 +67,7 @@
 	"deck.play.eject": "弹出卡",
 	"deck.play.emptyFiltersWarning": "根据您的搜索条件未找到卡片。",
 	"deck.play.emptyWarning": "您必须先在此套牌中添加卡片。",
-	"deck.play.exportSessionDialog.desc": "点击下面的导出按钮，你将导出当前会话的MP3版本，你就可以收听了。它可能需要几秒钟的时间来渲染，所以请耐心等待。",
+	"deck.play.exportSessionDialog.desc": "通过单击下面的导出按钮，您将导出当前会话的 MP3 版本，您将能够收听。渲染可能需要几秒钟到几分钟的时间，具体取决于您的甲板侧面，因此请耐心等待。",
 	"deck.play.exportSessionDialog.title": "出口会议",
 	"deck.play.indexOf": "{current}的{total} 。",
 	"deck.play.noCards": "没有卡片",
