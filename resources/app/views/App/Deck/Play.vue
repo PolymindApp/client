@@ -83,7 +83,10 @@
         </Modal>
 
         <!-- LAYOUT -->
-        <div ref="layout" :style="layoutStyle" class="w-100 fill-height background">
+        <div ref="layout" :style="layoutStyle" :class="{
+            'w-100 fill-height background': true,
+            'paused': !playing,
+        }">
             <v-overlay v-if="background" :color="$vuetify.theme.dark ? 'black' : 'white'" :opacity="opacity" z-index="0" absolute></v-overlay>
             <div style="z-index: 1; position: relative" class="w-100 fill-height d-flex flex-column align-content-between justify-center">
                 <v-container style="flex: 0" class="pa-4" fluid>
@@ -1013,6 +1016,10 @@ export default {
 .background {
     animation: background 240s infinite;
     background-size: cover;
+
+    &.paused {
+        animation-play-state: paused;
+    }
 }
 @keyframes background {
     0% { background-position: 50% 50%; }
