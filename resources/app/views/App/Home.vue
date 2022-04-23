@@ -9,7 +9,7 @@
                 </v-card-title>
                 <v-card-text class="text-center">
                     <v-progress-linear color="primary" indeterminate></v-progress-linear>
-                    <p class="mb-0 mt-4" v-text="$t('state.pleaseWait')"></p>
+                    <p class="mb-0 mt-4" v-text="$t('state.fetchingVoices')"></p>
                 </v-card-text>
             </v-card>
         </v-overlay>

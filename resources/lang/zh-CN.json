@@ -195,6 +195,7 @@
 	"snack.exportSessionCompleted": "您的会话已成功导出为 MP3！",
 	"snack.itemsCleared": "物品成功清仓!",
 	"snack.nothingToPaste": "您的剪贴板是空的！",
+	"state.fetchingVoices": "正在获取声音...",
 	"state.importing": "输入",
 	"state.none": "没有",
 	"state.pleaseWait": "请耐心等待...",

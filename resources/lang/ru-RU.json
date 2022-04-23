@@ -195,6 +195,7 @@
 	"snack.exportSessionCompleted": "Ваша сессия успешно экспортирована в MP3!",
 	"snack.itemsCleared": "Товар успешно очищен!",
 	"snack.nothingToPaste": "Ваш буфер обмена пуст!",
+	"state.fetchingVoices": "Извлечение голосов...",
 	"state.importing": "импорт",
 	"state.none": "Никто",
 	"state.pleaseWait": "Пожалуйста, подождите...",

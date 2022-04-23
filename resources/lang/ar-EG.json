@@ -195,6 +195,7 @@
 	"snack.exportSessionCompleted": "تم تصدير جلستك إلى MP3 بنجاح!",
 	"snack.itemsCleared": "تم مسح العناصر بنجاح!",
 	"snack.nothingToPaste": "الحافظة الخاصة بك فارغة!",
+	"state.fetchingVoices": "إحضار الأصوات ...",
 	"state.importing": "استيراد",
 	"state.none": "لا شيء",
 	"state.pleaseWait": "ارجوك انتظر...",

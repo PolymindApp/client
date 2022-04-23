@@ -195,6 +195,7 @@
 	"snack.exportSessionCompleted": "आपका सत्र सफलतापूर्वक MP3 में निर्यात कर दिया गया है!",
 	"snack.itemsCleared": "आइटम सफलतापूर्वक साफ़ हो गए!",
 	"snack.nothingToPaste": "आपका क्लिपबोर्ड खाली है!",
+	"state.fetchingVoices": "आवाज़ें लाई जा रही हैं...",
 	"state.importing": "आयात कर रहा है",
 	"state.none": "कोई नहीं",
 	"state.pleaseWait": "कृपया प्रतीक्षा करें...",

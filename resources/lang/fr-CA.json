@@ -195,6 +195,7 @@
 	"snack.exportSessionCompleted": "Votre session a été exportée en MP3 avec succès !",
 	"snack.itemsCleared": "Articles effacés avec succès !",
 	"snack.nothingToPaste": "Votre presse-papiers est vide !",
+	"state.fetchingVoices": "Récupération des voix...",
 	"state.importing": "Importation",
 	"state.none": "Aucune",
 	"state.pleaseWait": "S'il vous plaît, attendez...",
