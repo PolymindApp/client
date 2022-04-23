@@ -237,6 +237,7 @@ export default {
         fullscreen: false,
         mustSaveSettings: false,
         settingsHasBeenUpdated: false,
+        wasPaused: false,
         cards: [],
         filteredCards: [],
         originalCards: [],
@@ -424,13 +425,17 @@ export default {
         'playbackSettingsDialog.visible'(visible) {
             if (visible && this.playing) {
                 this.pause();
-            } else if (this.pauseTime) {
+            } else if (!visible && this.pauseTime && !this.wasPaused) {
                 if (this.settingsHasBeenUpdated) {
                     this.resetTime(new Date());
                     this.playCurrentWordAudio();
                     this.settingsHasBeenUpdated = false;
                 }
                 this.play(false);
+            } else if (visible) {
+                this.wasPaused = true;
+            } else if (!visible) {
+                this.wasPaused = false;
             }
         }
     },
