@@ -7,7 +7,7 @@
         <!-- SHORTCUTS -->
         <Keypress v-if="canGoPrevious" key-event="keyup" :key-code="37" @success="handlePrevClick" />
         <Keypress v-if="canGoNext" key-event="keyup" :key-code="39" @success="handleNextClick" />
-        <Keypress v-if="canEject" key-event="keydown" prevent-default :key-code="8" @success="handleEjectClick" />
+        <Keypress v-if="canEject" key-event="keydown" :key-code="8" @success="handleEjectKeyDown" />
         <Keypress v-if="canPlay" key-event="keyup" :key-code="32" @success="handlePlayClick" />
         <Keypress v-else-if="canPause" key-event="keyup" :key-code="32" @success="handlePauseClick" />
         <Keypress v-if="canFullscreen" key-event="keyup" :key-code="70" @success="() => setFullscreen(!fullscreen)" />
@@ -536,6 +536,13 @@ export default {
 
         handlePauseClick() {
             this.pause();
+        },
+
+        handleEjectKeyDown({ event }) {
+            if (['input', 'textarea'].indexOf(event.target.nodeName.toLowerCase()) === -1) {
+                event.preventDefault();
+                this.handleEjectClick();
+            }
         },
 
         handleEjectClick() {
