@@ -7,7 +7,7 @@
         <!-- SHORTCUTS -->
         <Keypress v-if="canGoPrevious" key-event="keyup" :key-code="37" @success="handlePrevClick" />
         <Keypress v-if="canGoNext" key-event="keyup" :key-code="39" @success="handleNextClick" />
-        <Keypress v-if="canRemove" key-event="keydown" prevent-default :key-code="8" @success="handleRemoveClick" />
+        <Keypress v-if="canEject" key-event="keydown" prevent-default :key-code="8" @success="handleEjectClick" />
         <Keypress v-if="canPlay" key-event="keyup" :key-code="32" @success="handlePlayClick" />
         <Keypress v-else-if="canPause" key-event="keyup" :key-code="32" @success="handlePauseClick" />
         <Keypress v-if="canFullscreen" key-event="keyup" :key-code="70" @success="() => setFullscreen(!fullscreen)" />
@@ -109,7 +109,7 @@
                             <v-expand-transition>
                                 <v-tooltip v-if="!firstPlay" left>
                                     <template #activator="{ attrs, on }">
-                                        <v-btn v-bind="attrs" v-on="on" icon :disabled="!canRemove" @click="handleRemoveClick">
+                                        <v-btn v-bind="attrs" v-on="on" icon :disabled="!canEject" @click="handleEjectClick">
                                             <v-icon>mdi-eject-outline</v-icon>
                                         </v-btn>
                                     </template>
@@ -296,7 +296,7 @@ export default {
             return !this.loading && !this.skeleton && this.filteredCards.length > 1 && !this.firstPlay;
         },
 
-        canRemove() {
+        canEject() {
             return !this.firstPlay && this.filteredCards.length > 0;
         },
 
@@ -538,7 +538,7 @@ export default {
             this.pause();
         },
 
-        handleRemoveClick() {
+        handleEjectClick() {
 
             this.$sound.play('remove', 0.5);
 
@@ -547,6 +547,7 @@ export default {
 
             this.filteredCards = this.filterCards(this.cards);
             this.mustSaveSettings = true;
+            this.resetTime();
 
             if (this.index > this.filteredCards.length - 1) {
                 this.index = this.filteredCards.length - 1;
@@ -624,7 +625,7 @@ export default {
             return this._settings.data.reversed ? result.reverse() : result;
         },
 
-        resetTime(date) {
+        resetTime(date = new Date()) {
             this.startTime = date;
             this.endTime = new Date(date.getTime() + this.totalDelay);
             this.progress = 0;
