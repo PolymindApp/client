@@ -18,15 +18,15 @@
             <div class="title mb-n1">Polymind</div>
         </div>
 
+        <template v-if="$vuetify.breakpoint.mdAndUp">
+            <portal-target name="desktop_nav" slim></portal-target>
+        </template>
+
         <portal-target v-if="$vuetify.breakpoint.smAndDown" name="title" slim>
             <v-app-bar-title>
                 <span>Polymind</span>
             </v-app-bar-title>
         </portal-target>
-
-        <template v-if="$vuetify.breakpoint.mdAndUp">
-            <portal-target name="desktop_nav" slim></portal-target>
-        </template>
 
         <v-spacer />
 

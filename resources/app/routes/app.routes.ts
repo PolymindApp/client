@@ -1,9 +1,9 @@
-import Home from "@/views/App/Home.vue";
+import Edit from "@/views/App/Deck/Edit.vue";
 import Play from "@/views/App/Deck/Play.vue";
 
 export default [
-    { path: '/', name: 'home', component: Home },
-    { path: '/deck/:uuid/edit', name: 'deck.edit', component: Home },
+    { path: '/', name: 'home', redirect: '/deck/unclassified/edit' },
+    { path: '/deck/:uuid/edit', name: 'deck.edit', component: Edit },
     { path: '/deck/:uuid/play', name: 'deck.play', component: Play },
     { path: '*', redirect: '/' },
 ];

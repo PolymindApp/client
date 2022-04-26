@@ -32,6 +32,29 @@
                                 </template>
                             </v-select>
                         </v-col>
+                        <v-col cols="12" class="d-flex flex-wrap align-center" style="gap: 1rem">
+                            <v-switch
+                                v-model="_model.data.music"
+                                :label="$t('playbackSettingsModel.music')"
+                                class="mt-0 pt-0 ml-1"
+                                inset
+                                hide-details
+                            ></v-switch>
+                            <v-switch
+                                v-model="_model.data.animation"
+                                :label="$t('playbackSettingsModel.animation')"
+                                class="mt-0 pt-0 ml-1"
+                                inset
+                                hide-details
+                            ></v-switch>
+                            <v-switch
+                                v-model="_model.data.wallpaper"
+                                :label="$t('playbackSettingsModel.wallpaper')"
+                                class="mt-0 pt-0 ml-1"
+                                inset
+                                hide-details
+                            ></v-switch>
+                        </v-col>
                     </v-row>
                     <v-row v-if="!deck.data.single">
                         <v-col cols="12" md="6" class="d-flex align-center">

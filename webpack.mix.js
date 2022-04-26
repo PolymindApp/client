@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const dotenvPlugin = new webpack.DefinePlugin({
     'process.env': {
+        API_URL: JSON.stringify(process.env.API_URL),
         FACEBOOK_URL: JSON.stringify(process.env.FACEBOOK_URL),
         TWITTER_URL: JSON.stringify(process.env.TWITTER_URL),
         YOUTUBE_URL: JSON.stringify(process.env.YOUTUBE_URL),

@@ -17,6 +17,10 @@ export default class PlaybackSettingsModel extends BaseModel {
         toDate: null,
         ejected: [],
         ambience: ambiences.length > 0 ? ambiences[0].url : null,
+        music: true,
+        animation: true,
+        wallpaper: true,
+        lastCardId: null,
     };
 
     constructor(data = {}) {

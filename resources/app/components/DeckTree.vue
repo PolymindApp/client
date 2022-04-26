@@ -38,6 +38,12 @@ export default {
         actives: [],
     }),
 
+    watch: {
+        '$route'() {
+            this.deck = this.$root.decks.find(deck => deck.data.id === this.$route.params.uuid) || new DeckModel();
+        },
+    },
+
     computed: {
         groups() {
             const groups = {

@@ -1,5 +1,5 @@
 <template>
-    <v-tabs v-bind="$attrs" v-on="$listeners" grow hide-slider>
+    <v-tabs v-bind="$attrs" v-on="$listeners">
         <v-tab :to="{ name: 'deck.edit', params: { uuid: deck.data.id || 'unclassified' } }">
             <v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-pencil</v-icon>
             <span v-text="$t('btn.edit')"></span>
