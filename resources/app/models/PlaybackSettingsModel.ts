@@ -6,13 +6,16 @@ export default class PlaybackSettingsModel extends BaseModel {
     public data: any = {};
 
     private defaultStructure = {
-        mode: null,
+        side: null,
         repeat: 1,
         delay: 5,
         flipped: false,
         reversed: true,
         frontVoiceEnabled: true,
         backVoiceEnabled: true,
+        cardRangeFrom: null,
+        cardRangeTo: null,
+        cardRangeMode: null,
         fromDate: null,
         toDate: null,
         ejected: [],

@@ -58,15 +58,15 @@
                     </v-row>
                     <v-row v-if="!deck.data.single">
                         <v-col cols="12" md="6" class="d-flex align-center">
-                            <label v-text="$t('deck.play.playbackSettings.mode.title')"></label>
+                            <label v-text="$t('deck.play.playbackSettings.side.title')"></label>
                         </v-col>
                         <v-col cols="12" md="6" class="d-flex align-center">
                             <v-select
-                                v-model="_model.data.mode"
+                                v-model="_model.data.side"
                                 :items="[
-                                { text: $t('deck.play.playbackSettings.mode.both'), value: null },
-                                { text: $t('deck.play.playbackSettings.mode.front'), value: 'front' },
-                                { text: $t('deck.play.playbackSettings.mode.back'), value: 'back' },
+                                { text: $t('deck.play.playbackSettings.side.both'), value: null },
+                                { text: $t('deck.play.playbackSettings.side.front'), value: 'front' },
+                                { text: $t('deck.play.playbackSettings.side.back'), value: 'back' },
                             ]"
                                 outlined
                                 hide-details
@@ -105,7 +105,7 @@
                             />
                         </v-col>
                     </v-row>
-                    <v-row v-if="!deck.data.single && _model.data.mode === null">
+                    <v-row v-if="!deck.data.single && _model.data.side === null">
                         <v-col cols="12" md="6" class="d-flex align-center">
                             <label v-text="$t('deck.play.playbackSettings.flipped')"></label>
                         </v-col>
@@ -131,7 +131,7 @@
                             ></v-switch>
                         </v-col>
                     </v-row>
-                    <v-row v-if="_model.data.mode !== 'back'">
+                    <v-row v-if="_model.data.side !== 'back'">
                         <v-col cols="12" md="6" class="d-flex align-center">
                             <label v-text="$t('deck.play.playbackSettings.' + (deck.data.single ? 'voiceEnabled' : 'frontVoiceEnabled'))"></label>
                         </v-col>
@@ -144,7 +144,7 @@
                             ></v-switch>
                         </v-col>
                     </v-row>
-                    <v-row v-if="!deck.data.single && _model.data.mode !== 'front'">
+                    <v-row v-if="!deck.data.single && _model.data.side !== 'front'">
                         <v-col cols="12" md="6" class="d-flex align-center">
                             <label v-text="$t('deck.play.playbackSettings.backVoiceEnabled')"></label>
                         </v-col>
@@ -159,6 +159,44 @@
                     </v-row>
                 </v-col>
                 <v-col cols="12" md="6">
+                    <v-row>
+                        <v-col cols="6" class="d-flex align-center">
+                            <label v-text="$t('deck.play.playbackSettings.cardRange')"></label>
+                        </v-col>
+                        <v-col cols="6" class="d-flex align-center justify-end">
+                            <v-btn :disabled="!canResetCardRange" outlined small @click="handleResetCardRange">
+                                <span v-text="$t('btn.clear')"></span>
+                            </v-btn>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-range-slider
+                                v-model="_cardRange"
+                                :max="cardRangeMax"
+                                :min="0"
+                                hide-details
+                                class="align-center"
+                            >
+                                <template v-slot:prepend>
+                                    {{_cardRange[0] + 1}}
+                                </template>
+                                <template v-slot:append>
+                                    {{_cardRange[1] + 1}}
+                                </template>
+                            </v-range-slider>
+
+                            <v-select
+                                v-model="_model.data.cardRangeMode"
+                                :label="$t('deck.play.playbackSettings.cardRangeMode.label')"
+                                :items="[
+                                    { text: $t('deck.play.playbackSettings.cardRangeMode.repeat'), value: null },
+                                    { text: $t('deck.play.playbackSettings.cardRangeMode.progressive'), value: 'progressive' },
+                                ]"
+                                class="mt-6"
+                                outlined
+                                hide-details
+                            />
+                        </v-col>
+                    </v-row>
                     <v-row>
                         <v-col cols="6" class="d-flex align-center">
                             <label v-text="$t('deck.play.playbackSettings.dateRange')"></label>
@@ -266,8 +304,14 @@ export default {
     }),
 
     computed: {
+        canResetCardRange() {
+            return this._model.data.cardRangeFrom || this._model.data.cardRangeTo;
+        },
         canSave() {
             return !this.saving && JSON.stringify(this.original.data) !== JSON.stringify(this._model.data);
+        },
+        cardRangeMax() {
+            return this.cards.length - 1;
         },
         _model: {
             get() {
@@ -303,9 +347,28 @@ export default {
                 this._model.data.toDate = toDate;
             },
         },
+        _cardRange: {
+            get() {
+                const range = [
+                    this._model.data.cardRangeFrom ? this._model.data.cardRangeFrom : 0,
+                    this._model.data.cardRangeTo ? this._model.data.cardRangeTo : this.cardRangeMax
+                ];
+                return range;
+            },
+            set(value) {
+                const cardRangeFrom = (value[0] && value[0] > value[1] ? value[1] : value[0]) || null;
+                const cardRangeTo = (value[1] && value[1] < value[0] ? value[0] : value[1]) || null;
+                this._model.data.cardRangeFrom = cardRangeFrom;
+                this._model.data.cardRangeTo = cardRangeTo;
+            },
+        },
     },
 
     methods: {
+        handleResetCardRange() {
+            this._model.data.cardRangeFrom = null;
+            this._model.data.cardRangeTo = null;
+        },
         handleReinjectClick(item, index) {
             this._model.data.ejected.splice(index, 1);
         },

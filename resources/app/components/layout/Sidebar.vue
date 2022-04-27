@@ -51,7 +51,8 @@
                     v-model="search"
                     :placeholder="$t('sidebar.decks.title')"
                     prepend-inner-icon="mdi-magnify"
-                    solo
+                    :solo="$vuetify.theme.dark"
+                    :outlined="!$vuetify.theme.dark"
                     dense
                     clearable
                     hide-details

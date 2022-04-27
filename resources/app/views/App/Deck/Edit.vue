@@ -354,14 +354,16 @@ export default {
 
                     const cards = json.data.map(item => ({
                         ...item,
+                        front: item.front.trim(),
+                        back: item.back.trim(),
                         deck_id: this.deck.data.id,
                         front_voice_id: (this._voices.find(voice => voice.originalName === item.front_voice) || {}).id,
                         back_voice_id: (this._voices.find(voice => voice.originalName === item.back_voice) || {}).id,
                     })).filter(item => {
                         return !this.cards.find(card => (
                             card.deck_id === item.deck_id
-                            && card.front === item.front
-                            && card.back === item.back
+                            && card.front.toLowerCase() === item.front.toLowerCase()
+                            && card.back.toLowerCase() === item.back.toLowerCase()
                             && card.front_voice_id === item.front_voice_id
                             && card.back_voice_id === item.back_voice_id
                         ));

@@ -1,5 +1,5 @@
 <template>
-    <v-container class="fill-height pa-0 d-flex flex-column" tabindex="1" fluid v-bind="$attrs" v-on="$listeners" v-touch="{
+    <v-container class="fill-height pa-0 d-flex flex-column" tabindex="0" fluid v-bind="$attrs" v-on="$listeners" v-touch="{
         up: handleSwipeUp,
         down: handleSwipeDown,
         left: handleSwipeLeft,
@@ -7,9 +7,8 @@
     }" v-on-mouse-inactive="{
         delay: 5000,
         callback: handleOnMouseInactive,
-    }" v-hotkey.stop="keymap"
-    @mousemove="handleMouseMouse"
-    @keydown="handleKeyDown">
+    }" v-hotkey="keymap"
+    @mousemove="handleMouseMouse">
 
         <!-- TITLE -->
         <portal to="title">
@@ -89,7 +88,15 @@
             <div style="z-index: 1; position: relative" class="w-100 fill-height d-flex flex-column align-content-between justify-center">
                 <v-container style="flex: 0" class="pa-4" fluid>
                     <v-row>
-                        <v-col cols="4"></v-col>
+                        <v-col cols="4">
+                            <v-chip
+                                v-if="_settings.data.cardRangeMode"
+                                color="primary"
+                                outlined
+                            >
+                                <span v-text="$t('deck.play.playbackSettings.cardRangeMode.' + (_settings.data.cardRangeMode ? _settings.data.cardRangeMode : 'repeat'))"></span>
+                            </v-chip>
+                        </v-col>
                         <v-col cols="4" class="text-center"></v-col>
                         <v-col cols="4" class="d-flex align-center justify-end">
                             <v-tooltip attach="#layout" left>
@@ -265,6 +272,7 @@ export default {
         keymap() {
             const noop = () => null;
             return {
+                'm': this.toggleMute,
                 'backspace': this.canEject ? this.handleEjectKeyDown : noop,
                 'space': this.canPlay ? this.handlePlayClick : this.canPause ? this.handlePauseClick : noop,
                 'pageup': this.canMoveForward ? () => this.moveForward(20) : noop,
@@ -283,7 +291,7 @@ export default {
             return new PlaybackSettingsModel({
                 ...this.settings.data,
                 music: this.settings.data.music && this.settings.data.ambience,
-                mode: this.deck.data.single ? 'front' : this.settings.data.mode,
+                mode: this.deck.data.single ? 'front' : this.settings.data.side,
                 backVoiceEnabled: this.deck.data.single ? false : this.settings.data.backVoiceEnabled,
                 flipped: this.deck.data.single ? false : this.settings.data.flipped,
             });
@@ -337,15 +345,15 @@ export default {
         },
 
         canFlip() {
-            return !this.skeleton && this.ready && this.filteredCards.length > 0 && this._settings.data.mode === null;
+            return !this.skeleton && this.ready && this.filteredCards.length > 0 && this._settings.data.side === null;
         },
 
         canGoFirst() {
-            return !this.skeleton && this.ready && this.filteredCards.length > 1 && this.index !== 0;
+            return !this.skeleton && this.ready && this.filteredCards.length > 1 && this.index !== this.minIndex;
         },
 
         canGoLast() {
-            return !this.skeleton && this.ready && this.filteredCards.length > 1 && this.index !== (this.filteredCards.length - 1);
+            return !this.skeleton && this.ready && this.filteredCards.length > 1 && this.index !== this.maxIndex;
         },
 
         canMoveBackward() {
@@ -376,18 +384,18 @@ export default {
         },
 
         showControls() {
-            return this.ready && this.active;
+            return true;//this.ready && (this.active || !this.playing);
         },
 
         firstDelay() {
-            return this._settings.data.mode !== 'back'
+            return this._settings.data.side !== 'back'
                 ? this._settings.data.delay * 1000
                     + (((this.currentAudio.front || {}).duration || 0) * 1000)
                 : 0;
         },
 
         otherDelay() {
-            return this._settings.data.mode !== 'front'
+            return this._settings.data.side !== 'front'
                 ? this._settings.data.delay * 1000
                     + (((this.currentAudio.back || {}).duration || 0) * 1000)
                 : 0;
@@ -460,6 +468,23 @@ export default {
             }
             return indexes;
         },
+
+        minIndex() {
+            return this._settings.data.cardRangeFrom
+                ? this._settings.data.cardRangeFrom < 0
+                    ? 0
+                    : this._settings.data.cardRangeFrom
+                : 0;
+        },
+
+        maxIndex() {
+            const totalCards = this.filteredCards.length - 1;
+            return this._settings.data.cardRangeTo
+                ? this._settings.data.cardRangeTo > totalCards
+                    ? totalCards
+                    : this._settings.data.cardRangeTo
+                : totalCards;
+        },
     },
 
     watch: {
@@ -488,8 +513,8 @@ export default {
                     this.settings.data.lastCardId = currentCardId;
                 }
 
-                this.setFirstSide(this._settings.data.mode !== 'back');
-                this.setOtherSide(this._settings.data.mode === 'back');
+                this.setFirstSide(this._settings.data.side !== 'back');
+                this.setOtherSide(this._settings.data.side === 'back');
             },
         },
         'playbackSettingsDialog.visible'(visible) {
@@ -497,7 +522,7 @@ export default {
                 this.pause();
             } else if (!visible && this.pauseTime && !this.wasPaused) {
                 if (this.settingsHasBeenUpdated) {
-                    this.resetTime(new Date());
+                    this.resetTime();
                     this.playCurrentWordAudio();
                     this.settingsHasBeenUpdated = false;
                 }
@@ -512,7 +537,6 @@ export default {
 
     methods: {
         handleKeyDown() {
-            console.log(123);
             this.active = true;
         },
 
@@ -543,8 +567,8 @@ export default {
             this.filteredCards = this.filterCards(this.cards);
             this.calculateAudioLength(this.filteredCards);
 
-            if (this.index > this.filteredCards.length - 1) {
-                this.index = this.filteredCards.length - 1;
+            if (this.index > this.maxIndex) {
+                this.index = this.maxIndex;
             }
         },
         handleEnterFullScreenClick() {
@@ -662,16 +686,16 @@ export default {
             this.mustSaveSettings = true;
             this.resetTime();
 
-            if (this.index > this.filteredCards.length - 1) {
-                this.index = this.filteredCards.length - 1;
+            if (this.index > this.maxIndex) {
+                this.index = this.maxIndex;
             }
             if (this.index === -1) {
                 this.playing = false;
                 this.completed = true;
                 this.$sound.play('completed');
             } else {
-                this.setFirstSide(this._settings.data.mode !== 'back');
-                this.setOtherSide(this._settings.data.mode === 'back');
+                this.setFirstSide(this._settings.data.side !== 'back');
+                this.setOtherSide(this._settings.data.side === 'back');
             }
         },
 
@@ -749,6 +773,11 @@ export default {
             this.endTime = new Date(date.getTime() + this.totalDelay);
             this.progress = 0;
             this.pauseTime = null;
+
+            const progressBarElement = document.getElementById('progress_bar');
+            if (progressBarElement) {
+                progressBarElement.querySelector('.v-progress-linear__determinate').style.width = this.progress + '%';
+            }
         },
 
         onFrame(progressBarElement) {
@@ -761,17 +790,19 @@ export default {
             const originalRange = this.endTime.getTime() - this.startTime.getTime();
             if (remainingTime <= 0) {
                 this.next();
-                this.setFirstSide(this._settings.data.mode !== 'back');
-                this.setOtherSide(this._settings.data.mode === 'back');
+                this.setFirstSide(this._settings.data.side !== 'back');
+                this.setOtherSide(this._settings.data.side === 'back');
             } else {
                 this.progress = (this.totalDelay - remainingTime) * 100 / this.totalDelay;
-                progressBarElement.style.width = this.progress + '%';
+                if (progressBarElement) {
+                    progressBarElement.style.width = this.progress + '%';
+                }
 
-                if (this._settings.data.mode === null) {
+                if (this._settings.data.side === null) {
                     const midProgress = originalRange - (((this.currentAudio.front || {}).duration || 0) * 1000) - (this._settings.data.delay * 1000);
                     if (!this.isOtherSide && remainingTime < midProgress) {
-                        this.setFirstSide(this._settings.data.mode === 'back');
-                        this.setOtherSide(this._settings.data.mode !== 'back');
+                        this.setFirstSide(this._settings.data.side === 'back');
+                        this.setOtherSide(this._settings.data.side !== 'back');
                     }
                 }
             }
@@ -782,11 +813,11 @@ export default {
         prev() {
             this.repeat = 0;
             this.index--;
-            if (this.index < 0) {
-                this.index = this.filteredCards.length - 1;
+            if (this.index < this.minIndex) {
+                this.index = this.maxIndex;
             }
 
-            this.resetTime(new Date());
+            this.resetTime();
         },
 
         next(forced = false) {
@@ -795,12 +826,12 @@ export default {
             } else {
                 this.repeat = 0;
                 this.index++;
-                if (this.index > this.filteredCards.length - 1) {
-                    this.index = 0;
+                if (this.index > this.maxIndex) {
+                    this.index = this.minIndex;
                 }
             }
 
-            this.resetTime(new Date());
+            this.resetTime();
         },
 
         play(playAudio = true) {
@@ -823,8 +854,12 @@ export default {
             this.resetTime(date);
 
             this.$nextTick(() => {
-                const progressBarElement = document.getElementById('progress_bar').querySelector('.v-progress-linear__determinate');
-                requestAnimationFrame(() => this.onFrame(progressBarElement));
+                const progressBarElement = document.getElementById('progress_bar');
+                requestAnimationFrame(() => this.onFrame(
+                    progressBarElement
+                        ? progressBarElement.querySelector('.v-progress-linear__determinate')
+                        : null
+                ));
             });
         },
 
@@ -880,9 +915,13 @@ export default {
                         const indexFound = this.filteredCards.findIndex(card => card.id === this._settings.data.lastCardId);
                         this.index = indexFound !== -1
                             ? this.filteredCards[indexFound]
-                                ? indexFound
-                                : 0
-                            : 0;
+                                ? indexFound < this.minIndex
+                                    ? this.minIndex
+                                    : indexFound > this.maxIndex
+                                        ? this.maxIndex
+                                        : indexFound
+                                : this.minIndex
+                            : this.minIndex;
 
                         setTimeout(() => {
                             this.ready = true;
@@ -909,9 +948,9 @@ export default {
 
             this.ready = true;
             this.completed = false;
-            this.index = 0;
+            this.index = this.minIndex;
             this.ambience.pause();
-            this.resetTime(new Date());
+            this.resetTime();
         },
 
         setFirstSide(visible) {
@@ -988,11 +1027,11 @@ export default {
         },
 
         goFirst() {
-            this.index = 0;
+            this.index = this.minIndex;
         },
 
         goLast() {
-            this.index = this.filteredCards.length - 1;
+            this.index = this.maxIndex;
         },
 
         calculateAudioLength(cards) {
@@ -1102,6 +1141,12 @@ export default {
             } else {
                 this.ambience.pause();
             }
+
+            if (this.index > this.maxIndex) {
+                this.index = this.maxIndex;
+            } else if (this.index < this.minIndex) {
+                this.index = this.minIndex;
+            }
         },
 
         checkFullscreen() {
@@ -1109,16 +1154,16 @@ export default {
         },
 
         moveBackward(amount = 1) {
-            const totalCards = this.filteredCards.length - 1;
+            const totalCards = this.maxIndex;
             let tempIdx = this.index - amount;
-            while (tempIdx < 0) {
+            while (tempIdx < this.minIndex) {
                 tempIdx = totalCards - -tempIdx + 1;
             }
             this.index = tempIdx;
         },
 
         moveForward(amount = 1) {
-            const totalCards = this.filteredCards.length - 1;
+            const totalCards = this.maxIndex;
             let tempIdx = this.index + amount;
             while (tempIdx > totalCards) {
                 tempIdx = tempIdx - totalCards - 1;
@@ -1141,6 +1186,10 @@ export default {
             }
 
             this.adjustCardVolume();
+        },
+
+        toggleMute() {
+            this.muted ? this.unmute() : this.mute();
         },
 
         mute() {
@@ -1180,6 +1229,7 @@ export default {
 
         window.addEventListener('resize', this.checkFullscreen, false);
         window.addEventListener("beforeunload", this.checkSaveSettings, false);
+        document.addEventListener("keydown", this.handleKeyDown, false);
 
         this.settings = new PlaybackSettingsModel(this.$deepClone(this.deck ? this.deck.data.playback_settings.data : {}));
         this.load();
@@ -1197,6 +1247,7 @@ export default {
 
         window.removeEventListener('resize', this.checkFullscreen, false);
         window.removeEventListener("beforeunload", this.checkSaveSettings, false);
+        document.removeEventListener("keydown", this.handleKeyDown, false);
     }
 }
 </script>
