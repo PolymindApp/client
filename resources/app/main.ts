@@ -4,6 +4,7 @@ import Restricted from './views/Restricted.vue'
 import appRoutes from '@/routes/app.routes';
 import restrictedRoutes from '@/routes/restricted.routes';
 import VueRouter from 'vue-router'
+import VueHotkey from 'v-hotkey'
 import PortalVue from 'portal-vue'
 import i18n, { rtlLanguages } from './locales'
 import vuetify from '@/plugins/vuetify'
@@ -18,15 +19,19 @@ import Voices from '@/utils/Voices'
 import EventBus from '@/utils/EventBus'
 import Services from '@/utils/Services'
 import globalVariables from './global'
+// @ts-ignore
+// import VueWorker from 'vue-worker';
 import { RouteConfig } from "vue-router/types/router"
 import '@mdi/font/scss/materialdesignicons.scss'
 import './filters'
+import './directives'
 import './index.scss'
 // import './registerServiceWorker'
 
 Vue.config.productionTip = false
 
 Vue.use(VueRouter)
+Vue.use(VueHotkey)
 Vue.use(Accounts)
 Vue.use(Confirm)
 Vue.use(DeepClone)
@@ -36,6 +41,7 @@ Vue.use(Snack)
 Vue.use(Sound)
 Vue.use(Voices)
 Vue.use(PortalVue)
+// Vue.use(VueWorker)
 
 let currentInstance: Vue;
 const render = (

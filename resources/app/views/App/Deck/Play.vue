@@ -1,24 +1,15 @@
 <template>
-    <v-container class="fill-height pa-0 d-flex flex-column" fluid v-bind="$attrs" v-on="$listeners" v-touch="{
+    <v-container class="fill-height pa-0 d-flex flex-column" tabindex="1" fluid v-bind="$attrs" v-on="$listeners" v-touch="{
         up: handleSwipeUp,
         down: handleSwipeDown,
         left: handleSwipeLeft,
         right: handleSwipeRight,
-    }">
-
-        <!-- SHORTCUTS -->
-        <Keypress v-if="canEject" key-event="keydown" :key-code="8" @success="handleEjectKeyDown" />
-        <Keypress v-if="canPlay" key-event="keyup" :key-code="32" @success="handlePlayClick" />
-        <Keypress v-else-if="canPause" key-event="keyup" :key-code="32" @success="handlePauseClick" />
-        <Keypress v-if="canMoveForward" key-event="keyup" :key-code="33" @success="() => moveForward(20)" />
-        <Keypress v-if="canMoveBackward" key-event="keyup" :key-code="34" @success="() => moveBackward(20)" />
-        <Keypress v-if="canGoLast" key-event="keyup" :key-code="35" @success="goLast" />
-        <Keypress v-if="canGoFirst" key-event="keyup" :key-code="36" @success="goFirst" />
-        <Keypress v-if="canGoPrevious" key-event="keyup" :key-code="37" @success="handlePrevClick" />
-        <Keypress v-if="canFlip" key-event="keyup" :key-code="38" @success="flipFirst" />
-        <Keypress v-if="canGoNext" key-event="keyup" :key-code="39" @success="handleNextClick" />
-        <Keypress v-if="canFlip" key-event="keyup" :key-code="40" @success="flipOther" />
-        <Keypress v-if="canFullscreen" key-event="keyup" :key-code="70" @success="() => setFullscreen(!fullscreen)" />
+    }" v-on-mouse-inactive="{
+        delay: 5000,
+        callback: handleOnMouseInactive,
+    }" v-hotkey.stop="keymap"
+    @mousemove="handleMouseMouse"
+    @keydown="handleKeyDown">
 
         <!-- TITLE -->
         <portal to="title">
@@ -101,16 +92,16 @@
                         <v-col cols="4"></v-col>
                         <v-col cols="4" class="text-center"></v-col>
                         <v-col cols="4" class="d-flex align-center justify-end">
-                            <v-expand-transition>
-                                <v-tooltip left>
-                                    <template #activator="{ attrs, on }">
-                                        <v-btn v-bind="attrs" v-on="on" icon :disabled="!canEject" @click="handleEjectClick">
+                            <v-tooltip attach="#layout" left>
+                                <template #activator="{ attrs, on }">
+                                    <v-expand-transition>
+                                        <v-btn v-if="showControls" v-bind="attrs" v-on="on" icon :disabled="!canEject" @click="handleEjectClick">
                                             <v-icon>mdi-eject-outline</v-icon>
                                         </v-btn>
-                                    </template>
-                                    <span v-text="$t('deck.play.eject')"></span>
-                                </v-tooltip>
-                            </v-expand-transition>
+                                    </v-expand-transition>
+                                </template>
+                                <span v-text="$t('deck.play.eject')"></span>
+                            </v-tooltip>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -160,33 +151,35 @@
                     <v-row>
                         <v-col cols="3" class="d-flex align-center justify-start" style="gap: 1rem">
                             <v-expand-transition>
-                                <v-btn v-if="ready" icon :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
+                                <v-btn v-if="showControls" icon :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
                                     <v-icon v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
                                 </v-btn>
                             </v-expand-transition>
                             <v-expand-transition>
-                                <v-btn v-if="ready" icon :disabled="muted ? !canUnmute : !canMute" @click="() => muted ? handleUnmuteClick() : handleMuteClick()">
-                                    <v-icon v-text="muted ? 'mdi-volume-high' : 'mdi-volume-off'"></v-icon>
+                                <v-btn v-if="showControls" icon :disabled="muted ? !canUnmute : !canMute" @click="() => muted ? handleUnmuteClick() : handleMuteClick()">
+                                    <v-icon v-text="muted ? 'mdi-volume-off' : 'mdi-volume-high'"></v-icon>
                                 </v-btn>
                             </v-expand-transition>
                         </v-col>
                         <v-col cols="6" class="d-flex align-center justify-center text-center" style="gap: 1rem">
-                            <v-btn v-if="ready" :disabled="!canGoFirst" icon @click="goFirst">
+                            <v-btn v-if="showControls" :disabled="!canGoFirst" icon @click="goFirst">
                                 <v-icon>mdi-page-first</v-icon>
                             </v-btn>
-                            <span v-if="!ready"></span>
-                            <span v-else-if="filteredCards.length > 0" v-text="$t('deck.play.indexOf', {
-                                current: index + 1,
-                                total: filteredCards.length,
-                            })"></span>
-                            <span v-else-if="filteredCards.length < originalCards.length" v-text="$t('deck.play.noCardsLeft')"></span>
-                            <v-btn v-if="ready" :disabled="!canGoLast" icon @click="goLast">
+                            <template v-if="showControls">
+                                <span v-if="!ready"></span>
+                                <span v-else-if="filteredCards.length > 0" v-text="$t('deck.play.indexOf', {
+                                    current: index + 1,
+                                    total: filteredCards.length,
+                                })"></span>
+                                <span v-else-if="filteredCards.length < originalCards.length" v-text="$t('deck.play.noCardsLeft')"></span>
+                            </template>
+                            <v-btn v-if="showControls" :disabled="!canGoLast" icon @click="goLast">
                                 <v-icon>mdi-page-last</v-icon>
                             </v-btn>
                         </v-col>
                         <v-col cols="3" class="d-flex align-center justify-end">
                             <v-expand-transition>
-                                <v-btn v-if="ready" icon :disabled="!canFullscreen" @click="() => fullscreen ? handleExitFullScreenClick() : handleEnterFullScreenClick()">
+                                <v-btn v-if="showControls" icon :disabled="!canFullscreen" @click="() => fullscreen ? handleExitFullScreenClick() : handleEnterFullScreenClick()">
                                     <v-icon v-if="!fullscreen">mdi-fullscreen</v-icon>
                                     <v-icon v-else>mdi-fullscreen-exit</v-icon>
                                 </v-btn>
@@ -216,7 +209,6 @@ import Modal from '@/components/generic/Modal';
 import DeckModel from '@/models/DeckModel';
 import PlaybackSettingsModel from '@/models/PlaybackSettingsModel';
 import Services from "@/utils/Services";
-import Keypress from 'vue-keypress';
 import audioDecode from 'audio-decode';
 import Crunker from 'crunker';
 import ambiencesJson from '../../../../../.ambiences.json';
@@ -226,7 +218,7 @@ let autoPlayBus;
 export default {
     name: "Play",
 
-    components: { DeckSelect, MobileNav, Modal, DesktopNav, Keypress, PlaybackSettingsModal },
+    components: { DeckSelect, MobileNav, Modal, DesktopNav, PlaybackSettingsModal },
 
     data: () => ({
         loading: false,
@@ -243,6 +235,7 @@ export default {
         settingsHasBeenUpdated: false,
         wasPaused: false,
         muted: false,
+        active: true,
         cards: [],
         filteredCards: [],
         originalCards: [],
@@ -269,6 +262,23 @@ export default {
     }),
 
     computed: {
+        keymap() {
+            const noop = () => null;
+            return {
+                'backspace': this.canEject ? this.handleEjectKeyDown : noop,
+                'space': this.canPlay ? this.handlePlayClick : this.canPause ? this.handlePauseClick : noop,
+                'pageup': this.canMoveForward ? () => this.moveForward(20) : noop,
+                'pagedown': this.canMoveBackward ? () => this.moveBackward(20) : noop,
+                'home': this.canGoFirst ? this.goFirst : noop,
+                'end': this.canGoLast ? this.goLast : noop,
+                'left': this.canGoPrevious ? this.handlePrevClick : noop,
+                'right': this.canGoNext ? this.handleNextClick : noop,
+                'up': this.canFlip ? this.flipFirst : noop,
+                'down': this.canFlip ? this.flipOther : noop,
+                'f': this.canFullscreen ? () => this.setFullscreen(!this.fullscreen) : noop,
+            }
+        },
+
         _settings() {
             return new PlaybackSettingsModel({
                 ...this.settings.data,
@@ -358,11 +368,15 @@ export default {
         },
 
         showNavigation() {
-            return !this.skeleton && this.originalCards.length > 0 && (this.$vuetify.breakpoint.mdAndUp || this.$root.orientation === 'landscape');
+            return !this.skeleton && this.originalCards.length > 0 && (this.$vuetify.breakpoint.mdAndUp || this.$root.orientation === 'landscape') && this.showControls;
         },
 
         showProgress() {
-            return this.ready && !this.completed;
+            return this.ready && !this.completed && this.showControls;
+        },
+
+        showControls() {
+            return this.ready && this.active;
         },
 
         firstDelay() {
@@ -455,6 +469,9 @@ export default {
         },
         index: {
             handler(newValue, oldValue) {
+
+                this.resetTime();
+
                 if (oldValue) {
                     const audio = this.audios[(this.filteredCards[oldValue] || {}).id] || {};
                     if (audio.front) {
@@ -494,6 +511,19 @@ export default {
     },
 
     methods: {
+        handleKeyDown() {
+            console.log(123);
+            this.active = true;
+        },
+
+        handleMouseMouse() {
+            this.active = true;
+        },
+
+        handleOnMouseInactive() {
+            this.active = false;
+        },
+
         handleUnmuteClick() {
             this.unmute();
         },
@@ -617,11 +647,8 @@ export default {
             this.pause();
         },
 
-        handleEjectKeyDown({ event }) {
-            if (['input', 'textarea'].indexOf(event.target.nodeName.toLowerCase()) === -1) {
-                event.preventDefault();
-                this.handleEjectClick();
-            }
+        handleEjectKeyDown() {
+            this.handleEjectClick();
         },
 
         handleEjectClick() {
