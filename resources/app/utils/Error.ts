@@ -1,4 +1,5 @@
 import { VueConstructor } from 'vue';
+import Hash from "@/utils/Hash";
 import globalVariables from "@/global";
 
 export default {
@@ -10,6 +11,7 @@ export default {
         ) {
             if (showWarning) {
                 Object.assign(globalVariables.error, {
+                    guid: Hash.guid(),
                     ...reason,
                     body: reason.message,
                 })
@@ -21,3 +23,13 @@ export default {
 		};
 	}
 };
+
+declare module 'vue/types/vue' {
+    interface Vue {
+        $handleError: (
+            reason: any,
+            formErrors?: any,
+            showWarning?: boolean
+        ) => any
+    }
+}

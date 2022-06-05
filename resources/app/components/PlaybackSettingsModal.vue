@@ -1,11 +1,11 @@
 <template>
-    <Modal v-model="_visible" :title="$t('deck.play.playbackSettingsDialog.title')" v-bind="$attrs" v-on="$listeners">
+    <Modal v-model="_visible" :title="$t('session.playbackSettingsDialog.title')" v-bind="$attrs" v-on="$listeners">
         <template #body>
             <v-row>
                 <v-col cols="12" md="6">
                     <v-row>
                         <v-col cols="12" class="d-flex align-center">
-                            <label v-text="$t('deck.play.playbackSettings.ambience.title')"></label>
+                            <label v-text="$t('session.playbackSettings.ambience.title')"></label>
                         </v-col>
                         <v-col cols="12" class="d-flex align-center">
                             <v-select
@@ -58,15 +58,15 @@
                     </v-row>
                     <v-row v-if="!deck.data.single">
                         <v-col cols="12" md="6" class="d-flex align-center">
-                            <label v-text="$t('deck.play.playbackSettings.side.title')"></label>
+                            <label v-text="$t('session.playbackSettings.side.title')"></label>
                         </v-col>
                         <v-col cols="12" md="6" class="d-flex align-center">
                             <v-select
                                 v-model="_model.data.side"
                                 :items="[
-                                { text: $t('deck.play.playbackSettings.side.both'), value: null },
-                                { text: $t('deck.play.playbackSettings.side.front'), value: 'front' },
-                                { text: $t('deck.play.playbackSettings.side.back'), value: 'back' },
+                                { text: $t('session.playbackSettings.side.both'), value: null },
+                                { text: $t('session.playbackSettings.side.front'), value: 'front' },
+                                { text: $t('session.playbackSettings.side.back'), value: 'back' },
                             ]"
                                 outlined
                                 hide-details
@@ -75,7 +75,7 @@
                     </v-row>
                     <v-row>
                         <v-col cols="12" md="6" class="d-flex align-center">
-                            <label v-text="$tc('deck.play.playbackSettings.delay', _model.data.delay, {
+                            <label v-text="$tc('session.playbackSettings.delay', _model.data.delay, {
                             amount: _model.data.delay,
                         })"></label>
                         </v-col>
@@ -91,7 +91,7 @@
                     </v-row>
                     <v-row>
                         <v-col cols="12" md="6" class="d-flex align-center">
-                            <label v-text="$tc('deck.play.playbackSettings.repeat', _model.data.repeat, {
+                            <label v-text="$tc('session.playbackSettings.repeat', _model.data.repeat, {
                             amount: _model.data.repeat,
                         })"></label>
                         </v-col>
@@ -107,7 +107,7 @@
                     </v-row>
                     <v-row v-if="!deck.data.single && _model.data.side === null">
                         <v-col cols="12" md="6" class="d-flex align-center">
-                            <label v-text="$t('deck.play.playbackSettings.flipped')"></label>
+                            <label v-text="$t('session.playbackSettings.flipped')"></label>
                         </v-col>
                         <v-col cols="12" md="6" class="d-flex align-center">
                             <v-switch
@@ -120,7 +120,7 @@
                     </v-row>
                     <v-row>
                         <v-col cols="12" md="6" class="d-flex align-center">
-                            <label v-text="$t('deck.play.playbackSettings.reversed')"></label>
+                            <label v-text="$t('session.playbackSettings.reversed')"></label>
                         </v-col>
                         <v-col cols="12" md="6" class="d-flex align-center">
                             <v-switch
@@ -133,7 +133,7 @@
                     </v-row>
                     <v-row v-if="_model.data.side !== 'back'">
                         <v-col cols="12" md="6" class="d-flex align-center">
-                            <label v-text="$t('deck.play.playbackSettings.' + (deck.data.single ? 'voiceEnabled' : 'frontVoiceEnabled'))"></label>
+                            <label v-text="$t('session.playbackSettings.' + (deck.data.single ? 'voiceEnabled' : 'frontVoiceEnabled'))"></label>
                         </v-col>
                         <v-col cols="12" md="6" class="d-flex align-center">
                             <v-switch
@@ -146,7 +146,7 @@
                     </v-row>
                     <v-row v-if="!deck.data.single && _model.data.side !== 'front'">
                         <v-col cols="12" md="6" class="d-flex align-center">
-                            <label v-text="$t('deck.play.playbackSettings.backVoiceEnabled')"></label>
+                            <label v-text="$t('session.playbackSettings.backVoiceEnabled')"></label>
                         </v-col>
                         <v-col cols="12" md="6" class="d-flex align-center">
                             <v-switch
@@ -161,7 +161,7 @@
                 <v-col cols="12" md="6">
                     <v-row>
                         <v-col cols="6" class="d-flex align-center">
-                            <label v-text="$t('deck.play.playbackSettings.cardRange')"></label>
+                            <label v-text="$t('session.playbackSettings.cardRange')"></label>
                         </v-col>
                         <v-col cols="6" class="d-flex align-center justify-end">
                             <v-btn :disabled="!canResetCardRange" outlined small @click="handleResetCardRange">
@@ -186,10 +186,10 @@
 
                             <v-select
                                 v-model="_model.data.cardRangeMode"
-                                :label="$t('deck.play.playbackSettings.cardRangeMode.label')"
+                                :label="$t('session.playbackSettings.cardRangeMode.label')"
                                 :items="[
-                                    { text: $t('deck.play.playbackSettings.cardRangeMode.repeat'), value: null },
-                                    { text: $t('deck.play.playbackSettings.cardRangeMode.progressive'), value: 'progressive' },
+                                    { text: $t('session.playbackSettings.cardRangeMode.repeat'), value: null },
+                                    { text: $t('session.playbackSettings.cardRangeMode.progressive'), value: 'progressive' },
                                 ]"
                                 class="mt-6"
                                 outlined
@@ -199,7 +199,7 @@
                     </v-row>
                     <v-row>
                         <v-col cols="6" class="d-flex align-center">
-                            <label v-text="$t('deck.play.playbackSettings.dateRange')"></label>
+                            <label v-text="$t('session.playbackSettings.dateRange')"></label>
                         </v-col>
                         <v-col cols="6" class="d-flex align-center justify-end">
                             <v-btn :disabled="_model.data.fromDate === null" outlined small @click="_model.data.fromDate = null">
@@ -211,6 +211,7 @@
                                 v-model="date"
                                 :events="events"
                                 event-color="primary"
+                                color="primary"
                                 no-title
                                 full-width
                                 range
@@ -219,7 +220,7 @@
                     </v-row>
                     <v-row>
                         <v-col cols="6" class="d-flex align-center">
-                            <label v-text="$t('deck.play.playbackSettings.ejected')"></label>
+                            <label v-text="$t('session.playbackSettings.ejected')"></label>
                         </v-col>
                         <v-col cols="6" class="d-flex align-center justify-end">
                             <v-btn :disabled="_model.data.ejected.length === 0" outlined small @click="_model.data.ejected = []">
@@ -229,7 +230,7 @@
                         <v-col cols="12">
                             <template v-if="_model.data.ejected.length === 0">
                                 <v-alert type="info" outlined text>
-                                    <span v-text="$t('deck.play.playbackSettings.ejectedEmpty')"></span>
+                                    <span v-text="$t('session.playbackSettings.ejectedEmpty')"></span>
                                 </v-alert>
                             </template>
                             <div v-else class="d-flex flex-wrap" style="gap: 0.5rem">

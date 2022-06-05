@@ -6,19 +6,25 @@ export default {
         Vue.prototype.$confirm = function (
             title: string,
             body: string,
-            buttonText: string,
-            callback: Function,
+            buttonText: string = Vue.prototype.$i18n.t('btn.ok'),
+            callback: (modal?: any, btn?: any) => void = (modal) => {
+                modal.visible = false;
+            },
             attrs: Object = {},
-        ) {
-            const btn = { text: buttonText, attrs: {
-                disabled: false,
-                loading: false,
-                color: 'error',
-            }, events: {
-                click: () => {
-                    callback(globalVariables.modal, btn);
+        ): void {
+            const btn = {
+                text: buttonText,
+                attrs: {
+                    disabled: false,
+                    loading: false,
+                    color: 'primary',
                 },
-            } };
+                events: {
+                    click: () => {
+                        callback(globalVariables.modal, btn);
+                    },
+                }
+            };
             Object.assign(globalVariables.modal, {
                 visible: true,
                 disabled: false,
@@ -38,3 +44,15 @@ export default {
         };
     }
 };
+
+declare module 'vue/types/vue' {
+    interface Vue {
+        $confirm: (
+            title: string,
+            body: string,
+            buttonText: string,
+            callback?: (modal?: any, btn?: any) => void,
+            attrs?: {},
+        ) => void
+    }
+}

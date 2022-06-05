@@ -15,14 +15,10 @@ class DevSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('users')->insert([
-            'id' => Str::orderedUuid(),
-            'name' => 'Administrator',
-            'email' => 'admin@polymind.app',
-            'email_verified_at' => now(),
-            'password' => bcrypt('polymind'),
-            'remember_token' => Str::random(10),
-            'created_at' => now(),
-        ]);
+        $this->call(LanguageSeeder::class);
+        $this->call(VoiceSeeder::class);
+        $this->call(UserSeeder::class);
+        $this->call(DeckSeeder::class);
+        $this->call(DictionarySeeder::class);
     }
 }

@@ -1,38 +1,56 @@
 const mix = require('laravel-mix');
 const path = require('path');
+const fileHash = require('file-hash');
 const webpack = require('webpack')
+const WorkboxWebpack = require('workbox-webpack-plugin');
+const ambiences = require('./.ambiences.json');
 require('dotenv').config();
 
-const dotenvPlugin = new webpack.DefinePlugin({
-    'process.env': {
-        API_URL: JSON.stringify(process.env.API_URL),
-        FACEBOOK_URL: JSON.stringify(process.env.FACEBOOK_URL),
-        TWITTER_URL: JSON.stringify(process.env.TWITTER_URL),
-        YOUTUBE_URL: JSON.stringify(process.env.YOUTUBE_URL),
-        GITHUB_URL: JSON.stringify(process.env.GITHUB_URL),
-        TWITTER_TAG: JSON.stringify(process.env.TWITTER_TAG),
-    },
-})
+const plugins = [
+    new webpack.DefinePlugin({
+        'process.env': {
+            API_URL: JSON.stringify(process.env.API_URL),
+            FACEBOOK_URL: JSON.stringify(process.env.FACEBOOK_URL),
+            TWITTER_URL: JSON.stringify(process.env.TWITTER_URL),
+            YOUTUBE_URL: JSON.stringify(process.env.YOUTUBE_URL),
+            GITHUB_URL: JSON.stringify(process.env.GITHUB_URL),
+            TWITTER_TAG: JSON.stringify(process.env.TWITTER_TAG),
+        },
+    })
+];
 
-/*
- |--------------------------------------------------------------------------
- | Mix Asset Management
- |--------------------------------------------------------------------------
- |
- | Mix provides a clean, fluent API for defining some Webpack build steps
- | for your Laravel application. By default, we are compiling the Sass
- | file for the application as well as bundling up all the JS files.
- |
- */
+if (process.env.NODE_ENV === 'production') {
+    const additionalManifestEntries = ambiences.map(ambience => {
+        const result = [];
+        if (ambience.url && ambience.url.indexOf('http') === -1) { fileHash(hash => { result.push({ url: ambience.url, revision: hash }); }, path.resolve(__dirname + '/public' + ambience.url), 'sha1', true); }
+        if (ambience.thumbnail && ambience.url.indexOf('http') === -1) { fileHash(hash => { result.push({ url: ambience.thumbnail, revision: hash }); }, path.resolve(__dirname + '/public' + ambience.url), 'sha1', true); }
+        if (ambience.bg && ambience.url.indexOf('http') === -1) { fileHash(hash => { result.push({ url: ambience.bg, revision: hash }); }, path.resolve(__dirname + '/public' + ambience.url), 'sha1', true); }
+        return result;
+    }).flat();
+
+    plugins.push(new WorkboxWebpack.InjectManifest({
+        swSrc: './resources/app/service-worker.ts',
+        swDest: './service-worker.js',
+        mode: process.env.NODE_ENV === 'production' ? 'production' : null,
+        maximumFileSizeToCacheInBytes: 1024 * 1024 * 32, // 32MB
+        modifyURLPrefix: {
+            '//': '/'
+        },
+        additionalManifestEntries,
+    }));
+}
 
 mix.ts('resources/app/main.ts', 'public/js/app.js')
     .vue()
-    // .sass('resources/app/index.scss', 'public/css')
     .webpackConfig({
         devtool: 'source-map',
-        plugins: [
-            dotenvPlugin,
-        ],
+        module: {
+            rules: [{
+                test: /\.wav$/,
+                loader: 'file-loader'
+            }]
+        },
+        plugins,
         devServer: {
             port: 8079,
         },
@@ -42,12 +60,10 @@ mix.ts('resources/app/main.ts', 'public/js/app.js')
             }
         }
     })
-
-mix.options({
-    hmrOptions: {
-        host: 'localhost',
-        port: '8079'
-    },
-});
-
-mix.disableNotifications();
+    .options({
+        hmrOptions: {
+            host: 'localhost',
+            port: '8079'
+        },
+    })
+    .disableNotifications();

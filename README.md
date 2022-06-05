@@ -20,13 +20,13 @@ Written in PHP and JavaScript, it uses Laravel, VueJS and Vuetify as frameworks.
 ### Setup your environment
 
 1) Create a copy of ```.env.example```, name it ```.env``` and adjust the settings according to your current setup.
-2) Run ```composer install``` in the root directory.
-3) Run ```npm install``` or ```yarn``` in the root directory.
-4) Run the following commands to initiate the database:
+2) Create a copy of ```.ambience.json.example```, name it ```.ambience.json```. You can leave it as an empty array or follow the "Setup ambiences" section below. However, this file is mandatory and must exists.
+3) Run ```composer install``` in the root directory.
+4) Run ```npm install``` or ```yarn``` in the root directory.
+5) Run the following commands to initiate the database:
 ```
 php artisan migrate:fresh
-php artisan db:seed --class=LanguageSeeder
-php artisan db:seed --class=VoiceSeeder
+php artisan db:seed
 ```
 5) Run ```npm run build```.
 

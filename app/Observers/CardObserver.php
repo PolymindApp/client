@@ -11,6 +11,11 @@ class CardObserver
 {
     private function updateStreams(Card &$model)
     {
+        // Skip if user not logged-in (a way to prevent Seeders from querying AWS too much)
+        if (!auth()->user()) {
+            return;
+        }
+
         $polly = new Polly();
         $id = $model['id'] ?? null;
         $oldModel = $id ? Card::find($id) : null;
@@ -26,12 +31,12 @@ class CardObserver
         }
     }
 
-    private function updateDeckTotalCards(string $deckId, int $diff = 0)
+    private function updateDeckTotalCards(string $deckId)
     {
         if ($deckId) {
             $deck = Deck::find($deckId);
             if ($deck) {
-                $deck->total_card = Card::where('deck_id', '=', $deckId)->count() + $diff;
+                $deck->total_card = Card::where('deck_id', '=', $deckId)->count();
                 $deck->save();
             }
         }

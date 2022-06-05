@@ -49,7 +49,7 @@
                 <v-text-field
                     id="sidebar_search"
                     v-model="search"
-                    :placeholder="$t('sidebar.decks.title')"
+                    :placeholder="$t('sidebar.search.placeholder')"
                     prepend-inner-icon="mdi-magnify"
                     :solo="$vuetify.theme.dark"
                     :outlined="!$vuetify.theme.dark"
@@ -58,14 +58,39 @@
                     hide-details
                 ></v-text-field>
             </div>
-            <DeckTree
-                v-model="_decks"
-            />
-            <div v-if="_decks.length === 0 && _search.length > 0" class="px-2">
-                <v-alert type="info" text outlined>
-                    <span v-text="$t('sidebar.decks.noResults')"></span>
+
+            <template v-if="dictionaries.length !== 0 || _search.length === 0">
+                <v-subheader v-text="$t('sidebar.dictionaries.title')"></v-subheader>
+                <v-alert v-if="dictionaries.length === 0 && _search.length === 0" key="alert_dictionary" class="mx-2 caption" dense text>
+                    <span v-text="$t('sidebar.dictionaries.noItems')"></span>
                 </v-alert>
-            </div>
+                <v-list-item v-else :key="dictionary.id" v-for="dictionary in dictionaries" :to="{ name: 'session.dictionary', params: { uuid: dictionary.id } }" color="primary">
+                    <v-list-item-avatar tile size="32">
+                        <v-img :src="dictionary.cover.url">
+                            <template #placeholder>
+                                <v-skeleton-loader type="image" height="32"></v-skeleton-loader>
+                            </template>
+                        </v-img>
+                    </v-list-item-avatar>
+                    <v-list-item-title>
+                        <span v-text="dictionary.i18n[0].text"></span>
+                    </v-list-item-title>
+                </v-list-item>
+            </template>
+
+            <template v-if="_decks.length !== 0 || _search.length === 0">
+                <v-subheader v-text="$t('sidebar.decks.title')"></v-subheader>
+                <DeckTree
+                    v-model="_decks"
+                />
+                <v-alert v-if="_decks.length === 0 && _search.length === 0" key="alert_deck" class="mx-2 caption" dense text>
+                    <span v-text="$t('sidebar.decks.noItems')"></span>
+                </v-alert>
+            </template>
+
+            <v-alert v-else-if="_decks.length === 0 && _search.length > 0" key="alert_search" class="mx-2" type="info" text outlined>
+                <span v-text="$t('sidebar.search.noResults')"></span>
+            </v-alert>
         </v-list>
 
         <template #append>
@@ -147,7 +172,11 @@ export default {
         },
 
         _decks() {
-            return this.$root.decks.filter(deck => this._search.length === 0 || (deck.data.name || this.$i18n.t(deck.data.i18n)).trim().toLowerCase().indexOf(this._search.toLowerCase()) !== -1)
+            return this.$store.state.decks.filter(deck => this._search.length === 0 || (deck.data.name || this.$i18n.t(deck.data.i18n)).trim().toLowerCase().indexOf(this._search.toLowerCase()) !== -1)
+        },
+
+        dictionaries() {
+            return this.$store.state.dictionaries.filter(dictionary => this.$store.state.settings.dictionary_bookmarks.indexOf(dictionary.id) !== -1);
         },
 
         logo() {
@@ -155,7 +184,7 @@ export default {
         },
 
         accounts() {
-            return this.$root.accounts.filter(account => account.email !== this.$root.user.email);
+            return this.$store.state.accounts.filter(account => account.email !== this.$root.user.email);
         },
     },
 

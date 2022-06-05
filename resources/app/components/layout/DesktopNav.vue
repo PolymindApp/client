@@ -1,27 +1,26 @@
 <template>
-    <v-tabs v-bind="$attrs" v-on="$listeners">
-        <v-tab :to="{ name: 'deck.edit', params: { uuid: deck.data.id || 'unclassified' } }">
-            <v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-pencil</v-icon>
-            <span v-text="$t('btn.edit')"></span>
+    <v-tabs id="desktop_nav" v-bind="$attrs" v-on="$listeners">
+        <v-tab id="nav_dictionary" :to="routeDictionary">
+            <v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-book-variant</v-icon>
+            <span v-text="$t('nav.dictionary')"></span>
         </v-tab>
-        <v-tab :to="{ name: 'deck.play', params: { uuid: deck.data.id || 'unclassified' } }">
-            <v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-play</v-icon>
-            <span v-text="$t('btn.play')"></span>
+        <v-tab id="nav_custom" :to="{ name: 'custom', params: { uuid: deckUuid } }">
+            <v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-cards</v-icon>
+            <span v-text="$t('nav.custom')"></span>
+        </v-tab>
+        <v-tab id="nav_session" :to="routeSession">
+            <v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-headphones</v-icon>
+            <span v-text="$t('nav.session')"></span>
         </v-tab>
     </v-tabs>
 </template>
 
 <script>
-import DeckModel from '@/models/DeckModel';
+import navigationMixin from "@/mixins/navigation.mixin";
 
 export default {
     name: "DesktopNav",
 
-    props: {
-        deck: {
-            type: DeckModel,
-            default: () => new DeckModel(),
-        },
-    },
+    mixins: [navigationMixin],
 }
 </script>

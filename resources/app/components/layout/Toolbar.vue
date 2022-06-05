@@ -30,6 +30,21 @@
 
         <v-spacer />
 
+        <template v-if="$vuetify.breakpoint.mdAndUp">
+            <div v-if="syncing" class="d-flex align-center" style="gap: 1rem">
+                <v-progress-circular color="primary" size="16" width="2" indeterminate />
+                <span class="overline" v-text="$t('toolbar.syncing')"></span>
+            </div>
+            <v-btn v-else class="mr-3" small text :disabled="!canSync" @click="handleSyncClick">
+                <v-icon color="success" left>mdi-check</v-icon>
+                <span v-text="$t('toolbar.synced')"></span>
+            </v-btn>
+        </template>
+
+        <portal-target name="toolbar_right">
+
+        </portal-target>
+
         <v-menu left>
             <template #activator="{ attrs: menuAttrs, on: menuOn }">
                 <v-tooltip bottom>
@@ -60,9 +75,15 @@
 <script>
 import logoLight from '@/assets/images/polymind-light.svg'
 import logoDark from '@/assets/images/polymind-dark.svg'
+import Services from "@/utils/Services";
 
 export default {
     name: "Toolbar",
+
+    data: () => ({
+        syncing: false,
+        canSync: true,
+    }),
 
     computed: {
         logo() {
@@ -71,10 +92,38 @@ export default {
     },
 
     methods: {
+        handleSyncClick() {
+            this.syncData();
+        },
         handleSwitchThemeClick() {
             this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
             localStorage.setItem('dark', this.$vuetify.theme.dark);
+            this.applyColorScheme();
         },
+        applyColorScheme() {
+            const preferredTheme = this.$vuetify.theme.dark ? 'dark' : 'light';
+            document.documentElement.style.setProperty("color-scheme", preferredTheme);
+        },
+        syncData() {
+            this.syncing = true;
+            return Services.syncData()
+                .then(() => {
+                    this.canSync = false;
+                    setTimeout(() => {
+                        this.canSync = true;
+                    }, 1000 * 60 * 5); // 5 minutes
+                })
+                .finally(() => this.syncing = false);
+        },
+    },
+    created() {
+        this.applyColorScheme();
     },
 }
 </script>
+
+<style lang="scss">
+:root {
+    color-scheme: dark;
+}
+</style>

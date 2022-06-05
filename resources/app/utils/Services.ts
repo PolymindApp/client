@@ -2,10 +2,27 @@ import Query from '@/utils/Query';
 import DeckModel from "@/models/DeckModel";
 import Vue from 'vue';
 import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
+import db, { Voice, Deck } from '@/database';
+import { Table } from 'dexie';
 
 export default class Services {
 
 	static token: string|null = localStorage.getItem('token');
+
+    private static async onlineFirst(
+        model: Table<any>,
+        promise: (query: void) => Promise<any>,
+        parser?: (model: Table<any>) => Promise<any>,
+    ): Promise<any> {
+        if (!window.navigator.onLine) {
+            const response = await (parser ? parser(model) : model.toArray());
+            return new Promise(async resolve => {
+                resolve(response);
+            });
+        }
+
+        return promise();
+    }
 
     private static setLoginToken(response: any) {
         this.token = response.token;
@@ -63,6 +80,20 @@ export default class Services {
 	 * Tells if user is logged or not
 	 */
 	static isLoggedIn(): Promise<any> {
+
+        if (!window.navigator.onLine) {
+            return new Promise((resolve, reject) => {
+                const token = localStorage.getItem('token');
+                const accounts = Vue.prototype.$accounts.load();
+                const found = accounts.find((item: any) => item.token === token);
+                if (found) {
+                    resolve(found);
+                } else {
+                    reject();
+                }
+            });
+        }
+
         return Query.post('/auth/verify');
 	}
 
@@ -108,17 +139,31 @@ export default class Services {
 	 * Get all languages
 	 */
 	static getLanguages(): Promise<any> {
-		return Query.get('/language');
+        return this.onlineFirst(
+            db.languages,
+            () => Query.get('/language'),
+        )
+            .then(items => {
+                db.languages.bulkPut(items);
+                return items;
+            });
 	}
 
 	/**
 	 * Get all voices
 	 */
 	static getVoices(): Promise<any> {
-		return Query.get('/voice')
-            .then(voices => {
+        return this.onlineFirst(
+            db.voices,
+            () => Query.get('/voice'),
+        )
+            .then(items => {
+                db.voices.bulkPut(items);
+                return items;
+            })
+            .then((voices: Array<Voice>) => {
                 const languages: any = [];
-                voices.forEach((voice: any) => {
+                voices.forEach(voice => {
                     const code = voice.language.code.substring(0, 2);
                     let existing = languages.find((language: any) => language.code === code);
                     if (!existing) {
@@ -139,16 +184,27 @@ export default class Services {
 	 * Get all decks
 	 */
 	static getDecks(): Promise<any> {
-		return Query.get('/deck')
-            .then(response => response.map((deck: any) => new DeckModel(deck)));
+        return this.onlineFirst(
+            db.decks,
+            () => Query.get('/deck'),
+        )
+            .then(items => {
+                db.decks.bulkPut(items);
+                return items;
+            })
+            .then(decks => decks.map((deck: Deck) => new DeckModel(deck)));
 	}
 
 	/**
 	 * Get specific deck
 	 */
 	static getDeck(id: string): Promise<any> {
-		return Query.get('/deck/' + id)
-            .then(response => new DeckModel(response))
+        return this.onlineFirst(
+            db.decks,
+            () => Query.get('/deck/' + id),
+            model => model.where({ id }).first(),
+        )
+            .then(response => new DeckModel(response));
 	}
 
 	/**
@@ -157,8 +213,12 @@ export default class Services {
 	static createDeck(deck: any): Promise<any> {
         const clone = Vue.prototype.$deepClone(deck.data);
         clone.playback_settings = new PlaybackSettingsModel().data;
-		return Query.post('/deck', clone)
-            .then(response => new DeckModel(response))
+        return this.onlineFirst(
+            db.decks,
+            () => Query.post('/deck', clone),
+            model => model.add(clone),
+        )
+            .then(response => new DeckModel(response));
 	}
 
 	/**
@@ -167,38 +227,65 @@ export default class Services {
 	static updateDeck(id: string, deck: any): Promise<any> {
         const clone = Vue.prototype.$deepClone(deck.data);
         clone.playback_settings = Vue.prototype.$deepClone(clone.playback_settings.data);
-		return Query.put('/deck/' + id, clone)
-            .then(response => new DeckModel(response))
+        return this.onlineFirst(
+            db.decks,
+            () => Query.put('/deck/' + id, clone),
+            model => {
+                model.update(id, clone);
+                return clone;
+            },
+        )
+            .then(response => new DeckModel(response));
 	}
 
 	/**
 	 * Delete specific deck
 	 */
 	static deleteDeck(id: string): Promise<any> {
-		return Query.delete('/deck/' + id);
+        return this.onlineFirst(
+            db.decks,
+            () => Query.delete('/deck/' + id),
+            model => model.delete(id),
+        );
 	}
 
 	/**
 	 * Get all cards
 	 */
 	static getCards(deckId?: number): Promise<any> {
-		return Query.get('/card', deckId ? {
-            deckId,
-        } : undefined);
+        return this.onlineFirst(
+            db.cards,
+            () => Query.get('/card', deckId ? { deckId } : undefined),
+            model => model.filter(card => {
+                return card.deck_id === deckId;
+            }).toArray()
+        )
+            .then(items => {
+                db.cards.bulkPut(items);
+                return items;
+            });
 	}
 
 	/**
 	 * Get specific card
 	 */
 	static getCard(id: string): Promise<any> {
-		return Query.get('/card/' + id);
+        return this.onlineFirst(
+            db.cards,
+            () => Query.get('/card/' + id),
+            model => model.where({ id }).first(),
+        )
+            .then(item => {
+                db.cards.put(item);
+                return item;
+            });
 	}
 
 	/**
 	 * Create new card
 	 */
 	static createCard(front: string, back: string, frontVoiceId: number, backVoiceId: number, frontSynthesized?: any, backSynthesized?: any, deckId?: number): Promise<any> {
-		return Query.post('/card', {
+        const data = {
             deck_id: deckId,
             front,
             back,
@@ -206,35 +293,59 @@ export default class Services {
             back_voice_id: backVoiceId,
             front_synthesized: frontSynthesized,
             back_synthesized: backSynthesized,
-		});
+        };
+        return this.onlineFirst(
+            db.cards,
+            () => Query.post('/card', data),
+            model => model.add(data),
+        );
 	}
 
 	/**
 	 * Create new card
 	 */
 	static bulkCreateCards(cards: any[]): Promise<any> {
-		return Query.post('/card/bulk', cards);
+		return this.onlineFirst(
+            db.cards,
+            () => Query.post('/card/bulk', cards),
+            model => model.bulkAdd(cards),
+        );
 	}
 
 	/**
 	 * Update specific card
 	 */
 	static updateCard(card: any): Promise<any> {
-		return Query.put('/card/' + card.id, card);
+        return this.onlineFirst(
+            db.cards,
+            () => Query.put('/card/' + card.id, card),
+            model => {
+                model.update(card.id, card);
+                return card;
+            },
+        );
 	}
 
 	/**
 	 * Update specific card
 	 */
 	static bulkUpdateCards(cards: any[]): Promise<any> {
-		return Query.put('/card/bulk', cards);
+        return this.onlineFirst(
+            db.cards,
+            () => Query.put('/card/bulk', cards),
+            model => model.bulkPut(cards),
+        );
 	}
 
 	/**
 	 * Delete specific card
 	 */
 	static deleteCard(id: string): Promise<any> {
-		return Query.delete('/card/' + id);
+        return this.onlineFirst(
+            db.cards,
+            () => Query.delete('/card/' + id),
+            model => model.delete(id),
+        );
 	}
 
 	/**
@@ -242,7 +353,11 @@ export default class Services {
 	 */
 	static bulkDeleteCards(cards: any[]): Promise<any> {
         const ids = cards.map(card => card.id);
-		return Query.delete('/card/bulk', ids);
+        return this.onlineFirst(
+            db.cards,
+            () => Query.delete('/card/bulk', ids),
+            model => model.bulkDelete(ids),
+        );
 	}
 
     /**
@@ -263,5 +378,83 @@ export default class Services {
                 link.click();
                 link.remove();
             });
+    }
+
+    /**
+     * Get all dictionaries
+     */
+    static getDictionaries(): Promise<any> {
+        return this.onlineFirst(
+            db.dictionaries,
+            () => Query.get('/dictionary'),
+        )
+            .then(items => {
+                db.dictionaries.bulkPut(items);
+                return items;
+            });
+    }
+
+    /**
+     * Get all dictionary
+     */
+    static getDictionary(id: string): Promise<any> {
+        return this.onlineFirst(
+            db.dictionaries,
+            () => Query.get('/dictionary/' + id),
+            model => model.where({ id }).first(),
+        )
+            .then(item => {
+                db.dictionaries.put(item);
+                return item;
+            });
+    }
+
+    /**
+     * Get all dictionary categories
+     */
+    static getDictionaryCategories(): Promise<any> {
+        return this.onlineFirst(
+            db.dictionary_categories,
+            () => Query.get('/dictionary/category'),
+        )
+            .then(items => {
+                db.dictionary_categories.bulkPut(items);
+                return items;
+            });
+    }
+
+    /**
+     * Get all dictionary items
+     */
+    static getDictionaryItems(uuid: string): Promise<any> {
+        return this.onlineFirst(
+            db.dictionary_items,
+            () => Query.get('/dictionary/' + uuid + '/items'),
+        )
+            .then(items => {
+                db.dictionary_items.bulkPut(items);
+                return items;
+            });
+    }
+
+    /**
+     * Sync all data
+     */
+    static syncData(): Promise<any> {
+        return Promise.all([
+            this.getLanguages(),
+            this.getVoices(),
+            this.getDecks(),
+            this.getDictionaries(),
+        ]).then(([languages, voices, decks, dictionaries]) => {
+            const promises: Array<Promise<any>> = [
+                this.getCards()
+            ];
+            decks.forEach((deck: any) => promises.push(this.getCards(deck.data.id)));
+            return Promise.all(promises)
+                .then(cards => {
+                    return { languages, voices, decks, cards, dictionaries };
+                })
+        });
     }
 }

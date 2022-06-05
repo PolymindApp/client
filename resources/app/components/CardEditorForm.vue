@@ -11,6 +11,7 @@
                         <v-skeleton-loader v-if="skeleton" style="flex: 1" height="48" type="text" class="ml-2 pt-4 pb-3"></v-skeleton-loader>
                         <component
                             v-else
+                            id="card_editor_voice_front"
                             v-model="_voiceFront"
                             :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
                             :items="_voices"
@@ -38,6 +39,7 @@
                             <v-skeleton-loader v-if="skeleton" style="flex: 1" height="48" type="text" class="mr-2 pt-4 pb-3"></v-skeleton-loader>
                             <component
                                 v-else
+                                id="card_editor_voice_back"
                                 v-model="_voiceBack"
                                 :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
                                 :items="_voices"
@@ -376,7 +378,6 @@ export default {
         },
         handlePasteClick(side) {
             navigator.clipboard.readText().then(text => {
-                console.log(text);
                 if (text.trim().length > 0) {
                     this['_' + side] = text;
                     this.$refs[side].$el.querySelector('input').select();
@@ -387,7 +388,7 @@ export default {
         },
         handleBeforeRecord(voice, text, callback = () => ({})) {
             return new Promise((resolve, reject) => {
-                if (!voice || !text) {
+                if (!voice) {
                     callback();
                     resolve();
                 } else {

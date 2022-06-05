@@ -1,5 +1,5 @@
 <template>
-    <v-container class="fill-height pa-0 d-flex flex-column" tabindex="0" fluid v-bind="$attrs" v-on="$listeners" v-touch="{
+    <Page :title="deckName" class="fill-height pa-0 d-flex flex-column" tabindex="0" fluid v-bind="$attrs" v-on="$listeners" v-touch="{
         up: handleSwipeUp,
         down: handleSwipeDown,
         left: handleSwipeLeft,
@@ -10,16 +10,24 @@
     }" v-hotkey="keymap"
     @mousemove="handleMouseMouse">
 
-        <!-- TITLE -->
-        <portal to="title">
-            <v-app-bar-title>
-                <span v-text="deckName"></span>
-            </v-app-bar-title>
-        </portal>
-
         <!-- BREADCRUMBS -->
         <portal to="desktop_nav">
             <DesktopNav :deck="deck" background-color="transparent" hide-slider />
+        </portal>
+
+        <!-- ACTIONS -->
+        <portal v-if="$vuetify.breakpoint.mdAndUp" to="toolbar_right">
+            <ShortcutDialog
+                :title="$t('shortcutDialog.title')"
+                :visible.sync="shortcutDialog.visible"
+                :shortcuts="shortcuts"
+                max-width="600"
+                scrollable
+            />
+            <v-btn outlined text @click="handleShortcutClick">
+                <v-icon left>mdi-keyboard</v-icon>
+                <span v-text="$t('session.shortcuts.btn')"></span>
+            </v-btn>
         </portal>
 
         <!-- OPTIONS -->
@@ -37,12 +45,12 @@
                 </v-list-item-icon>
                 <v-list-item-content v-text="$t('btn.reset')"></v-list-item-content>
             </v-list-item>
-            <v-list-item :disabled="!canExport" @click="handleExportClick">
-                <v-list-item-icon>
-                    <v-icon>mdi-cloud-download-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content v-text="$t('btn.exportSession')"></v-list-item-content>
-            </v-list-item>
+<!--            <v-list-item :disabled="!canExport" @click="handleExportClick">-->
+<!--                <v-list-item-icon>-->
+<!--                    <v-icon>mdi-cloud-download-outline</v-icon>-->
+<!--                </v-list-item-icon>-->
+<!--                <v-list-item-content v-text="$t('btn.exportSession')"></v-list-item-content>-->
+<!--            </v-list-item>-->
             <v-divider class="my-2" />
         </portal>
 
@@ -64,19 +72,19 @@
         />
 
         <!-- EXPORT TO MP3 SETTINGS -->
-        <Modal v-model="exportSessionDialog.visible" :disabled="exportSessionDialog.loading" :title="$t('deck.play.exportSessionDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" persistent scrollable>
-            <template #body>
-                <div v-text="$t('deck.play.exportSessionDialog.desc')"></div>
-            </template>
-            <template #buttons>
-                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="exportSessionDialog.loading" :disabled="exportSessionDialog.loading" color="primary" large @click="exportSession">
-                    <span v-text="$t('btn.export')"></span>
-                </v-btn>
-                <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="exportSessionDialog.loading" outlined large @click="exportSessionDialog.visible = false">
-                    <span v-text="$t('btn.cancel')"></span>
-                </v-btn>
-            </template>
-        </Modal>
+<!--        <Modal v-model="exportSessionDialog.visible" :disabled="exportSessionDialog.loading" :title="$t('session.exportSessionDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" persistent scrollable>-->
+<!--            <template #body>-->
+<!--                <div v-text="$t('session.exportSessionDialog.desc')"></div>-->
+<!--            </template>-->
+<!--            <template #buttons>-->
+<!--                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="exportSessionDialog.loading" :disabled="exportSessionDialog.loading" color="primary" large @click="exportSession">-->
+<!--                    <span v-text="$t('btn.export')"></span>-->
+<!--                </v-btn>-->
+<!--                <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="exportSessionDialog.loading" outlined large @click="exportSessionDialog.visible = false">-->
+<!--                    <span v-text="$t('btn.cancel')"></span>-->
+<!--                </v-btn>-->
+<!--            </template>-->
+<!--        </Modal>-->
 
         <!-- LAYOUT -->
         <div id="layout" ref="layout" :style="layoutStyle" :class="{
@@ -94,7 +102,7 @@
                                 color="primary"
                                 outlined
                             >
-                                <span v-text="$t('deck.play.playbackSettings.cardRangeMode.' + (_settings.data.cardRangeMode ? _settings.data.cardRangeMode : 'repeat'))"></span>
+                                <span v-text="$t('session.playbackSettings.cardRangeMode.' + (_settings.data.cardRangeMode ? _settings.data.cardRangeMode : 'repeat'))"></span>
                             </v-chip>
                         </v-col>
                         <v-col cols="4" class="text-center"></v-col>
@@ -107,7 +115,7 @@
                                         </v-btn>
                                     </v-expand-transition>
                                 </template>
-                                <span v-text="$t('deck.play.eject')"></span>
+                                <span v-text="$t('session.eject')"></span>
                             </v-tooltip>
                         </v-col>
                     </v-row>
@@ -123,25 +131,25 @@
                         </v-btn>
                         <div v-else-if="originalCards.length === 0" class="text-center" style="max-width: 15rem">
                             <v-icon color="warning" x-large>mdi-alert</v-icon>
-                            <h3 class="mt-2" v-text="$t('deck.play.emptyWarning')"></h3>
+                            <h3 class="mt-2" v-text="$t('session.emptyWarning')"></h3>
                         </div>
                         <div v-else-if="filteredCards.length === 0 && !ready" class="text-center" style="max-width: 15rem">
                             <v-icon color="warning" x-large>mdi-alert</v-icon>
-                            <h3 class="mt-2" v-text="$t('deck.play.emptyFiltersWarning')"></h3>
+                            <h3 class="mt-2" v-text="$t('session.emptyFiltersWarning')"></h3>
                         </div>
                         <div v-else-if="filteredCards[index]" class="px-4 text-center abs_middle">
                             <template v-for="range in indexes">
-                                <transition :key="'front_' + filteredCards[range].id" :name="transition" :css="_settings.data.animation">
+                                <transition :key="'front_' + filteredCards[range].id" :name="transition">
                                     <v-card v-if="ready && showFront && index === range">
-                                        <h1 v-ripple @click="handleClickCard(filteredCards[range], 'front')" :class="{
+                                        <h1 v-ripple="currentSideHasAudio" @click="handleClickCard(filteredCards[range], 'front')" :class="{
                                             'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !_settings.data.flipped,
                                             'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': _settings.data.flipped,
                                         }" v-text="filteredCards[range].front"></h1>
                                     </v-card>
                                 </transition>
-                                <transition :key="'back_' + filteredCards[range].id" :name="transition" :css="_settings.data.animation">
+                                <transition :key="'back_' + filteredCards[range].id" :name="transition">
                                     <v-card v-if="ready && showBack && index === range">
-                                        <h1 v-ripple @click="handleClickCard(filteredCards[range], 'back')" :class="{
+                                        <h1 v-ripple="currentSideHasAudio" @click="handleClickCard(filteredCards[range], 'back')" :class="{
                                             'text-capitalize-first text-h4 text-md-h3 text-lg-h2': _settings.data.flipped,
                                             'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !_settings.data.flipped,
                                         }" v-text="filteredCards[range].back"></h1>
@@ -156,7 +164,7 @@
                 </div>
                 <v-container style="flex: 0" class="pa-4" fluid>
                     <v-row>
-                        <v-col cols="3" class="d-flex align-center justify-start" style="gap: 1rem">
+                        <v-col cols="3" class="d-flex align-center justify-start" style="gap: 0.5rem">
                             <v-expand-transition>
                                 <v-btn v-if="showControls" icon :disabled="playing ? !canPause : !canPlay" @click="() => playing ? handlePauseClick() : handlePlayClick()">
                                     <v-icon v-text="playing ? 'mdi-pause' : 'mdi-play'"></v-icon>
@@ -168,23 +176,23 @@
                                 </v-btn>
                             </v-expand-transition>
                         </v-col>
-                        <v-col cols="6" class="d-flex align-center justify-center text-center" style="gap: 1rem">
-                            <v-btn v-if="showControls" :disabled="!canGoFirst" icon @click="goFirst">
+                        <v-col cols="6" class="d-flex align-center justify-center text-center text-no-wrap" style="gap: 1rem">
+                            <v-btn v-if="showControls && originalCards.length > 0" :disabled="!canGoFirst" icon @click="goFirst">
                                 <v-icon>mdi-page-first</v-icon>
                             </v-btn>
                             <template v-if="showControls">
                                 <span v-if="!ready"></span>
-                                <span v-else-if="filteredCards.length > 0" v-text="$t('deck.play.indexOf', {
+                                <span v-else-if="filteredCards.length > 0" v-text="$t('session.indexOf', {
                                     current: index + 1,
                                     total: filteredCards.length,
                                 })"></span>
-                                <span v-else-if="filteredCards.length < originalCards.length" v-text="$t('deck.play.noCardsLeft')"></span>
+                                <span v-else-if="filteredCards.length < originalCards.length" v-text="$t('session.noCardsLeft')"></span>
                             </template>
-                            <v-btn v-if="showControls" :disabled="!canGoLast" icon @click="goLast">
+                            <v-btn v-if="showControls && originalCards.length > 0" :disabled="!canGoLast" icon @click="goLast">
                                 <v-icon>mdi-page-last</v-icon>
                             </v-btn>
                         </v-col>
-                        <v-col cols="3" class="d-flex align-center justify-end">
+                        <v-col cols="3" class="d-flex align-center justify-end" style="gap: 0.5rem">
                             <v-expand-transition>
                                 <v-btn v-if="showControls" icon :disabled="!canFullscreen" @click="() => fullscreen ? handleExitFullScreenClick() : handleEnterFullScreenClick()">
                                     <v-icon v-if="!fullscreen">mdi-fullscreen</v-icon>
@@ -199,33 +207,30 @@
                 </v-expand-transition>
             </div>
         </div>
-
-        <!-- MOBILE FOOTER -->
-        <v-expand-transition>
-            <MobileNav v-if="showMobileNav" class="w-100" />
-        </v-expand-transition>
-    </v-container>
+    </Page>
 </template>
 
 <script>
 import DeckSelect from '@/components/breadcrumbs/DeckSelect';
 import MobileNav from '@/components/layout/MobileNav';
 import DesktopNav from '@/components/layout/DesktopNav';
+import Page from '@/components/layout/Page';
 import PlaybackSettingsModal from '@/components/PlaybackSettingsModal';
 import Modal from '@/components/generic/Modal';
-import DeckModel from '@/models/DeckModel';
+import ShortcutDialog from '@/components/ShortcutDialog';
 import PlaybackSettingsModel from '@/models/PlaybackSettingsModel';
 import Services from "@/utils/Services";
-import audioDecode from 'audio-decode';
-import Crunker from 'crunker';
-import ambiencesJson from '../../../../../.ambiences.json';
-
-let autoPlayBus;
+import ambiencesJson from '../../../../.ambiences.json';
+import DeckMixin from "@/mixins/deck.mixin";
+// import audioDecode from 'audio-decode';
+// import Crunker from 'crunker';
 
 export default {
     name: "Play",
 
-    components: { DeckSelect, MobileNav, Modal, DesktopNav, PlaybackSettingsModal },
+    mixins: [DeckMixin],
+
+    components: { DeckSelect, MobileNav, Modal, DesktopNav, PlaybackSettingsModal, ShortcutDialog, Page },
 
     data: () => ({
         loading: false,
@@ -249,7 +254,6 @@ export default {
         index: -1,
         progress: 0,
         repeat: 0,
-        deck: new DeckModel(),
         settings: new PlaybackSettingsModel(),
         audios: {},
         ambience: new Audio(),
@@ -259,32 +263,45 @@ export default {
             visible: false,
             data: new PlaybackSettingsModel(),
         },
-        exportSessionDialog: {
+        shortcutDialog: {
             visible: false,
-            loading: false,
-            data: {},
         },
+        // exportSessionDialog: {
+        //     visible: false,
+        //     loading: false,
+        //     data: {},
+        // },
         buffer: null,
         transition: 'slide',
     }),
 
     computed: {
-        keymap() {
+
+        shortcuts() {
             const noop = () => null;
-            return {
-                'm': this.toggleMute,
-                'backspace': this.canEject ? this.handleEjectKeyDown : noop,
-                'space': this.canPlay ? this.handlePlayClick : this.canPause ? this.handlePauseClick : noop,
-                'pageup': this.canMoveForward ? () => this.moveForward(20) : noop,
-                'pagedown': this.canMoveBackward ? () => this.moveBackward(20) : noop,
-                'home': this.canGoFirst ? this.goFirst : noop,
-                'end': this.canGoLast ? this.goLast : noop,
-                'left': this.canGoPrevious ? this.handlePrevClick : noop,
-                'right': this.canGoNext ? this.handleNextClick : noop,
-                'up': this.canFlip ? this.flipFirst : noop,
-                'down': this.canFlip ? this.flipOther : noop,
-                'f': this.canFullscreen ? () => this.setFullscreen(!this.fullscreen) : noop,
-            }
+            return [
+                { key: 'left', i18n: 'shortcut.previous', callback: this.canGoPrevious ? this.handlePrevClick : noop },
+                { key: 'right', i18n: 'shortcut.next', callback: this.canGoNext ? this.handleNextClick : noop },
+                { key: 'up', i18n: 'shortcut.flipFirst', callback: this.canFlip ? this.flipFirst : noop },
+                { key: 'down', i18n: 'shortcut.flipOther', callback: this.canFlip ? this.flipOther : noop },
+                { key: 'backspace', i18n: 'shortcut.eject', callback: this.canEject ? this.handleEjectKeyDown : noop },
+                { key: 'space', i18n: 'shortcut.togglePlayPause', callback: this.canPlay ? this.handlePlayClick : this.canPause ? this.handlePauseClick : noop },
+                { key: 'pageup', i18n: 'shortcut.moveForward', callback: this.canMoveForward ? () => this.moveForward(20) : noop },
+                { key: 'pagedown', i18n: 'shortcut.moveBackward', callback: this.canMoveBackward ? () => this.moveBackward(20) : noop },
+                { key: 'home', i18n: 'shortcut.first', callback: this.canGoFirst ? this.goFirst : noop },
+                { key: 'end', i18n: 'shortcut.last', callback: this.canGoLast ? this.goLast : noop },
+                { key: 'm', i18n: 'shortcut.toggleMute', callback: this.toggleMute },
+                { key: 'r', i18n: 'shortcut.repeatCurrentWordAudio', callback: this.repeatCurrentWordAudio },
+                { key: 'f', i18n: 'shortcut.toggleFullscreen', callback: this.canFullscreen ? () => this.setFullscreen(!this.fullscreen) : noop },
+            ];
+        },
+
+        keymap() {
+            const keymap = {};
+            this.shortcuts.forEach(shortcut => {
+                keymap[shortcut.key] = shortcut.callback;
+            });
+            return keymap;
         },
 
         _settings() {
@@ -368,13 +385,6 @@ export default {
             return this.cards.map(card => new Date(card.created_at).toISOString().substr(0, 10));
         },
 
-        showMobileNav() {
-            return this.$vuetify.breakpoint.smAndDown
-                && !this.$root.inputFocused
-                && !this.$root.lockFocus
-                && this.$root.orientation === 'portrait';
-        },
-
         showNavigation() {
             return !this.skeleton && this.originalCards.length > 0 && (this.$vuetify.breakpoint.mdAndUp || this.$root.orientation === 'landscape') && this.showControls;
         },
@@ -410,6 +420,10 @@ export default {
                 || (this._settings.data.flipped && this.showBack);
         },
 
+        currentSideHasAudio() {
+            return this.currentAudio[this.showFront ? 'front' : 'back'] ? true : false;
+        },
+
         isOtherSide() {
             return (!this._settings.data.flipped && this.showBack)
                 || (this._settings.data.flipped && this.showFront);
@@ -417,10 +431,6 @@ export default {
 
         currentAudio() {
             return (this.audios[(this.filteredCards[this.index] || {}).id] || {});
-        },
-
-        deckName() {
-            return this.deck.data.name || this.$i18n.t('state.unclassified');
         },
 
         background() {
@@ -488,10 +498,6 @@ export default {
     },
 
     watch: {
-        '$i18n.locale'() {
-            this.title = this.deckName;
-            document.title = this.deckName;
-        },
         index: {
             handler(newValue, oldValue) {
 
@@ -507,7 +513,7 @@ export default {
                     }
                 }
 
-                const currentCardId = (this.filteredCards[this.index] || {}).id;
+                const currentCardId = (this.filteredCards[this.index] || {}).id || null;
                 if (this._settings.data.lastCardId !== currentCardId) {
                     this.mustSaveSettings = true;
                     this.settings.data.lastCardId = currentCardId;
@@ -536,6 +542,10 @@ export default {
     },
 
     methods: {
+        handleShortcutClick() {
+            this.shortcutDialog.visible = true;
+        },
+
         handleKeyDown() {
             this.active = true;
         },
@@ -559,7 +569,7 @@ export default {
         handleUpdateSettings(settings) {
             this.settings = settings;
             this.applySettings();
-            this.$snack(this.$i18n.t('deck.play.playbackSettings.applied'));
+            this.$snack(this.$i18n.t('session.playbackSettings.applied'));
 
             this.deck.data.playback_settings = settings.clone();
             this.settingsHasBeenUpdated = true;
@@ -883,8 +893,10 @@ export default {
 
         playCurrentWordAudio() {
             const side = this.showFront ? 'front' : 'back';
-            this.currentAudio[side].element.currentTime = 0;
-            this.currentAudio[side].element.play();
+            if (this.currentAudio[side]) {
+                this.currentAudio[side].element.currentTime = 0;
+                this.currentAudio[side].element.play();
+            }
         },
 
         pauseAudio() {
@@ -900,7 +912,37 @@ export default {
 
         load() {
             this.loading = true;
-            Services.getCards(this.deck ? this.deck.data.id : undefined)
+            (this.$route.name === 'session.dictionary'
+                ? Services.getDictionaryItems(this.$route.params.uuid)
+                : Services.getCards(this.deck ? this.deck.data.id : undefined))
+                .then(response => {
+                    if (this.$route.name === 'session.dictionary') {
+                        return response.map(item => {
+                            const card = {
+                                id: item.id,
+                                created_at: item.created_at,
+                            };
+                            const frontIdx = item.i18n.findIndex(i18n => i18n.language.code === this.$route.params.lang_front);
+                            if (frontIdx !== -1) {
+                                Object.assign(card, {
+                                    front: item.i18n[frontIdx].text,
+                                    front_synthesized: item.i18n[frontIdx].text_synthesized,
+                                });
+                            }
+                            if (this.$route.params.lang_back) {
+                                const backIdx = item.i18n.findIndex(i18n => i18n.language.code === this.$route.params.lang_back);
+                                if (backIdx !== -1) {
+                                    Object.assign(card, {
+                                        back: item.i18n[backIdx].text,
+                                        back_synthesized: item.i18n[backIdx].text_synthesized,
+                                    });
+                                }
+                            }
+                            return card;
+                        }).sort((a, b) => a.created_at > b.created_at ? 1 : -1);
+                    }
+                    return response;
+                })
                 .then(cards => {
                     Object.assign(this, {
                         cards,
@@ -1076,56 +1118,56 @@ export default {
             });
         },
 
-        exportSession() {
-            this.exportSessionDialog.loading = true;
-
-            const promises = [];
-            this.filteredCards.forEach(card => {
-                promises.push(audioDecode(atob(card.front_synthesized.substring(22))));
-                promises.push(audioDecode(atob(card.back_synthesized.substring(22))));
-            });
-            return Promise.all(promises)
-                .then(buffers => {
-                    let buffer = new AudioBuffer({
-                        length: 1,
-                        sampleRate: 44100,
-                    });
-                    const crunker = new Crunker();
-                    crunker.fetchAudio(this._settings.data.ambience ? [
-                        this._settings.data.ambience,
-                    ] : []).then(ambiences => {
-                        this.filteredCards.forEach((card, cardIdx) => {
-                            buffer = crunker.concatAudio([buffer, buffers[cardIdx]]);
-                            buffer = crunker.padAudio(buffer, buffer.duration - 0.0001, this._settings.data.delay);
-                        });
-                        ambiences.forEach((ambience, ambienceIdx) => {
-                            const newBuffer = new AudioBuffer({
-                                length: ambience.length,
-                                numberOfChannels: ambience.numberOfChannels,
-                                sampleRate: ambience.sampleRate
-                            });
-                            for (let channel = 0; channel < ambience.numberOfChannels; channel += 1) {
-                                const channelData = ambience.getChannelData(channel);
-                                const newChannelData = newBuffer.getChannelData(channel);
-
-                                for (let sample = 0; sample < channelData.length; sample += 1) {
-                                    newChannelData[sample] = channelData[sample] * this.volume;
-                                }
-                            }
-                            ambiences[ambienceIdx] = newBuffer;
-                        });
-                        buffer = crunker.mergeAudio([buffer, ...ambiences]);
-                        this.buffer = buffer;
-
-                        const output = crunker.export(this.buffer, 'audio/wav');
-                        crunker.download(output.blob, this.deckName);
-                        this.exportSessionDialog.loading = false;
-                        this.exportSessionDialog.visible = false;
-
-                        this.$snack(this.$i18n.t('snack.exportSessionCompleted'));
-                    })
-                });
-        },
+        // exportSession() {
+        //     this.exportSessionDialog.loading = true;
+        //
+        //     const promises = [];
+        //     this.filteredCards.forEach(card => {
+        //         promises.push(audioDecode(atob(card.front_synthesized.substring(22))));
+        //         promises.push(audioDecode(atob(card.back_synthesized.substring(22))));
+        //     });
+        //     return Promise.all(promises)
+        //         .then(buffers => {
+        //             let buffer = new AudioBuffer({
+        //                 length: 1,
+        //                 sampleRate: 44100,
+        //             });
+        //             const crunker = new Crunker();
+        //             crunker.fetchAudio(this._settings.data.ambience ? [
+        //                 this._settings.data.ambience,
+        //             ] : []).then(ambiences => {
+        //                 this.filteredCards.forEach((card, cardIdx) => {
+        //                     buffer = crunker.concatAudio([buffer, buffers[cardIdx]]);
+        //                     buffer = crunker.padAudio(buffer, buffer.duration - 0.0001, this._settings.data.delay);
+        //                 });
+        //                 ambiences.forEach((ambience, ambienceIdx) => {
+        //                     const newBuffer = new AudioBuffer({
+        //                         length: ambience.length,
+        //                         numberOfChannels: ambience.numberOfChannels,
+        //                         sampleRate: ambience.sampleRate
+        //                     });
+        //                     for (let channel = 0; channel < ambience.numberOfChannels; channel += 1) {
+        //                         const channelData = ambience.getChannelData(channel);
+        //                         const newChannelData = newBuffer.getChannelData(channel);
+        //
+        //                         for (let sample = 0; sample < channelData.length; sample += 1) {
+        //                             newChannelData[sample] = channelData[sample] * this.volume;
+        //                         }
+        //                     }
+        //                     ambiences[ambienceIdx] = newBuffer;
+        //                 });
+        //                 buffer = crunker.mergeAudio([buffer, ...ambiences]);
+        //                 this.buffer = buffer;
+        //
+        //                 const output = crunker.export(this.buffer, 'audio/wav');
+        //                 crunker.download(output.blob, this.deckName);
+        //                 this.exportSessionDialog.loading = false;
+        //                 this.exportSessionDialog.visible = false;
+        //
+        //                 this.$snack(this.$i18n.t('snack.exportSessionCompleted'));
+        //             })
+        //         });
+        // },
 
         applySettings() {
             this.ambience.volume = this.ambienceVolume;
@@ -1218,14 +1260,36 @@ export default {
                 });
             });
         },
+
+        repeatCurrentWordAudio() {
+            const card = this.filteredCards[this.index];
+            const side = this.showFront ? 'front' : 'back';
+            if (this.audios[card.id] && this.audios[card.id][side]) {
+                this.audios[card.id][side].element.currentTime = 0;
+                this.audios[card.id][side].element.play();
+            }
+        }
     },
 
     created() {
         if (!this.$route.params.uuid) {
-            this.$router.replace({ name: 'deck.edit', params: { uuid: 'unclassified' } })
+            this.$router.replace({ name: 'custom', params: { uuid: 'unclassified' } })
         }
-        this.deck = this.$root.decks.find(deck => deck.data.id === this.$route.params.uuid) || new DeckModel();
-        document.title = this.deckName;
+
+        if (this.$route.name === 'session') {
+            this.$store.commit('navigation', {
+                type: 'deck',
+                params: this.$route.params.uuid,
+            });
+        }
+
+        this.$store.commit('navigation', {
+            type: 'session',
+            params: {
+                name: this.$route.name,
+                params: this.$route.params,
+            }
+        });
 
         window.addEventListener('resize', this.checkFullscreen, false);
         window.addEventListener("beforeunload", this.checkSaveSettings, false);

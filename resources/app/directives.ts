@@ -6,10 +6,11 @@ const onMouseInactive = (args: any) => {
 };
 Vue.directive('onMouseInactive', {
     bind: (el, binding, vnode) => {
-        el.addEventListener('mousemove', onMouseInactive.bind(this, binding.value))
+        el.addEventListener('mousemove', onMouseInactive.bind(this, binding.value));
     },
     unbind: (el, binding, vnode) => {
-        el.removeEventListener('mousemove', onMouseInactive.bind(this, binding.value))
+        el.removeEventListener('mousemove', onMouseInactive.bind(this, binding.value));
+        clearTimeout(binding.value.timeout);
     },
 });
 
@@ -19,5 +20,15 @@ Vue.directive('windowFocus', {
     },
     unbind: (el, binding, vnode) => {
         window.removeEventListener('focus', binding.value);
+    },
+});
+
+
+Vue.directive('resize', {
+    bind: (el, binding, vnode) => {
+        window.addEventListener('resize', binding.value);
+    },
+    unbind: (el, binding, vnode) => {
+        window.removeEventListener('resize', binding.value);
     },
 });

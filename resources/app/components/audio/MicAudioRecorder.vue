@@ -51,7 +51,7 @@ export default {
         },
 
         init() {
-            this.audioRecord = new Audio('/assets/sounds/record.wav');
+            this.audioRecord = this.$sound.create('record');
             this.recorder = new MicRecorder({
                 bitRate: 128
             });

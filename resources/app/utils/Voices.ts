@@ -2,7 +2,7 @@ import { VueConstructor } from 'vue';
 
 export default {
     install: function (Vue: VueConstructor) {
-        Vue.prototype.$formatVoices = function(voices: Array<any>) {
+        Vue.prototype.$formatVoices = function(voices: Array<any>): Array<any> {
             const items: Array<any> = [];
             voices.forEach(language => {
                 items.push({ header: language.name });
@@ -18,3 +18,9 @@ export default {
         };
     }
 };
+
+declare module 'vue/types/vue' {
+    interface Vue {
+        $formatVoices: (voices: Array<any>) => Array<any>
+    }
+}

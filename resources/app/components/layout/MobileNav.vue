@@ -2,23 +2,29 @@
     <v-sheet v-bind="$attrs" v-on="$listeners">
         <v-divider />
         <v-sheet class="w-100 d-flex align-center">
-            <v-card class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="{ name: 'deck.edit', params: { uuid: $route.params.uuid } }" exact flat tile>
-                <v-icon>mdi-pencil</v-icon>
-                <div class="caption" v-text="$t('btn.edit')"></div>
+            <v-card id="nav_dictionary" class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="routeDictionary" flat tile>
+                <v-icon>mdi-book-open-variant</v-icon>
+                <div class="caption" v-text="$t('nav.dictionary')"></div>
             </v-card>
-            <v-card class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="{ name: 'deck.play', params: { uuid: $route.params.uuid } }" exact flat tile>
-                <v-icon>mdi-play</v-icon>
-                <div class="caption" v-text="$t('btn.play')"></div>
+            <v-card id="nav_custom" class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="{ name: 'custom', params: { uuid: deckUuid } }" flat tile>
+                <v-icon>mdi-cards</v-icon>
+                <div class="caption" v-text="$t('nav.custom')"></div>
+            </v-card>
+            <v-card id="nav_session" class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="routeSession" flat tile>
+                <v-icon>mdi-headphones</v-icon>
+                <div class="caption" v-text="$t('nav.session')"></div>
             </v-card>
         </v-sheet>
     </v-sheet>
 </template>
 
 <script>
-import EventBus from "@/utils/EventBus";
+import navigationMixin from '@/mixins/navigation.mixin';
 
 export default {
     name: "MobileNav",
+
+    mixins: [navigationMixin],
 
     props: {
         loading: {

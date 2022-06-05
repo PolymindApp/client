@@ -4,9 +4,11 @@ import 'vuetify/dist/vuetify.min.css'
 
 Vue.use(Vuetify);
 
+const userPrefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
 export default new Vuetify({
 	theme: {
-        dark: localStorage.getItem('dark') === null ? false : localStorage.getItem('dark') === 'true',
+        dark: localStorage.getItem('dark') === null ? userPrefersDarkMode : localStorage.getItem('dark') === 'true',
 		options: {
 			customProperties: true,
 		},
@@ -16,6 +18,7 @@ export default new Vuetify({
 				surface: '#DDD',
 				discreet: '#888',
 				primary: '#1B8E8A',
+				selected: '#0f726f',
 				secondary: '#FF7383',
 				third: '#F9BE6C',
 				accent: '#82B1FF',
@@ -29,6 +32,7 @@ export default new Vuetify({
                 surface: '#444',
                 discreet: '#888',
 				primary: '#1B8E8A',
+                selected: '#0f726f',
 				secondary: '#FF7383',
 				third: '#F9BE6C',
 				accent: '#82B1FF',

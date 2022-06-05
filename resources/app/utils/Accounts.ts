@@ -21,10 +21,6 @@ export default {
                 try {
                     const jsonStr = JSON.stringify(accounts);
                     localStorage.setItem('accounts', jsonStr);
-
-                    globalVariables.accounts.slice(0, globalVariables.accounts.length);
-                    // @ts-ignore
-                    globalVariables.accounts.push(...accounts);
                 } catch(e) {
 
                 }
@@ -39,6 +35,7 @@ export default {
                     Object.assign(found, account);
                     this.save(accounts);
                 }
+                return accounts;
             }
         };
     }

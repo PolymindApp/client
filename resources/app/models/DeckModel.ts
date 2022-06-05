@@ -5,7 +5,7 @@ export default class DeckModel extends BaseModel {
 
     public data: any = {};
 
-    private defaultStructure = {
+    protected defaultStructure = {
         id: null,
         default_front_voice_id: null,
         default_back_voice_id: null,
@@ -18,14 +18,7 @@ export default class DeckModel extends BaseModel {
 
     constructor(data: any = {}) {
         super();
-        const defaultKeys = Object.keys(this.defaultStructure);
-        Object.assign(this.data, this.defaultStructure, data);
-        Object.keys(this.data).forEach(key => {
-            if (defaultKeys.indexOf(key) === -1) {
-                delete this.data[key];
-            }
-        });
-
+        this.mapDefaultValues(data);
         this.data.playback_settings = new PlaybackSettingsModel(Object.assign({}, data.playback_settings));
     }
 }

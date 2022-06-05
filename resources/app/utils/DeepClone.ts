@@ -7,3 +7,9 @@ export default {
 		};
 	}
 };
+
+declare module 'vue/types/vue' {
+    interface Vue {
+        $deepClone: (message: any) => any
+    }
+}

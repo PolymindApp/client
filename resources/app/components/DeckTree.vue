@@ -90,7 +90,7 @@ export default {
         handleItemClick(id) {
             if (id.length > 0 && this.deck.data.id !== id[0]) {
                 this.$router.push({
-                    name: this.$route.name,
+                    name: ['custom', 'session'].indexOf(this.$route.name) === -1 ? 'session' : this.$route.name,
                     params: { uuid: id[0] || 'unclassified' }
                 });
             }

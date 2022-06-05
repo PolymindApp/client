@@ -1,101 +1,5 @@
 <template>
-    <div class="fill-height">
-
-        <!-- IMPORTING -->
-        <v-overlay :value="importing">
-            <v-card min-width="10rem">
-                <v-card-title class="justify-center">
-                    <span v-text="$t('state.importing')"></span>
-                </v-card-title>
-                <v-card-text class="text-center">
-                    <v-progress-linear color="primary" indeterminate></v-progress-linear>
-                    <p class="mb-0 mt-4" v-text="$t('state.fetchingVoices')"></p>
-                </v-card-text>
-            </v-card>
-        </v-overlay>
-
-        <!-- ADD/EDIT DECK -->
-        <v-form ref="form" :disabled="deckModal.loading" v-model="deckModal.formIsValid" @submit="handleDeckFormSubmit" lazy-validation>
-            <Modal v-model="deckModal.visible" :title="$t('deckModal.title' + (deckModal.clonedData.data.id ? 'Edit' : 'New'))" max-width="500" scrollable :fullscreen="$vuetify.breakpoint.smAndDown" persistent>
-                <template #body>
-                    <v-text-field
-                        v-model="deckModal.clonedData.data.name"
-                        :error-messages="deckModal.formErrors.name"
-                        :label="$t('placeholder.name')"
-                        :rules="[rules.required]"
-                        :autofocus="deckModal.visible && $vuetify.breakpoint.mdAndUp"
-                        outlined
-                        required
-                        @input="handleInput"
-                    />
-
-                    <v-autocomplete
-                        v-model="deckModal.clonedData.data.default_front_voice_id"
-                        :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
-                        :items="_voices"
-                        :label="$t('deck.defaultVoiceFront')"
-                        :loading="loading"
-                        :error-messages="deckModal.formErrors.default_front_voice_id"
-                        prepend-inner-icon="mdi-volume-high"
-                        item-text="name"
-                        item-value="id"
-                        class="ma-0 pa-0"
-                        outlined
-                        clearable
-                        @input="handleInput"
-                    />
-
-                    <v-checkbox
-                        v-model="deckModal.clonedData.data.single"
-                        :label="$t('deck.data.single')"
-                        :hint="$t('deck.data.singleHint')"
-                        :loading="loading"
-                        persistent-hint
-                        class="mb-6"
-                        @input="handleInput"
-                    ></v-checkbox>
-
-                    <v-expand-transition>
-                        <v-autocomplete
-                            v-if="!deckModal.clonedData.data.single"
-                            v-model="deckModal.clonedData.data.default_back_voice_id"
-                            :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
-                            :items="_voices"
-                            :label="$t('deck.defaultVoiceBack')"
-                            :loading="loading"
-                            :error-messages="deckModal.formErrors.default_back_voice_id"
-                            prepend-inner-icon="mdi-volume-high"
-                            item-text="name"
-                            item-value="id"
-                            class="ma-0 pa-0"
-                            outlined
-                            clearable
-                            @input="handleInput"
-                        />
-                    </v-expand-transition>
-                </template>
-                <template #buttons>
-                    <v-btn color="primary" large type="submit" :loading="deckModal.loading" :disabled="deckModal.loading" :block="$vuetify.breakpoint.smAndDown" @click="handleDeckFormSubmit">
-                        <span v-text="$t('btn.' + (deckModal.clonedData.data.id ? 'save' : 'create'))"></span>
-                    </v-btn>
-                    <v-btn outlined large :block="$vuetify.breakpoint.smAndDown" @click="deckModal.visible = false">
-                        <span v-text="$t('btn.cancel')"></span>
-                    </v-btn>
-                </template>
-            </Modal>
-        </v-form>
-
-        <!-- TITLE -->
-        <portal to="title">
-            <v-app-bar-title>
-                <span v-text="title"></span>
-            </v-app-bar-title>
-        </portal>
-
-        <!-- DESKTOP NAV -->
-        <portal to="desktop_nav">
-            <DesktopNav :deck="deck" background-color="transparent" hide-slider />
-        </portal>
+    <Page :title="title" class="fill-height pa-0 d-flex flex-column" fluid>
 
         <!-- OPTIONS -->
         <portal to="options">
@@ -150,53 +54,145 @@
             <v-divider class="my-2" />
         </portal>
 
-        <div v-if="$vuetify.breakpoint.mdAndUp" style="margin-bottom: -97.5px">
-            <v-sheet color="surface" height="130px"></v-sheet>
-            <v-divider />
-        </div>
+        <!-- MAIN CONTENT -->
+        <div class="w-100" style="flex: 1">
 
-        <v-container class="pa-0 pa-md-3 d-flex d-md-block flex-column fill-height">
-            <v-expand-transition>
-                <CardEditorForm
-                    v-if="showCardEditorForm"
-                    :deck="deck"
-                    :voices="voices"
-                    :front.sync="front"
-                    :back.sync="back"
-                    :voice-front.sync="voiceFront"
-                    :voice-back.sync="voiceBack"
-                    :front-synthesized.sync="frontSynthesized"
-                    :back-synthesized.sync="backSynthesized"
-                    :loading="loading"
-                    :skeleton="skeleton"
-                    :autofocus="$vuetify.breakpoint.mdAndUp"
-                    class="mb-md-8 w-100"
-                    @add="handleAddCardClick"
-                    @totalCard="handleTotalCard"
-                />
-            </v-expand-transition>
+            <!-- IMPORTING -->
+            <v-overlay :value="importing">
+                <v-card min-width="10rem">
+                    <v-card-title class="justify-center">
+                        <span v-text="$t('state.importing')"></span>
+                    </v-card-title>
+                    <v-card-text class="text-center">
+                        <v-progress-linear color="primary" indeterminate></v-progress-linear>
+                        <p class="mb-0 mt-4" v-text="$t('state.fetchingVoices')"></p>
+                    </v-card-text>
+                </v-card>
+            </v-overlay>
 
-            <div id="listing" :class="{
-                'w-100 pa-3 px-md-0': true,
-                'overflow-y-auto': $vuetify.breakpoint.smAndDown,
-            }" :style="{
-                flexGrow: $vuetify.breakpoint.smAndDown ? 1 : null,
-                height: $vuetify.breakpoint.smAndDown ? 0 : null,
-            }">
-                <CardListing
-                    :cards.sync="cards"
-                    :voices="_voices"
-                    :deck="deck"
-                    :loading="loading"
-                    :skeleton="skeleton"
-                    :selected.sync="selected"
-                    @update="resetVoices"
-                    @selected="handleSelected"
-                    @totalCard="handleTotalCard"
-                />
+            <!-- ADD/EDIT DECK -->
+            <v-form ref="form" :disabled="deckModal.loading" v-model="deckModal.formIsValid" @submit="handleDeckFormSubmit" lazy-validation>
+                <Modal v-model="deckModal.visible" :title="$t('deckModal.title' + (deckModal.clonedData.data.id ? 'Edit' : 'New')).toString()" max-width="500" scrollable :fullscreen="$vuetify.breakpoint.smAndDown" persistent>
+                    <template #body>
+                        <v-text-field
+                            v-model="deckModal.clonedData.data.name"
+                            :error-messages="deckModal.formErrors.name"
+                            :label="$t('placeholder.name')"
+                            :rules="[rules.required]"
+                            :autofocus="deckModal.visible && $vuetify.breakpoint.mdAndUp"
+                            outlined
+                            required
+                            @input="handleInput"
+                        />
+
+                        <v-autocomplete
+                            v-model="deckModal.clonedData.data.default_front_voice_id"
+                            :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
+                            :items="_voices"
+                            :label="$t('deck.defaultVoiceFront')"
+                            :loading="loading"
+                            :error-messages="deckModal.formErrors.default_front_voice_id"
+                            prepend-inner-icon="mdi-volume-high"
+                            item-text="name"
+                            item-value="id"
+                            class="ma-0 pa-0"
+                            outlined
+                            clearable
+                            @input="handleInput"
+                        />
+
+                        <v-checkbox
+                            v-model="deckModal.clonedData.data.single"
+                            :label="$t('deck.data.single')"
+                            :hint="$t('deck.data.singleHint')"
+                            :loading="loading"
+                            persistent-hint
+                            class="mb-6"
+                            @input="handleInput"
+                        ></v-checkbox>
+
+                        <v-expand-transition>
+                            <v-autocomplete
+                                v-if="!deckModal.clonedData.data.single"
+                                v-model="deckModal.clonedData.data.default_back_voice_id"
+                                :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
+                                :items="_voices"
+                                :label="$t('deck.defaultVoiceBack')"
+                                :loading="loading"
+                                :error-messages="deckModal.formErrors.default_back_voice_id"
+                                prepend-inner-icon="mdi-volume-high"
+                                item-text="name"
+                                item-value="id"
+                                class="ma-0 pa-0"
+                                outlined
+                                clearable
+                                @input="handleInput"
+                            />
+                        </v-expand-transition>
+                    </template>
+                    <template #buttons>
+                        <v-btn color="primary" large type="submit" :loading="deckModal.loading" :disabled="deckModal.loading" :block="$vuetify.breakpoint.smAndDown" @click="handleDeckFormSubmit">
+                            <span v-text="$t('btn.' + (deckModal.clonedData.data.id ? 'save' : 'create'))"></span>
+                        </v-btn>
+                        <v-btn outlined large :block="$vuetify.breakpoint.smAndDown" @click="deckModal.visible = false">
+                            <span v-text="$t('btn.cancel')"></span>
+                        </v-btn>
+                    </template>
+                </Modal>
+            </v-form>
+
+            <!-- SURFACE -->
+            <div v-if="$vuetify.breakpoint.mdAndUp" style="margin-bottom: -97.5px">
+                <v-sheet color="surface" height="130px"></v-sheet>
+                <v-divider />
             </div>
 
-            <!-- MOBILE FOOTER -->
+            <!-- LISTING/EDIT -->
+            <v-container class="pa-0 py-md-3 d-flex d-md-block flex-column fill-height">
+                <v-expand-transition>
+                    <CardEditorForm
+                        v-if="showCardEditorForm"
+                        :deck="deck"
+                        :voices="voices"
+                        :front.sync="front"
+                        :back.sync="back"
+                        :voice-front.sync="voiceFront"
+                        :voice-back.sync="voiceBack"
+                        :front-synthesized.sync="frontSynthesized"
+                        :back-synthesized.sync="backSynthesized"
+                        :loading="loading"
+                        :skeleton="skeleton"
+                        :autofocus="$vuetify.breakpoint.mdAndUp"
+                        class="mb-md-8 w-100"
+                        @add="handleAddCardClick"
+                        @totalCard="handleTotalCard"
+                    />
+                </v-expand-transition>
+
+                <div id="listing" :class="{
+                    'w-100 pa-3 px-md-0': true,
+                    'overflow-y-auto': $vuetify.breakpoint.smAndDown,
+                }" :style="{
+                    flexGrow: $vuetify.breakpoint.smAndDown ? 1 : null,
+                    height: $vuetify.breakpoint.smAndDown ? 0 : null,
+                }">
+                    <CardListing
+                        :cards.sync="cards"
+                        :voices="_voices"
+                        :deck="deck"
+                        :loading="loading"
+                        :skeleton="skeleton"
+                        :selected.sync="selected"
+                        @update="resetVoices"
+                        @selected="handleSelected"
+                        @totalCard="handleTotalCard"
+                    />
+                </div>
+            </v-container>
+        </div>
+
+        <!-- MOBILE FOOTER -->
+        <template #footer>
             <MobileNav
                 v-if="showMobileNav"
                 :loading="loading"
@@ -221,8 +217,8 @@
                     </v-btn>
                 </v-sheet>
             </v-sheet>
-        </v-container>
-    </div>
+        </template>
+    </Page>
 </template>
 
 <script>
@@ -231,7 +227,7 @@ import CardEditorForm from '@/components/CardEditorForm';
 import CardListing from '@/components/CardListing';
 import DeckSelect from '@/components/breadcrumbs/DeckSelect';
 import MobileNav from '@/components/layout/MobileNav';
-import DesktopNav from '@/components/layout/DesktopNav';
+import Page from '@/components/layout/Page';
 import BulkActionMenu from '@/components/BulkActionMenu';
 import DeckModel from '@/models/DeckModel';
 import VAutocomplete from 'vuetify/lib/components/VAutocomplete/VAutocomplete';
@@ -239,12 +235,15 @@ import VSelect from 'vuetify/lib/components/VSelect/VSelect';
 import Services from '@/utils/Services';
 import Rules from "@/utils/Rules";
 import File from "@/utils/File";
+import DeckMixin from "@/mixins/deck.mixin";
 import * as Papa from 'papaparse';
 
 export default {
 	name: 'Home',
 
-    components: { Modal, CardEditorForm, DeckSelect, CardListing, MobileNav, BulkActionMenu, DesktopNav },
+    mixins: [DeckMixin],
+
+    components: { Modal, CardEditorForm, DeckSelect, CardListing, MobileNav, BulkActionMenu, Page },
 
     data: () => ({
         skeleton: true,
@@ -252,16 +251,15 @@ export default {
         importing: false,
         deleting: false,
         selected: [],
-        deck: new DeckModel(),
         cards: [],
         voices: [],
         voiceFront: null,
         voiceBack: null,
         front: '',
         back: '',
+        title: '',
         frontSynthesized: null,
         backSynthesized: null,
-        title: null,
         deckModal: {
             visible: false,
             loading: false,
@@ -296,7 +294,7 @@ export default {
                 && !this.$root.inputFocused
                 && !this.$root.lockFocus
                 && !this.fullCardView
-                && window.innerHeight > window.innerWidth;
+                && this.$root.orientation === 'portrait';
         },
         showBulkActionMenu() {
             return this.$vuetify.breakpoint.smAndDown && this.fullCardView;
@@ -304,16 +302,9 @@ export default {
         fullCardView() {
             return this.$vuetify.breakpoint.smAndDown && this.selected.length > 0;
         },
-        deckName() {
-            return this.deck.data.name || this.$i18n.t('state.unclassified');
-        },
     },
 
     watch: {
-        '$i18n.locale'() {
-            this.title = this.deckName;
-            document.title = this.deckName;
-        },
         selected: {
             deep: true,
             handler(value) {
@@ -324,7 +315,6 @@ export default {
                 } else {
                     this.title = this.deckName;
                 }
-                document.title = this.title;
             },
         },
     },
@@ -340,7 +330,10 @@ export default {
                         header: true,
                         skipEmptyLines: true,
                     });
-                    const keys = ['front', 'back', 'front_voice', 'back_voice'];
+                    const keys = ['front', 'front_voice'];
+                    if (!this.deck.data.single) {
+                        keys.push(...['back', 'back_voice']);
+                    }
                     let hasError = false;
                     if (json.errors.length > 0) {
                         hasError = true;
@@ -355,10 +348,10 @@ export default {
                     const cards = json.data.map(item => ({
                         ...item,
                         front: item.front.trim(),
-                        back: item.back.trim(),
+                        back: item.back ? item.back.trim() : null,
                         deck_id: this.deck.data.id,
                         front_voice_id: (this._voices.find(voice => voice.originalName === item.front_voice) || {}).id,
-                        back_voice_id: (this._voices.find(voice => voice.originalName === item.back_voice) || {}).id,
+                        back_voice_id: item.back_voice ? (this._voices.find(voice => voice.originalName === item.back_voice) || {}).id : null,
                     })).filter(item => {
                         return !this.cards.find(card => (
                             card.deck_id === item.deck_id
@@ -469,7 +462,7 @@ export default {
                     Object.assign(refDeck, response);
                     if (!deck.data.id && response.data.id) {
                         this.$root.decks.push(response);
-                        this.$router.replace({ name: 'deck.edit', params: { uuid: response.data.id } });
+                        this.$router.replace({ name: 'custom', params: { uuid: response.data.id } });
                         this.$snack(this.$i18n.t('deckModal.created'));
                     } else {
                         this.deck = refDeck;
@@ -506,7 +499,7 @@ export default {
             return Services.deleteDeck(deck.data.id)
                 .then(response => {
                     this.$root.decks = this.$root.decks.filter(item => item.data.id !== deck.data.id);
-                    this.$router.replace({ name: 'deck.edit', params: { uuid: 'unclassified' } });
+                    this.$router.replace({ name: 'custom', params: { uuid: 'unclassified' } });
                 })
                 .catch(this.$handleError)
                 .finally(() => this.deleting = false);
@@ -514,16 +507,18 @@ export default {
     },
 
     created() {
+        if (!this.$route.params.uuid) {
+            this.$router.replace({ name: 'custom', params: { uuid: 'unclassified' } })
+        }
+
+        this.$store.commit('navigation', {
+            type: 'deck',
+            params: this.$route.params.uuid,
+        });
+
         this.rules = {
             required: value => Rules.required(value) || this.$t('rules.required'),
         };
-
-        if (!this.$route.params.uuid) {
-            this.$router.replace({ name: 'deck.edit', params: { uuid: 'unclassified' } })
-        }
-        this.deck = this.$root.decks.find(deck => deck.data.id === this.$route.params.uuid) || new DeckModel();
-        this.title = this.deckName;
-        document.title = this.title;
 
         this.load();
     },

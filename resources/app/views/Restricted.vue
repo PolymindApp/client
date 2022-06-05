@@ -3,6 +3,7 @@
         <Snack v-model="$root.snack.visible" v-bind="$root.snack" transition="slide-y-reverse-transition" bottom left />
         <ErrorHandler :value="$root.error" max-width="500" icon="mdi-alert" color="error" dark scrollable :fullscreen="$vuetify.breakpoint.smAndDown" />
         <GlobalModal v-model="$root.modal.visible" v-bind="{ ...$root.modal, ...$root.modal.attrs }" scrollable />
+        <OfflineOverlay absolute />
 
 		<v-main>
 			<Modal v-model="termsModal"
@@ -26,7 +27,9 @@
                             </div>
                         </v-card-text>
 						<v-card-text>
-							<router-view @terms="termsModal = true" />
+                            <v-fade-transition>
+							    <router-view :key="$route.path" @terms="termsModal = true" />
+                            </v-fade-transition>
 						</v-card-text>
 					</v-card>
 				</v-sheet>
@@ -81,6 +84,7 @@ import GlobalModal from "@/components/generic/Modal";
 import Snack from "@/components/generic/Snack";
 import LanguageSwitcher from "@/components/LanguageSwitcher.vue";
 import Modal from "@/components/generic/Modal.vue";
+import OfflineOverlay from "@/components/layout/OfflineOverlay.vue";
 import logo from '@/assets/images/polymind-dark.svg';
 import packageJson from '../../../package.json';
 import { rtlLanguages } from '@/locales';
@@ -92,7 +96,7 @@ let checkFocusTimeout;
 export default Vue.extend({
 	name: 'Restricted',
 
-	components: { LanguageSwitcher, Modal, ErrorHandler, GlobalModal, Snack },
+	components: { OfflineOverlay, LanguageSwitcher, Modal, ErrorHandler, GlobalModal, Snack },
 
 	data: () => ({
 		logo,

@@ -8,3 +8,10 @@ export default {
 		};
 	}
 };
+
+
+declare module 'vue/types/vue' {
+    interface Vue {
+        $snack: (body: string, color?: string, icon?: string) => void
+    }
+}

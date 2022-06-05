@@ -1,38 +1,15 @@
 <template>
     <v-card v-if="$vuetify.breakpoint.mdAndUp" v-bind="$attrs" v-on="$listeners">
-        <v-data-table
+        <Table
             v-model="_selected"
             :headers="headers"
             :items="cards"
-            :footer-props="{
-                itemsPerPageText: $t('table.itemsPerPageText'),
-                itemsPerPageOptions: [10,25,50,100,-1],
-            }"
-            :search="search"
+            :search.sync="search"
             :loading="loading"
-            :items-per-page="10"
             sort-by="created_at"
             sort-desc
             show-select
         >
-            <template v-if="cards.length > 10" #header>
-                <thead>
-                    <tr>
-                        <td colspan="10" class="py-3">
-                            <v-text-field
-                                v-model="search"
-                                id="card_listing_search_mobile"
-                                :placeholder="$t('cardListing.searchPlaceholder')"
-                                prepend-inner-icon="mdi-magnify"
-                                class="w-100"
-                                outlined
-                                dense
-                                hide-details
-                            ></v-text-field>
-                        </td>
-                    </tr>
-                </thead>
-            </template>
             <template #footer.prepend>
                 <BulkActionMenu
                     :deck="deck"
@@ -61,23 +38,11 @@
                     @totalCard="amount => $emit('totalCard', amount)"
                 />
             </template>
-            <template #loading>
-                {{ $t('table.loading') }}
-            </template>
-            <template #no-data>
-                {{ $t('table.noData') }}
-            </template>
-            <template #no-results>
-                {{ $t('table.noResults') }}
-            </template>
             <template #item.front="{ item }">
-                <ItemSide v-model="item.front" :audio="item.front_synthesized" :voice="item.front_voice" />
+                <SynthesizedTableItem v-model="item.front" :audio="item.front_synthesized" :voice="item.front_voice" />
             </template>
             <template #item.back="{ item }">
-                <ItemSide v-model="item.back" :audio="item.back_synthesized" :voice="item.back_voice" primary />
-            </template>
-            <template #item.created_at="{ item }">
-                {{ item.created_at | moment('YYYY-MM-DD HH:mm:ss') }}
+                <SynthesizedTableItem v-model="item.back" :audio="item.back_synthesized" :voice="item.back_voice" primary />
             </template>
             <template #item._action="{ item }">
                 <div class="d-flex">
@@ -99,7 +64,7 @@
                     </v-tooltip>
                 </div>
             </template>
-        </v-data-table>
+        </Table>
     </v-card>
     <v-sheet v-else :class="{
         'fill-height': true,
@@ -108,7 +73,7 @@
         <div v-if="cards.length > 10" class="mb-3">
             <v-text-field
                 v-model="search"
-                :placeholder="$t('cardListing.searchPlaceholder')"
+                :placeholder="$t('table.searchPlaceholder')"
                 prepend-inner-icon="mdi-magnify"
                 class="w-100"
                 solo
@@ -117,24 +82,24 @@
             ></v-text-field>
         </div>
         <v-alert v-if="search.length > 0 && _cards.length === 0" type="info" text outlined prominent>
-            <span v-text="$t('cardListing.noResults')"></span>
+            <span v-text="$t('table.noResults')"></span>
         </v-alert>
         <div v-else-if="!loading && cards.length === 0" class="text-center mx-auto" style="max-width: 15rem">
             <v-icon color="warning" x-large>mdi-alert</v-icon>
-            <h3 class="mt-2" v-text="$t('cardListing.emptyWarning')"></h3>
+            <h3 class="mt-2" v-text="$t('table.emptyWarning')"></h3>
         </div>
-        <v-card :color="isSelected(card) ? 'primary' : null" :dark="isSelected(card)" :key="card.id" v-for="(card, cardIdx) in _cards" :class="{
+        <v-card :color="isSelected(card) ? 'selected' : null" :dark="isSelected(card)" :key="card.id" v-for="(card, cardIdx) in _cards" :class="{
             'mt-3': cardIdx > 0,
         }" @click="handleCardClick(card)">
             <v-card-text class="text-break">
                 <v-row>
                     <v-col cols="12" :sm="deck.data.single ? 12 : 6">
                         <v-skeleton-loader v-if="skeleton" type="text" class="mb-n2"></v-skeleton-loader>
-                        <ItemSide v-else v-model="card.front" :audio="card.front_synthesized" :voice="card.front_voice" :selected="isSelected(card)" />
+                        <SynthesizedTableItem v-else v-model="card.front" :audio="card.front_synthesized" :voice="card.front_voice" :selected="isSelected(card)" />
                     </v-col>
                     <v-col v-if="!deck.data.single" cols="12" sm="6">
                         <v-skeleton-loader v-if="skeleton" type="text" class="mb-n2"></v-skeleton-loader>
-                        <ItemSide v-else v-model="card.back" :audio="card.back_synthesized" :voice="card.back_voice" primary :selected="isSelected(card)" />
+                        <SynthesizedTableItem v-else v-model="card.back" :audio="card.back_synthesized" :voice="card.back_voice" primary :selected="isSelected(card)" />
                     </v-col>
                 </v-row>
             </v-card-text>
@@ -144,61 +109,16 @@
 
 <script>
 import BulkActionMenu from '@/components/BulkActionMenu';
-import PlayAudioBtn from '@/components/audio/PlayAudioBtn';
+import SynthesizedTableItem from '@/components/generic/SynthesizedTableItem';
+import Table from '@/components/generic/Table';
 import DeckModel from '@/models/DeckModel';
 import Services from "../utils/Services";
 
-const ItemSide = {
-    props: {
-        value: {
-            type: String,
-            default: null,
-        },
-        voice: {
-            type: Object,
-            default: () => ({}),
-        },
-        audio: {
-            type: String,
-            default: null,
-        },
-        primary: {
-            type: Boolean,
-            default: false,
-        },
-        selected: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    components: { PlayAudioBtn },
-    template: `<div class="d-flex align-center">
-      <div v-if="audio" class="mr-3">
-        <PlayAudioBtn v-model="audio" tabindex="-1" />
-      </div>
-      <div style="line-height: 1rem" class="overflow-hidden">
-        <div class="font-weight-bold two-lines-truncate">
-            <span :class="{
-              'd-inline-block text-capitalize-first': true,
-              'primary--text': primary && !selected
-            }" v-text="value"></span>
-        </div>
-        <div v-if="voice" class="mb-n1">
-          <small :class="{
-            'opacity-33': !selected
-          }">
-            <span v-text="voice.language.name"></span>
-            - <span v-text="voice.name"></span>
-          </small>
-        </div>
-      </div>
-    </div>`,
-};
 
 export default {
     name: "CardListing",
 
-    components: { BulkActionMenu, ItemSide },
+    components: { BulkActionMenu, SynthesizedTableItem, Table },
 
     props: {
         cards: {

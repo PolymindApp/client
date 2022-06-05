@@ -95,7 +95,6 @@ export default {
     methods: {
         handleDeckSelect(value) {
             if (this.global) {
-                localStorage.setItem('deck', value ? value.data.id : null);
                 value.data.id
                     ? this.$router.replace({ name: this.route, params: { uuid: value.data.id } })
                     : this.$router.replace({ name: this.route, params: { uuid: 'unclassified' } })

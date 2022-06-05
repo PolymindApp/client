@@ -1,8 +1,9 @@
 <template>
 	<v-app>
-        <Snack v-model="$root.snack.visible" v-bind="$root.snack" transition="slide-y-reverse-transition" bottom left />
+        <Snack v-model="$root.snack.visible" :body="$root.snack.body" v-bind="$root.snack" transition="slide-y-reverse-transition" bottom left />
         <ErrorHandler :value="$root.error" max-width="500" icon="mdi-alert" color="error" dark scrollable :fullscreen="$vuetify.breakpoint.smAndDown" />
         <GlobalModal v-model="$root.modal.visible" v-bind="{ ...$root.modal, ...$root.modal.attrs }" scrollable />
+        <Intro v-if="false" :first.sync="tourFirst" />
 
         <v-fade-transition>
             <v-overlay v-if="!loaded" style="z-index: 25">
@@ -36,7 +37,7 @@
 
 		<v-main>
 			<v-sheet v-if="loaded" class="fill-height" color="background">
-				<router-view :key="$route.path" />
+                <router-view :key="$route.path" />
 			</v-sheet>
 		</v-main>
 
@@ -49,6 +50,7 @@
 
 <script>
 import Vue from 'vue';
+import Intro from "@/components/Intro";
 import Sidebar from "@/components/layout/Sidebar";
 import Toolbar from "@/components/layout/Toolbar";
 import Footer from "@/components/layout/Footer";
@@ -66,12 +68,13 @@ let checkFocusTimeout;
 export default Vue.extend({
 	name: 'App',
 
-    components: { Sidebar, Toolbar, Footer, ErrorHandler, GlobalModal, Snack },
+    components: { Sidebar, Toolbar, Footer, ErrorHandler, GlobalModal, Snack, Intro },
 
     data: () => ({
         loading: true,
         loaded: false,
         drawer: false,
+        tourFirst: false,
     }),
 
     computed: {
@@ -126,12 +129,27 @@ export default Vue.extend({
                 }
             );
 		},
+        handleWindowUnload() {
+            this.$settings.saveLocal(this.$store.state.settings);
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'settings',
+                    data: this.$store.state.settings,
+                });
+            }
+        },
         load() {
             this.loading = true;
-            return Services.getDecks()
-                .then(decks => {
-                    decks.unshift(new DeckModel({ i18n: 'state.unclassified', id: null }));
-                    Object.assign(this.$root, { decks });
+            return Promise.all([
+                Services.syncData(),
+                this.$settings.loadRemote(),
+            ])
+                .then(([data, settings]) => {
+                    data.decks.unshift(new DeckModel({ i18n: 'state.unclassified', id: null }));
+                    this.$store.commit('dictionaries', data.dictionaries);
+                    this.$store.commit('decks', data.decks);
+                    Object.assign(this.$root, { decks: data.decks });
+                    this.$store.commit('settings', settings);
                 })
                 .catch(this.$handleError)
                 .finally(() => {
@@ -145,10 +163,11 @@ export default Vue.extend({
         window.addEventListener('orientationchange', this.handleOrientationChange);
 
         this.load();
-        this.$root.accounts = this.$accounts.load();
+        this.$store.commit('accounts', this.$accounts.load());
 
         document.addEventListener('focusin', this.handleCheckFocus);
         document.addEventListener('focusout', this.handleCheckFocus);
+        window.addEventListener('unload', this.handleWindowUnload);
 
         languageSwitchBus = EventBus.subscribe('LANGUAGE_SWITCH', lang => {
             this.$vuetify.rtl = rtlLanguages.indexOf(lang) !== -1;
@@ -166,6 +185,7 @@ export default Vue.extend({
         document.removeEventListener('focusin', this.handleCheckFocus);
         document.removeEventListener('focusout', this.handleCheckFocus);
         languageSwitchBus.unsubscribe();
+        this.handleWindowUnload();
     }
 });
 </script>

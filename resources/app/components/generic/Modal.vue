@@ -2,7 +2,7 @@
 	<v-dialog v-model="_value" v-bind="$attrs" v-on="$listeners" :persistent="persistent || disabled" :dark="dark" :fullscreen="fullscreen">
 		<v-card :color="color" :disabled="disabled" :tile="$vuetify.breakpoint.smAndDown" class="d-flex flex-column">
             <v-expand-transition>
-                <v-card-title v-if="!hideMobileFocus" :class="{
+                <v-card-title v-if="!hideMobileFocus && !hideHeader" :class="{
                     'background': !dense && !dark && !$vuetify.breakpoint.smAndDown,
                     'primary white--text': !dense && !dark && $vuetify.breakpoint.smAndDown,
                     'py-0': $vuetify.breakpoint.smAndDown,
@@ -101,6 +101,10 @@ export default {
 		buttons: {
 			type: Array,
 			default: () => ([]),
+		},
+		hideHeader: {
+			type: Boolean,
+			default: false,
 		},
 	},
 

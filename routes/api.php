@@ -6,6 +6,7 @@ use App\Http\Controllers\VoiceController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\DeckController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\DictionaryController;
 use App\Http\Controllers\ExportController;
 use Illuminate\Support\Facades\Route;
 
@@ -45,4 +46,8 @@ Route::group(['middleware' => ['auth:sanctum', 'verified', 'lang']], function() 
     Route::resource('card', CardController::class);
     Route::resource('log', LogController::class);
     Route::post('/export/audio', [ExportController::class, 'audio']);
+    Route::get('dictionary', [DictionaryController::class, 'index']);
+    Route::get('dictionary/category', [DictionaryController::class, 'category']);
+    Route::get('dictionary/{uuid}', [DictionaryController::class, 'show']);
+    Route::get('dictionary/{uuid}/items', [DictionaryController::class, 'items']);
 });

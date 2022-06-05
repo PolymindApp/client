@@ -5,7 +5,7 @@ export default class PlaybackSettingsModel extends BaseModel {
 
     public data: any = {};
 
-    private defaultStructure = {
+    protected defaultStructure = {
         side: null,
         repeat: 1,
         delay: 5,
@@ -28,12 +28,6 @@ export default class PlaybackSettingsModel extends BaseModel {
 
     constructor(data = {}) {
         super();
-        const defaultKeys = Object.keys(this.defaultStructure);
-        Object.assign(this.data, this.defaultStructure, data);
-        Object.keys(this.data).forEach(key => {
-            if (defaultKeys.indexOf(key) === -1) {
-                delete this.data[key];
-            }
-        });
+        this.mapDefaultValues(data);
     }
 }
