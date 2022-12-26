@@ -15,7 +15,7 @@
             'mr-3 pl-md-6': $vuetify.rtl,
         }" style="gap: 1rem">
             <v-img :src="logo" width="2rem" />
-            <div class="title mb-n1">Polymind</div>
+            <div class="title">Polymind</div>
         </div>
 
         <template v-if="$vuetify.breakpoint.mdAndUp">

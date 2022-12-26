@@ -73,23 +73,24 @@ export interface Card {
 }
 
 export interface Media {
-    id?: string;
-    url: string;
+    id?: string | null;
+    url?: string | null;
 }
 
 export interface Dictionary {
-    id?: string;
-    dictionary_category_id: DictionaryCategory;
+    id?: string | null;
+    dictionary_category_id?: DictionaryCategory;
     total_items: number;
     cover: Media;
-    i18n: [DictionaryI18n];
-    created_by: User;
-    created_at: string;
+    i18n: Array<DictionaryI18n>;
+    created_by?: User;
+    created_at?: string | null;
 }
 
 export interface DictionaryI18n {
     id?: string;
     text: string;
+    type: string;
     language: Language;
 }
 
@@ -107,10 +108,11 @@ export interface DictionaryCategoryI18n {
 }
 
 export interface DictionaryItem {
-    id?: string;
-    dictionary_id: string;
+    id?: string | null;
+    dictionary_id: string | null;
     cover: Media;
     i18n: Array<DictionaryItemI18n>;
+    created_at?: string | null;
 }
 
 export interface DictionaryItemI18n {

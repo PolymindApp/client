@@ -324,6 +324,7 @@ import PlaybackSettingsModal from '@/components/PlaybackSettingsModal';
 import Modal from '@/components/generic/Modal';
 import ShortcutDialog from '@/components/ShortcutDialog';
 import PlaybackSettingsModel from '@/models/PlaybackSettingsModel';
+import DictionaryModel from '@/models/DictionaryModel';
 import Services from "@/utils/Services";
 import ambiencesJson from '../../../../.ambiences.json';
 import DeckMixin from "@/mixins/deck.mixin";
@@ -380,11 +381,7 @@ export default {
             data: [],
             callback: () => {},
         },
-        dictionary: {
-            id: null,
-            i18n: [],
-            cover: {}
-        },
+        dictionary: new DictionaryModel(),
         // exportSessionDialog: {
         //     visible: false,
         //     loading: false,
@@ -641,7 +638,7 @@ export default {
         },
 
         allLanguages() {
-            return this.dictionary.i18n.filter(i18n => i18n.type === 'title') || [];
+            return this.dictionary.languages()
         }
     },
 
@@ -1145,23 +1142,23 @@ export default {
                             const callback = (response, front_lang, back_lang) => {
                                 const result = response.map(item => {
                                     const card = {
-                                        id: item.id,
-                                        media: item.cover.url,
-                                        created_at: item.created_at,
+                                        id: item.data.id,
+                                        media: item.data.cover.url,
+                                        created_at: item.data.created_at,
                                     };
-                                    const frontIdx = item.i18n.findIndex(i18n => i18n.language.code === (this.$route.params.lang_front || front_lang));
+                                    const frontIdx = item.data.i18n.findIndex(i18n => i18n.language.code === (this.$route.params.lang_front || front_lang));
                                     if (frontIdx !== -1) {
                                         Object.assign(card, {
-                                            front: item.i18n[frontIdx].text,
-                                            front_synthesized: item.i18n[frontIdx].text_synthesized,
+                                            front: item.data.i18n[frontIdx].text,
+                                            front_synthesized: item.data.i18n[frontIdx].text_synthesized,
                                         });
                                     }
                                     if (this.$route.params.lang_back || back_lang) {
-                                        const backIdx = item.i18n.findIndex(i18n => i18n.language.code === (this.$route.params.lang_back || back_lang));
+                                        const backIdx = item.data.i18n.findIndex(i18n => i18n.language.code === (this.$route.params.lang_back || back_lang));
                                         if (backIdx !== -1) {
                                             Object.assign(card, {
-                                                back: item.i18n[backIdx].text,
-                                                back_synthesized: item.i18n[backIdx].text_synthesized,
+                                                back: item.data.i18n[backIdx].text,
+                                                back_synthesized: item.data.i18n[backIdx].text_synthesized,
                                             });
                                         }
                                     }

@@ -2,7 +2,7 @@
     <v-sheet v-bind="$attrs" v-on="$listeners">
         <v-divider />
         <v-sheet class="w-100 d-flex align-center">
-            <v-card id="nav_dictionary" class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="routeDictionary" flat tile>
+            <v-card v-if="$store.state.user.hasRole('dev')" id="nav_dictionary" class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="routeDictionary" flat tile>
                 <v-icon>mdi-book-open-variant</v-icon>
                 <div class="caption" v-text="$t('nav.dictionary')"></div>
             </v-card>

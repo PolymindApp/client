@@ -69,7 +69,7 @@ export default class DictionaryFilters extends Vue {
 
     get availableLanguages() {
         return this.groupedLanguages.filter(groupedLanguage => {
-            return this.dictionaries.find(dictionary => dictionary.i18n.find((translation: any) => translation.language.code.substring(0, 2) === groupedLanguage.code));
+            return this.dictionaries.find(dictionary => dictionary.data.i18n.find((translation: any) => translation.language.code.substring(0, 2) === groupedLanguage.code));
         });
     }
 

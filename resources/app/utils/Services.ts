@@ -1,9 +1,11 @@
 import Query from '@/utils/Query';
 import DeckModel from "@/models/DeckModel";
 import UserModel from "@/models/UserModel";
+import DictionaryModel from "@/models/DictionaryModel";
+import DictionaryItemModel from "@/models/DictionaryItemModel";
 import Vue from 'vue';
 import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
-import db, { Voice, Deck } from '@/database';
+import db, { Voice, Deck, Dictionary } from '@/database';
 import { Table } from 'dexie';
 
 export default class Services {
@@ -392,7 +394,8 @@ export default class Services {
             .then(items => {
                 db.dictionaries.bulkPut(items);
                 return items;
-            });
+            })
+            .then(dictionaries => dictionaries.map((dictionary: Dictionary) => new DictionaryModel(dictionary)));
     }
 
     /**
@@ -407,7 +410,8 @@ export default class Services {
             .then(item => {
                 db.dictionaries.put(item);
                 return item;
-            });
+            })
+            .then(item => new DictionaryModel(item));
     }
 
     /**
@@ -435,7 +439,8 @@ export default class Services {
             .then(items => {
                 db.dictionary_items.bulkPut(items);
                 return items;
-            });
+            })
+            .then(items => items.map((item: DictionaryItemModel) => new DictionaryItemModel(item)));
     }
 
     /**

@@ -5,7 +5,7 @@
             'overflow-y-auto': $vuetify.breakpoint.smAndDown,
         }" :style="{
             flexGrow: $vuetify.breakpoint.smAndDown ? 1 : null,
-            minHeight: $vuetify.breakpoint.smAndDown ? 0 : null,
+            height: $vuetify.breakpoint.smAndDown ? 0 : null,
         }">
             <v-img :src="background" :height="parallaxHeight" class="w-100 text-center" position="50% 25%">
                 <template #placeholder>
@@ -91,7 +91,7 @@
                             :skeleton="skeleton"
                             :page="page"
                             :items-per-page="10"
-                            item-key="id"
+                            item-key="data.id"
                             class="mx-n4 mb-n4"
                             sort-by="created_at"
                             sort-desc
@@ -102,16 +102,16 @@
                         >
                             <template #[slot.key]="{ item }" v-for="slot in slots">
                                 <SynthesizedTableItem
-                                    v-model="item.i18n[slot.index].text"
-                                    :audio="item.i18n[slot.index].text_synthesized"
+                                    v-model="item.data.i18n[slot.index].text"
+                                    :audio="item.data.i18n[slot.index].text_synthesized"
                                 />
                             </template>
-                            <template #item.language="{ item }">
+                            <template #item.data.language="{ item }">
                                 <span class="opacity-33" v-text="$t('dictionary.view.noLanguageCell')"></span>
                             </template>
-                            <template #item.cover.url="{ item }">
+                            <template #item.data.cover.url="{ item }">
                                 <v-avatar tile size="48">
-                                    <v-img v-if="item.cover" :src="item.cover.url">
+                                    <v-img v-if="item.data.cover" :src="item.data.cover.url">
                                         <template #placeholder>
                                             <v-skeleton-loader type="image" height="48"></v-skeleton-loader>
                                         </template>
@@ -145,13 +145,13 @@
                             <v-alert v-if="selectedLanguages.length === 0" class="mb-0 caption" text outlined>
                                 Please select at least one language first.
                             </v-alert>
-                            <Pagination v-else v-model="page" :items="items" :items-per-page="10">
+                            <Pagination v-else v-model="page" :items="_items" :items-per-page="10">
                                 <template #items="{ items }">
                                     <v-list outlined>
                                         <v-list-item-group v-model="selected" multiple>
-                                            <v-list-item :value="item" :key="item.id" v-for="(item, itemIdx) in items">
+                                            <v-list-item :value="item" :key="item.data.id" v-for="(item, itemIdx) in _items">
                                                 <v-list-item-avatar tile size="48">
-                                                    <v-img v-if="item.cover" :src="item.cover.url">
+                                                    <v-img v-if="item.data.cover" :src="item.data.cover.url">
                                                         <template #placeholder>
                                                             <v-skeleton-loader type="image" height="48"></v-skeleton-loader>
                                                         </template>
@@ -160,8 +160,8 @@
                                                 <v-list-item-content>
                                                     <div :key="languageIdx" v-for="languageIdx in selectedLanguagesIdx">
                                                         <SynthesizedTableItem
-                                                            v-model="item.i18n[languageIdx].text"
-                                                            :audio="item.i18n[languageIdx].text_synthesized"
+                                                            v-model="item.data.i18n[languageIdx].text"
+                                                            :audio="item.data.i18n[languageIdx].text_synthesized"
                                                             :selected="isSelected(item)"
                                                         />
                                                     </div>
@@ -187,6 +187,9 @@ import SynthesizedTableItem from '@/components/generic/SynthesizedTableItem.vue'
 import Services from "@/utils/Services";
 import { Component, Watch, Vue } from 'vue-property-decorator';
 import {IDictionarySettings} from "@/models/SettingsModel";
+import DictionaryModel from "@/models/DictionaryModel";
+import DictionaryItemModel from "@/models/DictionaryItemModel";
+import {DictionaryI18n} from "@/database";
 
 @Component({
     components: {
@@ -206,15 +209,7 @@ export default class DictionaryView extends Vue {
     page = 1
     selected: Array<any> = []
     selectedLanguages: Array<string> = []
-    dictionary: {
-        id: string|null,
-        i18n: Array<any>,
-        cover: any
-    } = {
-        id: null,
-        i18n: [],
-        cover: {}
-    }
+    dictionary: DictionaryModel = new DictionaryModel();
 
     @Watch('selectedLanguages')
     onSelectedLanguagesChanged(selectedLanguages: Array<any>) {
@@ -228,21 +223,21 @@ export default class DictionaryView extends Vue {
             return;
         }
         this.$store.commit('setDictionaryLanguages', {
-            uuid: this.dictionary.id,
+            uuid: this.dictionary.data.id,
             languages: selectedLanguages,
         });
     }
 
     get title(): string {
-        return this.dictionary.i18n.length > 0 && (this.dictionary.i18n.find(i18n => i18n.type === 'title') || {}).text || this.$i18n.t('state.loading').toString();
+        return this.dictionary.data.i18n.length > 0 && (this.dictionary.data.i18n.find((i18n: DictionaryI18n) => i18n.type === 'title') || {}).text || this.$i18n.t('state.loading').toString();
     }
 
     get body(): string {
-        return this.dictionary.i18n.length > 0 && (this.dictionary.i18n.find(i18n => i18n.type === 'body') || {}).text || this.$i18n.t('state.loading').toString();
+        return this.dictionary.data.i18n.length > 0 && (this.dictionary.data.i18n.find((i18n: DictionaryI18n) => i18n.type === 'body') || {}).text || this.$i18n.t('state.loading').toString();
     }
 
     get background(): string {
-        return this.dictionary.cover && this.dictionary.cover.url;
+        return this.dictionary.data.cover && this.dictionary.data.cover.url;
     }
 
     get parallaxHeight(): number {
@@ -250,7 +245,7 @@ export default class DictionaryView extends Vue {
     }
 
     get allLanguages(): Array<any> {
-        return this.dictionary.i18n.filter(i18n => i18n.type === 'title');
+        return this.dictionary.data.i18n.filter((i18n: DictionaryI18n) => i18n.type === 'title');
     }
 
     get languageIdx(): number {
@@ -292,14 +287,14 @@ export default class DictionaryView extends Vue {
 
     get headers(): Array<any> {
         const headers: Array<any> = [
-            { text: this.$i18n.t('header.image'), value: 'cover.url', class: 'text-no-wrap', width: 0, sortable: false }
+            { text: this.$i18n.t('header.image'), value: 'data.cover.url', class: 'text-no-wrap', width: 0, sortable: false }
         ];
         this.selectedLanguages.forEach(selectedLanguage => {
             const i18nIdx = this.allLanguages.findIndex(i18n => i18n.language.code === selectedLanguage);
             if (i18nIdx !== -1) {
                 const i18n = this.allLanguages[i18nIdx];
                 headers.push(
-                    { text: i18n.language.name, value: 'i18n[' + i18nIdx + '].text' }
+                    { text: i18n.language.name, value: 'data.i18n[' + i18nIdx + '].text' }
                 );
             }
         })
@@ -329,13 +324,25 @@ export default class DictionaryView extends Vue {
         }
     }
 
+    get _items(): Array<DictionaryItemModel> {
+        return this.items.filter((item: DictionaryItemModel) => {
+            for (let i = 0; i < this.selectedLanguagesIdx.length; i++) {
+                const index = this.selectedLanguagesIdx[i];
+                if (item.data.i18n[index].text.trim().toLowerCase().indexOf(this.search.toLowerCase()) !== -1) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+
     onScroll(): void {
         this.scrollY = window.scrollY;
     }
 
     onToggleBookmark() {
-        this.$store.commit('toggleDictionaryBookmark', this.dictionary.id);
-        if (this.$store.state.settings.dictionary_settings.indexOf((dictionary: IDictionarySettings) => dictionary.uuid === this.dictionary.id) === -1) {
+        this.$store.commit('toggleDictionaryBookmark', this.dictionary.data.id);
+        if (this.$store.state.settings.dictionary_settings.indexOf((dictionary: IDictionarySettings) => dictionary.uuid === this.dictionary.data.id) === -1) {
             this.$snack(this.$i18n.t('dictionary.view.removedFromBookmark').toString());
         } else {
             this.$snack(this.$i18n.t('dictionary.view.addedToBookmark').toString());

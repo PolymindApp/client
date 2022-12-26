@@ -38,6 +38,7 @@
                 color="background"
             >
                 <v-container class="d-flex align-center justify-space-between pb-0 pt-4 pt-md-12 mb-md-4" style="gap: 1rem">
+
                     <!-- FILTERS -->
                     <DictionaryFilters
                         v-model="$store.state.settings"
@@ -78,15 +79,15 @@
                 <Pagination v-model="page" :items="updatedFilteredAndOrderedDictionaries" :items-per-page="itemsPerPage">
                     <template #items="{ items }">
                         <v-row :dense="$vuetify.breakpoint.smAndDown">
-                            <v-col cols="6" sm="4" md="3" lg="2" :key="item.id" v-for="(item, itemIdx) in items">
-                                <v-card :to="{ name: 'dictionary.view', params: { uuid: item.id } }">
-                                    <v-img :src="item.cover.url" aspect-ratio="0.65" class="align-end" style="position: relative">
+                            <v-col cols="6" sm="4" md="3" lg="2" :key="item.data.id" v-for="(item, itemIdx) in items">
+                                <v-card :to="{ name: 'dictionary.view', params: { uuid: item.data.id } }">
+                                    <v-img :src="item.data.cover.url" aspect-ratio="0.65" class="align-end" style="position: relative">
                                         <template #placeholder>
                                             <v-skeleton-loader height="100%" type="image"></v-skeleton-loader>
                                         </template>
                                         <v-overlay class="py-2 px-2 d-block" opacity="0" z-index="1" absolute>
                                             <div style="flex: 1" class="w-100 d-flex align-center justify-space-between">
-                                                <v-chip v-if="item.created_at > minDateNew" color="secondary" pill small>
+                                                <v-chip v-if="item.data.created_at > minDateNew" color="secondary" pill small>
                                                     <span v-text="$t('label.new')"></span>
                                                 </v-chip>
                                                 <div class="ma-n3">
@@ -98,13 +99,13 @@
                                             </div>
                                         </v-overlay>
                                         <v-overlay class="pa-2 text-center" style="height: auto; position: relative" z-index="2" opacity="0.8" color="primary" absolute>
-                                            <p class="overline text-overflow-l2 mb-0" style="line-height: 1rem" v-text="item.label"></p>
+                                            <p class="overline text-overflow-l2 mb-0" style="line-height: 1rem" v-text="item.data.label"></p>
                                             <p class="caption opacity-75 mb-0">
-                                                <span v-text="$tc('dictionary.totalItems', item.total_items, {
-                                                    amount: item.total_items
+                                                <span v-text="$tc('dictionary.totalItems', item.data.total_items, {
+                                                    amount: item.data.total_items
                                                 })"></span>
-                                                | <span v-text="$tc('dictionary.totalLanguages', item.total_languages, {
-                                                    amount: item.total_languages
+                                                | <span v-text="$tc('dictionary.totalLanguages', item.data.total_languages, {
+                                                    amount: item.data.total_languages
                                                 })"></span>
                                             </p>
                                         </v-overlay>
@@ -172,14 +173,14 @@ export default {
         filteredDictionaries() {
             const search = (this.$store.state.settings.dictionary_search || '').trim().toLowerCase();
             return this.dictionaries.filter(dictionary => {
-                return (!search || dictionary.label.toLowerCase().indexOf(search) !== -1)
+                return (!search || dictionary.data.label.toLowerCase().indexOf(search) !== -1)
                     && (
                         this.selectedCategoriesIdx.length === 0
-                        || this.selectedCategoriesIdx.indexOf(dictionary.dictionary_category_id) !== -1
+                        || this.selectedCategoriesIdx.indexOf(dictionary.data.dictionary_category_id) !== -1
                     )
                     && (
                         this.$store.state.settings.dictionary_languages.length === 0
-                        || dictionary.i18n.find(i18n => this.$store.state.settings.dictionary_languages.indexOf(i18n.language.code.substring(0, 2)) !== -1)
+                        || dictionary.data.i18n.find(i18n => this.$store.state.settings.dictionary_languages.indexOf(i18n.language.code.substring(0, 2)) !== -1)
                     );
             });
         },
@@ -187,14 +188,17 @@ export default {
         filteredAndOrderedDictionaries() {
             return this.filteredDictionaries.map(dictionary => ({
                 ...dictionary,
-                total_languages: dictionary.i18n.filter(i18n => i18n.type === 'title').length,
+                data: {
+                    ...dictionary.data,
+                    total_languages: dictionary.data.i18n.filter(i18n => i18n.type === 'title').length,
+                }
             })).sort((a, b) => {
                 const { first, second } = this.$store.state.settings.dictionary_sort_order === 'asc' ? { first: a, second: b } : { first: b, second: a };
                 switch (this.$store.state.settings.dictionary_sort_by) {
-                    case 'created_at': return first.created_at > second.created_at ? 1 : -1;
-                    case 'label': return first.label > second.label ? 1 : -1;
-                    case 'total_items': return first.total_items > second.total_items ? 1 : -1;
-                    case 'languages': return first.total_languages > second.total_languages ? 1 : -1;
+                    case 'created_at': return first.data.created_at > second.data.created_at ? 1 : -1;
+                    case 'label': return first.data.label > second.data.label ? 1 : -1;
+                    case 'total_items': return first.data.total_items > second.data.total_items ? 1 : -1;
+                    case 'languages': return first.data.total_languages > second.data.total_languages ? 1 : -1;
                 }
             });
         },
@@ -205,7 +209,7 @@ export default {
 
         availableCategories() {
             return this.categories.filter(category => {
-                return this.dictionaries.find(dictionary => category.id === dictionary.dictionary_category_id);
+                return this.dictionaries.find(dictionary => category.id === dictionary.data.dictionary_category_id);
             });
         },
 
@@ -246,10 +250,10 @@ export default {
             });
         },
         onToggleBookmark(dictionary) {
-            this.$store.commit('toggleDictionaryBookmark', dictionary.id);
+            this.$store.commit('toggleDictionaryBookmark', dictionary.data.id);
         },
         isBookmarked(dictionary) {
-            return this.$store.state.settings.dictionary_settings.findIndex(item => item.uuid === dictionary.id && item.bookmarked) !== -1;
+            return this.$store.state.settings.dictionary_settings.findIndex(item => item.uuid === dictionary.data.id && item.bookmarked) !== -1;
         },
         load() {
             this.loading = true;
@@ -274,8 +278,10 @@ export default {
             }));
             this.dictionaries = this.dictionaries.map(dictionary => ({
                 ...dictionary,
-                label: dictionary.i18n[0].text,
-                created_at: new Date(dictionary.created_at),
+                data: {
+                    ...dictionary.data,
+                    label: dictionary.data.i18n[0].text,
+                }
             }));
         }
     },

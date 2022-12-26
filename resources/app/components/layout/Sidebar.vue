@@ -5,7 +5,7 @@
                 <v-list-item class="pt-4 d-flex align-center">
                     <div class="d-flex align-center justify-center no-select" style="gap: 1rem; flex: 1">
                         <img :src="logo" height="37" />
-                        <div class="title mb-n1">Polymind</div>
+                        <div class="title">Polymind</div>
                     </div>
                     <v-btn @click.prevent="_value = false" icon>
                         <v-icon>mdi-close</v-icon>
@@ -16,7 +16,6 @@
                     <v-menu offset-y>
                         <template #activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" text outlined>
-                                {{$store.state.user.email}}
                                 <span class="text-truncate caption" style="width: 180px" v-text="$store.state.user.data.email"></span>
                                 <v-icon right>mdi-chevron-down</v-icon>
                             </v-btn>
@@ -66,16 +65,16 @@
                 <v-alert v-if="dictionaries.length === 0 && _search.length === 0" key="alert_dictionary" class="mx-2 caption" dense text>
                     <span v-text="$t('sidebar.dictionaries.noItems')"></span>
                 </v-alert>
-                <v-list-item v-else :key="dictionary.id" v-for="dictionary in dictionaries" :to="{ name: 'session.dictionary', params: { uuid: dictionary.id } }" color="primary">
+                <v-list-item v-else :key="dictionary.data.id" v-for="dictionary in dictionaries" :to="{ name: 'session.dictionary', params: { uuid: dictionary.data.id } }" color="primary">
                     <v-list-item-avatar tile size="32">
-                        <v-img :src="dictionary.cover.url">
+                        <v-img :src="dictionary.data.cover.url">
                             <template #placeholder>
                                 <v-skeleton-loader type="image" height="32"></v-skeleton-loader>
                             </template>
                         </v-img>
                     </v-list-item-avatar>
                     <v-list-item-title>
-                        <span v-text="dictionary.i18n[0].text"></span>
+                        <span v-text="dictionary.data.i18n[0].text"></span>
                     </v-list-item-title>
                 </v-list-item>
             </template>
@@ -202,8 +201,8 @@ export default {
         },
 
         _dictionaries() {
-            return this.$store.state.dictionaries.filter(dictionary => this.$store.state.settings.dictionary_settings.find(item => item.uuid === dictionary.id && item.bookmarked))
-                .filter(dictionary => this._search.length === 0 || dictionary.i18n[0].text.trim().toLowerCase().indexOf(this._search.toLowerCase()) !== -1);
+            return this.$store.state.dictionaries.filter(dictionary => this.$store.state.settings.dictionary_settings.find(item => item.uuid === dictionary.data.id && item.bookmarked))
+                .filter(dictionary => this._search.length === 0 || dictionary.data.i18n[0].text.trim().toLowerCase().indexOf(this._search.toLowerCase()) !== -1);
         },
 
         hasNoItemFound() {
@@ -213,7 +212,7 @@ export default {
         },
 
         dictionaries() {
-            return this.$store.state.dictionaries.filter(dictionary => this.$store.state.settings.dictionary_settings.find(item => item.uuid === dictionary.id && item.bookmarked));
+            return this.$store.state.dictionaries.filter(dictionary => this.$store.state.settings.dictionary_settings.find(item => item.uuid === dictionary.data.id && item.bookmarked));
         },
 
         logo() {
