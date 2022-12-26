@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AdminDictionaryController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\VoiceController;
@@ -24,6 +26,7 @@ use Illuminate\Support\Facades\Route;
 # Public
 Route::post('/auth/verify', [AuthController::class, 'isLoggedIn']);
 
+# Public
 Route::group(['middleware' => ['guest', 'lang']], function() {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/register/verify', [AuthController::class, 'verifyEmail']);
@@ -33,7 +36,7 @@ Route::group(['middleware' => ['guest', 'lang']], function() {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-# Private
+# Private (default users)
 Route::group(['middleware' => ['auth:sanctum', 'verified', 'lang']], function() {
     Route::post('/auth/verify', [AuthController::class, 'isLoggedIn']);
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -50,4 +53,11 @@ Route::group(['middleware' => ['auth:sanctum', 'verified', 'lang']], function() 
     Route::get('dictionary/category', [DictionaryController::class, 'category']);
     Route::get('dictionary/{uuid}', [DictionaryController::class, 'show']);
     Route::get('dictionary/{uuid}/items', [DictionaryController::class, 'items']);
+
+    # Admin
+    Route::group(['middleware' => ['admin']], function() {
+        Route::resource('/admin/user', AdminUserController::class);
+        Route::resource('/admin/dictionary', AdminDictionaryController::class);
+    });
 });
+

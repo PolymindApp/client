@@ -2,12 +2,14 @@ import Vue, { VueConstructor } from 'vue'
 import App from './views/App.vue'
 import Restricted from './views/Restricted.vue'
 import appRoutes from '@/routes/app.routes';
+import adminRoutes from '@/routes/admin.routes';
 import restrictedRoutes from '@/routes/restricted.routes'
 import VueRouter from 'vue-router'
 import VueHotkey from 'v-hotkey'
 import PortalVue from 'portal-vue'
 import i18n, { rtlLanguages } from './locales'
 import vuetify from '@/plugins/vuetify'
+import UserModel from '@/models/UserModel'
 import Accounts from '@/utils/Accounts'
 import DeepClone from '@/utils/DeepClone'
 import EventBus from '@/utils/EventBus'
@@ -79,13 +81,18 @@ const render = (
 	}).$mount('#app');
 };
 
+let userRoutes = [...appRoutes];
 Services.isLoggedIn()
-    .then(user => {
-        Object.assign(globalVariables.user, user);
-        render(App, appRoutes)
+    .then(response => {
+        const user = new UserModel(response);
+        store.commit('user', user);
+        if (user.hasRole(['dev', 'admin'])) {
+            userRoutes = userRoutes.concat(adminRoutes);
+        }
+        render(App, userRoutes)
     })
     .catch(() => render(Restricted, restrictedRoutes));
 
-EventBus.subscribe('RENDER_APP', () => render(App, appRoutes));
+EventBus.subscribe('RENDER_APP', () => render(App, userRoutes));
 EventBus.subscribe('RENDER_RESTRICTED', () => render(Restricted, restrictedRoutes));
-EventBus.subscribe('APP_RELOAD', () => render(App, appRoutes));
+EventBus.subscribe('APP_RELOAD', () => render(App, userRoutes));

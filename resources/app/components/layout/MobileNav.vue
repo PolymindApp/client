@@ -8,7 +8,7 @@
             </v-card>
             <v-card id="nav_custom" class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="{ name: 'custom', params: { uuid: deckUuid } }" flat tile>
                 <v-icon>mdi-cards</v-icon>
-                <div class="caption" v-text="$t('nav.custom')"></div>
+                <div class="caption" v-text="$t('nav.deck')"></div>
             </v-card>
             <v-card id="nav_session" class="text-center py-2 px-3" style="flex: 1" :disabled="loading" :to="routeSession" flat tile>
                 <v-icon>mdi-headphones</v-icon>

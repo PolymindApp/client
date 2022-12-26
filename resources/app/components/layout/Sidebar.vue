@@ -12,11 +12,12 @@
                     </v-btn>
                 </v-list-item>
 
-                <v-list-item v-if="$root.user.id" class="mt-2">
+                <v-list-item v-if="$store.state.user.data.id" class="mt-2">
                     <v-menu offset-y>
                         <template #activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" text outlined>
-                                <span class="text-truncate caption" style="width: 180px" v-text="$root.user.email"></span>
+                                {{$store.state.user.email}}
+                                <span class="text-truncate caption" style="width: 180px" v-text="$store.state.user.data.email"></span>
                                 <v-icon right>mdi-chevron-down</v-icon>
                             </v-btn>
                         </template>
@@ -93,6 +94,27 @@
             <v-alert v-else-if="hasNoItemFound" key="alert_search" class="mx-2" type="info" text outlined>
                 <span v-text="$t('sidebar.search.noResults')"></span>
             </v-alert>
+
+            <!-- ADMIN -->
+            <template v-if="$store.state.user.hasRole('admin')">
+                <v-subheader v-text="$t('sidebar.admin.title')"></v-subheader>
+                <v-list-item :to="{ name: 'admin.users' }" color="primary">
+                    <v-list-item-icon>
+                        <v-icon>mdi-account-multiple-outline</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>
+                        <span v-text="$t('sidebar.admin.users')"></span>
+                    </v-list-item-title>
+                </v-list-item>
+                <v-list-item :to="{ name: 'admin.dictionaries' }" color="primary">
+                    <v-list-item-icon>
+                        <v-icon>mdi-book-multiple</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>
+                        <span v-text="$t('sidebar.admin.dictionaries')"></span>
+                    </v-list-item-title>
+                </v-list-item>
+            </template>
         </v-list>
 
         <!-- FOOTER -->
@@ -133,6 +155,7 @@
 import logoLight from '@/assets/images/polymind-light.svg'
 import logoDark from '@/assets/images/polymind-dark.svg'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import UserModel from '@/models/UserModel'
 import DeckTree from '@/components/DeckTree'
 import EventBus from '@/utils/EventBus'
 import Services from '@/utils/Services'
@@ -198,7 +221,7 @@ export default {
         },
 
         accounts() {
-            return this.$store.state.accounts.filter(account => account.email !== this.$root.user.email);
+            return this.$store.state.accounts.filter(account => account.email !== this.$store.state.user.data.email);
         },
     },
 
@@ -208,7 +231,7 @@ export default {
         },
         handleSwitchAccountClick(account) {
             Services.switchToken(account.token);
-            this.$root.user = account;
+            this.$store.commit('user', new UserModel(account));
             EventBus.publish('APP_RELOAD');
         },
     },

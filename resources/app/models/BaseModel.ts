@@ -1,9 +1,12 @@
 import Vue from 'vue';
+import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
 
 export default class BaseModel {
 
     public data: any = {};
     protected defaultStructure = {}
+
+    constructor(data: any = {}) {}
 
     mapDefaultValues(data: any) {
         const defaultKeys = Object.keys(this.defaultStructure);
@@ -13,6 +16,12 @@ export default class BaseModel {
                 delete this.data[key];
             }
         });
+
+        ['created_at', 'updated_at'].forEach(field => {
+            if (this.data[field]) {
+                this.data[field] = new Date(this.data[field]);
+            }
+        })
     }
 
     clone() {

@@ -17,7 +17,7 @@ export default class DeckModel extends BaseModel {
     };
 
     constructor(data: any = {}) {
-        super();
+        super(data);
         this.mapDefaultValues(data);
         this.data.playback_settings = new PlaybackSettingsModel(Object.assign({}, data.playback_settings));
     }

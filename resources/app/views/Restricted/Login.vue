@@ -53,6 +53,7 @@ import Vue from 'vue'
 import Services from '@/utils/Services';
 import Rules from '@/utils/Rules';
 import EventBus from "@/utils/EventBus";
+import UserModel from '@/models/UserModel';
 
 export default Vue.extend({
 	name: 'Login',
@@ -86,7 +87,7 @@ export default Vue.extend({
 				this.loading = true;
 				Services.login(this.data.email, this.data.password, this.$route.query.redirect)
 					.then(response => {
-						Object.assign(this.$root.user, response.user);
+						this.$store.commit('user', new UserModel(response.user));
                         const accounts = this.$accounts.set({
                             ...response.user,
                             token: response.token

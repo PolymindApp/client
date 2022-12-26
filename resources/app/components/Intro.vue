@@ -71,7 +71,7 @@
     </Tour>
 </template>
 
-<script type="ts">
+<script lang="ts">
 import tour1 from '@/assets/images/tour1.png';
 import tour2 from '@/assets/images/tour2.png';
 import tour4 from '@/assets/images/tour4.png';
@@ -79,7 +79,7 @@ import interfaceImg from '@/assets/images/interface.png';
 import driving from '@/assets/images/situations/driving.jpg';
 import sleeping from '@/assets/images/situations/sleeping.jpg';
 import working from '@/assets/images/situations/working.jpg';
-import Modal from '@/components/generic/Modal';
+import Modal from '@/components/generic/Modal.vue';
 import Tour from '@/components/Tour.vue';
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
@@ -87,7 +87,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
     components: { Modal, Tour }
 })
 export default class Intro extends Vue {
-    @Prop({ type: Boolean, default: false }) first;
+    @Prop({ type: Boolean, default: false }) first: boolean;
 
     tour1 = tour1 //https://www.shutterstock.com/pt/image-vector/girl-headphones-listening-audiobook-audio-books-1907922415
     tour2 = tour2 //https://www.shutterstock.com/pt/image-vector/flat-style-icon-book-flower-glasses-283361375
@@ -97,7 +97,7 @@ export default class Intro extends Vue {
     interfaceImg = interfaceImg //https://www.shutterstock.com/pt/image-vector/concept-searching-opportunities-decisions-new-business-1874619907
     welcomeStep = 0
     showModal = true
-    section = null
+    section: string | null = null
     step = 0
     steps = [
         { key: 'first', opacity: 0 },
@@ -106,7 +106,7 @@ export default class Intro extends Vue {
         { key: 'nav_play', route: { name: 'session' }, delay: 2000, selector: '#nav_play' },
     ]
 
-    get _first() {
+    get _first(): boolean {
         return this.first;
     }
 

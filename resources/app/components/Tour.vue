@@ -35,18 +35,18 @@
     </div>
 </template>
 
-<script type="ts">
-import Modal from '@/components/generic/Modal'
+<script lang="ts">
+import Modal from '@/components/generic/Modal.vue'
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 
 @Component({
     components: { Modal }
 })
 export default class Tour extends Vue {
-    @Prop({ type: Boolean, default: false }) value;
-    @Prop({ type: Number, default: 0 }) index;
-    @Prop({ type: Number, default: 0.5 }) opacity;
-    @Prop({ type: Array, default: () => ([]) }) steps;
+    @Prop({ type: Boolean, default: false }) value: boolean;
+    @Prop({ type: Number, default: 0 }) index: number;
+    @Prop({ type: Number, default: 0.5 }) opacity: number;
+    @Prop({ type: Array, default: () => ([]) }) steps: Array<any>;
 
     @Watch('index', { immediate: true })
     onIndexChanged() {
@@ -91,6 +91,7 @@ export default class Tour extends Vue {
     updateBoundingBox() {
         if (this.currentStep.selector) {
             const element = document.querySelector(this.currentStep.selector);
+            // @ts-ignore
             const overlay = this.$refs.container && this.$refs.container.firstChild;
             if (element && overlay) {
                 const rect = element.getBoundingClientRect();

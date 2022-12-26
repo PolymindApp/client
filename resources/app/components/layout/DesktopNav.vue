@@ -6,7 +6,7 @@
         </v-tab>
         <v-tab id="nav_custom" :to="{ name: 'custom', params: { uuid: deckUuid } }">
             <v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-cards</v-icon>
-            <span v-text="$t('nav.custom')"></span>
+            <span v-text="$t('nav.deck')"></span>
         </v-tab>
         <v-tab id="nav_session" :to="routeSession">
             <v-icon :left="!$vuetify.rtl" :right="$vuetify.rtl">mdi-headphones</v-icon>

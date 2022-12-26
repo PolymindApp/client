@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import UserModel from '@/models/UserModel';
 import SettingsModel, {ISettings, IDictionarySettings} from '@/models/SettingsModel';
 
 Vue.use(Vuex);
@@ -13,6 +14,7 @@ enum ENavigation {
 
 export default new Vuex.Store({
     state: (): {
+        user: UserModel,
         settings: ISettings;
         navigation: {
             dictionary: null;
@@ -28,6 +30,7 @@ export default new Vuex.Store({
         accounts: any[];
         dictionaries: any[]
     } => ({ // Saved locally
+        user: new UserModel(),
         settings: settings.data,
         navigation: {
             dictionary: null,
@@ -42,6 +45,9 @@ export default new Vuex.Store({
         decks: [],
     }),
     mutations: {
+        user(state, user: UserModel) {
+            Object.assign(state.user, user);
+        },
         settings(state, model: SettingsModel) {
             Object.assign(state.settings, model.data);
         },

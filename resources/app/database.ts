@@ -29,8 +29,16 @@ export interface User {
     id?: string;
     name: string;
     email: string;
+    roles: Role;
     created_at: string;
     updated_at: string;
+}
+
+export interface Role {
+    id?: string;
+    key: string;
+    name: string;
+    description: string;
 }
 
 export interface Deck {
@@ -115,6 +123,7 @@ export interface DictionaryItemI18n {
 export class PolymindDB extends Dexie {
 
     users!: Table<User>;
+    roles!: Table<Role>;
     decks!: Table<Deck>;
     cards!: Table<Card>;
     voices!: Table<Voice>;
@@ -127,8 +136,9 @@ export class PolymindDB extends Dexie {
     constructor() {
         super('polymind');
 
-        this.version(2).stores({
+        this.version(3).stores({
             users: '++id, name, email',
+            roles: '++id, key, name, description',
             decks: '++id, name, created_at, updated_at',
             cards: '++id, deck_id, created_at, updated_at',
             voices: '++id, language_id, name',

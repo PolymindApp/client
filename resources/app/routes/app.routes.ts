@@ -1,4 +1,4 @@
-import Edit from "@/views/App/Custom.vue";
+import Deck from "@/views/App/Deck.vue";
 import Session from "@/views/App/Session.vue";
 import Welcome from "@/views/App/Welcome.vue";
 import Dictionary from "@/views/App/Dictionary.vue";
@@ -12,7 +12,7 @@ export default [
         { path: '', name: 'dictionary.index', component: DictionaryIndex },
         { path: ':uuid', name: 'dictionary.view', component: DictionaryView },
     ] },
-    { path: '/custom/:uuid', name: 'custom', component: Edit },
+    { path: '/deck/:uuid', name: 'custom', component: Deck },
     { path: '/session/:uuid', name: 'session', component: Session, children: [
         { path: 'dictionary/:lang_front?/:lang_back?', name: 'session.dictionary', component: Session },
     ] },

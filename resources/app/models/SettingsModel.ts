@@ -29,7 +29,7 @@ export default class SettingsModel extends BaseModel {
     };
 
     constructor(data: any = {}) {
-        super();
+        super(data);
         this.mapDefaultValues(data);
     }
 

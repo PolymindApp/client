@@ -7,7 +7,6 @@ use App\Notifications\VerifyEmail;
 use App\Notifications\RequestPasswordReset;
 use App\Notifications\WelcomeNewUser;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;

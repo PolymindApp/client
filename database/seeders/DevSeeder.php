@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class DevSeeder extends Seeder
 {
@@ -17,6 +15,7 @@ class DevSeeder extends Seeder
     {
         $this->call(LanguageSeeder::class);
         $this->call(VoiceSeeder::class);
+        $this->call(RoleSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(DeckSeeder::class);
         $this->call(DictionarySeeder::class);

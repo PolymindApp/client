@@ -1,10 +1,10 @@
 <template>
     <v-container class="pa-0 d-flex d-md-block flex-column fill-height">
-
+        <!-- MUST STAY EMPTY -->
     </v-container>
 </template>
 
-<script type="ts">
+<script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component

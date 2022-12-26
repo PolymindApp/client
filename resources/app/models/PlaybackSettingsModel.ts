@@ -28,7 +28,7 @@ export default class PlaybackSettingsModel extends BaseModel {
     };
 
     constructor(data = {}) {
-        super();
+        super(data);
         this.mapDefaultValues(data);
     }
 }

@@ -1,5 +1,6 @@
 import Query from '@/utils/Query';
 import DeckModel from "@/models/DeckModel";
+import UserModel from "@/models/UserModel";
 import Vue from 'vue';
 import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
 import db, { Voice, Deck } from '@/database';
@@ -456,5 +457,20 @@ export default class Services {
                     return { languages, voices, decks, cards, dictionaries };
                 })
         });
+    }
+
+    /**
+     * Get all users
+     */
+    static getUsers(): Promise<any> {
+        return this.onlineFirst(
+            db.users,
+            () => Query.get('/admin/user'),
+        )
+            .then(items => {
+                db.users.bulkPut(items);
+                return items;
+            })
+            .then(users => users.map((user: UserModel) => new UserModel(user)));
     }
 }

@@ -74,7 +74,7 @@ export default Vue.extend({
         loading: true,
         loaded: false,
         drawer: false,
-        tourFirst: false,
+        tourFirst: true,
     }),
 
     computed: {
@@ -121,7 +121,7 @@ export default Vue.extend({
                     Services.logout()
                         .then(() => {
                             modal.visible = false;
-                            this.$root.user = {};
+                            this.$store.commit('user', null);
                             EventBus.publish('RENDER_RESTRICTED');
                         })
                         .catch(this.$handleError)

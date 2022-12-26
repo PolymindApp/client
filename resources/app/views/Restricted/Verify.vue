@@ -26,7 +26,7 @@
 <script>
 import Vue from 'vue'
 import Services from '@/utils/Services';
-import Rules from '@/utils/Rules';
+import UserModel from '@/models/UserModel'
 import EventBus from "@/utils/EventBus";
 
 export default Vue.extend({
@@ -44,7 +44,7 @@ export default Vue.extend({
             this.loading = true;
             Services.verifyEmail(signature)
                 .then(response => {
-                    Object.assign(this.$root.user, response.user);
+                    this.$store.commit('user', new UserModel(response.user));
                     EventBus.publish('RENDER_APP');
                     this.success = true;
                 })
