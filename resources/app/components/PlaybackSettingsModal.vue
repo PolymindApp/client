@@ -9,6 +9,7 @@
                         </v-col>
                         <v-col cols="12" class="d-flex align-center">
                             <v-select
+                                v-if="ambiences.length > 0"
                                 v-model="_model.data.ambience"
                                 :items="ambiences"
                                 outlined
@@ -157,6 +158,19 @@
                             ></v-switch>
                         </v-col>
                     </v-row>
+                    <v-row>
+                        <v-col cols="12" md="6" class="d-flex align-center">
+                            <label v-text="$t('session.playbackSettings.imageEnabled')"></label>
+                        </v-col>
+                        <v-col cols="12" md="6" class="d-flex align-center">
+                            <v-switch
+                                v-model="_model.data.imageEnabled"
+                                class="mt-0 pt-0 ml-1"
+                                inset
+                                hide-details
+                            ></v-switch>
+                        </v-col>
+                    </v-row>
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-row>
@@ -188,13 +202,33 @@
                                 v-model="_model.data.cardRangeMode"
                                 :label="$t('session.playbackSettings.cardRangeMode.label')"
                                 :items="[
-                                    { text: $t('session.playbackSettings.cardRangeMode.repeat'), value: null },
-                                    { text: $t('session.playbackSettings.cardRangeMode.progressive'), value: 'progressive' },
+                                    { icon: 'mdi-refresh', text: $t('session.playbackSettings.cardRangeMode.repeat'), desc: $t('session.playbackSettings.cardRangeMode.repeatDesc'), value: null },
+                                    { icon: 'mdi-numeric-9-plus-circle-outline', text: $t('session.playbackSettings.cardRangeMode.progressive'), desc: $t('session.playbackSettings.cardRangeMode.progressiveDesc'), value: 'progressive' },
                                 ]"
                                 class="mt-6"
                                 outlined
+                                height="64"
                                 hide-details
-                            />
+                            >
+                                <template #selection="{ item }">
+                                    <div style="height: 64px" class="d-flex align-center">
+                                        <v-icon v-if="item.icon" v-text="item.icon" left></v-icon>
+                                        <div>
+                                            <div v-text="item.text"></div>
+                                            <p v-if="item.desc" v-text="item.desc" class="mb-0 caption opacity-66"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template #item="{ item }">
+                                    <div style="height: 64px" class="d-flex align-center">
+                                        <v-icon v-if="item.icon" v-text="item.icon" left></v-icon>
+                                        <div>
+                                            <div v-text="item.text"></div>
+                                            <p v-if="item.desc" v-text="item.desc" class="mb-0 caption opacity-66"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </v-select>
                         </v-col>
                     </v-row>
                     <v-row>

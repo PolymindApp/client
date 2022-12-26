@@ -19,7 +19,8 @@
                 :search-attrs="{
                     outlined: true,
                 }"
-                class="mt-8"
+                class="d-flex align-center flex-wrap mt-8"
+                style="gap: 1rem"
             />
         </template>
         <template #buttons>

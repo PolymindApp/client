@@ -5,10 +5,11 @@
         :items="groups"
         :active.sync="actives"
         item-key="id"
-        open-on-click
         activatable
+        open-on-click
         dense
-        @update:active="handleItemClick"
+        class="ml-n6"
+        @update:active="onActiveUpdate"
     >
         <template #prepend="{ item, open }">
             <v-icon v-if="item.children.length > 0" color="third">{{ open ? 'mdi-folder-open' : 'mdi-folder' }}</v-icon>
@@ -40,7 +41,7 @@ export default {
 
     watch: {
         '$route'() {
-            this.deck = this.$root.decks.find(deck => deck.data.id === this.$route.params.uuid) || new DeckModel();
+            this.update();
         },
     },
 
@@ -87,21 +88,33 @@ export default {
     },
 
     methods: {
-        handleItemClick(id) {
-            if (id.length > 0 && this.deck.data.id !== id[0]) {
-                this.$router.push({
+        onActiveUpdate(actives) {
+            if (actives.length > 0) {
+                const params = {
                     name: ['custom', 'session'].indexOf(this.$route.name) === -1 ? 'session' : this.$route.name,
-                    params: { uuid: id[0] || 'unclassified' }
-                });
+                    params: { uuid: actives[0] || 'unclassified' }
+                };
+                const newRoute = this.$router.resolve(params);
+                if (this.$route.fullPath !== newRoute.route.fullPath && newRoute.route.name !== 'session.dictionary') {
+                    this.$router.push(params);
+                }
+            }
+        },
+
+        update() {
+            this.actives = [];
+            this.deck = this.$root.decks.find(deck => deck.data.id === this.$route.params.uuid) || new DeckModel();
+
+            if (['custom', 'session'].includes(this.$route.name)) {
+                setTimeout(() => {
+                    this.actives = [this.deck.data.id];
+                }, 500);
             }
         },
     },
 
     mounted() {
-        this.deck = this.$root.decks.find(deck => deck.data.id === this.$route.params.uuid) || new DeckModel();
-        setTimeout(() => {
-            this.actives = [this.deck.data.id];
-        }, 500);
+        this.update();
     },
 }
 </script>

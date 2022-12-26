@@ -12,30 +12,17 @@
         >
             <template #footer.prepend>
                 <BulkActionMenu
-                    :deck="deck"
-                    :cards.sync="_cards"
-                    :selected.sync="_selected"
-                    :voices="voices"
-                    :btn-attrs="{ outlined: true }"
-                    top
-                    offset-y
-                    @update="handleUpdate"
-                    @totalCard="amount => $emit('totalCard', amount)"
-                />
-
-                <!-- HIDDEN BULK ACTION FOR SINGLE ACTION -->
-                <BulkActionMenu
                     ref="bulkAction"
-                    v-show="false"
                     :deck="deck"
                     :cards.sync="_cards"
-                    :selected.sync="singleSelected"
+                    :selected.sync="_selectedBulkActions"
                     :voices="voices"
                     :btn-attrs="{ outlined: true }"
                     top
                     offset-y
                     @update="handleUpdate"
                     @totalCard="amount => $emit('totalCard', amount)"
+                    @close="onClose"
                 />
             </template>
             <template #item.front="{ item }">
@@ -44,11 +31,11 @@
             <template #item.back="{ item }">
                 <SynthesizedTableItem v-model="item.back" :audio="item.back_synthesized" :voice="item.back_voice" primary />
             </template>
-            <template #item._action="{ item }">
+            <template #item._action="{ item, index }">
                 <div class="d-flex">
                     <v-tooltip left>
                         <template #activator="{ attrs, on }">
-                            <v-btn v-bind="attrs" v-on="on" icon @click.stop="handleEditCardClick(item)">
+                            <v-btn v-bind="attrs" v-on="on" icon @click.stop="handleEditCardClick(item, index)">
                                 <v-icon>mdi-pencil</v-icon>
                             </v-btn>
                         </template>
@@ -150,6 +137,8 @@ export default {
     data: () => ({
         search: '',
         singleSelected: [],
+        selectedIndex: 0,
+        singleEdit: false,
     }),
 
     computed: {
@@ -176,6 +165,18 @@ export default {
             },
             set(value) {
                 this.$emit('update:selected', value);
+            },
+        },
+        _selectedBulkActions: {
+            get() {
+                return this.singleEdit
+                    ? this._cards
+                    : this.selected;
+            },
+            set(value) {
+                if (!this.singleEdit) {
+                    this.$emit('update:selected', value);
+                }
             },
         },
         headers() {
@@ -215,9 +216,10 @@ export default {
             this.$emit('selected', this._selected);
         },
 
-        handleEditCardClick(card) {
+        handleEditCardClick(card, index) {
             this.singleSelected = [card];
-            this.$nextTick(() => this.$refs.bulkAction.handleEdit());
+            this.singleEdit = true;
+            this.$nextTick(() => this.$refs.bulkAction.handleEdit(index));
         },
 
         handleDeleteCardClick(card) {
@@ -234,6 +236,10 @@ export default {
                     });
                 }
             );
+        },
+
+        onClose() {
+            this.singleEdit = false;
         },
 
         deleteCard(card) {

@@ -134,3 +134,8 @@
 .v-card.router-link-active * {
     color: var(--v-primary-base);
 }
+
+
+.v-skeleton-loader__image {
+    height: 100vh;
+}

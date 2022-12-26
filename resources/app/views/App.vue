@@ -37,7 +37,7 @@
 
 		<v-main>
 			<v-sheet v-if="loaded" class="fill-height" color="background">
-                <router-view :key="$route.path" />
+                <router-view :key="$route.fullPath" />
 			</v-sheet>
 		</v-main>
 

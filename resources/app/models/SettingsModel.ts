@@ -1,12 +1,18 @@
 import BaseModel from './BaseModel';
 
+export interface IDictionarySettings {
+    uuid: string,
+    languages: Array<string>,
+    bookmarked: boolean,
+}
+
 export interface ISettings {
     dictionary_sort_by: string;
     dictionary_sort_order: string;
     dictionary_search: string;
     dictionary_languages: [],
     dictionary_categories: [],
-    dictionary_bookmarks: Array<string>,
+    dictionary_settings: Array<IDictionarySettings>,
 }
 
 export default class SettingsModel extends BaseModel {
@@ -18,8 +24,8 @@ export default class SettingsModel extends BaseModel {
         dictionary_sort_order: 'desc',
         dictionary_search: '',
         dictionary_languages: [],
+        dictionary_settings: [],
         dictionary_categories: [],
-        dictionary_bookmarks: [],
     };
 
     constructor(data: any = {}) {

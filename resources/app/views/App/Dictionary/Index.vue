@@ -26,99 +26,95 @@
         />
 
         <div :class="{
-            'w-100 pa-3 px-md-0': true,
+            'w-100 px-md-0 pb-3': true,
             'overflow-y-auto': $vuetify.breakpoint.smAndDown,
         }" :style="{
             flexGrow: $vuetify.breakpoint.smAndDown ? 1 : null,
             height: $vuetify.breakpoint.smAndDown ? 0 : null,
         }">
-            <v-row>
+            <Sticky
+                v-if="$vuetify.breakpoint.mdAndUp"
+                v-model="$vuetify.breakpoint.mdAndUp !== false"
+                color="background"
+            >
+                <v-container class="d-flex align-center justify-space-between pb-0 pt-4 pt-md-12 mb-md-4" style="gap: 1rem">
+                    <!-- FILTERS -->
+                    <DictionaryFilters
+                        v-model="$store.state.settings"
+                        :dictionaries="dictionaries"
+                        :languages="languages"
+                        :categories="availableCategories"
+                        :skeleton="skeleton"
+                        class="d-flex align-center"
+                        style="flex: 1; gap: 1rem"
+                    />
 
-                <!-- FILTERS -->
-                <v-col v-if="$vuetify.breakpoint.lgAndUp" cols="12" md="4" lg="3" class="py-md-0">
-                    <Sticky v-model="$vuetify.breakpoint.lgAndUp" color="transparent" class="py-md-12 pr-md-3">
-                        <DictionaryFilters
-                            v-model="$store.state.settings"
-                            :dictionaries="dictionaries"
-                            :languages="languages"
-                            :categories="availableCategories"
-                            :skeleton="skeleton"
-                        />
-                    </Sticky>
-                </v-col>
+                    <!-- SORTING -->
+                    <DictionarySorting
+                        v-model="$store.state.settings"
+                    />
+                </v-container>
+            </Sticky>
 
-                <!-- LISTS -->
-                <v-col cols="12" md="12" lg="9" class="py-md-0 pb-md-12">
-                    <Sticky v-model="$vuetify.breakpoint.mdAndUp" color="background" class="pt-md-12 px-1 mx-n1">
-                        <div class="mt-n2 mb-2 d-flex align-center justify-space-between" style="gap: 1rem">
-                            <h1 v-if="$vuetify.breakpoint.mdAndUp" v-text="$t('dictionary.dictionaries')"></h1>
+            <v-container>
 
-                            <!-- SORTING -->
-                            <DictionarySorting
-                                v-if="$vuetify.breakpoint.mdAndUp"
-                                v-model="$store.state.settings"
-                            />
-                        </div>
-                    </Sticky>
+                <!-- SKELETON LOADERS -->
+                <template v-if="skeleton">
+                    <div :key="groupIdx" v-for="groupIdx in 3">
+                        <v-row :dense="$vuetify.breakpoint.smAndDown">
+                            <v-col :key="indexIdx" v-for="indexIdx in skeletonItems" cols="6" sm="4" md="3" xl="2">
+                                <v-skeleton-loader type="card" />
+                            </v-col>
+                        </v-row>
+                    </div>
+                </template>
 
-                    <!-- SKELETON LOADERS -->
-                    <template v-if="skeleton">
-                        <div :key="groupIdx" v-for="groupIdx in 3">
-                            <v-row :dense="$vuetify.breakpoint.smAndDown">
-                                <v-col :key="indexIdx" v-for="indexIdx in skeletonItems" cols="6" sm="4" md="3" xl="2">
-                                    <v-skeleton-loader type="card" />
-                                </v-col>
-                            </v-row>
-                        </div>
-                    </template>
+                <!-- EMPTY -->
+                <v-alert v-else-if="hasFilters && filteredDictionaries.length === 0" type="info" prominent text>
+                    <span v-text="$t('dictionary.noItemFound')"></span>
+                </v-alert>
 
-                    <!-- EMPTY -->
-                    <v-alert v-else-if="hasFilters && filteredDictionaries.length === 0" type="info" prominent text>
-                        <span v-text="$t('dictionary.noItemFound')"></span>
-                    </v-alert>
-
-                    <!-- DICTIONARIES -->
-                    <Pagination v-model="page" :items="updatedFilteredAndOrderedDictionaries" :items-per-page="itemsPerPage">
-                        <template #items="{ items }">
-                            <v-row :dense="$vuetify.breakpoint.smAndDown">
-                                <v-col cols="6" sm="4" md="3" xl="2" :key="item.id" v-for="(item, itemIdx) in items">
-                                    <v-card :to="{ name: 'dictionary.view', params: { uuid: item.id } }">
-                                        <v-img :src="item.cover.url" aspect-ratio="0.65" class="align-end" style="position: relative">
-                                            <template #placeholder>
-                                                <v-skeleton-loader height="100%" type="image"></v-skeleton-loader>
-                                            </template>
-                                            <v-overlay class="py-2 px-2 d-block" opacity="0" z-index="1" absolute>
-                                                <div style="flex: 1" class="w-100 d-flex align-center justify-space-between">
-                                                    <v-chip v-if="item.created_at > minDateNew" color="secondary" pill small>
-                                                        <span v-text="$t('label.new')"></span>
-                                                    </v-chip>
-                                                    <div>
-                                                        <v-btn :color="isBookmarked(item) ? 'third' : null" icon x-large dark exact @click.stop.prevent="onToggleBookmark(item)">
-                                                            <v-icon v-if="isBookmarked(item)">mdi-star</v-icon>
-                                                            <v-icon v-else>mdi-star-outline</v-icon>
-                                                        </v-btn>
-                                                    </div>
+                <!-- DICTIONARIES -->
+                <Pagination v-model="page" :items="updatedFilteredAndOrderedDictionaries" :items-per-page="itemsPerPage">
+                    <template #items="{ items }">
+                        <v-row :dense="$vuetify.breakpoint.smAndDown">
+                            <v-col cols="6" sm="4" md="3" lg="2" :key="item.id" v-for="(item, itemIdx) in items">
+                                <v-card :to="{ name: 'dictionary.view', params: { uuid: item.id } }">
+                                    <v-img :src="item.cover.url" aspect-ratio="0.65" class="align-end" style="position: relative">
+                                        <template #placeholder>
+                                            <v-skeleton-loader height="100%" type="image"></v-skeleton-loader>
+                                        </template>
+                                        <v-overlay class="py-2 px-2 d-block" opacity="0" z-index="1" absolute>
+                                            <div style="flex: 1" class="w-100 d-flex align-center justify-space-between">
+                                                <v-chip v-if="item.created_at > minDateNew" color="secondary" pill small>
+                                                    <span v-text="$t('label.new')"></span>
+                                                </v-chip>
+                                                <div class="ma-n3">
+                                                    <v-btn :color="isBookmarked(item) ? 'third' : null" icon x-large dark exact @click.stop.prevent="onToggleBookmark(item)">
+                                                        <v-icon v-if="isBookmarked(item)">mdi-star</v-icon>
+                                                        <v-icon v-else>mdi-star-outline</v-icon>
+                                                    </v-btn>
                                                 </div>
-                                            </v-overlay>
-                                            <v-overlay class="pa-2 text-center" style="height: auto; position: relative" z-index="2" opacity="0.8" color="primary" absolute>
-                                                <p class="overline text-overflow-l2 mb-0" style="line-height: 1.5rem" v-text="item.label"></p>
-                                                <p class="caption opacity-75 mb-0">
-                                                    <span v-text="$tc('dictionary.totalItems', item.total_items, {
-                                                        amount: item.total_items
-                                                    })"></span>
-                                                    | <span v-text="$tc('dictionary.totalLanguages', item.total_languages, {
-                                                        amount: item.total_languages
-                                                    })"></span>
-                                                </p>
-                                            </v-overlay>
-                                        </v-img>
-                                    </v-card>
-                                </v-col>
-                            </v-row>
-                        </template>
-                    </Pagination>
-                </v-col>
-            </v-row>
+                                            </div>
+                                        </v-overlay>
+                                        <v-overlay class="pa-2 text-center" style="height: auto; position: relative" z-index="2" opacity="0.8" color="primary" absolute>
+                                            <p class="overline text-overflow-l2 mb-0" style="line-height: 1rem" v-text="item.label"></p>
+                                            <p class="caption opacity-75 mb-0">
+                                                <span v-text="$tc('dictionary.totalItems', item.total_items, {
+                                                    amount: item.total_items
+                                                })"></span>
+                                                | <span v-text="$tc('dictionary.totalLanguages', item.total_languages, {
+                                                    amount: item.total_languages
+                                                })"></span>
+                                            </p>
+                                        </v-overlay>
+                                    </v-img>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                    </template>
+                </Pagination>
+            </v-container>
         </div>
     </Page>
 </template>
@@ -225,7 +221,7 @@ export default {
 
         itemsPerPage() {
             return this.$vuetify.breakpoint.xl
-                ? 18
+                ? 12
                 : this.$vuetify.breakpoint.mdAndUp
                     ? 12
                     : this.$vuetify.breakpoint.smAndUp
@@ -253,7 +249,7 @@ export default {
             this.$store.commit('toggleDictionaryBookmark', dictionary.id);
         },
         isBookmarked(dictionary) {
-            return this.$store.state.settings.dictionary_bookmarks.indexOf(dictionary.id) !== -1;
+            return this.$store.state.settings.dictionary_settings.findIndex(item => item.uuid === dictionary.id && item.bookmarked) !== -1;
         },
         load() {
             this.loading = true;
@@ -261,7 +257,8 @@ export default {
                 Services.getLanguages(),
                 Services.getDictionaries(),
                 Services.getDictionaryCategories(),
-            ]).then(([languages, dictionaries, categories]) => {
+            ])
+                .then(([languages, dictionaries, categories]) => {
                     Object.assign(this, { languages, dictionaries, categories });
                     this.mapLabels();
                     this.skeleton = false;

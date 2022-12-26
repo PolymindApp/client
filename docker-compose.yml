@@ -1,0 +1,61 @@
+version: "3.7"
+
+services:
+    php:
+        container_name: polymind_php
+        image: php:7.4-fpm
+        build:
+            context: ./
+            dockerfile: ./.docker/php/dockerfile
+            args:
+                user: www
+                uid: 1000
+        ports:
+            - "8079:8079"
+        expose:
+            - 8079
+        restart: unless-stopped
+        working_dir: /var/www/
+        command: bash -c "php-fpm"
+        volumes:
+            - ./:/var/www
+            - ./.docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        networks:
+            - polymind
+
+    mysql:
+        container_name: polymind_mysql
+        image: mysql:8.0.22
+        environment:
+            MYSQL_DATABASE: polymind
+            MYSQL_USER: root
+            MYSQL_PASSWORD: root
+            MYSQL_ROOT_PASSWORD: root
+        volumes:
+            - ./.docker/mysql/data:/var/lib/mysql:rw
+            - ./.docker/my.cnf:/etc/mysql/conf.d/custom.cnf
+        ports:
+            - "12002:3306"
+        restart: unless-stopped
+        networks:
+            - polymind
+
+    nginx:
+        image: nginx:alpine
+        container_name: polymind_nginx
+        restart: unless-stopped
+        ports:
+            - 12001:80
+        depends_on:
+            - mysql
+            - php
+        volumes:
+            - ./:/var/www
+            - ./.docker/nginx/conf.d/:/etc/nginx/conf.d/
+            - ./.docker/nginx/log:/var/log/nginx/:rw
+        networks:
+            - polymind
+
+networks:
+    polymind:
+        driver: bridge

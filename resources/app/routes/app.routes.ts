@@ -1,5 +1,5 @@
 import Edit from "@/views/App/Custom.vue";
-import Play from "@/views/App/Session.vue";
+import Session from "@/views/App/Session.vue";
 import Welcome from "@/views/App/Welcome.vue";
 import Dictionary from "@/views/App/Dictionary.vue";
 import DictionaryIndex from "@/views/App/Dictionary/Index.vue";
@@ -13,8 +13,8 @@ export default [
         { path: ':uuid', name: 'dictionary.view', component: DictionaryView },
     ] },
     { path: '/custom/:uuid', name: 'custom', component: Edit },
-    { path: '/session/:uuid', name: 'session', component: Play, children: [
-        { path: 'dictionary/:lang_front/:lang_back?', name: 'session.dictionary', component: Play },
+    { path: '/session/:uuid', name: 'session', component: Session, children: [
+        { path: 'dictionary/:lang_front?/:lang_back?', name: 'session.dictionary', component: Session },
     ] },
     { path: '*', redirect: { name: 'home' } },
 ];

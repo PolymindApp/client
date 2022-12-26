@@ -13,6 +13,7 @@ export default class PlaybackSettingsModel extends BaseModel {
         reversed: true,
         frontVoiceEnabled: true,
         backVoiceEnabled: true,
+        imageEnabled: true,
         cardRangeFrom: null,
         cardRangeTo: null,
         cardRangeMode: null,

@@ -23,10 +23,9 @@
 
         <!-- BULK EDIT -->
         <Modal v-model="editDialog.visible" :title="$t('bulkActionMenu.editDialog.title')" max-width="500" :fullscreen="$vuetify.breakpoint.smAndDown" scrollable>
-            <template v-if="editDialog.data[index]" #body>
-
+            <template v-if="editDialog.data[currentIndex]" #body>
                 <v-text-field
-                    v-model="editDialog.data[index].front"
+                    v-model="editDialog.data[currentIndex].front"
                     :error-messages="editDialog.formErrors.front"
                     :label="$t('header.front')"
                     :rules="[rules.required]"
@@ -39,13 +38,13 @@
                         <div class="d-flex align-center" style="margin-top: -6px">
                             <v-tooltip bottom>
                                 <template #activator="{ attrs, on }">
-                                    <MicAudioRecorder v-model="editDialog.data[index].front_synthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(editDialog.data[index].front_voice_id, () => editDialog.data[index].front_voice_id = null)" :disabled="!canRecord(editDialog.data[index].front_voice_id)" icon />
+                                    <MicAudioRecorder v-model="editDialog.data[currentIndex].front_synthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(editDialog.data[currentIndex].front_voice_id, () => editDialog.data[currentIndex].front_voice_id = null)" :disabled="!canRecord(editDialog.data[currentIndex].front_voice_id)" icon />
                                 </template>
                                 <span v-text="$t('btn.record')"></span>
                             </v-tooltip>
                             <v-tooltip bottom>
                                 <template #activator="{ attrs, on }">
-                                    <PlayAudioBtn v-model="editDialog.data[index].front_synthesized" tabindex="-1" v-bind="attrs" v-on="on" />
+                                    <PlayAudioBtn v-model="editDialog.data[currentIndex].front_synthesized" tabindex="-1" v-bind="attrs" v-on="on" />
                                 </template>
                                 <span v-text="$t('btn.listen')"></span>
                             </v-tooltip>
@@ -55,7 +54,7 @@
 
                 <v-text-field
                     v-if="!deck.data.single"
-                    v-model="editDialog.data[index].back"
+                    v-model="editDialog.data[currentIndex].back"
                     :error-messages="editDialog.formErrors.back"
                     :label="$t('header.back')"
                     :rules="[rules.required]"
@@ -68,13 +67,13 @@
                         <div class="d-flex align-center" style="margin-top: -6px">
                             <v-tooltip bottom>
                                 <template #activator="{ attrs, on }">
-                                    <MicAudioRecorder v-model="editDialog.data[index].back_synthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(editDialog.data[index].back_voice_id, () => editDialog.data[index].back_voice_id = null)" :disabled="!canRecord(editDialog.data[index].back_voice_id)" icon />
+                                    <MicAudioRecorder v-model="editDialog.data[currentIndex].back_synthesized" tabindex="-1" v-bind="attrs" v-on="on" :on-before-record="() => handleBeforeRecord(editDialog.data[currentIndex].back_voice_id, () => editDialog.data[currentIndex].back_voice_id = null)" :disabled="!canRecord(editDialog.data[currentIndex].back_voice_id)" icon />
                                 </template>
                                 <span v-text="$t('btn.record')"></span>
                             </v-tooltip>
                             <v-tooltip bottom>
                                 <template #activator="{ attrs, on }">
-                                    <PlayAudioBtn v-model="editDialog.data[index].back_synthesized" tabindex="-1" v-bind="attrs" v-on="on" />
+                                    <PlayAudioBtn v-model="editDialog.data[currentIndex].back_synthesized" tabindex="-1" v-bind="attrs" v-on="on" />
                                 </template>
                                 <span v-text="$t('btn.listen')"></span>
                             </v-tooltip>
@@ -83,7 +82,7 @@
                 </v-text-field>
 
                 <component
-                    v-model="editDialog.data[index].front_voice_id"
+                    v-model="editDialog.data[currentIndex].front_voice_id"
                     :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
                     :items="voices"
                     :label="$t('deck.voiceFront')"
@@ -98,7 +97,7 @@
 
                 <component
                     v-if="!deck.data.single"
-                    v-model="editDialog.data[index].back_voice_id"
+                    v-model="editDialog.data[currentIndex].back_voice_id"
                     :is="$vuetify.breakpoint.mdAndUp ? VAutocomplete : VSelect"
                     :items="voices"
                     :label="$t('deck.voiceBack')"
@@ -126,7 +125,7 @@
                             <v-icon>mdi-arrow-left</v-icon>
                         </v-btn>
                         <span class="text-center" style="flex: 1">
-                            {{ index + 1 }} or {{ selected.length }}
+                            {{ currentIndex + 1 }} or {{ selected.length }}
                         </span>
                         <v-btn :disabled="bulking" icon @click="handleNext">
                             <v-icon>mdi-arrow-right</v-icon>
@@ -203,7 +202,7 @@
                 </v-btn>
             </template>
             <v-list>
-                <v-list-item :disabled="!canEdit" @click="handleEdit">
+                <v-list-item :disabled="!canEdit" @click="() => handleEdit(0)">
                     <v-list-item-icon>
                         <v-icon>mdi-pencil</v-icon>
                     </v-list-item-icon>
@@ -267,6 +266,10 @@ export default {
             type: Array,
             default: () => ([]),
         },
+        index: {
+            type: Number,
+            default: 0,
+        },
         voices: {
             type: Array,
             default: () => ([]),
@@ -286,7 +289,7 @@ export default {
     },
 
     data: () => ({
-        index: 0,
+        currentIndex: 0,
         loading: false,
         bulking: false,
         flipDialog: {
@@ -376,28 +379,32 @@ export default {
 
     watch: {
         'editDialog.visible'(value) {
-            if (value) {
-                this.index = 0;
+            if (!value) {
+                this.$emit('close');
             }
+        },
+        index(index) {
+            this.currentIndex = index;
         },
     },
 
     methods: {
         handlePrevious() {
-            this.index--;
-            if (this.index < 0) {
-                this.index = this.selected.length - 1;
+            this.currentIndex--;
+            if (this.currentIndex < 0) {
+                this.currentIndex = this.selected.length - 1;
             }
         },
 
         handleNext() {
-            this.index++;
-            if (this.index > this.selected.length - 1) {
-                this.index = 0;
+            this.currentIndex++;
+            if (this.currentIndex > this.selected.length - 1) {
+                this.currentIndex = 0;
             }
         },
 
-        handleEdit() {
+        handleEdit(index = 0) {
+            this.currentIndex = index;
             Object.assign(this.editDialog, {
                 visible: true,
                 data: this.$deepClone(this.selected),

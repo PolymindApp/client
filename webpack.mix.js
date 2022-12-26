@@ -52,6 +52,7 @@ mix.ts('resources/app/main.ts', 'public/js/app.js')
         },
         plugins,
         devServer: {
+            host: '0.0.0.0',
             port: 8079,
         },
         resolve: {
@@ -63,7 +64,7 @@ mix.ts('resources/app/main.ts', 'public/js/app.js')
     .options({
         hmrOptions: {
             host: 'localhost',
-            port: '8079'
+            port: 8079
         },
     })
     .disableNotifications();

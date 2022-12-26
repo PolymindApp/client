@@ -23,6 +23,15 @@ Vue.directive('windowFocus', {
     },
 });
 
+Vue.directive('windowBlur', {
+    bind: (el, binding, vnode) => {
+        window.addEventListener('blur', binding.value);
+    },
+    unbind: (el, binding, vnode) => {
+        window.removeEventListener('blur', binding.value);
+    },
+});
+
 
 Vue.directive('resize', {
     bind: (el, binding, vnode) => {

@@ -59,7 +59,8 @@
                 ></v-text-field>
             </div>
 
-            <template v-if="dictionaries.length !== 0 || _search.length === 0">
+            <!-- DICTIONARIES -->
+            <template v-if="_dictionaries.length !== 0 || _search.length === 0">
                 <v-subheader v-text="$t('sidebar.dictionaries.title')"></v-subheader>
                 <v-alert v-if="dictionaries.length === 0 && _search.length === 0" key="alert_dictionary" class="mx-2 caption" dense text>
                     <span v-text="$t('sidebar.dictionaries.noItems')"></span>
@@ -78,6 +79,7 @@
                 </v-list-item>
             </template>
 
+            <!-- DECKS -->
             <template v-if="_decks.length !== 0 || _search.length === 0">
                 <v-subheader v-text="$t('sidebar.decks.title')"></v-subheader>
                 <DeckTree
@@ -88,11 +90,12 @@
                 </v-alert>
             </template>
 
-            <v-alert v-else-if="_decks.length === 0 && _search.length > 0" key="alert_search" class="mx-2" type="info" text outlined>
+            <v-alert v-else-if="hasNoItemFound" key="alert_search" class="mx-2" type="info" text outlined>
                 <span v-text="$t('sidebar.search.noResults')"></span>
             </v-alert>
         </v-list>
 
+        <!-- FOOTER -->
         <template #append>
             <v-sheet color="background">
                 <v-divider></v-divider>
@@ -175,8 +178,19 @@ export default {
             return this.$store.state.decks.filter(deck => this._search.length === 0 || (deck.data.name || this.$i18n.t(deck.data.i18n)).trim().toLowerCase().indexOf(this._search.toLowerCase()) !== -1)
         },
 
+        _dictionaries() {
+            return this.$store.state.dictionaries.filter(dictionary => this.$store.state.settings.dictionary_settings.find(item => item.uuid === dictionary.id && item.bookmarked))
+                .filter(dictionary => this._search.length === 0 || dictionary.i18n[0].text.trim().toLowerCase().indexOf(this._search.toLowerCase()) !== -1);
+        },
+
+        hasNoItemFound() {
+            return this._decks.length === 0 &&
+                this._dictionaries.length === 0 &&
+                this._search.length > 0;
+        },
+
         dictionaries() {
-            return this.$store.state.dictionaries.filter(dictionary => this.$store.state.settings.dictionary_bookmarks.indexOf(dictionary.id) !== -1);
+            return this.$store.state.dictionaries.filter(dictionary => this.$store.state.settings.dictionary_settings.find(item => item.uuid === dictionary.id && item.bookmarked));
         },
 
         logo() {

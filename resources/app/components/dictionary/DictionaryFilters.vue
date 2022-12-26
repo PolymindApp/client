@@ -1,57 +1,32 @@
 <template>
     <div>
-        <div class="d-flex align-center justify-space-between mb-3" style="gap: 1rem">
-            <h2 v-text="$t('label.filters')"></h2>
-            <v-btn v-if="hasFilters" color="primary" outlined x-small @click="handleClearFilters">
-                <span v-text="$t('btn.clear')"></span>
-            </v-btn>
-        </div>
 
+        <!-- SEARCH -->
         <v-text-field
             v-model="_value.dictionary_search"
+            v-bind="searchAttrs"
             :placeholder="$t('label.search')"
             :disabled="!canSearch"
-            v-bind="searchAttrs"
             prepend-inner-icon="mdi-magnify"
             clearable
             hide-details
+            outlined
+            dense
         ></v-text-field>
 
-        <h3 class="mt-8" v-text="$t('label.languages')"></h3>
-        <div class="mt-3 mb-3">
-            <v-select
-                v-model="_value.dictionary_languages"
-                :items="availableLanguages"
-                :placeholder="$t('label.any')"
-                item-text="name"
-                item-value="code"
-                outlined
-                multiple
-                hide-details
-            />
-        </div>
-
-        <h3 class="mt-8 mb-3" v-text="$t('label.categories')"></h3>
-        <div class="mt-3">
-            <template v-if="skeleton">
-                <v-skeleton-loader :key="index" v-for="index in 8" :class="{
-                    'mt-6': index === 1,
-                    'mt-3': index > 1,
-                }" type="list-item" />
-            </template>
-            <v-list max-height="50vh" dense color="transparent" class="pa-0 overflow-auto" rounded>
-                <v-list-item-group v-model="_value.dictionary_categories" color="primary" multiple>
-                    <v-list-item :key="category.id" v-for="category in categories">
-                        <v-list-item-avatar size="64">
-                            <v-img :src="category.cover.url"></v-img>
-                        </v-list-item-avatar>
-                        <v-list-item-title>
-                            <h2 v-text="category.label"></h2>
-                        </v-list-item-title>
-                    </v-list-item>
-                </v-list-item-group>
-            </v-list>
-        </div>
+        <!-- LANGUAGES -->
+        <v-select
+            v-model="_value.dictionary_languages"
+            :items="availableLanguages"
+            :label="'Languages'"
+            :placeholder="$t('label.any')"
+            item-text="name"
+            item-value="code"
+            outlined
+            multiple
+            hide-details
+            dense
+        />
     </div>
 </template>
 

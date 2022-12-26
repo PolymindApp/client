@@ -5,7 +5,7 @@
             'overflow-y-auto': $vuetify.breakpoint.smAndDown,
         }" :style="{
             flexGrow: $vuetify.breakpoint.smAndDown ? 1 : null,
-            height: $vuetify.breakpoint.smAndDown ? 0 : null,
+            minHeight: $vuetify.breakpoint.smAndDown ? 0 : null,
         }">
             <v-img :src="background" :height="parallaxHeight" class="w-100 text-center" position="50% 25%">
                 <template #placeholder>
@@ -30,6 +30,7 @@
                     <v-container :style="{
                         maxWidth: '50rem',
                         width: '80vw',
+                        paddingTop: '5rem',
                         paddingBottom: 'calc(1rem + 97.5px)',
                     }">
                         <div class="text-center" :style="{
@@ -45,7 +46,7 @@
                                 <p v-if="body" class="opacity-75 mt-2" v-text="body"></p>
                             </template>
 
-                            <v-btn class="mt-3" color="primary" :disabled="!canStartSession" :to="{ name: 'session.dictionary', params: sessionParams }" :block="$vuetify.breakpoint.smAndDown" x-large>
+                            <v-btn class="mt-3" color="primary" :disabled="loading" :block="$vuetify.breakpoint.smAndDown" x-large @click="onStartSession">
                                 <v-icon left>mdi-headphones</v-icon>
                                 <span v-text="$t('btn.startSession')"></span>
                             </v-btn>
@@ -118,7 +119,7 @@
                                 </v-avatar>
                             </template>
                             <template #footer.prepend>
-                                <v-btn color="primary" :disabled="!canStartSession" :to="{ name: 'session.dictionary', params: sessionParams }">
+                                <v-btn color="primary" :disabled="loading" @click="onStartSession">
                                     <v-icon left>mdi-headphones</v-icon>
                                     <span v-text="$t('btn.startSession')"></span>
                                 </v-btn>
@@ -185,6 +186,7 @@ import Pagination from '@/components/generic/Pagination.vue';
 import SynthesizedTableItem from '@/components/generic/SynthesizedTableItem.vue';
 import Services from "@/utils/Services";
 import { Component, Watch, Vue } from 'vue-property-decorator';
+import {IDictionarySettings} from "@/models/SettingsModel";
 
 @Component({
     components: {
@@ -223,7 +225,12 @@ export default class DictionaryView extends Vue {
                 this.$i18n.t('btn.gotIt').toString(),
             );
             this.selectedLanguages.pop();
+            return;
         }
+        this.$store.commit('setDictionaryLanguages', {
+            uuid: this.dictionary.id,
+            languages: selectedLanguages,
+        });
     }
 
     get title(): string {
@@ -289,10 +296,12 @@ export default class DictionaryView extends Vue {
         ];
         this.selectedLanguages.forEach(selectedLanguage => {
             const i18nIdx = this.allLanguages.findIndex(i18n => i18n.language.code === selectedLanguage);
-            const i18n = this.allLanguages[i18nIdx];
-            headers.push(
-                { text: i18n.language.name, value: 'i18n[' + i18nIdx + '].text' }
-            );
+            if (i18nIdx !== -1) {
+                const i18n = this.allLanguages[i18nIdx];
+                headers.push(
+                    { text: i18n.language.name, value: 'i18n[' + i18nIdx + '].text' }
+                );
+            }
         })
         if (this.selectedLanguages.length === 0) {
             headers.push(
@@ -310,7 +319,7 @@ export default class DictionaryView extends Vue {
     }
 
     get isBookmarked(): boolean {
-        return this.$store.state.settings.dictionary_bookmarks.indexOf(this.$route.params.uuid) !== -1;
+        return (this.$store.state.settings.dictionary_settings.find((dictionary: IDictionarySettings) => dictionary.uuid === this.$route.params.uuid) || {}).bookmarked;
     }
 
     get sessionParams(): any {
@@ -326,10 +335,22 @@ export default class DictionaryView extends Vue {
 
     onToggleBookmark() {
         this.$store.commit('toggleDictionaryBookmark', this.dictionary.id);
-        if (this.$store.state.settings.dictionary_bookmarks.indexOf(this.dictionary.id) === -1) {
+        if (this.$store.state.settings.dictionary_settings.indexOf((dictionary: IDictionarySettings) => dictionary.uuid === this.dictionary.id) === -1) {
             this.$snack(this.$i18n.t('dictionary.view.removedFromBookmark').toString());
         } else {
             this.$snack(this.$i18n.t('dictionary.view.addedToBookmark').toString());
+        }
+    }
+
+    onStartSession() {
+        if (!this.canStartSession) {
+            this.$confirm(
+                this.$i18n.t('dictionary.view.mustSelectLanguage.title').toString(),
+                this.$i18n.t('dictionary.view.mustSelectLanguage.body').toString(),
+                this.$i18n.t('btn.gotIt').toString(),
+            );
+        } else {
+            this.$router.push({ name: 'session.dictionary', params: this.sessionParams });
         }
     }
 
@@ -356,6 +377,7 @@ export default class DictionaryView extends Vue {
             type: 'dictionary',
             params: this.$route.params.uuid,
         });
+        this.selectedLanguages = (this.$store.state.settings.dictionary_settings.find((settings: IDictionarySettings) => settings.uuid === this.$route.params.uuid) || {}).languages || [];
         this.load();
     }
 

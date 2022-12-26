@@ -1,14 +1,25 @@
 <template>
-    <Page :title="deckName" class="fill-height pa-0 d-flex flex-column" tabindex="0" fluid v-bind="$attrs" v-on="$listeners" v-touch="{
-        up: handleSwipeUp,
-        down: handleSwipeDown,
-        left: handleSwipeLeft,
-        right: handleSwipeRight,
-    }" v-on-mouse-inactive="{
-        delay: 5000,
-        callback: handleOnMouseInactive,
-    }" v-hotkey="keymap"
-    @mousemove="handleMouseMouse">
+    <Page :title="deckName"
+        class="fill-height pa-0 d-flex flex-column"
+        tabindex="0"
+        fluid
+        v-bind="$attrs"
+        v-on="$listeners"
+        v-touch="{
+            up: handleSwipeUp,
+            down: handleSwipeDown,
+            left: handleSwipeLeft,
+            right: handleSwipeRight,
+        }"
+        v-on-mouse-inactive="{
+            delay: 5000,
+            callback: handleOnMouseInactive,
+        }"
+        v-hotkey="keymap"
+        v-window-focus="onWindowFocus"
+        v-window-blur="onWindowBlur"
+        @mousemove="handleMouseMouse"
+    >
 
         <!-- BREADCRUMBS -->
         <portal to="desktop_nav">
@@ -37,6 +48,12 @@
                     <v-icon>mdi-headphones-settings</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content v-text="$t('btn.playbackSettings')"></v-list-item-content>
+            </v-list-item>
+            <v-list-item v-if="isDictionary" @click="onDictionaryLanguageChange">
+                <v-list-item-icon>
+                    <v-icon>mdi-translate</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content v-text="$t('session.language.btn')"></v-list-item-content>
             </v-list-item>
             <v-divider class="my-2" />
             <v-list-item :disabled="!canResetSession" @click="handleResetSessionClick">
@@ -86,24 +103,95 @@
 <!--            </template>-->
 <!--        </Modal>-->
 
+        <!-- DICTIONARY LANGUAGE SELECTION -->
+        <Modal v-model="showDictionaryLanguageSelection.visible" :title="$t('session.dictionaryLanguageSelection.title')" max-width="500" persistent scrollable>
+            <template #body>
+                <div v-text="$t('session.dictionaryLanguageSelection.desc')"></div>
+
+                <!-- LANGUAGES: DESKTOP -->
+                <div v-if="$vuetify.breakpoint.mdAndUp" class="mt-3 d-flex justify-center flex-wrap" style="gap: 0.5rem">
+                    <v-chip-group v-model="showDictionaryLanguageSelection.data" color="primary" column multiple>
+                        <v-chip :value="i18n.language.code" :key="i18n.id" v-for="i18n in allLanguages" label outlined small>
+                            <span v-text="i18n.language.name"></span>
+                        </v-chip>
+                    </v-chip-group>
+                </div>
+
+                <!-- LANGUAGES: MOBILE -->
+                <v-select
+                    v-else
+                    v-model="showDictionaryLanguageSelection.data"
+                    :placeholder="$t('label.languages')"
+                    :items="allLanguages"
+                    class="my-3"
+                    item-text="language.name"
+                    item-value="language.code"
+                    outlined
+                    multiple
+                    hide-details
+                />
+
+                <v-expand-transition>
+                    <div v-if="showDictionaryLanguageSelection.data.length > 2">
+                        <v-alert
+                            text
+                            type="warning"
+                            colored-border
+                            class="mt-3 mb-0"
+                        >
+                            No more than two languages!
+                        </v-alert>
+                    </div>
+                </v-expand-transition>
+            </template>
+            <template #buttons>
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="!canStartDictionarySession" color="primary" large @click="onDictionaryLanguageSelectionConfirm">
+                    <span v-text="$t('btn.apply')"></span>
+                </v-btn>
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="showDictionaryLanguageSelection.loading" outlined large @click="onDictionaryLanguageSelectionCancel">
+                    <span v-text="$t('btn.cancel')"></span>
+                </v-btn>
+            </template>
+        </Modal>
+
         <!-- LAYOUT -->
         <div id="layout" ref="layout" :style="layoutStyle" :class="{
             'w-100 fill-height background': true,
             'paused': !playing,
             'animated': _settings.data.animation,
         }">
-            <v-overlay v-if="background" :color="$vuetify.theme.dark ? 'black' : 'white'" :opacity="opacity" z-index="0" absolute></v-overlay>
+            <v-overlay v-if="hasBackground" :color="$vuetify.theme.dark ? 'black' : 'white'" :opacity="opacity" z-index="1" absolute></v-overlay>
+
+            <v-fade-transition
+                v-for="range in indexes"
+                :key="'media_' + filteredCards[range].id"
+                class="fill-height w-100"
+            >
+                <v-img
+                    v-if="_settings.data.imageEnabled && filteredCards[range].media && isWithinExtendedRange(range, 2)"
+                    :key="'media_img_' + filteredCards[index].id"
+                    :src="filteredCards[range].media"
+                    :style="{
+                        position: 'absolute',
+                        opacity: index === range ? 1 : 0.01,
+                    }"
+                    class="w-100 fill-height align-center text-center justify-center"
+                >
+                    <template #placeholder>
+                        <v-progress-circular
+                            :color="!$vuetify.theme.dark ? 'black' : 'white'"
+                            indeterminate
+                            size="128"
+                        />
+                    </template>
+                </v-img>
+            </v-fade-transition>
+
             <div style="z-index: 1; position: relative" class="w-100 fill-height d-flex flex-column align-content-between justify-center">
                 <v-container style="flex: 0" class="pa-4" fluid>
                     <v-row>
                         <v-col cols="4">
-                            <v-chip
-                                v-if="_settings.data.cardRangeMode"
-                                color="primary"
-                                outlined
-                            >
-                                <span v-text="$t('session.playbackSettings.cardRangeMode.' + (_settings.data.cardRangeMode ? _settings.data.cardRangeMode : 'repeat'))"></span>
-                            </v-chip>
+
                         </v-col>
                         <v-col cols="4" class="text-center"></v-col>
                         <v-col cols="4" class="d-flex align-center justify-end">
@@ -137,11 +225,14 @@
                             <v-icon color="warning" x-large>mdi-alert</v-icon>
                             <h3 class="mt-2" v-text="$t('session.emptyFiltersWarning')"></h3>
                         </div>
-                        <div v-else-if="filteredCards[index]" class="px-4 text-center abs_middle">
+                        <div v-else-if="filteredCards[index]" :class="{
+                            'px-4 text-center abs_middle': true,
+                            'clickable': currentSideHasAudio
+                        }">
                             <template v-for="range in indexes">
                                 <transition :key="'front_' + filteredCards[range].id" :name="transition">
                                     <v-card v-if="ready && showFront && index === range">
-                                        <h1 v-ripple="currentSideHasAudio" @click="handleClickCard(filteredCards[range], 'front')" :class="{
+                                        <h1 v-ripple="currentSideHasAudio" @click="currentSideHasAudio ? handleClickCard(filteredCards[range], 'front') : undefined" :class="{
                                             'text-capitalize-first text-h4 text-md-h3 text-lg-h2': !_settings.data.flipped,
                                             'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': _settings.data.flipped,
                                         }" v-text="filteredCards[range].front"></h1>
@@ -149,7 +240,7 @@
                                 </transition>
                                 <transition :key="'back_' + filteredCards[range].id" :name="transition">
                                     <v-card v-if="ready && showBack && index === range">
-                                        <h1 v-ripple="currentSideHasAudio" @click="handleClickCard(filteredCards[range], 'back')" :class="{
+                                        <h1 v-ripple="currentSideHasAudio" @click="currentSideHasAudio ? handleClickCard(filteredCards[range], 'back') : undefined" :class="{
                                             'text-capitalize-first text-h4 text-md-h3 text-lg-h2': _settings.data.flipped,
                                             'text-capitalize-first text-h3 text-md-h2 text-lg-h1 primary--text': !_settings.data.flipped,
                                         }" v-text="filteredCards[range].back"></h1>
@@ -180,14 +271,28 @@
                             <v-btn v-if="showControls && originalCards.length > 0" :disabled="!canGoFirst" icon @click="goFirst">
                                 <v-icon>mdi-page-first</v-icon>
                             </v-btn>
-                            <template v-if="showControls">
-                                <span v-if="!ready"></span>
-                                <span v-else-if="filteredCards.length > 0" v-text="$t('session.indexOf', {
-                                    current: index + 1,
-                                    total: filteredCards.length,
-                                })"></span>
-                                <span v-else-if="filteredCards.length < originalCards.length" v-text="$t('session.noCardsLeft')"></span>
-                            </template>
+                            <div v-if="showControls" style="position: relative">
+                                <v-slide-y-reverse-transition>
+                                    <div v-if="showProgressiveIncrementation" class="text-center third--text font-weight-black" style="position: absolute; top: -2rem; right: 0">
+                                        +1
+                                    </div>
+                                </v-slide-y-reverse-transition>
+                                <div>
+                                    <span v-if="!ready"></span>
+                                    <span v-else-if="filteredCards.length > 0" v-text="$t('session.indexOf', {
+                                        current: index + 1,
+                                        total: filteredCards.length,
+                                    })"></span>
+                                    <span v-else-if="filteredCards.length < originalCards.length" v-text="$t('session.noCardsLeft')"></span>
+                                </div>
+                                <div v-if="hasRange">
+                                    <v-progress-linear
+                                        :value="((index - minIndex + 1) * 100) / (maxIndex - minIndex + 1)"
+                                        color="third"
+                                        height="3"
+                                    ></v-progress-linear>
+                                </div>
+                            </div>
                             <v-btn v-if="showControls && originalCards.length > 0" :disabled="!canGoLast" icon @click="goLast">
                                 <v-icon>mdi-page-last</v-icon>
                             </v-btn>
@@ -203,7 +308,7 @@
                     </v-row>
                 </v-container>
                 <v-expand-transition>
-                    <v-progress-linear v-if="showProgress" v-once id="progress_bar" :value="progress" height="5" />
+                    <v-progress-linear v-once id="progress_bar" :value="progress" height="5" />
                 </v-expand-transition>
             </div>
         </div>
@@ -222,6 +327,7 @@ import PlaybackSettingsModel from '@/models/PlaybackSettingsModel';
 import Services from "@/utils/Services";
 import ambiencesJson from '../../../../.ambiences.json';
 import DeckMixin from "@/mixins/deck.mixin";
+import {IDictionarySettings} from "@/models/SettingsModel";
 // import audioDecode from 'audio-decode';
 // import Crunker from 'crunker';
 
@@ -245,6 +351,7 @@ export default {
         fullscreen: false,
         mustSaveSettings: false,
         settingsHasBeenUpdated: false,
+        showProgressiveIncrementation: false,
         wasPaused: false,
         muted: false,
         active: true,
@@ -265,6 +372,18 @@ export default {
         },
         shortcutDialog: {
             visible: false,
+        },
+        showDictionaryLanguageSelection: {
+            visible: false,
+            loading: false,
+            changingLanguage: false,
+            data: [],
+            callback: () => {},
+        },
+        dictionary: {
+            id: null,
+            i18n: [],
+            cover: {}
         },
         // exportSessionDialog: {
         //     visible: false,
@@ -381,6 +500,23 @@ export default {
             return !this.skeleton && this.ready && this.filteredCards.length > 1;
         },
 
+        canStartDictionarySession() {
+            const langParams = [];
+            ['lang_front', 'lang_back'].forEach(key => {
+                if (this.$route.params[key]) {
+                    langParams.push(this.$route.params[key]);
+                }
+            });
+            return !this.showDictionaryLanguageSelection.loading &&
+                this.showDictionaryLanguageSelection.data.length > 0 &&
+                this.showDictionaryLanguageSelection.data.length <= 2 &&
+                JSON.stringify(this.showDictionaryLanguageSelection.data.sort()) !== JSON.stringify(langParams.sort())
+        },
+
+        isDictionary() {
+            return this.$route.name === 'session.dictionary';
+        },
+
         events() {
             return this.cards.map(card => new Date(card.created_at).toISOString().substr(0, 10));
         },
@@ -395,6 +531,10 @@ export default {
 
         showControls() {
             return true;//this.ready && (this.active || !this.playing);
+        },
+
+        hasRange() {
+            return this.minIndex > 0 || (this.maxIndex !== this.filteredCards.length - 1);
         },
 
         firstDelay() {
@@ -435,6 +575,10 @@ export default {
 
         background() {
             return this._settings.data.wallpaper ? (this.ambiences.find(ambience => ambience.value === this._settings.data.ambience) || {}).bg : null;
+        },
+
+        hasBackground() {
+            return this.background || (this.filteredCards[this.index] || {}).media;
         },
 
         opacity() {
@@ -495,6 +639,10 @@ export default {
                     : this._settings.data.cardRangeTo
                 : totalCards;
         },
+
+        allLanguages() {
+            return this.dictionary.i18n.filter(i18n => i18n.type === 'title') || [];
+        }
     },
 
     watch: {
@@ -626,13 +774,13 @@ export default {
             }
         },
 
-        handleExportClick() {
-            Object.assign(this.exportSessionDialog, {
-                visible: true,
-                loading: false,
-                data: {},
-            });
-        },
+        // handleExportClick() {
+        //     Object.assign(this.exportSessionDialog, {
+        //         visible: true,
+        //         loading: false,
+        //         data: {},
+        //     });
+        // },
 
         handleResetSessionClick() {
             this.reset();
@@ -712,6 +860,66 @@ export default {
         handleResetClick() {
             this.reset();
             this.pause();
+        },
+
+        onWindowFocus() {
+        },
+
+        onWindowBlur() {
+        },
+
+        onDictionaryLanguageSelectionConfirm() {
+            const params = {
+                uuid: this.$route.params.uuid,
+            };
+            params.lang_front = this.showDictionaryLanguageSelection.data[0];
+            if (this.showDictionaryLanguageSelection.data.length > 1) {
+                params.lang_back = this.showDictionaryLanguageSelection.data[1];
+            }
+            this.$router.replace({ name: 'session.dictionary', params });
+            // this.showDictionaryLanguageSelection.callback(...this.showDictionaryLanguageSelection.data);
+        },
+
+        onDictionaryLanguageSelectionCancel() {
+            if (this.showDictionaryLanguageSelection.changingLanguage) {
+                this.showDictionaryLanguageSelection.visible = false;
+            } else {
+                this.$router.back();
+            }
+        },
+
+        onDictionaryLanguageChange() {
+            this.showDictionaryLanguageSelection.visible = true;
+            this.showDictionaryLanguageSelection.changingLanguage = true;
+            this.showDictionaryLanguageSelection.data = [];
+            if (this.$route.params.lang_front) {
+                this.showDictionaryLanguageSelection.data.push(this.$route.params.lang_front);
+            }
+            if (this.$route.params.lang_back) {
+                this.showDictionaryLanguageSelection.data.push(this.$route.params.lang_back);
+            }
+        },
+
+        isWithinExtendedRange(index, range) {
+            const valid = [];
+            for (let i = range; i > 0; i--) {
+                const downward = this.index - i;
+                if (downward >= this.minIndex) {
+                    valid.push(downward);
+                } else {
+                    valid.push(this.maxIndex + (this.minIndex + downward + 1));
+                }
+            }
+            valid.push(this.index);
+            for (let i = 1; i <= range + 1; i++) {
+                const upward = this.index + i;
+                if (upward <= this.maxIndex) {
+                    valid.push(upward);
+                } else {
+                    valid.push(upward - this.maxIndex);
+                }
+            }
+            return valid.indexOf(index) !== -1;
         },
 
         checkSaveSettings() {
@@ -837,6 +1045,22 @@ export default {
                 this.repeat = 0;
                 this.index++;
                 if (this.index > this.maxIndex) {
+                    if (this._settings.data.cardRangeMode === 'progressive') {
+                        this.settings.data.cardRangeFrom++;
+                        this.settings.data.cardRangeTo++;
+                        this.showProgressiveIncrementation = true;
+                        setTimeout(() => {
+                            this.showProgressiveIncrementation = false;
+                        }, 1500);
+
+                        if (this._settings.data.cardRangeFrom > this.cards.length - 1) {
+                            this.settings.data.cardRangeFrom = 0;
+                        }
+                        if (this._settings.data.cardRangeTo > this.cards.length - 1) {
+                            this.settings.data.cardRangeTo = 0;
+                        }
+                    }
+
                     this.index = this.minIndex;
                 }
             }
@@ -917,29 +1141,50 @@ export default {
                 : Services.getCards(this.deck ? this.deck.data.id : undefined))
                 .then(response => {
                     if (this.$route.name === 'session.dictionary') {
-                        return response.map(item => {
-                            const card = {
-                                id: item.id,
-                                created_at: item.created_at,
+                        return new Promise((resolve, reject) => {
+                            const callback = (response, front_lang, back_lang) => {
+                                const result = response.map(item => {
+                                    const card = {
+                                        id: item.id,
+                                        media: item.cover.url,
+                                        created_at: item.created_at,
+                                    };
+                                    const frontIdx = item.i18n.findIndex(i18n => i18n.language.code === (this.$route.params.lang_front || front_lang));
+                                    if (frontIdx !== -1) {
+                                        Object.assign(card, {
+                                            front: item.i18n[frontIdx].text,
+                                            front_synthesized: item.i18n[frontIdx].text_synthesized,
+                                        });
+                                    }
+                                    if (this.$route.params.lang_back || back_lang) {
+                                        const backIdx = item.i18n.findIndex(i18n => i18n.language.code === (this.$route.params.lang_back || back_lang));
+                                        if (backIdx !== -1) {
+                                            Object.assign(card, {
+                                                back: item.i18n[backIdx].text,
+                                                back_synthesized: item.i18n[backIdx].text_synthesized,
+                                            });
+                                        }
+                                    }
+                                    return card;
+                                }).sort((a, b) => a.created_at > b.created_at ? 1 : -1);
+                                this.showDictionaryLanguageSelection.visible = false;
+                                resolve(result);
                             };
-                            const frontIdx = item.i18n.findIndex(i18n => i18n.language.code === this.$route.params.lang_front);
-                            if (frontIdx !== -1) {
-                                Object.assign(card, {
-                                    front: item.i18n[frontIdx].text,
-                                    front_synthesized: item.i18n[frontIdx].text_synthesized,
-                                });
+
+                            Services.getDictionary(this.$route.params.uuid)
+                                .then(dictionary => {
+                                    Object.assign(this, { dictionary });
+                                })
+                                .catch(this.$handleError)
+                                .finally(() => this.showDictionaryLanguageSelection.loading = false);
+                            if (!this.$route.params.lang_front && !this.$route.params.lang_back) {
+                                this.showDictionaryLanguageSelection.visible = true;
+                                this.showDictionaryLanguageSelection.loading = true;
+                                this.showDictionaryLanguageSelection.callback = (front_lang, back_lang) => callback(response, front_lang, back_lang);
+                            } else {
+                                return callback(response);
                             }
-                            if (this.$route.params.lang_back) {
-                                const backIdx = item.i18n.findIndex(i18n => i18n.language.code === this.$route.params.lang_back);
-                                if (backIdx !== -1) {
-                                    Object.assign(card, {
-                                        back: item.i18n[backIdx].text,
-                                        back_synthesized: item.i18n[backIdx].text_synthesized,
-                                    });
-                                }
-                            }
-                            return card;
-                        }).sort((a, b) => a.created_at > b.created_at ? 1 : -1);
+                        });
                     }
                     return response;
                 })
@@ -1296,6 +1541,7 @@ export default {
         document.addEventListener("keydown", this.handleKeyDown, false);
 
         this.settings = new PlaybackSettingsModel(this.$deepClone(this.deck ? this.deck.data.playback_settings.data : {}));
+
         this.load();
         this.applySettings();
     },
@@ -1333,8 +1579,10 @@ export default {
     top: 50%;
     transform: translateY(-50%) translateX(-50%);
     width: auto;
-    cursor: pointer;
     padding: 1rem 2rem;
+}
+.abs_middle.clickable h1 {
+    cursor: pointer;
 }
 .slide-enter-active,
 .slide-leave-active {

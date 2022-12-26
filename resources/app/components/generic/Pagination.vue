@@ -4,7 +4,7 @@
         <v-pagination
             v-if="length > 1"
             v-model="_value"
-            class="mt-8"
+            class="mt-6 mt-md-8"
             :length="length"
             :total-visible="totalVisible"
         ></v-pagination>
