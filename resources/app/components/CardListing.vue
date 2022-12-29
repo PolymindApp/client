@@ -234,6 +234,8 @@ export default {
                         modal.visible = false;
                         this.$snack(this.$i18n.t('snack.cardDeleted'));
                     });
+                }, undefined, {
+                    color: 'error',
                 }
             );
         },

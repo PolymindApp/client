@@ -1,17 +1,25 @@
 import Dexie, { Table } from 'dexie';
 import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
 
+export interface I18n {
+    id?: string | null;
+    text: string;
+    type: string | null;
+    language: Language;
+}
+
 export interface Language {
-    id?: number;
+    id?: number | null;
     name: string;
     code: string;
-    created_at: string;
-    updated_at: string;
-    deleted_at: string;
+    voices?: Array<Voice>;
+    created_at?: string | null;
+    updated_at?: string | null;
+    deleted_at?: string | null;
 }
 
 export interface Voice {
-    id?: number;
+    id?: number | null;
     gender: boolean;
     language: Language;
     language_id: number;
@@ -20,29 +28,29 @@ export interface Voice {
     standard: boolean;
     bilingual: boolean;
     child: boolean;
-    created_at: string;
-    updated_at: string;
-    deleted_at: string;
+    created_at?: string | null;
+    updated_at?: string | null;
+    deleted_at?: string | null;
 }
 
 export interface User {
-    id?: string;
+    id?: string | null;
     name: string;
     email: string;
     roles: Role;
-    created_at: string;
-    updated_at: string;
+    created_at?: string | null;
+    updated_at?: string | null;
 }
 
 export interface Role {
-    id?: string;
+    id?: string | null;
     key: string;
     name: string;
-    description: string;
+    description?: string | null;
 }
 
 export interface Deck {
-    id?: string;
+    id?: string | null;
     default_front_voice_id: number;
     default_back_voice_id: number;
     default_back_voice: Voice;
@@ -51,18 +59,18 @@ export interface Deck {
     single: boolean;
     total_card: number;
     playback_settings: PlaybackSettingsModel;
-    created_at: string;
-    created_by: string;
-    updated_at: string;
-    updated_by: string;
-    deleted_at: string;
+    created_at?: string | null;
+    created_by?: string | null;
+    updated_at?: string | null;
+    updated_by?: string | null;
+    deleted_at?: string | null;
 }
 
 export interface Card {
-    id?: string;
+    id?: string | null;
     deck_id: string;
-    front_voice_id: number;
-    back_voice_id: number;
+    front_voice_id: number | null;
+    back_voice_id: number | null;
     front_voice: Voice;
     back_voice: Voice;
     front: string;
@@ -74,49 +82,50 @@ export interface Card {
 
 export interface Media {
     id?: string | null;
-    url?: string | null;
+    url: string | null;
 }
 
 export interface Dictionary {
     id?: string | null;
-    dictionary_category_id?: DictionaryCategory;
+    dictionary_category_id?: string | null;
     total_items: number;
     cover: Media;
+    category: DictionaryCategory,
     i18n: Array<DictionaryI18n>;
-    created_by?: User;
+    created_by?: User | null;
     created_at?: string | null;
 }
 
 export interface DictionaryI18n {
-    id?: string;
+    id?: string | null;
     text: string;
-    type: string;
+    type: string | null;
     language: Language;
 }
 
 export interface DictionaryCategory {
-    id?: string;
+    id?: string | null;
     total_dictionaries: number;
-    cover: Media;
+    cover?: Media | null;
     i18n: Array<DictionaryCategoryI18n>;
 }
 
 export interface DictionaryCategoryI18n {
-    id?: string;
+    id?: string | null;
     text: string;
     language: Language;
 }
 
 export interface DictionaryItem {
     id?: string | null;
-    dictionary_id: string | null;
-    cover: Media;
+    dictionary_id?: string | null;
+    cover?: Media | null;
     i18n: Array<DictionaryItemI18n>;
     created_at?: string | null;
 }
 
 export interface DictionaryItemI18n {
-    id?: string;
+    id?: string | null;
     text: string;
     text_synthesized: string;
     language: Language;

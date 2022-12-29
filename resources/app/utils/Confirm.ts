@@ -1,5 +1,6 @@
 import { VueConstructor } from 'vue';
 import globalVariables from "@/global";
+import VueI18n from "vue-i18n";
 
 export default {
     install: function (Vue: VueConstructor): void {
@@ -11,6 +12,7 @@ export default {
                 modal.visible = false;
             },
             attrs: Object = {},
+            btnAttrs: Object = {},
         ): void {
             const btn = {
                 text: buttonText,
@@ -18,6 +20,7 @@ export default {
                     disabled: false,
                     loading: false,
                     color: 'primary',
+                    ...btnAttrs,
                 },
                 events: {
                     click: () => {
@@ -48,11 +51,12 @@ export default {
 declare module 'vue/types/vue' {
     interface Vue {
         $confirm: (
-            title: string,
-            body: string,
-            buttonText: string,
+            title: string | VueI18n.TranslateResult,
+            body: string | VueI18n.TranslateResult,
+            buttonText: string | VueI18n.TranslateResult,
             callback?: (modal?: any, btn?: any) => void,
             attrs?: {},
+            btnAttrs?: {},
         ) => void
     }
 }

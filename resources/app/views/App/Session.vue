@@ -111,8 +111,8 @@
                 <!-- LANGUAGES: DESKTOP -->
                 <div v-if="$vuetify.breakpoint.mdAndUp" class="mt-3 d-flex justify-center flex-wrap" style="gap: 0.5rem">
                     <v-chip-group v-model="showDictionaryLanguageSelection.data" color="primary" column multiple>
-                        <v-chip :value="i18n.language.code" :key="i18n.id" v-for="i18n in allLanguages" label outlined small>
-                            <span v-text="i18n.language.name"></span>
+                        <v-chip :value="i18n.language.data.code" :key="i18n.id" v-for="i18n in allLanguages" label outlined small>
+                            <span v-text="i18n.language.data.name"></span>
                         </v-chip>
                     </v-chip-group>
                 </div>
@@ -124,8 +124,8 @@
                     :placeholder="$t('label.languages')"
                     :items="allLanguages"
                     class="my-3"
-                    item-text="language.name"
-                    item-value="language.code"
+                    item-text="language.data.name"
+                    item-value="language.data.code"
                     outlined
                     multiple
                     hide-details
@@ -571,7 +571,7 @@ export default {
         },
 
         background() {
-            return this._settings.data.wallpaper ? (this.ambiences.find(ambience => ambience.value === this._settings.data.ambience) || {}).bg : null;
+            return this._settings.data.wallpaper && !(this.filteredCards[this.index] || {}).media ? (this.ambiences.find(ambience => ambience.value === this._settings.data.ambience) || {}).bg : null;
         },
 
         hasBackground() {
@@ -1146,7 +1146,7 @@ export default {
                                         media: item.data.cover.url,
                                         created_at: item.data.created_at,
                                     };
-                                    const frontIdx = item.data.i18n.findIndex(i18n => i18n.language.code === (this.$route.params.lang_front || front_lang));
+                                    const frontIdx = item.data.i18n.findIndex(i18n => i18n.language.data.code === (this.$route.params.lang_front || front_lang));
                                     if (frontIdx !== -1) {
                                         Object.assign(card, {
                                             front: item.data.i18n[frontIdx].text,
@@ -1154,7 +1154,7 @@ export default {
                                         });
                                     }
                                     if (this.$route.params.lang_back || back_lang) {
-                                        const backIdx = item.data.i18n.findIndex(i18n => i18n.language.code === (this.$route.params.lang_back || back_lang));
+                                        const backIdx = item.data.i18n.findIndex(i18n => i18n.language.data.code === (this.$route.params.lang_back || back_lang));
                                         if (backIdx !== -1) {
                                             Object.assign(card, {
                                                 back: item.data.i18n[backIdx].text,
@@ -1538,6 +1538,7 @@ export default {
         document.addEventListener("keydown", this.handleKeyDown, false);
 
         this.settings = new PlaybackSettingsModel(this.$deepClone(this.deck ? this.deck.data.playback_settings.data : {}));
+        console.log(this.settings.data);
 
         this.load();
         this.applySettings();

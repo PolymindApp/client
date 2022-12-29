@@ -332,11 +332,11 @@ export default {
             };
         },
         frontPlaceholder() {
-            const lang = this._voiceFront && this._voiceFront.language.code.substring(0, 2).toUpperCase();
+            const lang = this._voiceFront && this._voiceFront.language.data.code.substring(0, 2).toUpperCase();
             return this.$t('translateForm.frontPlaceholder') + (lang && this.$vuetify.breakpoint.smAndDown && (this.$root.inputFocused || this.$root.lockFocus) ? (' (' + lang + ')') : '')
         },
         backPlaceholder() {
-            const lang = this._voiceBack && this._voiceBack.language.code.substring(0, 2).toUpperCase();
+            const lang = this._voiceBack && this._voiceBack.language.data.code.substring(0, 2).toUpperCase();
             return this.$t('translateForm.backPlaceholder') + (lang && this.$vuetify.breakpoint.smAndDown && (this.$root.inputFocused || this.$root.lockFocus) ? (' (' + lang + ')') : '')
         },
         canFlip() {
@@ -464,6 +464,8 @@ export default {
                 (modal, btn) => {
                     btn.attrs.loading = true;
                     modal.disabled = true;
+                }, undefined, {
+                    color: 'error',
                 }
             );
         },

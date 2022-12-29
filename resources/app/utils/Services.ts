@@ -3,10 +3,13 @@ import DeckModel from "@/models/DeckModel";
 import UserModel from "@/models/UserModel";
 import DictionaryModel from "@/models/DictionaryModel";
 import DictionaryItemModel from "@/models/DictionaryItemModel";
+import LanguageModel from "@/models/LanguageModel";
 import Vue from 'vue';
 import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
-import db, { Voice, Deck, Dictionary } from '@/database';
+import db, {Voice, Deck, Dictionary, Language} from '@/database';
 import { Table } from 'dexie';
+import DictionaryCategoryModel from "@/models/DictionaryCategoryModel";
+import VoiceModel from "@/models/VoiceModel";
 
 export default class Services {
 
@@ -149,7 +152,8 @@ export default class Services {
             .then(items => {
                 db.languages.bulkPut(items);
                 return items;
-            });
+            })
+            .then(languages => languages.map((language: Language) => new LanguageModel(language)));
 	}
 
 	/**
@@ -164,23 +168,7 @@ export default class Services {
                 db.voices.bulkPut(items);
                 return items;
             })
-            .then((voices: Array<Voice>) => {
-                const languages: any = [];
-                voices.forEach(voice => {
-                    const code = voice.language.code.substring(0, 2);
-                    let existing = languages.find((language: any) => language.code === code);
-                    if (!existing) {
-                        languages.push({
-                            code,
-                            name: voice.language.name.split(',')[0],
-                            voices: [voice]
-                        });
-                    } else {
-                        existing.voices.push(voice);
-                    }
-                });
-                return languages;
-            });
+            .then(items => items.map((item: VoiceModel) => new VoiceModel(item)))
 	}
 
 	/**
@@ -373,7 +361,7 @@ export default class Services {
             settings
         }, undefined,  true)
             .then(blob => {
-                const url = window.URL.createObjectURL(blob);
+                const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = name + ".mp3";
@@ -425,7 +413,8 @@ export default class Services {
             .then(items => {
                 db.dictionary_categories.bulkPut(items);
                 return items;
-            });
+            })
+            .then(items => items.map((item: DictionaryCategoryModel) => new DictionaryCategoryModel(item)));
     }
 
     /**

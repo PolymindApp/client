@@ -74,8 +74,8 @@
                         <!-- LANGUAGES: DESKTOP -->
                         <div v-if="$vuetify.breakpoint.mdAndUp" class="mt-3 d-flex justify-center flex-wrap" style="gap: 0.5rem">
                             <v-chip-group v-model="selectedLanguages" color="primary" column multiple>
-                                <v-chip :value="i18n.language.code" :key="i18n.id" v-for="i18n in allLanguages" label outlined small>
-                                    <span v-text="i18n.language.name"></span>
+                                <v-chip :value="i18n.data.language.data.code" :key="i18n.id" v-for="i18n in allLanguages" label outlined small>
+                                    <span v-text="i18n.data.language.data.name"></span>
                                 </v-chip>
                             </v-chip-group>
                         </div>
@@ -102,16 +102,16 @@
                         >
                             <template #[slot.key]="{ item }" v-for="slot in slots">
                                 <SynthesizedTableItem
-                                    v-model="item.data.i18n[slot.index].text"
-                                    :audio="item.data.i18n[slot.index].text_synthesized"
+                                    v-model="item.data.i18n[slot.index].data.text"
+                                    :audio="item.data.i18n[slot.index].data.text_synthesized"
                                 />
                             </template>
                             <template #item.data.language="{ item }">
                                 <span class="opacity-33" v-text="$t('dictionary.view.noLanguageCell')"></span>
                             </template>
-                            <template #item.data.cover.url="{ item }">
+                            <template #item.data.cover.data.url="{ item }">
                                 <v-avatar tile size="48">
-                                    <v-img v-if="item.data.cover" :src="item.data.cover.url">
+                                    <v-img v-if="item.data.cover.data.id" :src="item.data.cover.data.url">
                                         <template #placeholder>
                                             <v-skeleton-loader type="image" height="48"></v-skeleton-loader>
                                         </template>
@@ -135,8 +135,8 @@
                                 :placeholder="$t('label.languages')"
                                 :items="allLanguages"
                                 class="my-3"
-                                item-text="language.name"
-                                item-value="language.code"
+                                item-text="language.data.name"
+                                item-value="language.data.code"
                                 outlined
                                 multiple
                                 hide-details
@@ -151,7 +151,7 @@
                                         <v-list-item-group v-model="selected" multiple>
                                             <v-list-item :value="item" :key="item.data.id" v-for="(item, itemIdx) in _items">
                                                 <v-list-item-avatar tile size="48">
-                                                    <v-img v-if="item.data.cover" :src="item.data.cover.url">
+                                                    <v-img v-if="item.data.cover.data.id" :src="item.data.cover.data.url">
                                                         <template #placeholder>
                                                             <v-skeleton-loader type="image" height="48"></v-skeleton-loader>
                                                         </template>
@@ -160,8 +160,8 @@
                                                 <v-list-item-content>
                                                     <div :key="languageIdx" v-for="languageIdx in selectedLanguagesIdx">
                                                         <SynthesizedTableItem
-                                                            v-model="item.data.i18n[languageIdx].text"
-                                                            :audio="item.data.i18n[languageIdx].text_synthesized"
+                                                            v-model="item.data.i18n[languageIdx].data.text"
+                                                            :audio="item.data.i18n[languageIdx].data.text_synthesized"
                                                             :selected="isSelected(item)"
                                                         />
                                                     </div>
@@ -190,6 +190,7 @@ import {IDictionarySettings} from "@/models/SettingsModel";
 import DictionaryModel from "@/models/DictionaryModel";
 import DictionaryItemModel from "@/models/DictionaryItemModel";
 import {DictionaryI18n} from "@/database";
+import DictionaryI18nModel from "@/models/DictionaryI18nModel";
 
 @Component({
     components: {
@@ -215,9 +216,9 @@ export default class DictionaryView extends Vue {
     onSelectedLanguagesChanged(selectedLanguages: Array<any>) {
         if (selectedLanguages.length > 2) {
             this.$confirm(
-                this.$i18n.t('dictionary.view.selectedLanguagesMax.title').toString(),
-                this.$i18n.t('dictionary.view.selectedLanguagesMax.body').toString(),
-                this.$i18n.t('btn.gotIt').toString(),
+                this.$i18n.t('dictionary.view.selectedLanguagesMax.title'),
+                this.$i18n.t('dictionary.view.selectedLanguagesMax.body'),
+                this.$i18n.t('btn.gotIt'),
             );
             this.selectedLanguages.pop();
             return;
@@ -229,15 +230,15 @@ export default class DictionaryView extends Vue {
     }
 
     get title(): string {
-        return this.dictionary.data.i18n.length > 0 && (this.dictionary.data.i18n.find((i18n: DictionaryI18n) => i18n.type === 'title') || {}).text || this.$i18n.t('state.loading').toString();
+        return this.dictionary.data.i18n.length > 0 && (this.dictionary.data.i18n.find((i18n: DictionaryI18nModel) => i18n.data.type === 'title') || { data: {} }).data.text || this.$i18n.t('state.loading').toString();
     }
 
     get body(): string {
-        return this.dictionary.data.i18n.length > 0 && (this.dictionary.data.i18n.find((i18n: DictionaryI18n) => i18n.type === 'body') || {}).text || this.$i18n.t('state.loading').toString();
+        return this.dictionary.data.i18n.length > 0 && (this.dictionary.data.i18n.find((i18n: DictionaryI18nModel) => i18n.data.type === 'body') || { data: {} }).data.text || this.$i18n.t('state.loading').toString();
     }
 
     get background(): string {
-        return this.dictionary.data.cover && this.dictionary.data.cover.url;
+        return this.dictionary.data.cover.data.id && this.dictionary.data.cover.data.url;
     }
 
     get parallaxHeight(): number {
@@ -245,13 +246,13 @@ export default class DictionaryView extends Vue {
     }
 
     get allLanguages(): Array<any> {
-        return this.dictionary.data.i18n.filter((i18n: DictionaryI18n) => i18n.type === 'title');
+        return this.dictionary.data.i18n.filter((i18n: DictionaryI18nModel) => i18n.data.type === 'title');
     }
 
     get languageIdx(): number {
-        let languageIdx = this.allLanguages.findIndex(i18n => i18n.language.code.substring(0, 2) === this.$i18n.locale.substring(0, 2));
+        let languageIdx = this.allLanguages.findIndex(i18n => i18n.data.language.data.code.substring(0, 2) === this.$i18n.locale.substring(0, 2));
         languageIdx = languageIdx === -1
-            ? this.allLanguages.findIndex(i18n => i18n.language.code.substring(0, 2) === 'en')
+            ? this.allLanguages.findIndex(i18n => i18n.data.language.data.code.substring(0, 2) === 'en')
             : languageIdx;
         return languageIdx === -1
             ? 0
@@ -264,7 +265,7 @@ export default class DictionaryView extends Vue {
 
     get slots(): Array<{ key: string, index: number }> {
         return this.selectedLanguagesIdx.map(idx => ({
-            key: 'item.i18n[' + idx + '].text',
+            key: 'item.i18n[' + idx + '].data.text',
             index: idx,
         }));
     }
@@ -272,7 +273,7 @@ export default class DictionaryView extends Vue {
     get selectedLanguagesIdx(): Array<number> {
         const indexes: Array<number> = [];
         this.selectedLanguages.forEach(selectedLanguage => {
-            const index = this.allLanguages.findIndex(i18n => i18n.language.code === selectedLanguage);
+            const index = this.allLanguages.findIndex(i18n => i18n.data.language.data.code === selectedLanguage);
             if (index >= 0) {
                 indexes.push(index);
             }
@@ -287,14 +288,14 @@ export default class DictionaryView extends Vue {
 
     get headers(): Array<any> {
         const headers: Array<any> = [
-            { text: this.$i18n.t('header.image'), value: 'data.cover.url', class: 'text-no-wrap', width: 0, sortable: false }
+            { text: this.$i18n.t('header.image'), value: 'data.cover.data.url', class: 'text-no-wrap', width: 0, sortable: false }
         ];
         this.selectedLanguages.forEach(selectedLanguage => {
-            const i18nIdx = this.allLanguages.findIndex(i18n => i18n.language.code === selectedLanguage);
+            const i18nIdx = this.allLanguages.findIndex(i18n => i18n.data.language.data.code === selectedLanguage);
             if (i18nIdx !== -1) {
                 const i18n = this.allLanguages[i18nIdx];
                 headers.push(
-                    { text: i18n.language.name, value: 'data.i18n[' + i18nIdx + '].text' }
+                    { text: i18n.data.language.data.name, value: 'data.i18n[' + i18nIdx + '].data.text' }
                 );
             }
         })
@@ -328,7 +329,7 @@ export default class DictionaryView extends Vue {
         return this.items.filter((item: DictionaryItemModel) => {
             for (let i = 0; i < this.selectedLanguagesIdx.length; i++) {
                 const index = this.selectedLanguagesIdx[i];
-                if (item.data.i18n[index].text.trim().toLowerCase().indexOf(this.search.toLowerCase()) !== -1) {
+                if (item.data.i18n[index].data.text.trim().toLowerCase().indexOf(this.search.toLowerCase()) !== -1) {
                     return true;
                 }
             }
@@ -352,9 +353,9 @@ export default class DictionaryView extends Vue {
     onStartSession() {
         if (!this.canStartSession) {
             this.$confirm(
-                this.$i18n.t('dictionary.view.mustSelectLanguage.title').toString(),
-                this.$i18n.t('dictionary.view.mustSelectLanguage.body').toString(),
-                this.$i18n.t('btn.gotIt').toString(),
+                this.$i18n.t('dictionary.view.mustSelectLanguage.title'),
+                this.$i18n.t('dictionary.view.mustSelectLanguage.body'),
+                this.$i18n.t('btn.gotIt'),
             );
         } else {
             this.$router.push({ name: 'session.dictionary', params: this.sessionParams });

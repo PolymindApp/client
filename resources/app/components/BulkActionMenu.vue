@@ -522,6 +522,8 @@ export default {
                     this.delete().then(() => {
                         modal.visible = false;
                     });
+                }, undefined, {
+                    color: 'error',
                 }
             );
         },

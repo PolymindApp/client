@@ -8212,11 +8212,6 @@ signal-exit@^3.0.3:
   resolved "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.6.tgz"
   integrity sha512-sDl4qMFpijcGw22U5w63KmD3cZJfBuFlVNbVMKje2keoKML7X2UzWbc4XrmEbDwg0NXJc3yv4/ox7b+JWb57kQ==
 
-simple-web-worker@1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/simple-web-worker/-/simple-web-worker-1.2.0.tgz#2deffd0998976b824b141a27ce504d31d0d99108"
-  integrity sha512-+okbi2fpRokCZoCgdWqb+2kOykkdcSnLkdz54EivlqACst5TSqJRLXPiilAjlkwW9Z0SRwev74qKMc+3jIVL0g==
-
 slash@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/slash/-/slash-3.0.0.tgz"
@@ -9238,17 +9233,15 @@ vue-template-es2015-compiler@^1.9.0:
   resolved "https://registry.npmjs.org/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
 
-vue-worker@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/vue-worker/-/vue-worker-1.2.1.tgz#deae14b98a9d89daabb20e7fc6190642849b6d93"
-  integrity sha512-feu5cWI0ztoSSIZxVvaCWLBEKUG1pCJqVkKmWvyrkUfOqMuOkklmY8iX5kaJTSsRuvVFPEkTExkMXM6+Nkec1Q==
-  dependencies:
-    simple-web-worker "1.2.0"
-
 vue@^2.6.14:
   version "2.6.14"
   resolved "https://registry.npmjs.org/vue/-/vue-2.6.14.tgz"
   integrity sha512-x2284lgYvjOMj3Za7kqzRcUSxBboHqtgRE2zlos1qWaOye5yUmHn42LB1250NJBLRwEcdrB0JRwyPTEPhfQjiQ==
+
+vuetify-image-input@^19.2.2:
+  version "19.2.2"
+  resolved "https://registry.yarnpkg.com/vuetify-image-input/-/vuetify-image-input-19.2.2.tgz#e12e2abc3bc80d631de6345ded14d9f661691dcf"
+  integrity sha512-U3qKkMXBiYSXV3IaRyTxNCw9rpgr52lqck0zWM7geOMdUu9IXKDGN1kfIbFGzT6FU6QntFoduHwwEOcug62bxw==
 
 vuetify@^2.4.0:
   version "2.6.3"

@@ -20,8 +20,8 @@
             :items="availableLanguages"
             :label="'Languages'"
             :placeholder="$t('label.any')"
-            item-text="name"
-            item-value="code"
+            item-text="data.name"
+            item-value="data.code"
             outlined
             multiple
             hide-details
@@ -33,13 +33,17 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { ISettings } from "@/models/SettingsModel";
+import I18nModel from "@/models/I18nModel";
+import LanguageModel from "@/models/LanguageModel";
+import DictionaryModel from "@/models/DictionaryModel";
+import DictionaryCategoryModel from "@/models/DictionaryCategoryModel";
 
 @Component
 export default class DictionaryFilters extends Vue {
     @Prop({ type: Object, default: () => ({}) }) value: ISettings;
-    @Prop({ type: Array, default: () => ([]) }) dictionaries: Array<any>;
-    @Prop({ type: Array, default: () => ([]) }) languages: Array<any>;
-    @Prop({ type: Array, default: () => ([]) }) categories: Array<any>;
+    @Prop({ type: Array, default: () => ([]) }) dictionaries: Array<DictionaryModel>;
+    @Prop({ type: Array, default: () => ([]) }) languages: Array<LanguageModel>;
+    @Prop({ type: Array, default: () => ([]) }) categories: Array<DictionaryCategoryModel>;
     @Prop({ type: Boolean, default: () => ([]) }) skeleton: boolean;
     @Prop({ type: Object, default: () => ({ solo: true }) }) searchAttrs!: Object;
 
@@ -51,25 +55,25 @@ export default class DictionaryFilters extends Vue {
         this.$emit('input', value);
     }
 
-    get groupedLanguages() {
+    get groupedLanguages(): Array<LanguageModel> {
         const groupedLanguages: Array<any> = [];
         this.languages.forEach(language => {
-            let group = groupedLanguages.find(groupedLanguage => groupedLanguage.code === language.code.substring(0, 2));
+            let group = groupedLanguages.find(groupedLanguage => groupedLanguage.data.code === language.data.code.substring(0, 2));
             if (!group) {
-                const splittedName = language.name.split(',');
-                groupedLanguages.push({
-                    ...language,
+                const splittedName = language.data.name.split(',');
+                groupedLanguages.push(new LanguageModel({
+                    ...language.data,
                     name: splittedName[0],
-                    code: language.code.substring(0, 2),
-                });
+                    code: language.data.code.substring(0, 2),
+                }));
             }
         });
         return groupedLanguages.sort((a, b) => a.name - b.name);
     }
 
-    get availableLanguages() {
+    get availableLanguages(): Array<LanguageModel> {
         return this.groupedLanguages.filter(groupedLanguage => {
-            return this.dictionaries.find(dictionary => dictionary.data.i18n.find((translation: any) => translation.language.code.substring(0, 2) === groupedLanguage.code));
+            return this.dictionaries.find(dictionary => dictionary.data.i18n.find((translation: I18nModel) => translation.data.language.data.code.substring(0, 2) === groupedLanguage.data.code));
         });
     }
 

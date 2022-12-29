@@ -19,6 +19,7 @@ class Dictionary extends Model
         'cover',
         'created_by',
         'i18n.language',
+        'category'
     ];
 
     public function i18n()

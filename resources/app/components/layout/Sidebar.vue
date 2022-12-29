@@ -67,14 +67,14 @@
                 </v-alert>
                 <v-list-item v-else :key="dictionary.data.id" v-for="dictionary in dictionaries" :to="{ name: 'session.dictionary', params: { uuid: dictionary.data.id } }" color="primary">
                     <v-list-item-avatar tile size="32">
-                        <v-img :src="dictionary.data.cover.url">
+                        <v-img :src="dictionary.data.cover.data.url">
                             <template #placeholder>
                                 <v-skeleton-loader type="image" height="32"></v-skeleton-loader>
                             </template>
                         </v-img>
                     </v-list-item-avatar>
                     <v-list-item-title>
-                        <span v-text="dictionary.data.i18n[0].text"></span>
+                        <span v-text="dictionary.data.i18n[0].data.text"></span>
                     </v-list-item-title>
                 </v-list-item>
             </template>
@@ -97,20 +97,20 @@
             <!-- ADMIN -->
             <template v-if="$store.state.user.hasRole('admin')">
                 <v-subheader v-text="$t('sidebar.admin.title')"></v-subheader>
-                <v-list-item :to="{ name: 'admin.users' }" color="primary">
-                    <v-list-item-icon>
-                        <v-icon>mdi-account-multiple-outline</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-title>
-                        <span v-text="$t('sidebar.admin.users')"></span>
-                    </v-list-item-title>
-                </v-list-item>
                 <v-list-item :to="{ name: 'admin.dictionaries' }" color="primary">
                     <v-list-item-icon>
                         <v-icon>mdi-book-multiple</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title>
                         <span v-text="$t('sidebar.admin.dictionaries')"></span>
+                    </v-list-item-title>
+                </v-list-item>
+                <v-list-item :to="{ name: 'admin.users' }" color="primary">
+                    <v-list-item-icon>
+                        <v-icon>mdi-account-multiple-outline</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>
+                        <span v-text="$t('sidebar.admin.users')"></span>
                     </v-list-item-title>
                 </v-list-item>
             </template>

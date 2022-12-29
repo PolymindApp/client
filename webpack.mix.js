@@ -10,6 +10,7 @@ const plugins = [
     new webpack.DefinePlugin({
         'process.env': {
             API_URL: JSON.stringify(process.env.API_URL),
+            APP_URL: JSON.stringify(process.env.APP_URL),
             FACEBOOK_URL: JSON.stringify(process.env.FACEBOOK_URL),
             TWITTER_URL: JSON.stringify(process.env.TWITTER_URL),
             YOUTUBE_URL: JSON.stringify(process.env.YOUTUBE_URL),

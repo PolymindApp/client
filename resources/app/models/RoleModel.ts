@@ -8,10 +8,17 @@ export interface IRole {
 }
 
 export default class RoleModel extends BaseModel {
+
     public data: any = {};
+
     protected defaultStructure: IRole = {
         id: null,
         key: '',
         name: '',
+    }
+
+    constructor(data: any = {}) {
+        super(data);
+        this.mapDefaultValues(data);
     }
 }

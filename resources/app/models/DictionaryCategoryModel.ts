@@ -1,21 +1,20 @@
 import BaseModel from './BaseModel';
-import {DictionaryItem, I18n} from '@/database';
+import {DictionaryCategory, I18n} from '@/database';
 import MediaModel from "@/models/MediaModel";
 import I18nModel from "@/models/I18nModel";
 
-export default class DictionaryItemModel extends BaseModel {
+export default class DictionaryCategoryModel extends BaseModel {
 
     public data: any = {};
 
-    protected defaultStructure: DictionaryItem = {
+    protected defaultStructure: DictionaryCategory = {
         id: null,
+        total_dictionaries: 0,
         cover: {
             id: null,
             url: '',
         },
-        dictionary_id: null,
         i18n: [],
-        created_at: null,
     }
 
     constructor(data: any = {}) {

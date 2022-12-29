@@ -8,6 +8,10 @@
             &nbsp;<span v-text="$t('footer.allRights')"></span>
         </div>
         <div class="d-flex flex-wrap order-first order-md-last justify-center justify-md-start align-center" style="gap: 1rem">
+            <v-btn v-if="appUrl" :href="appUrl" class="caption" target="_blank" text>
+                <v-icon left>mdi-open-in-new</v-icon>
+                <span v-text="$t('footer.visitWebsite')"></span>
+            </v-btn>
             <div v-if="socialLinks.length > 0" class="d-flex align-center justify-center">
                 <v-tooltip :key="linkIdx" v-for="(link, linkIdx) in socialLinks" top>
                     <template #activator="{ attrs, on }">
@@ -45,6 +49,7 @@ export default {
     data: () => ({
         year: new Date().getFullYear(),
         version: packageJson.version,
+        appUrl: process.env.APP_URL,
     }),
 
     computed: {

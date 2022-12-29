@@ -3,7 +3,7 @@
 
         <!-- OPTIONS -->
         <portal to="options">
-            <template v-if="$vuetify.breakpoint.mdAndDown">
+            <template v-if="$vuetify.breakpoint.smAndDown">
                 <v-list-item @click="onShowFiltersClick">
                     <v-list-item-icon>
                         <v-icon>mdi-filter-variant</v-icon>
@@ -81,7 +81,7 @@
                         <v-row :dense="$vuetify.breakpoint.smAndDown">
                             <v-col cols="6" sm="4" md="3" lg="2" :key="item.data.id" v-for="(item, itemIdx) in items">
                                 <v-card :to="{ name: 'dictionary.view', params: { uuid: item.data.id } }">
-                                    <v-img :src="item.data.cover.url" aspect-ratio="0.65" class="align-end" style="position: relative">
+                                    <v-img :src="item.data.cover.data.url" aspect-ratio="0.65" class="align-end" style="position: relative">
                                         <template #placeholder>
                                             <v-skeleton-loader height="100%" type="image"></v-skeleton-loader>
                                         </template>
@@ -180,7 +180,7 @@ export default {
                     )
                     && (
                         this.$store.state.settings.dictionary_languages.length === 0
-                        || dictionary.data.i18n.find(i18n => this.$store.state.settings.dictionary_languages.indexOf(i18n.language.code.substring(0, 2)) !== -1)
+                        || dictionary.data.i18n.find(i18n => this.$store.state.settings.dictionary_languages.indexOf(i18n.data.language.data.code.substring(0, 2)) !== -1)
                     );
             });
         },
@@ -190,7 +190,7 @@ export default {
                 ...dictionary,
                 data: {
                     ...dictionary.data,
-                    total_languages: dictionary.data.i18n.filter(i18n => i18n.type === 'title').length,
+                    total_languages: dictionary.data.i18n.filter(i18n => i18n.data.type === 'title').length,
                 }
             })).sort((a, b) => {
                 const { first, second } = this.$store.state.settings.dictionary_sort_order === 'asc' ? { first: a, second: b } : { first: b, second: a };
@@ -204,12 +204,12 @@ export default {
         },
 
         selectedCategoriesIdx() {
-            return this.$store.state.settings.dictionary_categories.map(index => this.availableCategories[index].id);
+            return this.$store.state.settings.dictionary_categories.map(index => this.availableCategories[index].data.id);
         },
 
         availableCategories() {
             return this.categories.filter(category => {
-                return this.dictionaries.find(dictionary => category.id === dictionary.data.dictionary_category_id);
+                return this.dictionaries.find(dictionary => category.data.id === dictionary.data.dictionary_category_id);
             });
         },
 
@@ -274,13 +274,16 @@ export default {
         mapLabels() {
             this.categories = this.categories.map(category => ({
                 ...category,
-                label: category.i18n[0].text,
+                data: {
+                    ...category.data,
+                    label: category.data.i18n[0].data.text,
+                }
             }));
             this.dictionaries = this.dictionaries.map(dictionary => ({
                 ...dictionary,
                 data: {
                     ...dictionary.data,
-                    label: dictionary.data.i18n[0].text,
+                    label: dictionary.data.i18n[0].data.text,
                 }
             }));
         }
