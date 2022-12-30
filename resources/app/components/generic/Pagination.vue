@@ -12,13 +12,22 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 
 @Component
 export default class Pagination extends Vue {
     @Prop({ type: Number, default: 1 }) value: number
-    @Prop({ type: Array, default: () => ([]) }) readonly items: any
-    @Prop({ type: Number, default: 10 }) readonly itemsPerPage: number;
+    @Prop({ type: Array, default: () => ([]) }) readonly items: Array<any>
+    @Prop({ type: Number, default: 10 }) readonly itemsPerPage: number
+
+    @Watch('items')
+    onItemsChanged(items: Array<any>) {
+        if (this.value > this.length) {
+            this._value = this.length;
+        } else if (this.value === 0) {
+            this._value = 1;
+        }
+    }
 
     get _value() {
         return this.value;

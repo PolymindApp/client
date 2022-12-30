@@ -118,6 +118,9 @@
                                     </v-img>
                                 </v-avatar>
                             </template>
+                            <template #item.data.created_at="{ item }">
+                                <span>{{ item.data.created_at | humanDate }}</span>
+                            </template>
                             <template #footer.prepend>
                                 <v-btn color="primary" :disabled="loading" @click="onStartSession">
                                     <v-icon left>mdi-headphones</v-icon>
@@ -301,11 +304,11 @@ export default class DictionaryView extends Vue {
         })
         if (this.selectedLanguages.length === 0) {
             headers.push(
-                { text: this.$i18n.t('header.language'), value: 'language', sortable: false }
+                { text: this.$i18n.t('header.language'), value: 'data.language', sortable: false }
             );
         }
         headers.push(
-            { text: this.$i18n.t('header.createdAt'), value: 'created_at', class: 'text-no-wrap', cellClass: 'text-no-wrap', width: 0 },
+            { text: this.$i18n.t('header.createdAt'), value: 'data.created_at', class: 'text-no-wrap', cellClass: 'text-no-wrap', width: 0 },
         );
         return headers;
     }

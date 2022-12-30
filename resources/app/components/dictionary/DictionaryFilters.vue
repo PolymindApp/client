@@ -22,6 +22,7 @@
             :placeholder="$t('label.any')"
             item-text="data.name"
             item-value="data.code"
+            clearable
             outlined
             multiple
             hide-details

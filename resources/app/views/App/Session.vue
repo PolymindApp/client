@@ -139,7 +139,7 @@
                             colored-border
                             class="mt-3 mb-0"
                         >
-                            No more than two languages!
+                            <span v-text="$t('session.dictionary.noMoreTwoLanguages')"></span>
                         </v-alert>
                     </div>
                 </v-expand-transition>

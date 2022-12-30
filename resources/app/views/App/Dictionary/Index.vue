@@ -48,6 +48,7 @@
                         :skeleton="skeleton"
                         class="d-flex align-center"
                         style="flex: 1; gap: 1rem"
+                        clearable
                     />
 
                     <!-- SORTING -->
@@ -61,15 +62,13 @@
 
                 <!-- SKELETON LOADERS -->
                 <template v-if="skeleton">
-                    <template v-for="groupIdx in 3">
-                        <v-row :key="groupIdx" :dense="$vuetify.breakpoint.smAndDown">
-                            <v-col :key="indexIdx" v-for="indexIdx in itemsPerPage" cols="6" sm="4" md="3" lg="2">
-                                <v-responsive aspect-ratio="0.65">
-                                    <v-skeleton-loader max-height="266" type="card" />
-                                </v-responsive>
-                            </v-col>
-                        </v-row>
-                    </template>
+                    <v-row :dense="$vuetify.breakpoint.smAndDown">
+                        <v-col :key="indexIdx" v-for="indexIdx in itemsPerPage" cols="6" sm="4" md="3" lg="2">
+                            <v-responsive aspect-ratio="0.65">
+                                <v-skeleton-loader max-height="266" type="card" />
+                            </v-responsive>
+                        </v-col>
+                    </v-row>
                 </template>
 
                 <!-- EMPTY -->
