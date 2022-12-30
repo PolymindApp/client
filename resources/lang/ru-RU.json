@@ -153,6 +153,7 @@
 	"login.forgotPassword": "Я забыл свой пароль",
 	"mail.copyrights": "© :date :name. Все права защищены.",
 	"mail.troubleLink": "Если вам трудно нажать на кнопку {actionText} , воспользуйтесь следующей ссылкой:",
+	"mediaField.clearImg": "",
 	"menu.bulk": "Массивные действия",
 	"nav.deck": "Колоды",
 	"nav.dictionary": "Словари",

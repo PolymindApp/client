@@ -4,23 +4,35 @@
             outlined
             flat
             class="w-100"
+            style="position: relative"
         >
+            <div
+                v-if="showOverlay"
+                style="position: absolute; top: 1rem; right: 1rem; z-index: 1"
+            >
+                <v-tooltip left>
+                    <template #activator="{ attrs, on }">
+                        <v-btn v-bind="attrs" v-on="on" icon @click="onClear">
+                            <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                    </template>
+                    <span v-text="$t('mediaField.clearImg')"></span>
+                </v-tooltip>
+            </div>
             <v-image-input
-                v-model="_value.data.url"
-                v-on="$listeners"
+                v-model="media.data.url"
                 :image-width="width"
                 :image-height="height"
                 image-format="jpg"
                 hide-actions
                 class="w-100"
-                @file-info="onFileInfo"
             />
         </v-card>
     </v-input>
 </template>
 
 <script lang="ts">
-import {Vue, Component, Prop} from 'vue-property-decorator';
+import {Vue, Component, Prop, VModel} from 'vue-property-decorator';
 import VImageInput from 'vuetify-image-input'
 import MediaModel from "@/models/MediaModel";
 
@@ -31,9 +43,9 @@ import MediaModel from "@/models/MediaModel";
 })
 export default class MediaField extends Vue {
 
-    @Prop({
-        default: 1,
-    }) value!: MediaModel
+    @VModel({
+        default: null,
+    }) media!: MediaModel
 
     @Prop({
         default: 256,
@@ -43,17 +55,16 @@ export default class MediaField extends Vue {
         default: 256,
     }) width?: number
 
-    get _value(): MediaModel {
-        return this.value;
+    @Prop({
+        default: false,
+    }) clearable?: boolean
+
+    get showOverlay(): boolean {
+        return !!(this.media.data.url);
     }
 
-    set _value(value: MediaModel) {
-        console.log(value);
-        this.$emit('input', value);
-    }
-
-    onFileInfo(args: any) {
-        console.log(args);
+    onClear(): void {
+        this.media.data.url = null;
     }
 }
 </script>

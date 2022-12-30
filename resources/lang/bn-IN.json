@@ -153,6 +153,7 @@
 	"login.forgotPassword": "আমি আমার পাসওয়ার্ড ভুলে গেছি",
 	"mail.copyrights": "© :date :name। সমস্ত অধিকার সংরক্ষিত.",
 	"mail.troubleLink": "আপনার যদি {actionText} বোতামে ক্লিক করতে সমস্যা হয়, তবে পরিবর্তে নিম্নলিখিত লিঙ্কটি ব্যবহার করুন:",
+	"mediaField.clearImg": "",
 	"menu.bulk": "বিপুল কর্ম",
 	"nav.deck": "ডেক",
 	"nav.dictionary": "অভিধান",

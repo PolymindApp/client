@@ -35,7 +35,15 @@ export default class BaseModel {
         })
     }
 
-    clone(): BaseModel {
-        return this.constructor(Vue.prototype.$deepClone(this.data));
+    clone(clean = true): BaseModel {
+        const clone = this.constructor(Vue.prototype.$deepClone(this.data));
+        if (clean) {
+            ['id', 'created_at', 'updated_at', 'created_by', 'updated_by'].forEach(key => {
+                if (clone[key]) {
+                    clone[key] = null;
+                }
+            })
+        }
+        return clone;
     }
 }

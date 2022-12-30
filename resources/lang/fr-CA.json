@@ -153,6 +153,7 @@
 	"login.forgotPassword": "J'ai oublié mon mot de passe",
 	"mail.copyrights": "© :date :name. Tous les droits sont réservés.",
 	"mail.troubleLink": "Si vous rencontrez des difficultés en cliquant sur le bouton {actionText} , utilisez plutôt le lien suivant :",
+	"mediaField.clearImg": "",
 	"menu.bulk": "Actions en vrac",
 	"nav.deck": "Cartes",
 	"nav.dictionary": "Dictionnaires",

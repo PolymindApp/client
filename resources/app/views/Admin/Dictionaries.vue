@@ -2,16 +2,18 @@
     <Page :title="title" class="fill-height d-flex flex-column w-100">
 
         <!-- ADD/EDIT MODAL -->
-        <Modal v-model="modalEdit.visible" :title="modalEdit.isNew ? $t('admin.modal.add').toString() : $t('admin.modal.edit').toString()" :buttons="[
-            { text: modalEdit.isNew ? $t('btn.create') : $t('btn.save'), attrs: { color: 'primary' }, events: { onModalEditSave } },
-            { text: $t('btn.cancel'), attrs: { text: true }, events: { click: onModalEditClose } },
-        ]" max-width="600" scrollable persistent>
+        <Modal
+            v-model="modalEdit.visible"
+            :title="modalEdit.index === -1 ? $t('admin.modal.add').toString() : $t('admin.modal.edit').toString()"
+            max-width="600"
+            scrollable
+            persistent
+        >
             <template #body>
 
                 <!-- COVER -->
                 <MediaField
                     v-model="currentDictionary.data.cover"
-                    aspect-ratio="2"
                     :rules="[rules.required]"
                     class="w-100"
                     clearable
@@ -50,13 +52,44 @@
                     clearable
                 />
             </template>
+            <template #buttons>
+
+                <!-- SAVE -->
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="modalEdit.saving" :disabled="modalEdit.saving" color="primary" large @click="onModalEditSave">
+                    <span v-text="modalEdit.index === -1 ? $t('btn.create') : $t('btn.save')"></span>
+                </v-btn>
+
+                <!-- CANCEL -->
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="modalEdit.saving" outlined large @click="onModalEditClose">
+                    <span v-text="$t('btn.cancel')"></span>
+                </v-btn>
+
+                <!-- NAVIGATION -->
+                <template v-if="modalEdit.index !== -1">
+                    <v-divider v-if="$vuetify.breakpoint.smAndDown" class="my-3" />
+                    <v-spacer v-else />
+                    <div class="d-flex align-center" style="gap: 1rem">
+                        <v-btn :disabled="modalEdit.saving" icon @click="onPrevious">
+                            <v-icon>mdi-arrow-left</v-icon>
+                        </v-btn>
+                        <span class="text-center" style="flex: 1">
+                            {{ modalEdit.index + 1 }} or {{ dictionaries.length }}
+                        </span>
+                        <v-btn :disabled="modalEdit.saving" icon @click="onNext">
+                            <v-icon>mdi-arrow-right</v-icon>
+                        </v-btn>
+                    </div>
+                </template>
+            </template>
         </Modal>
 
+        <!-- CONTENT -->
         <v-card class="fill-height d-flex flex-column w-100">
             <v-card-title
                 class="d-flex align-center justify-space-between"
                 style="flex: 0; gap: 1rem"
             >
+                <!-- ADD NEW ITEM -->
                 <v-btn
                     :block="$vuetify.breakpoint.smAndDown"
                     :disabled="loading"
@@ -67,6 +100,8 @@
                     <v-icon left>mdi-plus-circle</v-icon>
                     <span v-text="$t('admin.dictionaries.addNew')"></span>
                 </v-btn>
+
+                <!-- SEARCH -->
                 <v-text-field
                     v-model="search"
                     :placeholder="$t('admin.dictionaries.filter')"
@@ -83,6 +118,7 @@
                 class="w-100 px-md-0 fill-height d-flex flex-column pb-0"
                 style="flex: 1"
             >
+                <!-- TABLE -->
                 <v-data-table
                     :items="dictionaries"
                     :search="search"
@@ -98,6 +134,7 @@
                     sort-desc
                     class="fill-height overflow-y-auto"
                 >
+                    <!-- COVER -->
                     <template #item.data.cover.url="{ item }">
                         <v-img
                             :src="item.data.cover.data.url"
@@ -111,6 +148,8 @@
                             </template>
                         </v-img>
                     </template>
+
+                    <!-- LANGUAGES -->
                     <template #item.data.languages="{ item }">
                         <span v-if="item.data.i18n.length === 0" v-text="$t('admin.dictionaries.noLanguage')"></span>
                         <div v-else class="d-flex align-center flex-wrap" style="gap: 0.5rem">
@@ -128,18 +167,28 @@
                             ></v-chip>
                         </div>
                     </template>
+
+                    <!-- CATEGORY -->
                     <template #item.data.category="{ item }">
                         <span v-if="!item.data.category.data.id" v-text="$t('admin.dictionaries.noCategory')" class="text-no-wrap"></span>
                         <span v-else v-text="item.data.category.data.i18n[0].data.text"></span>
                     </template>
+
+                    <!-- TOTAL ITEMS -->
                     <template #item.data.total_items="{ item }">
                         <v-chip v-text="item.data.total_items" small></v-chip>
                     </template>
+
+                    <!-- CREATED AT -->
                     <template #item.data.created_at="{ item }">
                         <span class="text-no-wrap">{{ item.data.created_at | humanDate }}</span>
                     </template>
+
+                    <!-- ACTIONS -->
                     <template #item._action="{ item, index }">
                         <div class="d-flex">
+
+                            <!-- EDIT -->
                             <v-tooltip left>
                                 <template #activator="{ attrs, on }">
                                     <v-btn v-bind="attrs" v-on="on" icon @click.stop="onEditClick(index)">
@@ -148,6 +197,8 @@
                                 </template>
                                 <span v-text="$t('btn.edit')"></span>
                             </v-tooltip>
+
+                            <!-- EDIT ITEMS -->
                             <v-tooltip left>
                                 <template #activator="{ attrs, on }">
                                     <v-btn v-bind="attrs" v-on="on" icon @click.stop="onEditItemsClick(index)">
@@ -156,6 +207,8 @@
                                 </template>
                                 <span v-text="$t('btn.editItems')"></span>
                             </v-tooltip>
+
+                            <!-- DELETE -->
                             <v-tooltip left>
                                 <template #activator="{ attrs, on }">
                                     <v-btn v-bind="attrs" v-on="on" icon @click.stop="onDeleteClick(item, index)">
@@ -183,7 +236,6 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import LanguageModel from "@/models/LanguageModel";
 import DictionaryCategoryModel from "@/models/DictionaryCategoryModel";
 import VueI18n from "vue-i18n";
-import DictionaryI18nModel from "@/models/DictionaryI18nModel";
 import Rules from "@/utils/Rules";
 
 @Component({
@@ -203,14 +255,15 @@ export default class Dictionaries extends Vue {
     languages: Array<LanguageModel> = []
     categories: Array<DictionaryCategoryModel> = []
     rules: any = {}
+    currentDictionary = new DictionaryModel();
     modalEdit: {
         visible: boolean,
-        isNew: boolean,
         index: number,
+        saving: boolean,
     } = {
         visible: false,
-        isNew: false,
         index: -1,
+        saving: false,
     }
     modalEditItems: {
         visible: boolean,
@@ -218,6 +271,15 @@ export default class Dictionaries extends Vue {
     } = {
         visible: false,
         index: -1,
+    }
+
+    @Watch('modalEdit.index')
+    onModalEditIndexChanged(index: number) {
+        if (index === -1) {
+            this.currentDictionary = new DictionaryModel();
+        } else {
+            this.currentDictionary = this.dictionaries[index];
+        }
     }
 
     get headers(): Array<any> {
@@ -232,16 +294,9 @@ export default class Dictionaries extends Vue {
         ];
     }
 
-    get currentDictionary(): DictionaryModel {
-        return this.dictionaries[this.modalEdit.index]
-            ? this.dictionaries[this.modalEdit.index]
-            : new DictionaryModel();
-    }
-
     onEditClick(index: number): void {
         Object.assign(this.modalEdit, {
             visible: true,
-            isNew: false,
             index,
         });
     }
@@ -252,6 +307,20 @@ export default class Dictionaries extends Vue {
 
     onModalEditClose(): void {
         this.modalEdit.visible = false;
+    }
+
+    onPrevious() {
+        this.modalEdit.index--;
+        if (this.modalEdit.index < 0) {
+            this.modalEdit.index = this.dictionaries.length - 1;
+        }
+    }
+
+    onNext() {
+        this.modalEdit.index++;
+        if (this.modalEdit.index > this.dictionaries.length - 1) {
+            this.modalEdit.index = 0;
+        }
     }
 
     onEditItemsClick(index: number): void {
@@ -278,7 +347,6 @@ export default class Dictionaries extends Vue {
     onAddNewItem(): void {
         Object.assign(this.modalEdit, {
             visible: true,
-            isNew: true,
             index: -1,
         });
     }

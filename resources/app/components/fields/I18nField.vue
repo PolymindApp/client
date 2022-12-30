@@ -6,20 +6,20 @@
                 class="mb-0 w-100"
             >
                 <!-- LABEL -->
-                <v-subheader v-text="label"></v-subheader>
+                <v-subheader v-text="label" class="mb-3"></v-subheader>
 
                 <!-- LANGUAGES -->
                 <v-select
                     v-model="selectedLanguages"
-                    v-bind="$attrs"
-                    v-on="$listeners"
                     :items="languages"
                     :label="$t('i18nField.languages')"
                     item-text="data.name"
                     item-value="data.id"
                     class="mx-3"
                     multiple
+                    outlined
                     return-object
+                    clearable
                 />
 
                 <!-- LIST OF LANGUAGE/TEXT -->
@@ -37,13 +37,13 @@
                         </thead>
                         <tbody>
                         <tr
-                            v-for="item in i18n"
-                            :key="item.data.id"
+                            v-for="i18n in _selectedLanguagesLabels"
+                            :key="i18n.data.id"
                         >
-                            <td v-text="item.data.language.data.name"></td>
+                            <td v-text="i18n.data.language.data.name"></td>
                             <td>
                                 <v-text-field
-                                    v-model="item.data.text"
+                                    v-model="i18n.data.text"
                                     :placeholder="$t('i18nField.placeholder')"
                                     :rules="[rules.required]"
                                     hide-details
@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts">
-import {Vue, Component, Prop, Watch} from 'vue-property-decorator';
+import {Vue, Component, Prop, Watch, VModel} from 'vue-property-decorator';
 import LanguageModel from "@/models/LanguageModel";
 import DictionaryI18nModel from "@/models/DictionaryI18nModel";
 import Rules from '@/utils/Rules';
@@ -70,9 +70,9 @@ import Rules from '@/utils/Rules';
 @Component
 export default class I18nField extends Vue {
 
-    @Prop({
+    @VModel({
         default: () => ([])
-    }) value!: Array<DictionaryI18nModel>
+    }) model!: Array<DictionaryI18nModel>
 
     @Prop({
         default: () => ([])
@@ -96,41 +96,60 @@ export default class I18nField extends Vue {
 
     rules: any = {}
     selectedLanguages: Array<LanguageModel> = []
-    i18n: Array<DictionaryI18nModel> = []
 
-    @Watch('value', {
-        deep: true,
-        immediate: true,
+    @Watch('model', {
+        deep: true
     })
     onValueChanged(value: Array<DictionaryI18nModel>) {
-        this.selectedLanguages = this.languages.filter(language => value.findIndex(i18n => language.data.code === i18n.data.language.data.code) !== -1);
-        this.i18n = this.value.filter(i18n => (this.type ? this.type === i18n.data.type : true) && this.selectedLanguages.findIndex(language => language.data.code === i18n.data.language.data.code) !== -1);
+        this.syncSelectedLanguages(value);
     }
 
-    @Watch('selectedLanguages', {
-        deep: true,
-        immediate: true,
-    })
-    onSelectedLanguagesChanged(selectedLanguages: Array<DictionaryI18nModel>) {
-        this.i18n = this.value.filter(i18n => (this.type ? this.type === i18n.data.type : true) && selectedLanguages.findIndex(language => language.data.code === i18n.data.language.data.code) !== -1);
-        while (selectedLanguages.length > this.i18n.length) {
-            this.i18n.push(new DictionaryI18nModel({
+    get _selectedLanguagesLabels(): Array<DictionaryI18nModel> {
+        const items = this.model.filter(val => {
+            return (this.type ? val.data.type === this.type : true) &&
+                this.selectedLanguages.findIndex(selectedLanguage => {
+                    return selectedLanguage.data.code === val.data.language.data.code;
+                }) !== -1;
+        });
+        for (let i = items.length; i < this.selectedLanguages.length; i++) {
+            const selectedLanguage = this.selectedLanguages[i];
+            const newItem = new DictionaryI18nModel({
                 type: this.type,
-                language: selectedLanguages[this.i18n.length].clone().data,
-            }));
+                language: {
+                    ...selectedLanguage.clone().data,
+                },
+            });
+            this.model.push(newItem);
+            items.push(newItem);
         }
+        this.model.forEach((value, index) => {
+            if (
+                (this.type ? value.data.type === this.type : true) &&
+                this.selectedLanguages.findIndex(selectedLanguage => {
+                    return selectedLanguage.data.code === value.data.language.data.code;
+                }) === -1
+            ) {
+                this.model.splice(index, 1);
+            }
+        })
+        items.sort((a, b) => {
+            return a.data.language.data.name > b.data.language.data.name ? 1 : -1;
+        })
+        return items;
     }
 
-    get _value(): Array<DictionaryI18nModel> {
-        return this.value;
-    }
-
-    set _value(value: Array<DictionaryI18nModel>) {
-        this.$emit('input', value);
+    syncSelectedLanguages(value: Array<DictionaryI18nModel>): void {
+        this.selectedLanguages = this.languages.filter(language => {
+            return value.findIndex(i18n => {
+                return (this.type ? i18n.data.type === this.type : true) &&
+                    language.data.code === i18n.data.language.data.code;
+            }) !== -1;
+        });
     }
 
     created(): void {
         this.rules.required = (value: string) => Rules.required(value) || this.$t('rules.required');
+        this.syncSelectedLanguages(this.model);
     }
 }
 </script>

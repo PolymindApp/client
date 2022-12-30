@@ -153,6 +153,7 @@
 	"login.forgotPassword": "Olvidé mi contraseña",
 	"mail.copyrights": "© :date :name. Todos los derechos reservados.",
 	"mail.troubleLink": "Si tiene problemas para hacer clic en el botón {actionText} , utilice el siguiente vínculo:",
+	"mediaField.clearImg": "",
 	"menu.bulk": "Acciones masivas",
 	"nav.deck": "Tarjetas",
 	"nav.dictionary": "Diccionarios",

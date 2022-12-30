@@ -153,6 +153,7 @@
 	"login.forgotPassword": "मैं अपना पासवर्ड भूल गया",
 	"mail.copyrights": "© :date :name। सर्वाधिकार सुरक्षित।",
 	"mail.troubleLink": "यदि आपको {actionText} बटन क्लिक करने में समस्या हो रही है, तो इसके बजाय निम्न लिंक का उपयोग करें:",
+	"mediaField.clearImg": "",
 	"menu.bulk": "थोक कार्रवाई",
 	"nav.deck": "डेक्स",
 	"nav.dictionary": "शब्दकोशों",

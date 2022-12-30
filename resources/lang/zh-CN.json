@@ -153,6 +153,7 @@
 	"login.forgotPassword": "我忘记了我的密码",
 	"mail.copyrights": "© :date :name.保留所有权利。",
 	"mail.troubleLink": "如果你在点击 {actionText} 按钮时遇到困难，请使用以下链接代替。",
+	"mediaField.clearImg": "",
 	"menu.bulk": "批量行动",
 	"nav.deck": "甲板",
 	"nav.dictionary": "字典",

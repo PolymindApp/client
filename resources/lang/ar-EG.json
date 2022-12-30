@@ -153,6 +153,7 @@
 	"login.forgotPassword": "لقد نسيت كلمة المرور",
 	"mail.copyrights": "© :date :name. كل الحقوق محفوظة.",
 	"mail.troubleLink": "إذا كنت تواجه مشكلة في النقر فوق الزر {actionText} ، فاستخدم الارتباط التالي بدلاً من ذلك:",
+	"mediaField.clearImg": "",
 	"menu.bulk": "إجراءات جملة",
 	"nav.deck": "الطوابق",
 	"nav.dictionary": "قواميس",

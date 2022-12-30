@@ -111,8 +111,8 @@
                 <!-- LANGUAGES: DESKTOP -->
                 <div v-if="$vuetify.breakpoint.mdAndUp" class="mt-3 d-flex justify-center flex-wrap" style="gap: 0.5rem">
                     <v-chip-group v-model="showDictionaryLanguageSelection.data" color="primary" column multiple>
-                        <v-chip :value="i18n.language.data.code" :key="i18n.id" v-for="i18n in allLanguages" label outlined small>
-                            <span v-text="i18n.language.data.name"></span>
+                        <v-chip :value="i18n.data.language.data.code" :key="i18n.id" v-for="i18n in allLanguages" label outlined small>
+                            <span v-text="i18n.data.language.data.name"></span>
                         </v-chip>
                     </v-chip-group>
                 </div>
@@ -1146,19 +1146,19 @@ export default {
                                         media: item.data.cover.url,
                                         created_at: item.data.created_at,
                                     };
-                                    const frontIdx = item.data.i18n.findIndex(i18n => i18n.language.data.code === (this.$route.params.lang_front || front_lang));
+                                    const frontIdx = item.data.i18n.findIndex(i18n => i18n.data.language.data.code === (this.$route.params.lang_front || front_lang));
                                     if (frontIdx !== -1) {
                                         Object.assign(card, {
-                                            front: item.data.i18n[frontIdx].text,
-                                            front_synthesized: item.data.i18n[frontIdx].text_synthesized,
+                                            front: item.data.i18n[frontIdx].data.text,
+                                            front_synthesized: item.data.i18n[frontIdx].data.text_synthesized,
                                         });
                                     }
                                     if (this.$route.params.lang_back || back_lang) {
-                                        const backIdx = item.data.i18n.findIndex(i18n => i18n.language.data.code === (this.$route.params.lang_back || back_lang));
+                                        const backIdx = item.data.i18n.findIndex(i18n => i18n.data.language.data.code === (this.$route.params.lang_back || back_lang));
                                         if (backIdx !== -1) {
                                             Object.assign(card, {
-                                                back: item.data.i18n[backIdx].text,
-                                                back_synthesized: item.data.i18n[backIdx].text_synthesized,
+                                                back: item.data.i18n[backIdx].data.text,
+                                                back_synthesized: item.data.i18n[backIdx].data.text_synthesized,
                                             });
                                         }
                                     }
@@ -1538,7 +1538,6 @@ export default {
         document.addEventListener("keydown", this.handleKeyDown, false);
 
         this.settings = new PlaybackSettingsModel(this.$deepClone(this.deck ? this.deck.data.playback_settings.data : {}));
-        console.log(this.settings.data);
 
         this.load();
         this.applySettings();
