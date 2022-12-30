@@ -61,13 +61,15 @@
 
                 <!-- SKELETON LOADERS -->
                 <template v-if="skeleton">
-                    <div :key="groupIdx" v-for="groupIdx in 3">
-                        <v-row :dense="$vuetify.breakpoint.smAndDown">
-                            <v-col :key="indexIdx" v-for="indexIdx in skeletonItems" cols="6" sm="4" md="3" xl="2">
-                                <v-skeleton-loader type="card" />
+                    <template v-for="groupIdx in 3">
+                        <v-row :key="groupIdx" :dense="$vuetify.breakpoint.smAndDown">
+                            <v-col :key="indexIdx" v-for="indexIdx in itemsPerPage" cols="6" sm="4" md="3" lg="2">
+                                <v-responsive aspect-ratio="0.65">
+                                    <v-skeleton-loader max-height="266" type="card" />
+                                </v-responsive>
                             </v-col>
                         </v-row>
-                    </div>
+                    </template>
                 </template>
 
                 <!-- EMPTY -->
@@ -211,16 +213,6 @@ export default {
             return this.categories.filter(category => {
                 return this.dictionaries.find(dictionary => category.data.id === dictionary.data.dictionary_category_id);
             });
-        },
-
-        skeletonItems() {
-            return this.$vuetify.breakpoint.xl
-                ? 6
-                : this.$vuetify.breakpoint.mdAndUp
-                    ? 4
-                    : this.$vuetify.breakpoint.smAndUp
-                        ? 3
-                        : 4;
         },
 
         itemsPerPage() {

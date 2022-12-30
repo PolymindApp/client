@@ -135,8 +135,8 @@
                                 :placeholder="$t('label.languages')"
                                 :items="allLanguages"
                                 class="my-3"
-                                item-text="language.data.name"
-                                item-value="language.data.code"
+                                item-text="data.language.data.name"
+                                item-value="data.language.data.code"
                                 outlined
                                 multiple
                                 hide-details
