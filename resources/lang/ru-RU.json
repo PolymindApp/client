@@ -225,6 +225,7 @@
 	"rules.required": "Это поле обязательно для заполнения",
 	"seo.default.description": "Бесплатная программа с открытым исходным кодом для практики запоминания на подсознательном уровне.",
 	"seo.session.desc": ":total карточек для тренировки с :front_language по :back_language. | Одна карта для практики с :front_language по :back_language. | :total карточек для тренировки с :front_language по :back_language.",
+	"session.dictionary.noMoreTwoLanguages": "",
 	"session.dictionaryLanguageSelection.desc": "Вы должны выбрать хотя бы один язык, чтобы начать сеанс.",
 	"session.dictionaryLanguageSelection.title": "Выберите язык",
 	"session.eject": "Извлечь карту",

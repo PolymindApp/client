@@ -225,6 +225,7 @@
 	"rules.required": "此栏为必填项",
 	"seo.default.description": "一个免费的开源程序，用于在潜意识层面练习记忆。",
 	"seo.session.desc": ":total 张卡片从 :front_language 到 :back_language练习。 |从 :front_language 到 :back_language练习一张牌。 |从 :front_language 到 :back_language练习 :total 张卡片。",
+	"session.dictionary.noMoreTwoLanguages": "",
 	"session.dictionaryLanguageSelection.desc": "您必须至少选择一种语言才能开始会话。",
 	"session.dictionaryLanguageSelection.title": "选择语言",
 	"session.eject": "弹出卡",

@@ -225,6 +225,7 @@
 	"rules.required": "هذه الخانة مطلوبه",
 	"seo.default.description": "برنامج مجاني ومفتوح المصدر لممارسة الحفظ على مستوى اللاوعي.",
 	"seo.session.desc": ":total بطاقات للتدريب من :front_language إلى :back_language. | بطاقة واحدة للتدريب من :front_language إلى :back_language. | :total بطاقات للتدريب من :front_language إلى :back_language.",
+	"session.dictionary.noMoreTwoLanguages": "",
 	"session.dictionaryLanguageSelection.desc": "يجب عليك تحديد لغة واحدة على الأقل لبدء جلستك.",
 	"session.dictionaryLanguageSelection.title": "اختار اللغة",
 	"session.eject": "بطاقة الإخراج",

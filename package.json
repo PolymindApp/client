@@ -16,6 +16,10 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000"
     },
     "dependencies": {
+        "@capacitor/android": "^4.6.1",
+        "@capacitor/cli": "^4.6.1",
+        "@capacitor/core": "^4.6.1",
+        "@capacitor/ios": "^4.6.1",
         "core-js": "^3.6.5",
         "dexie": "^3.2.2",
         "dotenv": "^16.0.0",

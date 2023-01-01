@@ -225,6 +225,7 @@
 	"rules.required": "This field is required",
 	"seo.default.description": "A free and open-source program to practice memorization at the subconscious level.",
 	"seo.session.desc": ":total cards to practice from :front_language to :back_language. | One card to practice from :front_language to :back_language. | :total cards to practice from :front_language to :back_language.",
+	"session.dictionary.noMoreTwoLanguages": "No more than two languages",
 	"session.dictionaryLanguageSelection.desc": "You must select at least one language to start your session.",
 	"session.dictionaryLanguageSelection.title": "Select language",
 	"session.eject": "Eject card",

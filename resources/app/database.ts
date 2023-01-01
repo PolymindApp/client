@@ -4,7 +4,8 @@ import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
 export interface I18n {
     id?: string | null;
     text: string;
-    type: string | null;
+    type?: string | null;
+    voice_id?: number | null;
     language: Language;
 }
 

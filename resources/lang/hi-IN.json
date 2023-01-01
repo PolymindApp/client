@@ -225,6 +225,7 @@
 	"rules.required": "यह फ़ील्ड आवश्यक है",
 	"seo.default.description": "अवचेतन स्तर पर याद करने का अभ्यास करने के लिए एक स्वतंत्र और खुला स्रोत कार्यक्रम।",
 	"seo.session.desc": " :front_language से :back_languageतक अभ्यास करने के लिए:total कार्ड। | :front_language से :back_languageतक अभ्यास करने के लिए एक कार्ड। | :total कार्ड :front_language से :back_languageतक अभ्यास करने के लिए।",
+	"session.dictionary.noMoreTwoLanguages": "",
 	"session.dictionaryLanguageSelection.desc": "अपना सत्र शुरू करने के लिए आपको कम से कम एक भाषा चुननी होगी।",
 	"session.dictionaryLanguageSelection.title": "भाषा चुनिए",
 	"session.eject": "कार्ड निकालें",

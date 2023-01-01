@@ -225,6 +225,7 @@
 	"rules.required": "Este campo é obrigatório",
 	"seo.default.description": "Um programa gratuito e de código aberto para praticar a memorização no nível subconsciente.",
 	"seo.session.desc": ":total cartas para praticar de :front_language a :back_language. | Uma carta para praticar de :front_language a :back_language. | :total cartas para praticar de :front_language a :back_language.",
+	"session.dictionary.noMoreTwoLanguages": "",
 	"session.dictionaryLanguageSelection.desc": "Você deve selecionar pelo menos um idioma para iniciar sua sessão.",
 	"session.dictionaryLanguageSelection.title": "Selecione o idioma",
 	"session.eject": "Ejetar cartão",

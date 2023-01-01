@@ -10,6 +10,7 @@ export default class I18nModel extends BaseModel {
         id: null,
         text: '',
         type: '',
+        voice_id: null,
         language: {
             id: null,
             name: '',

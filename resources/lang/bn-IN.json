@@ -225,6 +225,7 @@
 	"rules.required": "ঘরটি অবশ্যই পূরণ করতে হবে",
 	"seo.default.description": "অবচেতন স্তরে মুখস্থ অনুশীলন করার জন্য একটি বিনামূল্যে এবং ওপেন সোর্স প্রোগ্রাম।",
 	"seo.session.desc": " :front_language থেকে :back_languageপর্যন্ত অনুশীলন করার জন্য:total কার্ড। | :front_language থেকে :back_languageপর্যন্ত অনুশীলন করার জন্য একটি কার্ড। | :front_language থেকে :back_languageপর্যন্ত অনুশীলন করার জন্য :total কার্ড।",
+	"session.dictionary.noMoreTwoLanguages": "",
 	"session.dictionaryLanguageSelection.desc": "আপনার সেশন শুরু করতে আপনাকে অবশ্যই অন্তত একটি ভাষা নির্বাচন করতে হবে।",
 	"session.dictionaryLanguageSelection.title": "ভাষা নির্বাচন কর",
 	"session.eject": "কার্ড বের করুন",

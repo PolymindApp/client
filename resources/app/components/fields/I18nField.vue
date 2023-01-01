@@ -41,7 +41,7 @@
                             :key="i18n.data.id"
                         >
                             <td v-text="i18n.data.language.data.name"></td>
-                            <td>
+                            <td class="d-flex align-center">
                                 <v-text-field
                                     v-model="i18n.data.text"
                                     :placeholder="$t('i18nField.placeholder')"
@@ -51,6 +51,7 @@
                                     outlined
                                     clearable
                                 />
+                                <slot name="append" :i18n="i18n"></slot>
                             </td>
                         </tr>
                         </tbody>

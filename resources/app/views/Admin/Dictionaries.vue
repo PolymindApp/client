@@ -5,7 +5,7 @@
         <Modal
             v-model="modalEdit.visible"
             :title="modalEdit.index === -1 ? $t('admin.modal.add').toString() : $t('admin.modal.edit').toString()"
-            max-width="600"
+            max-width="800"
             scrollable
             persistent
         >
@@ -69,13 +69,82 @@
                     <v-divider v-if="$vuetify.breakpoint.smAndDown" class="my-3" />
                     <v-spacer v-else />
                     <div class="d-flex align-center" style="gap: 1rem">
-                        <v-btn :disabled="modalEdit.saving" icon @click="onPrevious">
+                        <v-btn :disabled="modalEdit.saving" icon @click="onEditDictionaryPrevious">
                             <v-icon>mdi-arrow-left</v-icon>
                         </v-btn>
                         <span class="text-center" style="flex: 1">
                             {{ modalEdit.index + 1 }} or {{ dictionaries.length }}
                         </span>
-                        <v-btn :disabled="modalEdit.saving" icon @click="onNext">
+                        <v-btn :disabled="modalEdit.saving" icon @click="onEditDictionaryNext">
+                            <v-icon>mdi-arrow-right</v-icon>
+                        </v-btn>
+                    </div>
+                </template>
+            </template>
+        </Modal>
+
+        <!-- ADD/EDIT ITEMS -->
+        <Modal
+            v-model="modalEditItems.visible"
+            :title="modalEditItems.itemIndex === -1 ? $t('admin.modal.add').toString() : $t('admin.modal.edit').toString()"
+            max-width="800"
+            scrollable
+            persistent
+        >
+            <template #body>
+
+                <!-- COVER -->
+                <MediaField
+                    v-model="currentItem.data.cover"
+                    :rules="[rules.required]"
+                    class="w-100"
+                    clearable
+                />
+
+                <!-- TITLE -->
+                <I18nField
+                    v-model="currentItem.data.i18n"
+                    :label="$t('admin.dictionaries.i18n.title')"
+                    :languages="languages"
+                    :rules="[rules.required]"
+                    outlined
+                    clearable
+                >
+                    <template #append="{ i18n }">
+                        <PlayRecordCombo
+                            v-model="i18n.data.text_synthesized"
+                            :loading="isLoading"
+                            :voices="voices"
+                            :voice="i18n.data.voice_id"
+                            class="d-flex align-center ml-3"
+                        />
+                    </template>
+                </I18nField>
+            </template>
+            <template #buttons>
+
+                <!-- SAVE -->
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :loading="modalEditItems.saving" :disabled="modalEditItems.saving" color="primary" large @click="onModalEditItemsSave">
+                    <span v-text="modalEditItems.itemIndex === -1 ? $t('btn.create') : $t('btn.save')"></span>
+                </v-btn>
+
+                <!-- CANCEL -->
+                <v-btn :block="$vuetify.breakpoint.smAndDown" :disabled="modalEditItems.saving" outlined large @click="onModalEditItemsClose">
+                    <span v-text="$t('btn.cancel')"></span>
+                </v-btn>
+
+                <!-- NAVIGATION -->
+                <template v-if="modalEditItems.itemIndex !== -1">
+                    <v-divider v-if="$vuetify.breakpoint.smAndDown" class="my-3" />
+                    <v-spacer v-else />
+                    <div class="d-flex align-center" style="gap: 1rem">
+                        <v-btn :disabled="modalEditItems.saving" icon @click="onEditItemsPrevious">
+                            <v-icon>mdi-arrow-left</v-icon>
+                        </v-btn>
+                        <span class="text-center" style="flex: 1">
+                            {{ modalEditItems.itemIndex + 1 }} or {{ modalEditItems.items.length }}
+                        </span>
+                        <v-btn :disabled="modalEditItems.saving" icon @click="onEditItemsNext">
                             <v-icon>mdi-arrow-right</v-icon>
                         </v-btn>
                     </div>
@@ -93,7 +162,7 @@
                     <!-- ADD NEW ITEM -->
                     <v-btn
                         :block="$vuetify.breakpoint.smAndDown"
-                        :disabled="loading"
+                        :disabled="isLoading"
                         color="primary"
                         class="order-md-last"
                         @click="onAddNewItem"
@@ -106,7 +175,7 @@
                     <v-text-field
                         v-model="search"
                         :placeholder="$t('admin.dictionaries.filter')"
-                        :disabled="loading"
+                        :disabled="isLoading"
                         outlined
                         dense
                         hide-details
@@ -192,7 +261,7 @@
                                 <!-- EDIT -->
                                 <v-tooltip left>
                                     <template #activator="{ attrs, on }">
-                                        <v-btn v-bind="attrs" v-on="on" icon @click.stop="onEditClick(index)">
+                                        <v-btn v-bind="attrs" v-on="on" :disabled="isLoading" icon @click.stop="onEditClick(index)">
                                             <v-icon>mdi-pencil</v-icon>
                                         </v-btn>
                                     </template>
@@ -202,7 +271,7 @@
                                 <!-- EDIT ITEMS -->
                                 <v-tooltip left>
                                     <template #activator="{ attrs, on }">
-                                        <v-btn v-bind="attrs" v-on="on" icon @click.stop="onEditItemsClick(index)">
+                                        <v-btn v-bind="attrs" v-on="on" :disabled="isLoading" icon :loading="modalEditItems.loadingIndex === index" @click="onEditItemsClick(index)">
                                             <v-icon>mdi-cards</v-icon>
                                         </v-btn>
                                     </template>
@@ -212,7 +281,7 @@
                                 <!-- DELETE -->
                                 <v-tooltip left>
                                     <template #activator="{ attrs, on }">
-                                        <v-btn v-bind="attrs" v-on="on" icon @click.stop="onDeleteClick(item, index)">
+                                        <v-btn v-bind="attrs" v-on="on" :disabled="isLoading" icon @click.stop="onDeleteClick(item, index)">
                                             <v-icon>mdi-delete</v-icon>
                                         </v-btn>
                                     </template>
@@ -234,16 +303,20 @@ import DictionaryModel from '@/models/DictionaryModel';
 import Services from "@/utils/Services";
 import MediaField from "@/components/fields/MediaField.vue";
 import I18nField from "@/components/fields/I18nField.vue";
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import PlayRecordCombo from "@/components/audio/PlayRecordCombo.vue";
 import LanguageModel from "@/models/LanguageModel";
 import DictionaryCategoryModel from "@/models/DictionaryCategoryModel";
 import VueI18n from "vue-i18n";
 import Rules from "@/utils/Rules";
+import DictionaryItemModel from "@/models/DictionaryItemModel";
+import { Component, Vue, Watch } from 'vue-property-decorator';
+import VoiceModel from "@/models/VoiceModel";
 
 @Component({
     components: {
         MediaField,
         I18nField,
+        PlayRecordCombo,
         Page,
         Modal,
     }
@@ -254,10 +327,12 @@ export default class Dictionaries extends Vue {
     loading: boolean = false
     skeleton: boolean = false
     dictionaries: Array<DictionaryModel> = []
+    voices: Array<VoiceModel> = []
     languages: Array<LanguageModel> = []
     categories: Array<DictionaryCategoryModel> = []
     rules: any = {}
     currentDictionary = new DictionaryModel();
+    currentItem = new DictionaryItemModel();
     modalEdit: {
         visible: boolean,
         index: number,
@@ -269,10 +344,18 @@ export default class Dictionaries extends Vue {
     }
     modalEditItems: {
         visible: boolean,
-        index: number,
+        dictionaryIndex: number,
+        itemIndex: number,
+        saving: boolean,
+        loadingIndex: number,
+        items: Array<DictionaryItemModel>,
     } = {
         visible: false,
-        index: -1,
+        dictionaryIndex: -1,
+        itemIndex: -1,
+        saving: false,
+        loadingIndex: -1,
+        items: [],
     }
 
     @Watch('modalEdit.index')
@@ -281,6 +364,15 @@ export default class Dictionaries extends Vue {
             this.currentDictionary = new DictionaryModel();
         } else {
             this.currentDictionary = this.dictionaries[index];
+        }
+    }
+
+    @Watch('modalEditItems.itemIndex')
+    onModalEditItemsIndexChanged(index: number) {
+        if (index === -1) {
+            this.currentItem = new DictionaryItemModel();
+        } else {
+            this.currentItem = this.modalEditItems.items[index];
         }
     }
 
@@ -294,6 +386,15 @@ export default class Dictionaries extends Vue {
             { value: 'data.created_at', text: this.$i18n.t('admin.dictionaries.headers.createdAt'), class: 'text-no-wrap' },
             { value: '_action', sortable: false },
         ];
+    }
+
+    get isLoading(): boolean {
+        return this.loading ||
+            this.modalEdit.saving ||
+            (
+                this.modalEditItems.loadingIndex !== this.modalEditItems.dictionaryIndex &&
+                this.modalEditItems.loadingIndex !== -1
+            );
     }
 
     onEditClick(index: number): void {
@@ -311,25 +412,54 @@ export default class Dictionaries extends Vue {
         this.modalEdit.visible = false;
     }
 
-    onPrevious() {
+    onModalEditItemsSave(): void {
+        this.modalEditItems.visible = false;
+    }
+
+    onModalEditItemsClose(): void {
+        this.modalEditItems.visible = false;
+    }
+
+    onEditDictionaryPrevious() {
         this.modalEdit.index--;
         if (this.modalEdit.index < 0) {
             this.modalEdit.index = this.dictionaries.length - 1;
         }
     }
 
-    onNext() {
+    onEditDictionaryNext() {
         this.modalEdit.index++;
         if (this.modalEdit.index > this.dictionaries.length - 1) {
             this.modalEdit.index = 0;
         }
     }
 
+    onEditItemsPrevious() {
+        this.modalEditItems.itemIndex--;
+        if (this.modalEditItems.itemIndex < 0) {
+            this.modalEditItems.itemIndex = this.modalEditItems.items.length - 1;
+        }
+    }
+
+    onEditItemsNext() {
+        this.modalEditItems.itemIndex++;
+        if (this.modalEditItems.itemIndex > this.modalEditItems.items.length - 1) {
+            this.modalEditItems.itemIndex = 0;
+        }
+    }
+
     onEditItemsClick(index: number): void {
-        Object.assign(this.modalEditItems, {
-            visible: true,
-            index,
-        });
+        this.modalEditItems.loadingIndex = index;
+        Services.getDictionaryItems(this.dictionaries[index].data.id)
+            .then(items => {
+                Object.assign(this.modalEditItems, {
+                    visible: true,
+                    dictionaryIndex: index,
+                    itemIndex: 0,
+                    items,
+                });
+            })
+            .finally(() => this.modalEditItems.loadingIndex = -1);
     }
 
     onDeleteClick(item: DictionaryModel, index: number): void {
@@ -357,11 +487,12 @@ export default class Dictionaries extends Vue {
         this.loading = true;
         return Promise.all([
             Services.getLanguages(),
+            Services.getVoices(),
             Services.getDictionaries(),
             Services.getDictionaryCategories(),
         ])
-            .then(([languages, dictionaries, categories]) => {
-                Object.assign(this, { languages, dictionaries, categories });
+            .then(([languages, voices, dictionaries, categories]) => {
+                Object.assign(this, { languages, voices, dictionaries, categories });
                 this.skeleton = false;
                 return [languages, dictionaries];
             })
