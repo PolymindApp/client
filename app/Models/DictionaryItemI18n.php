@@ -13,7 +13,13 @@ class DictionaryItemI18n extends Model
 
     public $incrementing = false;
 
-    protected $fillable = [];
+    protected $fillable = [
+        'id',
+        'dictionary_item_id',
+        'language_id',
+        'text',
+        'text_synthesized',
+    ];
 
     public function scopeOfLanguages($query, $languages = [])
     {

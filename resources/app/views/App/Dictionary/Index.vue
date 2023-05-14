@@ -274,7 +274,7 @@ export default {
                 ...dictionary,
                 data: {
                     ...dictionary.data,
-                    label: dictionary.data.i18n[0].data.text,
+                    label: dictionary.data.i18n[0]?.data.text || this.$i18n.t('label.unlabelled'),
                 }
             }));
         }

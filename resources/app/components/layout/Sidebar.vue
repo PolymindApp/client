@@ -113,6 +113,22 @@
                         <span v-text="$t('sidebar.admin.users')"></span>
                     </v-list-item-title>
                 </v-list-item>
+                <v-list-item :to="{ name: 'admin.voices' }" color="primary">
+                    <v-list-item-icon>
+                        <v-icon>mdi-microphone</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>
+                        <span v-text="$t('sidebar.admin.voices')"></span>
+                    </v-list-item-title>
+                </v-list-item>
+                <v-list-item :to="{ name: 'admin.languages' }" color="primary">
+                    <v-list-item-icon>
+                        <v-icon>mdi-translate</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>
+                        <span v-text="$t('sidebar.admin.languages')"></span>
+                    </v-list-item-title>
+                </v-list-item>
             </template>
         </v-list>
 

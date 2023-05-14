@@ -20,14 +20,20 @@ Written in PHP and JavaScript, it uses Laravel, VueJS and Vuetify as frameworks.
 ### Setup your environment
 
 1) Create a copy of ```.env.example```, name it ```.env``` and adjust the settings according to your current setup.
-2) Create a copy of ```.ambience.json.example```, name it ```.ambience.json```. You can leave it as an empty array or follow the "Setup ambiences" section below. However, this file is mandatory and must exists.
-3) Run ```composer install``` in the root directory.
-4) Run ```npm install``` or ```yarn``` in the root directory.
-5) Run the following commands to initiate the database:
+2) Run ```composer install``` in the root directory.
+3) Run ```npm install``` or ```yarn``` in the root directory.
+4) Run the following commands to initiate the database:
 ```
 php artisan migrate:fresh
 php artisan db:seed
 ```
+If you need a complete dev environment, run this instead:
+```
+php artisan migrate:fresh
+php artisan db:seed --class=DevSeeder
+```
+(It might take a few minutes)
+
 5) Run ```npm run build```.
 
 ### Setup AWS
@@ -35,23 +41,6 @@ php artisan db:seed
 1) Create a new IAM user of type ```Programmatic access```.
 2) Attach the existing policy ```AmazonPollyFullAccess``` to the user.
 3) Copy-paste the access and secret key into your ```.env``` file.
-
-### Setup ambiences
-
-You can easily add your custom ambiences by creating a  ```.ambience.json``` file at the root folder of the project.
-
-The structure of the JSON file is an array containing the following properties:
-
-```json
-[{
-    "title": "My ambience",
-    "url": "https://website.com/music.mp3",
-    "bg": "https://website.com/background.jpg",
-    "thumbnail": "https://website.com/thumbnail.jpg",
-    "opacity": 0.75,
-    "volume": 0.2
-}]
-```
 
 ### Launch the application
 
@@ -64,6 +53,15 @@ If you want to make modifications to the UI, also run:
 ```
 npm run hot
 ```
+
+## Troubleshooting
+
+### Please provide a valid cache path
+If you get this error while trying to run `composer install`, try creating manually the folders in storage:
+
+- /framework/cache
+- /framework/session
+- /framework/views
 
 ## License
 

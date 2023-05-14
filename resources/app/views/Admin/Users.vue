@@ -1,56 +1,62 @@
 <template>
-    <Page :title="title" class="fill-height pa-0 d-flex flex-column w-100" fluid>
-        <div :class="{
-            'w-100 px-md-0 pb-3': true,
-            'overflow-y-auto': $vuetify.breakpoint.smAndDown,
-        }" :style="{
-            flexGrow: $vuetify.breakpoint.smAndDown ? 1 : null,
-            height: $vuetify.breakpoint.smAndDown ? 0 : null,
-        }">
-            <v-data-table
-                :items="users"
-                item-key="data.id"
-                :search="search"
-                :headers="[
-                    { value: 'data.name', text: 'Name', },
-                    { value: 'data.email', text: 'Email', },
-                    { value: 'data.roles', text: 'Roles', },
-                    { value: 'data.created_at', text: 'Created at', },
-                ]"
-            >
-                <template #item.data.roles="{ item }">
-                    <span v-for="role in item.data.roles" v-text="role.name"></span>
-                    <span v-if="item.data.roles.length === 0" v-text="$t('admin.users.noRole')"></span>
-                </template>
-            </v-data-table>
+    <Page class="fill-height pa-0 d-flex flex-column w-100" fluid>
+        <div class="w-100" style="flex: 1">
+            <DataManager
+                v-model="users"
+                :headers="headers"
+                :default-model="defaultModel"
+                resource="/admin/user"
+                id="adminUsers"
+                class="fill-height"
+                tile
+            />
         </div>
     </Page>
 </template>
 
 <script lang="ts">
 import Page from "@/components/layout/Page.vue";
+import DataManager from "@/components/DataManager.vue";
 import UserModel from '@/models/UserModel';
-import Services from "@/utils/Services";
 import { Component, Vue } from 'vue-property-decorator';
+import Rules from '@/utils/Rules';
 
 @Component({
     components: {
-        Page
+        Page,
+        DataManager,
     }
 })
 export default class Users extends Vue {
-    title: string
-    search: string = ''
+
     users: Array<UserModel> = []
+    defaultModel: new () => UserModel = UserModel
+    headers: Array<any> = []
 
-    load(): Promise<Array<UserModel>> {
-        return Services.getUsers()
-            .then(users => this.users = users);
-    }
+    created() {
+        const rules = {
+            required: (value: any) => Rules.required(value) || this.$t('rules.required'),
+            email: (value: any) => Rules.email(value) || this.$t('rules.email'),
+        };
 
-    created(): void {
-        this.title = this.$t('admin.users.title').toString();
-        this.load();
+        this.headers = [
+            { value: 'data.name', text: 'Name', editable: true, field: {
+                rules: [rules.required],
+            } },
+            { value: 'data.email', text: 'Email', editable: true, field: {
+                rules: [rules.required, rules.email],
+            } },
+            { value: 'data.roles', text: 'Roles', editable: true, hasMany: {
+                resource: '/admin/role',
+                itemText: 'name',
+            }, field: {
+                rules: [rules.required],
+            } },
+            { value: 'data.password', text: 'Password', editOnly: true, type: 'password', field: {
+                rules: [rules.required],
+            } },
+            { value: 'data.created_at', text: 'Created at', width: 0, },
+        ];
     }
 }
 </script>

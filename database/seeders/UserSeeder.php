@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
         DB::table('users')->insert([
             'id' => $userId,
             'name' => 'Administrator',
-            'email' => 'admin1@polymind.app',
+            'email' => 'admin@polymind.app',
             'email_verified_at' => now(),
             'password' => bcrypt('polymind'),
             'remember_token' => Str::random(10),

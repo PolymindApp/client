@@ -3,114 +3,78 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserRole;
 use App\Notifications\VerifyEmail;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-class AdminUserController extends Controller
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+
+class AdminUserController extends BaseAdminController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index(): Response
-    {
-        return response(User::all());
-    }
+    protected $model = User::class;
+    protected $searchFields = ['name', 'email'];
 
     /**
-     * Store a newly created resource in storage.
+     * Create or update a list of resources in storage.
      *
      * @param Request $request
      * @return Response
+     * @throws ValidationException
      */
-    public function store(Request $request): Response
+    public function bulkStore(Request $request): Response
     {
-        $this->validateRequest($request, true);
-
-        $fields = $request->all();
-        $fields['password'] = bcrypt($fields['password']);
-
-        $user = User::create($fields);
-        $token = $user->createToken(env('APP_KEY'))->plainTextToken;
-        $user->notify(new VerifyEmail());
-
-        return response([
-            'user' => $user,
-            'token' => $token,
-        ], 201);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  string  $id
-     * @return Response
-     */
-    public function show(string $id): Response
-    {
-        $model = User::find($id);
-        if (!$model) {
-            return response(['message' => 'NOT_FOUND'], 404);
+        $users = [];
+        $items = $request->all();
+        foreach($items as $item) {
+            $this->validateItem($item, $item['id'] === null, false, $item['id'] === null);
         }
-        return response($model);
-    }
+        foreach($items as $item) {
+            if ($item['id'] === null) {
+                $item['password'] = bcrypt($item['password']);
+                $user = User::create($item);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param  string  $id
-     * @return Response
-     */
-    public function update(Request $request, string $id): Response
-    {
-        $hasPassword = (bool) $request->get('password');
-        $this->validateRequest($request, $hasPassword);
+                foreach($item['roles'] as $role) {
+                    UserRole::create([
+                        'user_id' => $user->id,
+                        'role_id' => $role,
+                    ]);
+                }
 
-        $fields = $request->all();
-        if ($hasPassword) {
-            $fields['password'] = bcrypt($fields['password']);
+                $user->notify(new VerifyEmail());
+                $user = User::find($user->id);
+            } else {
+                if (isset($item['password'])) {
+                    $item['password'] = bcrypt($item['password']);
+                }
+
+                UserRole::where('user_id', '=', $item['id'])->delete();
+                foreach($item['roles'] as $role) {
+                    UserRole::create([
+                        'user_id' => $item['id'],
+                        'role_id' => $role,
+                    ]);
+                }
+
+                $user = User::find($item['id']);
+                $user->update($item);
+            }
+            $users[] = $user;
         }
 
-        $model = User::find($id);
-        $model->update($fields);
-        return response($model);
+        return response($users, 201);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  string  $id
-     * @return Response
+     * @throws ValidationException
      */
-    public function destroy(string $id): Response
+    protected function validateItem($fields, $passwordRequired = false, $confirmationRequired = false, $uniqueEmail = false)
     {
-        return response(User::destroy($id));
-    }
-
-    /**
-     * Search for resources in storage
-     *
-     * @return Response
-     */
-    public function search(): Response
-    {
-        if (!isset($_GET['q'])) {
-            return response(['message' => 'NO_QUERY_PARAM'], 400);
-        }
-        $query = trim($_GET['q']);
-        $results = User::where('email', 'LIKE', '%' . $query . '%')->get();
-        return response($results);
-    }
-
-    private function validateRequest(Request $request, $passwordRequired = false)
-    {
-        $fields = [
-            'name' => 'string',
-            'email' => 'required|email:rfc,dns|unique:users,email',
-            'password' => ($passwordRequired ? 'required|' : '') . 'string|confirmed',
-        ];
-        $request->validate($fields);
+        return Validator::make($fields, [
+            'name' => 'string|min:3|max:255',
+            'email' => 'required|max:255|email:rfc,dns' . ($uniqueEmail ? '|unique:users,email' : ''),
+            'roles' => 'required|array',
+            'password' => ($passwordRequired ? 'required|' : '') . 'string|max:255' . ($confirmationRequired ? '|confirmed' : ''),
+        ])->validate();
     }
 }

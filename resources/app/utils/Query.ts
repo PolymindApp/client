@@ -1,3 +1,5 @@
+import BaseModel from "@/models/BaseModel";
+
 export default class Query {
 
 	static prefix: string|undefined = process.env.API_URL || '/api';
@@ -21,6 +23,23 @@ export default class Query {
                 formattedParams.push(key + '=' + params[key]);
             });
         }
+
+        if (Array.isArray(body)) {
+            const newBody = [];
+            for (let i = 0; i < body.length; i++) {
+                newBody[i] = body[i] instanceof BaseModel
+                    ? body[i].toSaveObject()
+                    : body[i]
+            }
+            body = newBody;
+        }
+        if (body instanceof BaseModel) {
+            body = body.toSaveObject();
+        }
+        if (body) {
+            body = JSON.stringify(body);
+        }
+
 		return fetch(this.prefix + path + (formattedParams.length > 0 ? '?' + formattedParams.join('&') : ''), {
 			method,
 			cache: 'no-cache',
@@ -48,14 +67,14 @@ export default class Query {
 	}
 
 	static post(path: string, data: any = {}, params?: any, blob = false): Promise<any> {
-		return this.doCall(path, 'POST', JSON.stringify(data), params, blob);
+		return this.doCall(path, 'POST', data, params, blob);
 	}
 
 	static put(path: string, data: any = {}, params?: any): Promise<any> {
-		return this.doCall(path, 'PUT', JSON.stringify(data));
+		return this.doCall(path, 'PUT', data);
 	}
 
 	static delete(path: string, data: any = {}, params?: any): Promise<any> {
-		return this.doCall(path, 'DELETE', JSON.stringify(data));
+		return this.doCall(path, 'DELETE', data);
 	}
 }

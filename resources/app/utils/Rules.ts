@@ -1,6 +1,6 @@
 export default class Rules {
 	static required(value: Array<any>|string = ''): boolean {
-		return (Array.isArray(value) && value.length > 0) || (typeof value === 'string' && !!value);
+		return (Array.isArray(value) && value.length > 0) || (typeof value !== 'object' && !!value);
 	}
 
 	static email(value = ''): boolean {

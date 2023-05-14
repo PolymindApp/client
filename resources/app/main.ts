@@ -15,6 +15,7 @@ import DeepClone from '@/utils/DeepClone'
 import EventBus from '@/utils/EventBus'
 import Error from '@/utils/Error'
 import Confirm from '@/utils/Confirm'
+import ShouldDelete from '@/utils/ShouldDelete'
 import Modal from '@/utils/Modal'
 import Snack from '@/utils/Snack'
 import Sound from '@/utils/Sound'
@@ -27,6 +28,7 @@ import { RouteConfig } from "vue-router/types/router"
 import '@mdi/font/scss/materialdesignicons.scss'
 import './database'
 import './filters'
+import './prototype'
 import './directives'
 import './index.scss'
 import './registerServiceWorker'
@@ -37,6 +39,7 @@ Vue.use(VueRouter)
 Vue.use(VueHotkey)
 Vue.use(Accounts)
 Vue.use(Confirm)
+Vue.use(ShouldDelete)
 Vue.use(DeepClone)
 Vue.use(Error)
 Vue.use(Modal)
@@ -71,6 +74,7 @@ const render = (
 	}
     vuetify.preset.rtl = rtlLanguages.indexOf(i18n.locale) !== -1;
 
+    // @ts-ignore
     currentInstance = new Vue({
 		router,
 		vuetify,

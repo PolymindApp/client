@@ -13,13 +13,17 @@ class Dictionary extends Model
 
     public $incrementing = false;
 
-    protected $fillable = [];
+    protected $fillable = [
+        'id',
+        'dictionary_category_id',
+        'media_id',
+    ];
 
     protected $with = [
         'cover',
         'created_by',
         'i18n.language',
-        'category'
+        'category.i18n.language'
     ];
 
     public function i18n()
@@ -55,7 +59,6 @@ class Dictionary extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'media_id',
         'updated_by',
         'updated_at',
         'deleted_at',

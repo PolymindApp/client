@@ -12,7 +12,10 @@ class UserRole extends Model
 
     public $incrementing = false;
 
-    protected $fillable = [];
+    protected $fillable = [
+        'user_id',
+        'role_id',
+    ];
 
     public function users()
     {

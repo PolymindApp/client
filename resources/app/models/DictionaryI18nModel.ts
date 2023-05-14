@@ -24,5 +24,6 @@ export default class DictionaryI18nModel extends I18nModel {
         super(data);
         this.mapDefaultValues(data);
         this.data.language = new LanguageModel(this.data.language);
+        this.setOriginalDataJSON(this.data);
     }
 }

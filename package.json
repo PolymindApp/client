@@ -10,6 +10,7 @@
         "dev": "npm run development",
         "development": "mix",
         "hot": "mix watch --hot",
+        "serve": "npm run hot",
         "prod": "npm run production",
         "production": "mix --production",
         "watch": "mix watch",

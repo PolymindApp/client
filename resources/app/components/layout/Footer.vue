@@ -12,6 +12,10 @@
                 <v-icon left>mdi-open-in-new</v-icon>
                 <span v-text="$t('footer.visitWebsite')"></span>
             </v-btn>
+            <v-btn v-if="bugUrl" :href="bugUrl" class="caption" target="_blank" text>
+                <v-icon left>mdi-bug-outline</v-icon>
+                <span v-text="$t('footer.declareBug')"></span>
+            </v-btn>
             <div v-if="socialLinks.length > 0" class="d-flex align-center justify-center">
                 <v-tooltip :key="linkIdx" v-for="(link, linkIdx) in socialLinks" top>
                     <template #activator="{ attrs, on }">
@@ -50,6 +54,7 @@ export default {
         year: new Date().getFullYear(),
         version: packageJson.version,
         appUrl: process.env.APP_URL,
+        bugUrl: process.env.DECLARE_BUG_URL || 'https://github.com/PolymindApp/client/issues',
     }),
 
     computed: {

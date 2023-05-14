@@ -22,6 +22,7 @@ export default class DictionaryCategoryModel extends BaseModel {
         this.mapDefaultValues(data);
         this.data.cover = new MediaModel(this.data.cover);
         this.data.i18n = this.data.i18n.map((i18n: I18n) => new I18nModel(i18n));
+        this.setOriginalDataJSON(this.data);
     }
 
     languages() {

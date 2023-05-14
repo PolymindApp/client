@@ -12,6 +12,7 @@ export default class DictionaryModel extends BaseModel {
         id: null,
         total_items: 0,
         dictionary_category_id: null,
+        media_id: null,
         category: {
             id: null,
             i18n: [],
@@ -25,6 +26,7 @@ export default class DictionaryModel extends BaseModel {
             url: ''
         },
         i18n: [],
+        created_at: null,
     }
 
     constructor(data: any = {}) {
@@ -33,6 +35,8 @@ export default class DictionaryModel extends BaseModel {
         this.data.category = new DictionaryCategoryModel(data.category);
         this.data.cover = new MediaModel(data.cover);
         this.data.i18n = this.data.i18n.map((i18n: DictionaryI18n) => new DictionaryI18nModel(i18n));
+
+        this.setOriginalDataJSON(this.data);
     }
 
     languages() {

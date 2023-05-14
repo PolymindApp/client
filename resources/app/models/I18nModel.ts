@@ -1,6 +1,7 @@
 import BaseModel from './BaseModel';
 import {I18n} from "@/database";
 import LanguageModel from "@/models/LanguageModel";
+import Rules from '@/utils/Rules';
 
 export default class I18nModel extends BaseModel {
 
@@ -11,6 +12,7 @@ export default class I18nModel extends BaseModel {
         text: '',
         type: '',
         voice_id: null,
+        language_id: null,
         language: {
             id: null,
             name: '',
@@ -21,9 +23,15 @@ export default class I18nModel extends BaseModel {
         },
     }
 
-    constructor(data: I18n) {
+    constructor(data?: I18n) {
         super(data);
         this.mapDefaultValues(data);
         this.data.language = new LanguageModel(this.data.language);
+        this.setOriginalDataJSON(this.data);
+    }
+
+    isValid(): boolean {
+        return this.data.text && this.data.text.trim().length > 0
+            && this.data.language_id;
     }
 }

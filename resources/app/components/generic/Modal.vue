@@ -17,9 +17,12 @@
                                 <span class="headline text-truncate" v-text="title"></span>
                             </div>
                         </slot>
-                        <v-btn @click="_value = false" :disabled="disabled" :dark="!dense && $vuetify.breakpoint.smAndDown" icon>
-                            <v-icon>mdi-close</v-icon>
-                        </v-btn>
+                        <div class="d-flex align-center" style="gap: 1rem">
+                            <slot name="header_right"></slot>
+                            <v-btn @click="onCloseClick" :disabled="disabled" :dark="!dense && $vuetify.breakpoint.smAndDown" icon>
+                                <v-icon>mdi-close</v-icon>
+                            </v-btn>
+                        </div>
                     </div>
                 </v-card-title>
             </v-expand-transition>
@@ -36,14 +39,21 @@
                         'background': !dense && !dark,
                     }">
                         <slot name="actions">
-                            <div class="d-flex flex-column flex-md-row w-100 justify-end" style="gap: 0.5rem">
-                                <slot name="buttons">
-                                    <v-btn :key="btnIdx" v-for="(btn, btnIdx) in buttons" v-bind="btn.attrs" v-on="btn.events" :block="$vuetify.breakpoint.smAndDown" :outlined="btn.type === 'cancel' || (btn.attrs && btn.attrs.outlined)" large @click="btn.type === 'cancel' ? _value = false : null">
-                                        <v-icon v-if="btn.icon" v-text="btn.icon" :left="!$vuetify.rtl" :right="$vuetify.rtl"></v-icon>
-                                        <span v-if="btn.type === 'cancel'" v-text="$t('btn.cancel')"></span>
-                                        <span v-else v-text="btn.text"></span>
-                                    </v-btn>
-                                </slot>
+                            <div class="d-flex align-center justify-space-between w-100">
+                                <div class="d-flex align-center w-100 justify-start" style="gap: 1rem">
+                                    <slot name="left_actions">
+
+                                    </slot>
+                                </div>
+                                <div class="d-flex flex-column flex-md-row w-100 justify-end" style="gap: 0.5rem">
+                                    <slot name="buttons">
+                                        <v-btn :key="btnIdx" v-for="(btn, btnIdx) in buttons" v-bind="btn.attrs" v-on="btn.events" :block="$vuetify.breakpoint.smAndDown" :outlined="btn.type === 'cancel' || (btn.attrs && btn.attrs.outlined)" large @click="btn.type === 'cancel' ? _value = false : null">
+                                            <v-icon v-if="btn.icon" v-text="btn.icon" :left="!$vuetify.rtl" :right="$vuetify.rtl"></v-icon>
+                                            <span v-if="btn.type === 'cancel'" v-text="$t('btn.cancel')"></span>
+                                            <span v-else v-text="btn.text"></span>
+                                        </v-btn>
+                                    </slot>
+                                </div>
                             </div>
                         </slot>
                     </v-card-actions>
@@ -122,6 +132,12 @@ export default {
         },
 	},
 
+    methods: {
+        onCloseClick() {
+            this._value = false;
+        }
+    },
+
     created() {
         if (!this.$slots.buttons && this.buttons.length === 0) {
             this.buttons.push({
@@ -130,12 +146,18 @@ export default {
                     outlined: true,
                 },
                 events: {
-                    click: () => {
-                        this._value = false;
-                    }
+                    click: this.onCloseClick
                 }
             })
         }
-    }
+    },
+
+    watch: {
+        _value(value) {
+            if (!value) {
+                this.$emit('close');
+            }
+        }
+    },
 }
 </script>

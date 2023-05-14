@@ -7,7 +7,7 @@
             flexGrow: $vuetify.breakpoint.smAndDown ? 1 : null,
             height: $vuetify.breakpoint.smAndDown ? 0 : null,
         }">
-            <v-img :src="background" :height="parallaxHeight" class="w-100 text-center" position="50% 25%">
+            <v-img :src="background" :height="parallaxHeight" class="w-100 text-center" position="50% 50%">
                 <template #placeholder>
                     <v-skeleton-loader type="image" :height="parallaxHeight"></v-skeleton-loader>
                 </template>

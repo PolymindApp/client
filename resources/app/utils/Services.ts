@@ -10,6 +10,7 @@ import db, {Voice, Deck, Dictionary, Language} from '@/database';
 import { Table } from 'dexie';
 import DictionaryCategoryModel from "@/models/DictionaryCategoryModel";
 import VoiceModel from "@/models/VoiceModel";
+import MediaModel from "@/models/MediaModel";
 
 export default class Services {
 
@@ -466,5 +467,109 @@ export default class Services {
                 return items;
             })
             .then(users => users.map((user: UserModel) => new UserModel(user)));
+    }
+
+    /**
+     * Save media
+     *
+     * @param media
+     */
+    static saveMedia(media: MediaModel): Promise<MediaModel> {
+        return new Promise((resolve, reject) => {
+            if (media.isDifferentFromOriginal()) {
+                const data = media.toSaveObject();
+                return this.onlineFirst(
+                    db.medias,
+                    data.id
+                        ? () => Query.put('/media/' + data.id, data)
+                        : () => Query.post('/media', data),
+                    data.id
+                        ? model => model.update(data.id, data)
+                        : model => model.add(data)
+                )
+                    .then(response => new MediaModel(response));
+            } else {
+                resolve(media);
+            }
+        })
+    }
+
+    /**
+     * Save dictionary
+     *
+     * @param dictionary
+     */
+    static saveDictionary(dictionary: DictionaryModel): Promise<DictionaryModel> {
+        return new Promise((resolve, reject) => {
+            if (dictionary.isDifferentFromOriginal()) {
+                this.saveMedia(dictionary.data.cover).then(media => {
+                    dictionary.data.media_id = media.data.id;
+                    const data = dictionary.toSaveObject();
+                    return this.onlineFirst(
+                        db.dictionaries,
+                        data.id
+                            ? () => Query.put('/admin/dictionary/' + data.id, data)
+                            : () => Query.post('/admin/dictionary', data),
+                        data.id
+                            ? model => model.update(data.id, data)
+                            : model => model.add(data)
+                    )
+                        .catch(reject)
+                        .then(response => new DictionaryModel(response));
+                })
+            } else {
+                resolve(dictionary);
+            }
+        })
+    }
+
+    /**
+     * Delete specific dictionary
+     */
+    static deleteDictionary(id: string): Promise<any> {
+        return this.onlineFirst(
+            db.dictionaries,
+            () => Query.delete('/admin/dictionary/' + id),
+            model => model.delete(id),
+        );
+    }
+
+    /**
+     * Save dictionary items
+     */
+    static saveDictionaryItems(model: DictionaryItemModel): Promise<DictionaryItemModel> {
+        return new Promise((resolve, reject) => {
+            if (model.isDifferentFromOriginal()) {
+                return this.saveMedia(model.data.cover).then(media => {
+                    model.data.media_id = media.data.id;
+                    const data = model.toSaveObject();
+                    return this.onlineFirst(
+                        db.dictionaries,
+                        data.id
+                            ? () => Query.put('/admin/dictionary/' + model.data.dictionary_id + '/items/' + data.id, data)
+                            : () => Query.post('/admin/dictionary/' + model.data.dictionary_id + '/items', data),
+                        data.id
+                            ? model => model.update(data.id, data)
+                            : model => model.add(data)
+                    )
+                        .catch(reject)
+                        .then(response => new DictionaryItemModel(response));
+                })
+            } else {
+                resolve(model);
+            }
+        })
+    }
+
+    /**
+     * Delete specific dictionary item
+     */
+    static deleteDictionaryItems(model: DictionaryItemModel): Promise<any> {
+        const id = model.data.id;
+        return this.onlineFirst(
+            db.dictionaries,
+            () => Query.delete('/admin/dictionary/' + model.data.dictionary_id + '/items/' + id),
+            model => model.delete(id),
+        );
     }
 }

@@ -17,5 +17,6 @@ export default class LanguageModel extends BaseModel {
     constructor(data: any = {}) {
         super(data);
         this.mapDefaultValues(data);
+        this.setOriginalDataJSON(this.data);
     }
 }

@@ -15,6 +15,11 @@ class DictionaryCategoryI18n extends Model
 
     protected $fillable = [];
 
+    public function language()
+    {
+        return $this->belongsTo('App\Models\Language', 'language_id');
+    }
+
     public function created_by()
     {
         return $this->belongsTo('App\Models\User', 'created_by');

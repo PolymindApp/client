@@ -14,7 +14,12 @@ class DictionaryI18n extends Model
     public $table = 'dictionary_i18n';
     public $incrementing = false;
 
-    protected $fillable = [];
+    protected $fillable = [
+        'text',
+        'type',
+        'dictionary_id',
+        'language_id',
+    ];
 
     public function scopeOfLanguage($query, $languageId)
     {

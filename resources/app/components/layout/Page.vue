@@ -35,6 +35,7 @@ import DesktopNav from '@/components/layout/DesktopNav.vue';
 import MobileNav from '@/components/layout/MobileNav.vue';
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator';
 import globalVariables from "@/global";
+import { TranslateResult } from "vue-i18n";
 
 @Component({
     components: {
@@ -44,16 +45,16 @@ import globalVariables from "@/global";
 })
 export default class Page extends Vue {
     @Prop({ type: Boolean, default: false }) loading: boolean;
-    @Prop({ type: String, default: null }) title: string;
+    @Prop({ default: null }) title: string | TranslateResult;
 
     @Watch('$i18n.locale')
     @Watch('_title')
     onLocaleChanged() {
-        document.title = this._title;
+        document.title = <string>this._title;
     }
 
-    get _title() {
-        return this.title || this.$i18n.t('route.' + this.$route.name).toString();
+    get _title(): string | TranslateResult {
+        return this.title || this.$i18n.t('route.' + this.$route.name);
     }
 
     get showMobileNav() {
@@ -64,7 +65,7 @@ export default class Page extends Vue {
     }
 
     created() {
-        document.title = this._title;
+        document.title = <string>this._title;
     }
 }
 </script>

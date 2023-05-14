@@ -9,7 +9,11 @@ export default {
             formErrors?: any,
             showWarning = true,
         ) {
-            if (showWarning) {
+            if (reason.errors) {
+                Object.assign(formErrors, reason.errors);
+            }
+
+            if (showWarning || !reason.errors) {
                 Object.assign(globalVariables.error, {
                     guid: Hash.guid(),
                     ...reason,
@@ -17,9 +21,7 @@ export default {
                 })
             }
 
-            if (reason.errors) {
-                Object.assign(formErrors, reason.errors);
-            }
+            throw new Error(reason);
 		};
 	}
 };

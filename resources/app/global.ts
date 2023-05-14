@@ -25,6 +25,7 @@ export default {
 		body: '',
 		buttons: [],
 		attrs: {},
+		on: {},
 	},
     socialLinks: [
         { icon: 'mdi-facebook', tooltip: 'Facebook', href: process.env.FACEBOOK_URL },

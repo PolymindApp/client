@@ -9,6 +9,12 @@ class Language extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'id',
+        'name',
+        'code',
+    ];
+
     /**
      * The attributes that should be hidden for serialization.
      *

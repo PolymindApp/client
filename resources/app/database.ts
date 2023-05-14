@@ -6,6 +6,7 @@ export interface I18n {
     text: string;
     type?: string | null;
     voice_id?: number | null;
+    language_id?: number | null;
     language: Language;
 }
 
@@ -89,6 +90,7 @@ export interface Media {
 export interface Dictionary {
     id?: string | null;
     dictionary_category_id?: string | null;
+    media_id?: string | null;
     total_items: number;
     cover: Media;
     category: DictionaryCategory,

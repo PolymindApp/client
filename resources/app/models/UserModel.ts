@@ -23,7 +23,9 @@ export default class UserModel extends BaseModel {
     constructor(data: any = {}) {
         super(data);
         this.mapDefaultValues(data);
+        this.setOriginalDataJSON(this.data);
     }
+
     hasRole(key: string | Array<string>) {
         const keys = Array.isArray(key) ? key : [key];
         return this.data.roles.findIndex((role: IRole) => keys.includes(role.key) || role.key === 'dev') !== -1;

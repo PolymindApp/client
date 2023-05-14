@@ -2,9 +2,14 @@
 
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminDictionaryController;
+use App\Http\Controllers\AdminDictionaryItemsController;
+use App\Http\Controllers\AdminVoiceController;
+use App\Http\Controllers\AdminLanguageController;
+use App\Http\Controllers\AdminRoleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\VoiceController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\DeckController;
 use App\Http\Controllers\LogController;
@@ -22,6 +27,12 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+function RegisterDatatableRoutes($path, $class) {
+    Route::post($path . '/bulk', [$class, 'bulkStore']);
+    Route::delete($path . '/bulk', [$class, 'bulkDestroy']);
+    Route::resource($path, $class);
+}
 
 # Public
 Route::post('/auth/verify', [AuthController::class, 'isLoggedIn']);
@@ -42,6 +53,7 @@ Route::group(['middleware' => ['auth:sanctum', 'verified', 'lang']], function() 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/language', [LanguageController::class, 'index']);
     Route::get('/voice', [VoiceController::class, 'index']);
+    Route::resource('/media', MediaController::class);
     Route::resource('deck', DeckController::class);
     Route::post('/card/bulk', [CardController::class, 'bulkStore']);
     Route::put('/card/bulk', [CardController::class, 'bulkUpdate']);
@@ -56,8 +68,12 @@ Route::group(['middleware' => ['auth:sanctum', 'verified', 'lang']], function() 
 
     # Admin
     Route::group(['middleware' => ['admin']], function() {
-        Route::resource('/admin/user', AdminUserController::class);
-        Route::resource('/admin/dictionary', AdminDictionaryController::class);
+        RegisterDatatableRoutes('/admin/user', AdminUserController::class);
+        RegisterDatatableRoutes('/admin/dictionary', AdminDictionaryController::class);
+        RegisterDatatableRoutes('/admin/voice', AdminVoiceController::class);
+        RegisterDatatableRoutes('/admin/language', AdminLanguageController::class);
+        RegisterDatatableRoutes('/admin/role', AdminRoleController::class);
+        Route::resource('/admin/dictionary/{uuid}/items', AdminDictionaryItemsController::class);
     });
 });
 

@@ -11,6 +11,7 @@ const plugins = [
         'process.env': {
             API_URL: JSON.stringify(process.env.API_URL),
             APP_URL: JSON.stringify(process.env.APP_URL),
+            DECLARE_BUG_URL: JSON.stringify(process.env.DECLARE_BUG_URL),
             FACEBOOK_URL: JSON.stringify(process.env.FACEBOOK_URL),
             TWITTER_URL: JSON.stringify(process.env.TWITTER_URL),
             YOUTUBE_URL: JSON.stringify(process.env.YOUTUBE_URL),
@@ -54,7 +55,14 @@ mix.ts('resources/app/main.ts', 'public/js/app.js')
         plugins,
         devServer: {
             host: '0.0.0.0',
-            port: 8079,
+            port: parseInt(process.env.HMR_PORT) || 8079,
+            allowedHosts: 'all',
+            proxy: {
+                '^/': {
+                    target: "http://web.local:8079",
+                    ws: true,
+                },
+            },
         },
         resolve: {
             alias: {
@@ -64,8 +72,9 @@ mix.ts('resources/app/main.ts', 'public/js/app.js')
     })
     .options({
         hmrOptions: {
-            host: 'localhost',
-            port: 8079
+            host: process.env.HMR_HOST || 'localhost',
+            port: parseInt(process.env.HMR_PORT) || 8079,
+            allowedHosts: 'all',
         },
     })
     .disableNotifications();

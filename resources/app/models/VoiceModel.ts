@@ -26,5 +26,6 @@ export default class VoiceModel extends BaseModel {
         super(data);
         this.mapDefaultValues(data);
         this.data.language = new LanguageModel(this.data.language);
+        this.setOriginalDataJSON(this.data);
     }
 }

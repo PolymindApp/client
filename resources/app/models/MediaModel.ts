@@ -13,5 +13,6 @@ export default class MediaModel extends BaseModel {
     constructor(data: any = {}) {
         super(data);
         this.mapDefaultValues(data);
+        this.setOriginalDataJSON(this.data);
     }
 }

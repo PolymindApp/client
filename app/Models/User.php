@@ -16,6 +16,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $primaryKey = 'id';
     protected $keyType = 'uuid';
+    public $incrementing = false;
 
     protected $with = [
         'roles',

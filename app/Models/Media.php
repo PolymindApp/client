@@ -7,6 +7,7 @@ use App\Models\Traits\HasUuid;
 use App\Models\Traits\HasCreatedUpdatedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Media extends Model
 {
@@ -15,7 +16,11 @@ class Media extends Model
     public $table = 'medias';
     public $incrementing = false;
 
-    protected $fillable = [];
+    protected $fillable = [
+        'mime_type',
+        'file_size',
+        'url',
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -29,4 +34,12 @@ class Media extends Model
         'updated_at',
         'deleted_at',
     ];
+
+    public function delete()
+    {
+        $lastIdx = strrpos($this->url,"/medias/");
+        $filename = substr($this->url, $lastIdx);
+        Storage::disk('s3')->delete($filename);
+        return parent::delete();
+    }
 }

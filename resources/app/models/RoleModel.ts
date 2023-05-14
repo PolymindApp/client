@@ -20,5 +20,6 @@ export default class RoleModel extends BaseModel {
     constructor(data: any = {}) {
         super(data);
         this.mapDefaultValues(data);
+        this.setOriginalDataJSON(this.data);
     }
 }

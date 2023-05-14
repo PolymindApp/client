@@ -2,21 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Notifications\VerifyEmail;
+use App\Models\Dictionary;
+use App\Models\DictionaryI18n;
+use App\Models\DictionaryItem;
+use App\Models\Media;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-class AdminDictionaryController extends Controller
+use Illuminate\Support\Facades\Validator;
+
+class AdminDictionaryController extends BaseAdminController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index(): Response
-    {
-        return response(User::all());
-    }
+    protected $model = Dictionary::class;
 
     /**
      * Store a newly created resource in storage.
@@ -26,34 +22,21 @@ class AdminDictionaryController extends Controller
      */
     public function store(Request $request): Response
     {
-        $this->validateRequest($request, true);
+        $this->validateRequest($request);
 
         $fields = $request->all();
-        $fields['password'] = bcrypt($fields['password']);
 
-        $user = User::create($fields);
-        $token = $user->createToken(env('APP_KEY'))->plainTextToken;
-        $user->notify(new VerifyEmail());
-
-        return response([
-            'user' => $user,
-            'token' => $token,
-        ], 201);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  string  $id
-     * @return Response
-     */
-    public function show(string $id): Response
-    {
-        $model = User::find($id);
-        if (!$model) {
-            return response(['message' => 'NOT_FOUND'], 404);
+        $model = Dictionary::create($fields);
+        foreach($fields['i18n'] as $i18n) {
+            if (!$i18n['id']) {
+                $i18n['dictionary_id'] = $model->id;
+                $i18n['language_id'] = $i18n['language']['id'];
+                DictionaryI18n::create($i18n);
+            }
         }
-        return response($model);
+
+        $model = Dictionary::find($model->id);
+        return response($model, 201);
     }
 
     /**
@@ -65,16 +48,23 @@ class AdminDictionaryController extends Controller
      */
     public function update(Request $request, string $id): Response
     {
-        $hasPassword = (bool) $request->get('password');
-        $this->validateRequest($request, $hasPassword);
+        $this->validateRequest($request);
 
         $fields = $request->all();
-        if ($hasPassword) {
-            $fields['password'] = bcrypt($fields['password']);
+
+        $model = Dictionary::find($id);
+        foreach($fields['i18n'] as $i18n) {
+            if ($i18n['id']) {
+                $i18n['dictionary_id'] = $id;
+                $i18n['language_id'] = $i18n['language']['id'];
+                $i18nModel = DictionaryI18n::find($i18n['id']);
+                $i18nModel->update($i18n);
+            }
         }
 
-        $model = User::find($id);
+        unset($fields['id']);
         $model->update($fields);
+
         return response($model);
     }
 
@@ -86,31 +76,28 @@ class AdminDictionaryController extends Controller
      */
     public function destroy(string $id): Response
     {
-        return response(User::destroy($id));
-    }
-
-    /**
-     * Search for resources in storage
-     *
-     * @return Response
-     */
-    public function search(): Response
-    {
-        if (!isset($_GET['q'])) {
-            return response(['message' => 'NO_QUERY_PARAM'], 400);
+        $dictionary = Dictionary::find($id);
+        foreach($dictionary->i18n as $i18n) {
+            DictionaryI18n::destroy($i18n->id);
         }
-        $query = trim($_GET['q']);
-        $results = User::where('email', 'LIKE', '%' . $query . '%')->get();
-        return response($results);
+        if ($dictionary->cover) {
+            Media::destroy($dictionary->cover->id);
+        }
+
+        $results = DictionaryItem::where('dictionary_id', '=', $id)->get();
+        foreach($results as $item) {
+            DictionaryItem::destroy($item->id);
+        }
+
+        return response(Dictionary::destroy($id));
     }
 
-    private function validateRequest(Request $request, $passwordRequired = false)
+    protected function validateItem($fields)
     {
-        $fields = [
-            'name' => 'string',
-            'email' => 'required|email:rfc,dns|unique:users,email',
-            'password' => ($passwordRequired ? 'required|' : '') . 'string|confirmed',
-        ];
-        $request->validate($fields);
+        return Validator::make($fields, [
+            'dictionary_category_id' => 'required',
+            'media_id' => 'required',
+            'i18n' => 'required|array',
+        ])->validate();
     }
 }

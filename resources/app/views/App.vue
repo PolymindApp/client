@@ -2,7 +2,7 @@
 	<v-app>
         <Snack v-model="$root.snack.visible" :body="$root.snack.body" v-bind="$root.snack" transition="slide-y-reverse-transition" bottom left />
         <ErrorHandler :value="$root.error" max-width="500" icon="mdi-alert" color="error" dark scrollable :fullscreen="$vuetify.breakpoint.smAndDown" />
-        <GlobalModal v-model="$root.modal.visible" v-bind="{ ...$root.modal, ...$root.modal.attrs }" scrollable />
+        <GlobalModal v-model="$root.modal.visible" v-bind="{ ...$root.modal, ...$root.modal.attrs }" v-on="$root.modal.on" scrollable />
         <Intro v-if="false" :first.sync="tourFirst" />
 
         <v-fade-transition>

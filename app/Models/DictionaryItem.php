@@ -14,7 +14,11 @@ class DictionaryItem extends Model
 
     public $incrementing = false;
 
-    protected $fillable = [];
+    protected $fillable = [
+        'id',
+        'dictionary_id',
+        'media_id',
+    ];
 
     protected $with = [
         'cover',

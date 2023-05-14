@@ -366,6 +366,7 @@ export default {
         audios: {},
         ambience: new Audio(),
         startTime: null,
+        endTime: null,
         pauseTime: null,
         playbackSettingsDialog: {
             visible: false,

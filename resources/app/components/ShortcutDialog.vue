@@ -13,34 +13,17 @@
     </Modal>
 </template>
 
-<script>
-import Modal from './generic/Modal';
+<script lang="ts">
+import {Vue, Component, Prop, PropSync} from 'vue-property-decorator';
+import Modal from '@/components/generic/Modal.vue';
 
-export default {
-    name: "ShortcutDialog",
-
-    components: { Modal },
-
-    props: {
-        visible: {
-            type: Boolean,
-            default: false,
-        },
-        shortcuts: {
-            type: Array,
-            default: () => ([]),
-        },
-    },
-
-    computed: {
-        _visible: {
-            get() {
-                return this.visible;
-            },
-            set(value) {
-                this.$emit('update:visible', value);
-            },
-        },
-    },
+@Component({
+    components: {
+        Modal,
+    }
+})
+export default class ShortcutDialog extends Vue {
+    @PropSync('visible', { default: false }) _visible!: boolean;
+    @Prop({ default: () => ([]) }) shortcuts!: Array<any>;
 }
 </script>

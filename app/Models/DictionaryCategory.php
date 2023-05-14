@@ -18,7 +18,7 @@ class DictionaryCategory extends Model
 
     protected $with = [
         'cover',
-        'i18n',
+        'i18n.language',
     ];
 
     public function cover()
@@ -28,10 +28,10 @@ class DictionaryCategory extends Model
 
     public function i18n()
     {
-        $language = Language::where(['code' => App::getLocale()])->orWhere(['code' => 'en-US'])->first();
+//        $language = Language::where(['code' => App::getLocale()])->orWhere(['code' => 'en-US'])->first();
         return $this->hasMany('App\Models\DictionaryCategoryI18n', 'dictionary_category_id', 'id')
-            ->select(['id', 'dictionary_category_id', 'text', 'language_id'])
-            ->where(['language_id' => $language->id]);
+            ->select(['id', 'dictionary_category_id', 'text', 'language_id']);
+//            ->where(['language_id' => $language->id]);
     }
 
     public function created_by()

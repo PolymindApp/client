@@ -4,6 +4,7 @@ import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
 export default class BaseModel {
 
     public data: any = {};
+    public originalDataJSON: string | null = null;
     protected defaultStructure: any = {}
 
     constructor(data: any = {}) {}
@@ -26,7 +27,7 @@ export default class BaseModel {
                 }
             });
         }
-        mapObject(this.data, data, this.defaultStructure);
+        mapObject(this.data, data || {}, this.defaultStructure);
 
         ['created_at', 'updated_at'].forEach(field => {
             if (this.data[field]) {
@@ -35,8 +36,51 @@ export default class BaseModel {
         })
     }
 
+    setData(data: any = {}) {
+        this.mapDefaultValues(data);
+        this.setOriginalDataJSON(this.data);
+    }
+
+    setOriginalDataJSON(data: any): any {
+        const newData = this.toSaveObject();
+        this.originalDataJSON = JSON.stringify(newData);
+        return newData;
+    }
+
+    isDifferentFromOriginal(data?: any): boolean {
+        if (data) {
+            return JSON.stringify(data) !== this.originalDataJSON;
+        } else {
+            const saveData = this.toSaveObject();
+            return JSON.stringify(saveData) !== this.originalDataJSON;
+        }
+    }
+
+    toSaveObject(): {[key: string]: any} {
+        const obj: {[key: string]: any} = {};
+        Object.keys(this.data).forEach(key => {
+            let value = this.data[key];
+            if (value instanceof BaseModel) {
+                obj[key] = value.toSaveObject();
+            } else if (Array.isArray(value)) {
+                obj[key] = [];
+                value.forEach((val, valIdx) => {
+                    if (val instanceof BaseModel) {
+                        obj[key][valIdx] = val.toSaveObject();
+                    } else {
+                        obj[key][valIdx] = val;
+                    }
+                })
+            } else {
+                obj[key] = value;
+            }
+        });
+
+        return obj;
+    }
+
     clone(clean = true): BaseModel {
-        const clone = this.constructor(Vue.prototype.$deepClone(this.data));
+        const clone = this.constructor(this.toSaveObject());
         if (clean) {
             ['id', 'created_at', 'updated_at', 'created_by', 'updated_by'].forEach(key => {
                 if (clone[key]) {
@@ -45,5 +89,9 @@ export default class BaseModel {
             })
         }
         return clone;
+    }
+
+    isValid(): boolean {
+        return true;
     }
 }

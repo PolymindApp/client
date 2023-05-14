@@ -9,12 +9,31 @@ class Voice extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'id',
+        'language_id',
+        'name',
+        'gender',
+        'neural',
+        'standard',
+        'bilingual',
+        'child',
+    ];
+
     protected $with = [
         'language',
     ];
 
-    public function language(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    protected $casts = [
+        'gender' => 'boolean',
+        'neural' => 'boolean',
+        'standard' => 'boolean',
+        'bilingual' => 'boolean',
+        'child' => 'boolean',
+    ];
+
+    public function language(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->belongsTo('App\Models\Language', 'language_id');
+        return $this->hasOne('App\Models\Language', 'id', 'language_id')->latest();
     }
 }

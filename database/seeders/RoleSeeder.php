@@ -31,5 +31,15 @@ class RoleSeeder extends Seeder
             'name' => 'Moderator',
             'description' => 'Can review content.',
         ]);
+        DB::table('roles')->insert([
+            'key' => 'teacher',
+            'name' => 'Teacher',
+            'description' => 'Can create classes and manage students',
+        ]);
+        DB::table('roles')->insert([
+            'key' => 'student',
+            'name' => 'Student',
+            'description' => 'Can request to join a class',
+        ]);
     }
 }
