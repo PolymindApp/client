@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminDictionaryController;
-use App\Http\Controllers\AdminDictionaryItemsController;
+use App\Http\Controllers\AdminDictionaryItemController;
 use App\Http\Controllers\AdminVoiceController;
 use App\Http\Controllers\AdminLanguageController;
 use App\Http\Controllers\AdminRoleController;
+use App\Http\Controllers\SchoolingClassController;
+use App\Http\Controllers\SchoolingStudentController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\VoiceController;
 use App\Http\Controllers\MediaController;
@@ -15,6 +18,8 @@ use App\Http\Controllers\DeckController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\DictionaryController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\DatatablePresetController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,11 +55,15 @@ Route::group(['middleware' => ['guest', 'lang']], function() {
 # Private (default users)
 Route::group(['middleware' => ['auth:sanctum', 'verified', 'lang']], function() {
     Route::post('/auth/verify', [AuthController::class, 'isLoggedIn']);
+    Route::get('/user/{uuid}/profile', [UserController::class, 'profile']);
+    Route::get('/user/{uuid}/notifications', [UserController::class, 'notifications']);
+    Route::post('/user/{uuid}', [UserController::class, 'store']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/language', [LanguageController::class, 'index']);
     Route::get('/voice', [VoiceController::class, 'index']);
     Route::resource('/media', MediaController::class);
     Route::resource('deck', DeckController::class);
+    Route::post('/deck/{id}/clone', [DeckController::class, 'clone']);
     Route::post('/card/bulk', [CardController::class, 'bulkStore']);
     Route::put('/card/bulk', [CardController::class, 'bulkUpdate']);
     Route::delete('/card/bulk', [CardController::class, 'bulkDestroy']);
@@ -65,15 +74,20 @@ Route::group(['middleware' => ['auth:sanctum', 'verified', 'lang']], function() 
     Route::get('dictionary/category', [DictionaryController::class, 'category']);
     Route::get('dictionary/{uuid}', [DictionaryController::class, 'show']);
     Route::get('dictionary/{uuid}/items', [DictionaryController::class, 'items']);
+    Route::post('/notifications/acknowledge', [NotificationController::class, 'acknowledge']);
+    RegisterDatatableRoutes('/datatable_preset', DatatablePresetController::class);
 
     # Admin
     Route::group(['middleware' => ['admin']], function() {
         RegisterDatatableRoutes('/admin/user', AdminUserController::class);
         RegisterDatatableRoutes('/admin/dictionary', AdminDictionaryController::class);
+        RegisterDatatableRoutes('/admin/dictionary/{uuid}/items', AdminDictionaryItemController::class);
         RegisterDatatableRoutes('/admin/voice', AdminVoiceController::class);
         RegisterDatatableRoutes('/admin/language', AdminLanguageController::class);
         RegisterDatatableRoutes('/admin/role', AdminRoleController::class);
-        Route::resource('/admin/dictionary/{uuid}/items', AdminDictionaryItemsController::class);
+        RegisterDatatableRoutes('/admin/role', AdminRoleController::class);
+        RegisterDatatableRoutes('/schooling/class', SchoolingClassController::class);
+        RegisterDatatableRoutes('/schooling/student', SchoolingStudentController::class);
     });
 });
 

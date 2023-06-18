@@ -6,6 +6,7 @@ import I18nModel from "@/models/I18nModel";
 export default class DictionaryItemModel extends BaseModel {
 
     public data: any = {};
+    public resource = '/admin/dictionary/i18n'
 
     protected defaultStructure: DictionaryItem = {
         id: null,

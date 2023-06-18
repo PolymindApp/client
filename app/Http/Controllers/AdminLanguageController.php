@@ -6,7 +6,7 @@ use App\Models\Language;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class AdminLanguageController extends BaseAdminController
+class AdminLanguageController extends BaseCrudController
 {
     protected $model = Language::class;
     protected $searchFields = ['name', 'code'];
@@ -14,7 +14,7 @@ class AdminLanguageController extends BaseAdminController
     /**
      * @throws ValidationException
      */
-    protected function validateItem($fields)
+    protected function validateItem($fields): array
     {
         return Validator::make($fields, [
             'name' => 'string|required|min:3|max:255',

@@ -10,9 +10,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Log extends Model
 {
-    use HasFactory, HasUuid, HasCreatedUpdatedBy, CheckOwnership;
+    use HasFactory, HasUuid, HasCreatedUpdatedBy;
 
     public $incrementing = false;
 
-    protected $fillable = [];
+    protected $fillable = [
+        'version',
+        'type',
+        'meta',
+    ];
+
+    protected $casts = [
+        'meta' => 'json',
+    ];
 }

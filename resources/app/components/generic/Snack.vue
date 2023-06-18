@@ -11,41 +11,30 @@
 	</v-snackbar>
 </template>
 
-<script>
-export default {
-	name: "Snack",
+<script lang="ts">
+import { TranslateResult } from 'vue-i18n';
+import { Component, Vue, Watch, Prop } from 'vue-property-decorator';
 
-	props: {
-		value: {
-			type: Boolean,
-            default: false,
-		},
-		icon: {
-			type: String,
-            default: null,
-		},
-		body: {
-            required: true,
-			type: String,
-            default: null,
-		},
-	},
+@Component
+export default class Snack extends Vue {
 
-    data: () => ({
-        visible: false,
-    }),
+    @Prop({ default: false }) value: boolean
+    @Prop({ default: null }) icon: string | null
+    @Prop({ default: null }) body: string | TranslateResult | null
 
-    watch: {
-        visible(value) {
-            if (!value) {
-                this.$emit('input', value);
-            }
-        },
-        value(value) {
-            if (value) {
-                this.visible = true;
-            }
-        },
-    },
+    visible = false
+
+    @Watch('visible')
+    onVisibleChanged(value: boolean){
+        if (!value) {
+            this.$emit('input', value);
+        }
+    }
+    @Watch('value')
+    onValueChanged(value: any){
+        if (value) {
+            this.visible = true;
+        }
+    }
 }
 </script>

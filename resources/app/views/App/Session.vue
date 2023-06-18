@@ -1136,7 +1136,7 @@ export default {
             this.loading = true;
             (this.$route.name === 'session.dictionary'
                 ? Services.getDictionaryItems(this.$route.params.uuid)
-                : Services.getCards(this.deck ? this.deck.data.id : undefined))
+                : Services.getCards(this.$route.params.uuid === 'unclassified' ? null : this.$route.params.uuid))
                 .then(response => {
                     if (this.$route.name === 'session.dictionary') {
                         return new Promise((resolve, reject) => {

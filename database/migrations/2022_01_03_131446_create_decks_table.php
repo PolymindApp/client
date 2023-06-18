@@ -14,7 +14,7 @@ class CreateDecksTable extends Migration
     public function up()
     {
         Schema::create('decks', function (Blueprint $table) {
-            $table->uuid('id')->unique();
+            $table->uuid('id')->unique()->primary();
             $table->foreignId('default_front_voice_id')->nullable()->references('id')->on('voices');
             $table->foreignId('default_back_voice_id')->nullable()->references('id')->on('voices');
             $table->string('name');

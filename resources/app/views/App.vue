@@ -37,7 +37,7 @@
 
 		<v-main>
 			<v-sheet v-if="loaded" class="fill-height" color="background">
-                <router-view :key="$route.fullPath" />
+                <router-view :key="$route.matched.length > 1 ? '' : $route.fullPath" />
 			</v-sheet>
 		</v-main>
 
@@ -61,6 +61,7 @@ import DeckModel from "@/models/DeckModel";
 import Services from "@/utils/Services";
 import EventBus from "@/utils/EventBus";
 import { rtlLanguages } from "@/locales";
+import moment from "moment";
 
 let languageSwitchBus;
 let checkFocusTimeout;
@@ -131,7 +132,7 @@ export default Vue.extend({
 		},
         handleWindowUnload() {
             this.$settings.saveLocal(this.$store.state.settings);
-            if (navigator.serviceWorker.controller) {
+            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
                 navigator.serviceWorker.controller.postMessage({
                     type: 'settings',
                     data: this.$store.state.settings,
@@ -141,14 +142,15 @@ export default Vue.extend({
         load() {
             this.loading = true;
             return Promise.all([
-                Services.syncData(),
+                // Services.syncData(),
                 this.$settings.loadRemote(),
             ])
-                .then(([data, settings]) => {
-                    data.decks.unshift(new DeckModel({ i18n: 'state.unclassified', id: null }));
-                    this.$store.commit('dictionaries', data.dictionaries);
-                    this.$store.commit('decks', data.decks);
-                    Object.assign(this.$root, { decks: data.decks });
+                .then(([settings]) => {
+                // .then(([data, settings]) => {
+                    // data.decks.unshift(new DeckModel({ i18n: 'state.unclassified', id: null }));
+                    // this.$store.commit('dictionaries', data.dictionaries);
+                    // this.$store.commit('decks', data.decks);
+                    // Object.assign(this.$root, { decks: data.decks });
                     this.$store.commit('settings', settings);
                 })
                 .catch(this.$handleError)
@@ -178,6 +180,8 @@ export default Vue.extend({
             next();
         });
         document.title = this.$i18n.t('route.' + this.$route.name);
+
+        moment.locale(this.$i18n.locale);
     },
 
     destroyed() {

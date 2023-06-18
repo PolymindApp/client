@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
 
-class BaseAdminController extends Controller
+class BaseCrudController extends Controller
 {
     protected $model;
     protected $searchFields = [];
+    protected $filters = [];
 
     /**
      * Display a listing of the resource.
@@ -34,6 +36,10 @@ class BaseAdminController extends Controller
             } else {
                 $query->orWhere($field, 'like', '%' . $search . '%');
             }
+        }
+
+        foreach($this->filters as $filter) {
+            $filter($query);
         }
 
         $count = $query->count();
@@ -69,7 +75,7 @@ class BaseAdminController extends Controller
      */
     public function bulkStore(Request $request): Response
     {
-        $users = [];
+        $results = [];
         $items = $request->all();
 
         foreach($items as $item) {
@@ -77,15 +83,15 @@ class BaseAdminController extends Controller
         }
         foreach($items as $item) {
             if ($item['id'] === null) {
-                $user = $this->model::create($item);
+                $newItem = $this->model::create($item);
             } else {
-                $user = $this->model::find($item['id']);
-                $user->update($item);
+                $newItem = $this->model::find($item['id']);
+                $newItem->update($item);
             }
-            $users[] = $user;
+            $results[] = $newItem;
         }
 
-        return response($users, 201);
+        return response($results, 201);
     }
 
     /**
@@ -105,8 +111,8 @@ class BaseAdminController extends Controller
 
     /**
      */
-    protected function validateItem($fields)
+    protected function validateItem($fields): array
     {
-        return true;
+        return [];
     }
 }

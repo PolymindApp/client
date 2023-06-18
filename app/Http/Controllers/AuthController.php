@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Crypt;
@@ -20,6 +21,9 @@ class AuthController extends Controller
     public function isLoggedIn(): Response
     {
         $user = auth()->user();
+        if ($user) {
+            $user = User::find($user->id);
+        }
         return response($user === null ? false : $user, !$user ? 401 : 200);
     }
 
@@ -87,6 +91,8 @@ class AuthController extends Controller
 
     public function logout(Request $request): Response
     {
+        Log::channel('db')->info('LOGOUT');
+
         auth()->user()->tokens()->delete();
         return response(1, 200);
     }
@@ -111,6 +117,8 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken(env('APP_KEY'))->plainTextToken;
+
+        Log::channel('db')->info('LOGIN');
 
         return response([
             'user' => $user,

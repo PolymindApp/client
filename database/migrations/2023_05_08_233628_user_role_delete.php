@@ -34,5 +34,6 @@ class UserRoleDelete extends Migration
             $table->foreign('user_id')->nullable()->references('id')->on('users');
             $table->foreign('role_id')->nullable()->references('id')->on('roles');
         });
+
     }
 }

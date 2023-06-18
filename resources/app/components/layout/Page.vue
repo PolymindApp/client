@@ -17,12 +17,9 @@
         <slot></slot>
 
         <!-- FOOTER -->
-        <div class="w-100" style="flex: 0">
+        <div v-if="showMobileNav" class="w-100" style="flex: 0">
             <slot name="footer">
-
-                <!-- MOBILE FOOTER -->
                 <MobileNav
-                    v-if="showMobileNav"
                     :loading="loading"
                 />
             </slot>

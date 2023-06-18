@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Traits\CheckOwnership;
+use App\Models\Traits\CrudLog;
 use App\Models\Traits\HasUuid;
 use App\Models\Traits\HasCreatedUpdatedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Card extends Model
 {
-    use HasFactory, HasUuid, HasCreatedUpdatedBy, CheckOwnership;
+    use HasFactory, HasUuid, HasCreatedUpdatedBy, CheckOwnership, CrudLog;
 
     public $incrementing = false;
 

@@ -33,7 +33,7 @@ class RoleSeeder extends Seeder
         ]);
         DB::table('roles')->insert([
             'key' => 'teacher',
-            'name' => 'Teacher',
+            'name' => 'Student',
             'description' => 'Can create classes and manage students',
         ]);
         DB::table('roles')->insert([

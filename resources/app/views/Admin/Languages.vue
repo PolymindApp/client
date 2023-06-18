@@ -4,13 +4,16 @@
             <DataManager
                 v-model="languages"
                 :headers="headers"
+                :fields="headers"
                 :default-model="defaultModel"
                 :sort-by="['data.name']"
                 :sort-desc="[false]"
+                :available-views="['datatable']"
                 resource="/admin/language"
                 id="adminLanguages"
                 class="fill-height"
                 tile
+                flex-height
             />
         </div>
     </Page>
@@ -18,7 +21,6 @@
 
 <script lang="ts">
 import Page from "@/components/layout/Page.vue";
-import DataManager from "@/components/DataManager.vue";
 import LanguageModel from '@/models/LanguageModel';
 import { Component, Vue } from 'vue-property-decorator';
 import Rules from '@/utils/Rules';
@@ -26,7 +28,6 @@ import Rules from '@/utils/Rules';
 @Component({
     components: {
         Page,
-        DataManager,
     }
 })
 export default class Languages extends Vue {

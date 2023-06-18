@@ -48,6 +48,11 @@ return [
     */
 
     'channels' => [
+        'db' => [
+            'driver' => 'custom',
+            'via'    => \App\Handlers\DatabaseLogger::class,
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],

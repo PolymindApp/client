@@ -4,13 +4,18 @@
             <DataManager
                 v-model="dictionaries"
                 :headers="headers"
+                :fields="fields"
                 :default-model="defaultModel"
-                :sort-by="['data.i18n']"
-                :sort-desc="[false]"
+                :sort-by="['data.created_at']"
+                :sort-desc="[true]"
+                :modal-attrs="{
+                    maxWidth: 1000,
+                }"
                 resource="/admin/dictionary"
                 id="adminDictionaries"
                 class="fill-height"
                 tile
+                flex-height
             />
         </div>
     </Page>
@@ -19,17 +24,15 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import Page from "@/components/layout/Page.vue";
-import DataManager from "@/components/DataManager.vue";
 import DictionaryModel from '@/models/DictionaryModel';
 import Services from "@/utils/Services";
-import I18nModel from '@/models/I18nModel';
 import Rules from '@/utils/Rules';
-import DictionaryI18nModel from '@/models/DictionaryI18nModel';
+import DictionaryItemModel from '@/models/DictionaryItemModel';
+import Query from '@/utils/Query';
 
 @Component({
     components: {
         Page,
-        DataManager,
     }
 })
 export default class Dictionaries extends Vue {
@@ -37,6 +40,7 @@ export default class Dictionaries extends Vue {
     dictionaries: Array<DictionaryModel> = []
     defaultModel: new () => DictionaryModel = DictionaryModel
     headers: Array<any> = []
+    fields: Array<any> = []
 
     created() {
         const rules = {
@@ -44,34 +48,79 @@ export default class Dictionaries extends Vue {
         };
 
         this.headers = [
-            { value: 'data.cover', text: 'Cover', editable: true, width: 0, class: 'text-no-wrap', field: {
+            { value: 'data.cover', text: 'Cover', width: 0, class: 'text-no-wrap', sortable: false, field: {
                 rules: [rules.required],
             } },
-            { value: 'data.category.data.i18n', text: 'Category', editable: true, hasOne: {
+            { value: 'data.i18n', text: 'Title', hasOne: {
+                i18n: {
+                    type: 'title',
+                },
+            }, class: 'text-no-wrap' },
+            { value: 'data.category.data.i18n', text: 'Category', hasOne: {
+                i18n: true,
+            }, class: 'text-no-wrap', width: 0 },
+            // { value: 'data.languages', text: 'Languages', hasMany: {
+            //     items: (item: DictionaryModel) => item.languages(),
+            //     itemText: (item: I18nModel) => item.data.language.data.name,
+            // } },
+            { value: 'data.total_items', text: 'Total items', class: 'text-no-wrap', width: 0, },
+            { value: 'data.created_at', text: 'Created at', class: 'text-no-wrap', width: 0, },
+        ];
+
+        this.fields = [
+            { value: 'data.cover', text: 'Cover', field: {
+                rules: [rules.required],
+            } },
+            { value: 'data.dictionary_category_id', text: 'Category', hasOne: {
                 i18n: true,
                 resource: () => Services.getDictionaryCategories(),
-                itemValue: (item: I18nModel) => item.data.id,
             }, field: {
                 rules: [rules.required],
             } },
-            { value: 'data.i18n', text: 'Title', editOnly: true, hasMany: {
-                i18n: true,
-                filter: (item: I18nModel) => item.data.type === 'title',
+            { value: 'data.i18n', text: 'Title', hasMany: {
+                i18n: {
+                    type: 'title',
+                },
             }, field: {
                 rules: [rules.required],
             } },
-            { value: 'data.i18n', text: 'Body', editOnly: true, hasMany: {
-                i18n: true,
-                filter: (item: I18nModel) => item.data.type === 'body',
+            { value: 'data.i18n', text: 'Body', hasMany: {
+                i18n: {
+                    type: 'body',
+                },
             }, field: {
                 rules: [rules.required],
             } },
-            { value: 'data.languages', text: 'Languages', hasMany: {
-                items: (item: DictionaryModel) => item.languages(),
-                itemText: (item: I18nModel) => item.data.language.data.name,
+            { text: 'Items', type: 'data', field: {
+                headers: [
+                    { value: 'data.cover', text: 'Cover', width: 0, class: 'text-no-wrap', sortable: false, field: {
+                        rules: [rules.required],
+                    } },
+                    { value: 'data.i18n', text: 'Title', hasOne: {
+                        i18n: {
+                            synthesized: true,
+                        },
+                    }, class: 'text-no-wrap' },
+                    { value: 'data.created_at', text: 'Created at', class: 'text-no-wrap', width: 0, },
+                ],
+                id: 'adminDictionariesItems',
+                availableViews: ['datatable'],
+                hidePresets: true,
+                fields: [
+                    { value: 'data.cover', text: 'Cover', field: {
+                        rules: [rules.required],
+                    } },
+                    { value: 'data.i18n', text: 'Title', hasMany: {
+                        i18n: {
+                            synthesized: true,
+                        },
+                    }, field: {
+                        rules: [rules.required],
+                    } },
+                ],
+                defaultModel: DictionaryItemModel,
+                resource: (item: DictionaryModel) => '/admin/dictionary/' + item.data.id + '/items',
             } },
-            { value: 'data.total_items', text: 'Total items', },
-            { value: 'data.created_at', text: 'Created at', width: 0, },
         ];
     }
 }

@@ -54,6 +54,9 @@
 .no-select, .no-select * {
     user-select: none;
 }
+.not-clickable, .not-clickable * {
+    pointer-events: none;
+}
 
 .two-lines-truncate {
     display: -webkit-box;

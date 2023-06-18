@@ -6,7 +6,7 @@ use App\Models\Voice;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class AdminVoiceController extends BaseAdminController
+class AdminVoiceController extends BaseCrudController
 {
     protected $model = Voice::class;
     protected $searchFields = ['name'];
@@ -14,7 +14,7 @@ class AdminVoiceController extends BaseAdminController
     /**
      * @throws ValidationException
      */
-    protected function validateItem($fields)
+    protected function validateItem($fields): array
     {
         return Validator::make($fields, [
             'name' => 'string|min:3|max:16',

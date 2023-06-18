@@ -6,7 +6,7 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class AdminRoleController extends BaseAdminController
+class AdminRoleController extends BaseCrudController
 {
     protected $model = Role::class;
     protected $searchFields = ['name', 'key'];
@@ -14,7 +14,7 @@ class AdminRoleController extends BaseAdminController
     /**
      * @throws ValidationException
      */
-    protected function validateItem($fields)
+    protected function validateItem($fields): array
     {
         return Validator::make($fields, [
             'key' => 'string|min:3|max:16',

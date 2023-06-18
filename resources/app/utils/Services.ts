@@ -6,11 +6,14 @@ import DictionaryItemModel from "@/models/DictionaryItemModel";
 import LanguageModel from "@/models/LanguageModel";
 import Vue from 'vue';
 import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
-import db, {Voice, Deck, Dictionary, Language} from '@/database';
+import db, {Deck, Dictionary, Language} from '@/database';
 import { Table } from 'dexie';
 import DictionaryCategoryModel from "@/models/DictionaryCategoryModel";
 import VoiceModel from "@/models/VoiceModel";
 import MediaModel from "@/models/MediaModel";
+import BaseModel from '@/models/BaseModel';
+import LogModel from '@/models/LogModel';
+import NotificationModel from '@/models/NotificationModel';
 
 export default class Services {
 
@@ -70,17 +73,17 @@ export default class Services {
 	 * Logout from platform
 	 */
 	static logout(): Promise<any> {
-        return new Promise((resolve, reject) => {
-            this.token = null;
-            localStorage.removeItem('token');
-            resolve(1);
-        });
-		// return Query.post('/logout')
-		// 	.then((response: any) => {
-		// 		this.token = null;
-		// 		localStorage.removeItem('token');
-		// 		return response;
-		// 	});
+        // return new Promise((resolve, reject) => {
+        //     this.token = null;
+        //     localStorage.removeItem('token');
+        //     resolve(1);
+        // });
+		return Query.post('/logout')
+			.then((response: any) => {
+				this.token = null;
+				localStorage.removeItem('token');
+				return response;
+			});
 	}
 
 	/**
@@ -470,6 +473,64 @@ export default class Services {
     }
 
     /**
+     * Get user's notifications
+     */
+    static getNotifications(user: UserModel): Promise<any> {
+        return this.onlineFirst(
+            db.notifications,
+            () => Query.get('/user/' + user.data.id  + '/notifications'),
+        )
+            .then(items => {
+                db.notifications.bulkPut(items);
+                return items;
+            })
+            .then(notifications => notifications.map((notification: NotificationModel) => new NotificationModel(notification)));
+    }
+
+    /**
+     * Acknowledge user's notifications
+     */
+    static acknowledgeNotifications(notifications: Array<NotificationModel>): Promise<Array<NotificationModel>> {
+        return Query.post('/notifications/acknowledge', notifications)
+            .then(response => response.map((item: any) => new NotificationModel(item)));
+    }
+
+    /**
+     * Get user profile
+     */
+    static getProfile(uuid: string): Promise<any> {
+        return this.onlineFirst(
+            db.users,
+            () => Query.get('/user/' + uuid + '/profile'),
+            model => model.where({ id: uuid }).first(),
+        )
+            .then(response => {
+                response.user = new UserModel(response.user);
+                response.decks = response.decks.map((deck: any) => new DeckModel(deck));
+                response.logs = response.logs.map((deck: any) => new LogModel(deck));
+                response.notifications = response.notifications.map((deck: any) => new NotificationModel(deck));
+                return response;
+            });
+    }
+
+    /**
+     * Get all users
+     */
+    static getList(url: string, dbName: string, modelClass: new (props: any) => BaseModel): Promise<any> {
+        return this.onlineFirst(
+            // @ts-ignore
+            db[dbName],
+            () => Query.get(url),
+        )
+            .then(items => {
+                // @ts-ignore
+                db[dbName].bulkPut(items);
+                return items;
+            })
+            .then(items => items.data.map((user: any) => new modelClass(user)));
+    }
+
+    /**
      * Save media
      *
      * @param media
@@ -571,5 +632,68 @@ export default class Services {
             () => Query.delete('/admin/dictionary/' + model.data.dictionary_id + '/items/' + id),
             model => model.delete(id),
         );
+    }
+
+    private static getApiPath(table: string): string {
+        if (table.endsWith('ies')) {
+            return table.substring(0, table.length - 3) + 'y';
+        } else if (table.endsWith('ses')) {
+            return table.substring(0, table.length - 3) + 's';
+        }
+        return table.substring(0, table.length - 1);
+    }
+
+    /**
+     * Get all from table
+     */
+    static getAll<T>(table: string, modelClass: new (props: any) => T): Promise<Array<T>> {
+        return this.onlineFirst(
+            // @ts-ignore
+            db[table],
+            () => Query.get(this.getApiPath('/' + table)),
+        )
+            .then(items => {
+                // @ts-ignore
+                db[table].bulkPut(items.data);
+                return items.data;
+            })
+            .then(items => items.map((item: BaseModel) => new modelClass(item)));
+    }
+
+
+    /**
+     * Get all from table
+     */
+    static delete<T>(table: string, models: T | Array<T>, modelClass: new (props: any) => T): Promise<Array<T>> {
+        const modelsInArray = Array.isArray(models) ? models : [models];
+        return this.onlineFirst(
+            // @ts-ignore
+            db[table],
+            () => Query.delete(this.getApiPath('/' + table) + '/bulk', models),
+            (model: any) => {
+                const promises: Array<Promise<any>> = [];
+                modelsInArray.forEach((item: any) => {
+                    promises.push(model.delete(item.data.id));
+                })
+                return Promise.all(promises);
+            },
+        )
+            .then(items => items.map((item: BaseModel) => new modelClass(item)));
+    }
+
+    /**
+     * Create new card
+     */
+    static save<T>(table: string, models: Array<T>, modelClass: new (props: any) => T): Promise<Array<T>> {
+        // @ts-ignore
+        const modelsToSave = models.map(model => model.toSaveObject());
+        return this.onlineFirst(
+            // @ts-ignore
+            db[table],
+            () => Query.post(this.getApiPath('/' + table) + '/bulk', modelsToSave),
+            // @ts-ignore
+            model => model.bulkAdd(modelsToSave),
+        )
+            .then(items => items.map((item: BaseModel) => new modelClass(item)));
     }
 }

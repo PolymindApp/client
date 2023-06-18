@@ -4,16 +4,16 @@
         v-bind="inputAttrs"
         :label="null"
     >
-        <v-card
-            outlined
-            flat
+        <fieldset
             class="w-100"
             style="position: relative"
         >
+            <v-overlay v-model="loading" absolute opacity="0.8">
+                <v-progress-circular color="primary" size="64" indeterminate />
+            </v-overlay>
+
             <!-- LABEL -->
-            <v-sheet class="d-inline-block ml-2" style="top: -0.65rem; position: absolute; z-index: 1">
-                <v-subheader class="px-1" v-text="inputAttrs.label" style="height: auto"></v-subheader>
-            </v-sheet>
+            <legend v-text="inputAttrs.label"></legend>
 
             <div
                 v-if="showOverlay"
@@ -37,7 +37,7 @@
                 class="w-100 v-image-input"
                 @input="onInput"
             />
-        </v-card>
+        </fieldset>
     </v-input>
 </template>
 
@@ -70,6 +70,9 @@ export default class MediaField extends Vue {
         default: false,
     }) clearable?: boolean
 
+    loading = false
+    wasLoaded = false
+
     @Watch('media', {
         deep: true,
         immediate: true,
@@ -77,12 +80,22 @@ export default class MediaField extends Vue {
     onMediaChanged(media: MediaModel) {
         this.url = this.media.data.url;
         if (this.url && !File.isBase64(this.url)) {
+            this.loading = true;
             File.urlToBase64(media.data.url)
                 .then(base64 => {
                     this.base64Url = base64;
+                    this.wasLoaded = true;
+                })
+                .finally(() => {
+                    this.loading = false;
                 });
         } else {
+            if (!this.wasLoaded) {
+                this.media.data.id = null;
+            }
+
             this.base64Url = this.url;
+            this.wasLoaded = false;
         }
     }
 
@@ -99,9 +112,11 @@ export default class MediaField extends Vue {
 
     onInput(data: string) {
         this.media.data.url = data;
+        this.$emit('input', this.media);
     }
 
     onClear(): void {
+        this.media.data.id = null;
         this.media.data.url = null;
         this.url = '';
     }
@@ -109,6 +124,20 @@ export default class MediaField extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.v-input {
+    fieldset {
+        color: rgba(255, 255, 255, 0.24);
+        border-radius: 4px;
+        border:rgba(255, 255, 255, 0.24) solid 1px;
+
+        legend {
+            color: rgba(255, 255, 255,.698);
+            padding: 0 4px;
+            margin-left: 8px;
+            font-size: 12px;
+        }
+    }
+}
 .v-input.error--text {
     .v-card {
         border-color: var(--v-error-base);
@@ -138,6 +167,7 @@ export default class MediaField extends Vue {
 
 .v-image-input ::v-deep > div > div {
     background: none !important;
+    padding: 5px !important;
 
     & > div {
         box-shadow: none !important;

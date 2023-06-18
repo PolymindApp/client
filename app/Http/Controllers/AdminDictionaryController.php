@@ -9,94 +9,97 @@ use App\Models\Media;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
-class AdminDictionaryController extends BaseAdminController
+class AdminDictionaryController extends BaseCrudController
 {
     protected $model = Dictionary::class;
 
     /**
-     * Store a newly created resource in storage.
+     * Create or update a list of resources in storage.
      *
      * @param Request $request
      * @return Response
+     * @throws ValidationException
      */
-    public function store(Request $request): Response
+    public function bulkStore(Request $request): Response
     {
-        $this->validateRequest($request);
+        $results = [];
+        $items = $request->all();
 
-        $fields = $request->all();
+        foreach($items as $item) {
+            $this->validateItem($item);
+        }
+        foreach($items as $item) {
 
-        $model = Dictionary::create($fields);
-        foreach($fields['i18n'] as $i18n) {
-            if (!$i18n['id']) {
-                $i18n['dictionary_id'] = $model->id;
-                $i18n['language_id'] = $i18n['language']['id'];
-                DictionaryI18n::create($i18n);
+            if ($item['cover']['id']) {
+                $item['media_id'] = $item['cover']['id'];
+            } else if ($item['cover']['url']) {
+                $newMedia = Media::create($item['cover']);
+                $item['media_id'] = $newMedia['id'];
             }
+
+            if ($item['id'] === null) {
+                $newItem = Dictionary::create($item);
+                foreach($item['i18n'] as $i18n) {
+                    if (!$i18n['id']) {
+                        $i18n['dictionary_id'] = $newItem->id;
+                        $i18n['language_id'] = $i18n['language']['id'];
+                        DictionaryI18n::create($i18n);
+                    }
+                }
+                $newItem = Dictionary::find($newItem->id);
+            } else {
+                $newItem = Dictionary::find($item['id']);
+                foreach($item['i18n'] as $i18n) {
+                    if ($i18n['id']) {
+                        $i18n['dictionary_id'] = $item['id'];
+                        $i18n['language_id'] = $i18n['language']['id'];
+                        $i18nModel = DictionaryI18n::find($i18n['id']);
+                        $i18nModel->update($i18n);
+                    }
+                }
+                unset($item['id']);
+                $newItem->update($item);
+            }
+            $results[] = $newItem;
         }
 
-        $model = Dictionary::find($model->id);
-        return response($model, 201);
+        return response($results, 201);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Remove a list of resources from storage.
      *
-     * @param Request $request
-     * @param  string  $id
+     * @param  Request $request
      * @return Response
      */
-    public function update(Request $request, string $id): Response
+    public function bulkDestroy(Request $request): Response
     {
-        $this->validateRequest($request);
+        foreach($request->all() as $id) {
 
-        $fields = $request->all();
+            $dictionary = Dictionary::find($id);
+            foreach($dictionary->i18n as $i18n) {
+                $results[] = DictionaryI18n::destroy($i18n->id);
+            }
+            if ($dictionary->cover) {
+                Media::destroy($dictionary->cover->id);
+            }
 
-        $model = Dictionary::find($id);
-        foreach($fields['i18n'] as $i18n) {
-            if ($i18n['id']) {
-                $i18n['dictionary_id'] = $id;
-                $i18n['language_id'] = $i18n['language']['id'];
-                $i18nModel = DictionaryI18n::find($i18n['id']);
-                $i18nModel->update($i18n);
+            $results = DictionaryItem::where('dictionary_id', '=', $id)->get();
+            foreach($results as $item) {
+                DictionaryItem::destroy($item->id);
             }
         }
 
-        unset($fields['id']);
-        $model->update($fields);
-
-        return response($model);
+        $results = parent::bulkDestroy($request);
+        return response($results);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  string  $id
-     * @return Response
-     */
-    public function destroy(string $id): Response
-    {
-        $dictionary = Dictionary::find($id);
-        foreach($dictionary->i18n as $i18n) {
-            DictionaryI18n::destroy($i18n->id);
-        }
-        if ($dictionary->cover) {
-            Media::destroy($dictionary->cover->id);
-        }
-
-        $results = DictionaryItem::where('dictionary_id', '=', $id)->get();
-        foreach($results as $item) {
-            DictionaryItem::destroy($item->id);
-        }
-
-        return response(Dictionary::destroy($id));
-    }
-
-    protected function validateItem($fields)
+    protected function validateItem($fields): array
     {
         return Validator::make($fields, [
             'dictionary_category_id' => 'required',
-            'media_id' => 'required',
             'i18n' => 'required|array',
         ])->validate();
     }

@@ -59,7 +59,7 @@ mix.ts('resources/app/main.ts', 'public/js/app.js')
             allowedHosts: 'all',
             proxy: {
                 '^/': {
-                    target: "http://web.local:8079",
+                    target: "http://localhost:8079",
                     ws: true,
                 },
             },

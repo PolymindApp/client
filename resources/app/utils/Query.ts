@@ -4,7 +4,14 @@ export default class Query {
 
 	static prefix: string|undefined = process.env.API_URL || '/api';
 
-	static doCall(path: string, method = 'GET', body?: any, params?: any, blob = false): Promise<any> {
+	static doCall(
+        path: string,
+        method = 'GET',
+        body?: any,
+        params?: any,
+        blob = false,
+        defaultModel?: new (data: any) => BaseModel
+    ): Promise<any> {
 		const headers: any = {
 			'Accept': 'application/json',
 			'Content-Type': 'application/json',
@@ -47,34 +54,38 @@ export default class Query {
 			headers,
 			body
 		})
-			.then(response => {
+			.then((response: any) => {
                 if (blob) {
                     return response.blob();
                 }
-				return response.json().then(json => {
+				return response.json().then((json: any) => {
 					if (response.status < 200 || response.status > 299) {
 						let error = new Error();
 						error = { ...error, ...json };
 						throw error;
-					}
+					} else if (defaultModel && Array.isArray(json.data)) {
+                        json.data = json.data.map((item: any) => new defaultModel(item));
+                    } else if (defaultModel && Array.isArray(json)) {
+                        return json.map((item: any) => new defaultModel(item));
+                    }
 					return json;
 				});
 			});
 	}
 
-	static get(path: string, params?: any): Promise<any> {
-		return this.doCall(path, 'GET', null, params);
+	static get(path: string, params?: any, defaultModel?: new (data: any) => BaseModel): Promise<any> {
+		return this.doCall(path, 'GET', null, params, undefined, defaultModel);
 	}
 
-	static post(path: string, data: any = {}, params?: any, blob = false): Promise<any> {
-		return this.doCall(path, 'POST', data, params, blob);
+	static post(path: string, data: any = {}, params?: any, blob = false, defaultModel?: new (data: any) => BaseModel): Promise<any> {
+		return this.doCall(path, 'POST', data, params, blob, defaultModel);
 	}
 
-	static put(path: string, data: any = {}, params?: any): Promise<any> {
-		return this.doCall(path, 'PUT', data);
+	static put(path: string, data: any = {}, params?: any, defaultModel?: new (data: any) => BaseModel): Promise<any> {
+		return this.doCall(path, 'PUT', data, params, undefined, defaultModel);
 	}
 
-	static delete(path: string, data: any = {}, params?: any): Promise<any> {
-		return this.doCall(path, 'DELETE', data);
+	static delete(path: string, data: any = {}, params?: any, defaultModel?: new (data: any) => BaseModel): Promise<any> {
+		return this.doCall(path, 'DELETE', data, params, undefined, defaultModel);
 	}
 }

@@ -14,7 +14,7 @@ class CreateCardsTable extends Migration
     public function up()
     {
         Schema::create('cards', function (Blueprint $table) {
-            $table->uuid('id')->unique();
+            $table->uuid('id')->unique()->primary();
             $table->foreignUuid('deck_id')->nullable()->onDelete('cascade');
             $table->foreignId('front_voice_id')->nullable()->references('id')->on('voices');
             $table->foreignId('back_voice_id')->nullable()->references('id')->on('voices');

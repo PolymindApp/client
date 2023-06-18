@@ -1,5 +1,9 @@
 <template>
-    <v-input hide-details="auto">
+    <v-input
+        v-model="model"
+        v-bind="inputAttrs"
+        hide-details="auto"
+    >
         <v-card outlined flat class="w-100">
             <v-alert
                 border="left"
@@ -23,11 +27,12 @@
                         </thead>
                         <tbody>
                         <tr
-                            v-for="i18n in model"
-                            :key="i18n.data.id"
+                            v-for="i18n in filteredItems"
+                            :key="i18n.autoIncrementId"
                         >
                             <td v-text="i18n.data.language.data.name"></td>
                             <td valign="top" class="d-flex align-center" style="gap: 1rem">
+
                                 <v-text-field
                                     v-model="i18n.data.text"
                                     :placeholder="$t('i18nField.placeholder')"
@@ -37,7 +42,12 @@
                                     outlined
                                     clearable
                                 />
-                                <slot name="append" :i18n="i18n"></slot>
+
+                                <PlayRecordCombo
+                                    v-if="synthesized"
+                                    v-model="i18n.data.text_synthesized"
+                                    tabindex="-1"
+                                />
 
                                 <v-btn
                                     :disabled="!canRemove"
@@ -96,11 +106,16 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, VModel } from 'vue-property-decorator';
+import PlayRecordCombo from "@/components/audio/PlayRecordCombo.vue";
 import LanguageModel from "@/models/LanguageModel";
 import I18nModel from "@/models/I18nModel";
 import Rules from '@/utils/Rules';
 
-@Component
+@Component({
+    components: {
+        PlayRecordCombo,
+    }
+})
 export default class I18nField extends Vue {
 
     @VModel({
@@ -116,8 +131,17 @@ export default class I18nField extends Vue {
     }) label?: string
 
     @Prop({
+        default: null
+    }) type!: string
+
+    @Prop({
         default: 'text'
     }) itemKey?: string
+
+    @Prop({
+        type: Boolean,
+        default: false
+    }) synthesized?: boolean
 
     rules: any = {}
     newI18n: I18nModel = new I18nModel();
@@ -135,6 +159,10 @@ export default class I18nField extends Vue {
         return true;
     }
 
+    get filteredItems(): Array<I18nModel> {
+        return this.model.filter(item => !this.type || item.data.type === this.type);
+    }
+
     getRemainingLanguages(): Array<LanguageModel> {
         return this.languages.filter(language => {
             return !this.model.find(model => model.data.language_id === language.data.id);
@@ -148,21 +176,20 @@ export default class I18nField extends Vue {
     }
 
     onAddClick(): void {
-        const clone = this.newI18n.clone();
+        const clone = this.newI18n.clone() as I18nModel;
         const language = this.languages.find(language => language.data.id === clone.data.language_id);
         if (language) {
             clone.data.language = language.clone();
+            clone.data.type = this.type;
             this.model.push(clone as I18nModel);
             this.newI18n = new I18nModel();
-            this.$forceUpdate();
         }
     }
 
     onRemoveClick(i18n: I18nModel): void {
-        const index = this.model.findIndex(item => item.data.id === i18n.data.id);
+        const index = this.model.findIndex(item => item.data.id === i18n.data.id || item === i18n);
         if (index >= 0) {
             this.model.splice(index, 1);
-            this.$forceUpdate();
         }
     }
 
@@ -177,5 +204,30 @@ export default class I18nField extends Vue {
     height: auto !important;
     padding-top: 0.5rem !important;
     padding-bottom: 0.5rem !important;
+}
+.v-input.error--text {
+    .v-card {
+        border-color: var(--v-error-base);
+
+        & ::v-deep .v-card {
+            border: 0;
+        }
+    }
+    .v-data-table * {
+        color: var(--v-error-base) !important;
+    }
+
+    & ::v-deep {
+        .v-alert__border--left {
+            border-color: var(--v-error-base);
+        }
+        .v-messages {
+            padding-left: 0.5rem;
+        }
+        .v-subheader,
+        .v-icon {
+            color: var(--v-error-base) !important;
+        }
+    }
 }
 </style>

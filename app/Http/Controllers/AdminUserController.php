@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dictionary;
+use App\Models\DictionaryI18n;
+use App\Models\DictionaryItem;
+use App\Models\Media;
 use App\Models\User;
 use App\Models\UserRole;
 use App\Notifications\VerifyEmail;
@@ -10,7 +14,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class AdminUserController extends BaseAdminController
+class AdminUserController extends BaseCrudController
 {
     protected $model = User::class;
     protected $searchFields = ['name', 'email'];
@@ -30,6 +34,14 @@ class AdminUserController extends BaseAdminController
             $this->validateItem($item, $item['id'] === null, false, $item['id'] === null);
         }
         foreach($items as $item) {
+
+            if ($item['avatar']['id']) {
+                $item['media_id'] = $item['avatar']['id'];
+            } else if ($item['avatar']['url']) {
+                $newMedia = Media::create($item['avatar']);
+                $item['media_id'] = $newMedia['id'];
+            }
+
             if ($item['id'] === null) {
                 $item['password'] = bcrypt($item['password']);
                 $user = User::create($item);
@@ -44,8 +56,10 @@ class AdminUserController extends BaseAdminController
                 $user->notify(new VerifyEmail());
                 $user = User::find($user->id);
             } else {
-                if (isset($item['password'])) {
+                if (isset($item['password']) && !empty(trim($item['password']))) {
                     $item['password'] = bcrypt($item['password']);
+                } else {
+                    unset($item['password']);
                 }
 
                 UserRole::where('user_id', '=', $item['id'])->delete();
@@ -66,15 +80,34 @@ class AdminUserController extends BaseAdminController
     }
 
     /**
+     * Remove a list of resources from storage.
+     *
+     * @param  Request $request
+     * @return Response
+     */
+    public function bulkDestroy(Request $request): Response
+    {
+        foreach($request->all() as $id) {
+            $model = User::find($id);
+            if ($model->avatar) {
+                Media::destroy($model->avatar->id);
+            }
+        }
+
+        $results = parent::bulkDestroy($request);
+        return response($results);
+    }
+
+    /**
      * @throws ValidationException
      */
-    protected function validateItem($fields, $passwordRequired = false, $confirmationRequired = false, $uniqueEmail = false)
+    protected function validateItem($fields, $passwordRequired = false, $confirmationRequired = false, $uniqueEmail = false): array
     {
         return Validator::make($fields, [
             'name' => 'string|min:3|max:255',
             'email' => 'required|max:255|email:rfc,dns' . ($uniqueEmail ? '|unique:users,email' : ''),
             'roles' => 'required|array',
-            'password' => ($passwordRequired ? 'required|' : '') . 'string|max:255' . ($confirmationRequired ? '|confirmed' : ''),
+            'password' => ($passwordRequired ? 'required|string' : '') . 'max:255' . ($confirmationRequired ? '|confirmed' : ''),
         ])->validate();
     }
 }

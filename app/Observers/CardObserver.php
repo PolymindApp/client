@@ -19,13 +19,19 @@ class CardObserver
         $polly = new Polly();
         $id = $model['id'] ?? null;
         $oldModel = $id ? Card::find($id) : null;
+        $creating = $oldModel === null;
         foreach(['front', 'back'] as $side) {
             $text = $model[$side] ?? null;
             $voiceId = $model[$side . '_voice_id'] ?? null;
-            $different = $oldModel === null || $oldModel[$side] !== $text || $oldModel[$side . '_voice_id'] !== $voiceId;
-            if ($different && $text && $voiceId) {
+            $different = $creating || $oldModel[$side] !== $text || $oldModel[$side . '_voice_id'] !== $voiceId;
+            if ($different && $text && $voiceId && (!$creating || !$model[$side . '_synthesized'])) {
                 $voice = Voice::find($voiceId);
-                $stream = $polly->getDataStream($text, $voice->language->code, $voice->name, $voice->standard === 1);
+                $stream = $polly->getDataStream(
+                    $text,
+                    $voice->language->code,
+                    $voice->name,
+                    $voice->standard,
+                );
                 $model[$side . '_synthesized'] = 'data:audio/mp3;base64,' . base64_encode($stream);
             }
         }

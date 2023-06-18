@@ -14,7 +14,7 @@ class CreateLogsTable extends Migration
     public function up()
     {
         Schema::create('logs', function (Blueprint $table) {
-            $table->uuid('id')->unique();
+            $table->uuid('id')->unique()->primary();
             $table->tinyInteger('version')->default(0);
             $table->uuidMorphs('model');
             $table->json('meta')->nullable();

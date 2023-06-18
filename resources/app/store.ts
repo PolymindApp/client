@@ -2,6 +2,9 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import UserModel from '@/models/UserModel';
 import SettingsModel, {ISettings, IDictionarySettings} from '@/models/SettingsModel';
+import DeckModel from '@/models/DeckModel';
+import NotificationModel from '@/models/NotificationModel';
+import DictionaryModel from '@/models/DictionaryModel';
 
 Vue.use(Vuex);
 
@@ -26,9 +29,10 @@ export default new Vuex.Store({
             };
             deck: null
         };
-        decks: any[];
+        decks: Array<DeckModel>;
+        notifications: Array<NotificationModel>;
         accounts: any[];
-        dictionaries: any[]
+        dictionaries: Array<DictionaryModel>;
     } => ({ // Saved locally
         user: new UserModel(),
         settings: settings.data,
@@ -41,6 +45,7 @@ export default new Vuex.Store({
             },
         },
         accounts: [],
+        notifications: [],
         dictionaries: [],
         decks: [],
     }),
@@ -86,11 +91,22 @@ export default new Vuex.Store({
         accounts(state, accounts: any) {
             state.accounts = accounts;
         },
-        dictionaries(state, dictionaries: any) {
+        dictionaries(state, dictionaries: Array<DictionaryModel>) {
             state.dictionaries = dictionaries;
         },
-        decks(state, decks: any) {
+        decks(state, decks: Array<DeckModel>) {
             state.decks = decks;
+        },
+        notifications(state, notifications: Array<NotificationModel>) {
+            state.notifications = notifications;
+        },
+        acknowledgeNotifications(state, notifications: Array<NotificationModel>) {
+            notifications.forEach(notification => {
+                const item = state.notifications.find(item => item.data.id === notification.data.id);
+                if (item) {
+                    item.data.acknowledged = true;
+                }
+            });
         },
     },
 })

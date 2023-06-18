@@ -6,6 +6,7 @@ use App\Models\Card;
 use App\Models\Deck;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class DeckController extends Controller
 {
@@ -102,6 +103,36 @@ class DeckController extends Controller
         $query = trim($_GET['q']);
         $results = Deck::where('name', 'LIKE', '%' . $query . '%')->get();
         return response($results);
+    }
+
+    /**
+     * Clone a resource in storage
+     *
+     * @param String $id
+     * @return Response
+     */
+    public function clone(string $id): Response
+    {
+        $deck = Deck::find($id);
+        if ($deck && $deck->is_public) {
+            $params = $deck->toArray();
+            unset($params['id']);
+            $clone = Deck::create($params);
+
+            foreach($deck->cards as $card) {
+                $params = $card->toArray();
+                $params['deck_id'] = $clone->id;
+                unset($params['id']);
+                Card::create($params);
+            }
+
+            $clone = Deck::find($clone->id);
+
+            Log::channel('db')->info('CLONE_DECK', $clone->toArray());
+
+            return response($clone);
+        }
+        return response($deck);
     }
 
     private function validateRequest(Request $request)

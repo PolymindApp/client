@@ -27,6 +27,7 @@
 <script>
 import languages from '@/assets/languages.json';
 import { rtlLanguages } from "@/locales";
+import moment from 'moment';
 
 export default {
 	name: "LanguageSwitcher",
@@ -61,6 +62,7 @@ export default {
 				return this.value;
 			},
 			set(value) {
+                moment.locale(value);
                 localStorage.setItem('lang', value);
 				this.$emit('input', value);
 			},

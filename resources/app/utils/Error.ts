@@ -11,6 +11,7 @@ export default {
         ) {
             if (reason.errors) {
                 Object.assign(formErrors, reason.errors);
+                Vue.prototype.$snack('error.formErrors.snack', 'error');
             }
 
             if (showWarning || !reason.errors) {

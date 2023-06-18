@@ -134,6 +134,43 @@ export interface DictionaryItemI18n {
     language: Language;
 }
 
+export interface Class {
+    id?: string | null;
+    name: string;
+    created_at?: string | null;
+    updated_at?: string | null;
+    deleted_at?: string | null;
+}
+
+export interface Notification {
+    id?: string | null;
+    user_id: number;
+    type: string;
+    meta: string;
+    acknowledged: boolean;
+    email_sent: boolean;
+    created_at?: string | null;
+    updated_at?: string | null;
+    deleted_at?: string | null;
+}
+
+export interface Student {
+    id?: string | null;
+    user_id: number | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+    deleted_at?: string | null;
+}
+
+export interface DatatablePreset {
+    id?: string | null;
+    name: string;
+    meta: string;
+    created_at?: string | null;
+    updated_at?: string | null;
+    deleted_at?: string | null;
+}
+
 export class PolymindDB extends Dexie {
 
     users!: Table<User>;
@@ -146,11 +183,15 @@ export class PolymindDB extends Dexie {
     dictionaries!: Table<Dictionary>;
     dictionary_categories!: Table<DictionaryCategory>;
     dictionary_items!: Table<DictionaryItem>;
+    students!: Table<Student>;
+    classes!: Table<Class>;
+    notifications!: Table<Notification>;
+    datatable_presets!: Table<DatatablePreset>;
 
     constructor() {
         super('polymind');
 
-        this.version(3).stores({
+        this.version(5).stores({
             users: '++id, name, email',
             roles: '++id, key, name, description',
             decks: '++id, name, created_at, updated_at',
@@ -160,6 +201,10 @@ export class PolymindDB extends Dexie {
             dictionaries: '++id, name, dictionary_category_id, total_items',
             dictionary_categories: '++id, total_dictionaries',
             dictionary_items: '++id, dictionary_id',
+            classes: '++id, name',
+            students: '++id, user_id',
+            notifications: '++id, user_id, type, acknowledged',
+            datatable_presets: '++id, name',
         });
     }
 }

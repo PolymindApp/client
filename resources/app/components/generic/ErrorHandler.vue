@@ -3,10 +3,10 @@
         <template #body>
 
             <!-- MESSAGE -->
-            <v-alert v-text="value.body"></v-alert>
+            <v-alert v-if="value.body" class="mb-4" v-text="value.body"></v-alert>
 
             <!-- LINE -->
-            <p v-if="value.line !== null" class="mt-4">
+            <p v-if="value.line !== null">
                 <strong v-text="$t('error.line', {
                     line: value.line
                 })"></strong>

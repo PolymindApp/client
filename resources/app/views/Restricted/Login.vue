@@ -87,13 +87,14 @@ export default Vue.extend({
 				this.loading = true;
 				Services.login(this.data.email, this.data.password, this.$route.query.redirect)
 					.then(response => {
-						this.$store.commit('user', new UserModel(response.user));
+                        const user = new UserModel(response.user);
+						this.$store.commit('user', user);
                         const accounts = this.$accounts.set({
                             ...response.user,
                             token: response.token
                         });
                         this.$store.commit('accounts', accounts);
-						EventBus.publish('RENDER_APP');
+						EventBus.publish('LOGGED_IN');
 					})
 					.catch(reason => {
                         if (reason.message === 'EMAIL_NOT_VERIFIED') {

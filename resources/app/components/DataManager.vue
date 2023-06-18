@@ -4,35 +4,66 @@
             class="d-flex align-center justify-space-between"
             style="flex: 0; gap: 1rem"
         >
-            <div class="order-md-last d-flex align-center" style="gap: 1rem">
+
+            <div class="order-md-last d-flex align-center justify-end" style="gap: 1rem; flex: 2">
 
                 <!-- ADD NEW ITEM -->
                 <v-btn
                     :block="$vuetify.breakpoint.smAndDown"
                     :disabled="!canEdit"
                     color="primary"
+                    height="40"
                     @click="onAddItemClick"
                 >
-                    <v-icon left>mdi-plus-circle</v-icon>
+                    <v-icon left>mdi-plus-thick</v-icon>
                     <span v-text="$t('dataManager.addNew')"></span>
                 </v-btn>
+
+                <!-- VIEWS -->
+                <v-btn-toggle v-if="availableViews.length > 1" v-model="preset.data.meta.view" mandatory>
+                    <v-btn v-if="availableViews.includes('datatable')" value="datatable" height="40">
+                        <v-icon>mdi-table</v-icon>
+                    </v-btn>
+                    <v-btn v-if="availableViews.includes('cards')" value="cards" height="40">
+                        <v-icon>mdi-cards-outline</v-icon>
+                    </v-btn>
+                    <v-btn v-if="availableViews.includes('calendar')" value="calendar" height="40">
+                        <v-icon>mdi-calendar-multiselect</v-icon>
+                    </v-btn>
+                </v-btn-toggle>
             </div>
 
-            <!-- SEARCH -->
-            <v-text-field
-                v-model="search"
-                :placeholder="$t('dataManager.filter')"
-                :disabled="loading"
-                outlined
-                dense
-                hide-details
-                clearable
-                prepend-inner-icon="mdi-magnify"
-                class="order-md-first"
-                @keyup.enter="onSearchKeyUpEnter"
-                @click:clear="onSearchClear"
-            >
-            </v-text-field>
+            <div class="d-flex align-center order-md-first" style="gap: 1rem; flex: 2">
+
+                <!-- SEARCH -->
+                <v-text-field
+                    v-if="!hideSearch"
+                    v-model="search"
+                    :placeholder="$t('dataManager.filter')"
+                    :disabled="loading"
+                    outlined
+                    dense
+                    hide-details
+                    clearable
+                    prepend-inner-icon="mdi-magnify"
+                    @keyup.enter="onSearchKeyUpEnter"
+                    @click:clear="onSearchClear"
+                />
+
+                <!-- PRESET FILTERS -->
+                <PresetManager
+                    v-if="!hidePresets"
+                    ref="presetManager"
+                    :value="preset"
+                    :default-item="defaultPreset"
+                    label="Filter presets"
+                    hide-details="auto"
+                    outlined
+                    dense
+                    clearable
+                    style="max-width: 30rem"
+                />
+            </div>
         </v-card-title>
         <v-card-text
             class="w-100 px-md-0 fill-height d-flex flex-column pb-0"
@@ -41,10 +72,7 @@
             <!-- ADD/EDIT MODAL -->
             <Modal
                 v-model="modalEdit.visible"
-                :title="!currentItem.data.id ? $t('admin.modal.add') : $tc('admin.modal.edit', modalEdit.list.length)"
-                :persistent="dataIsDifferent"
-                max-width="800"
-                scrollable
+                v-bind="_modalAttrs"
             >
                 <!-- NAVIGATION -->
                 <template #header_right>
@@ -67,20 +95,21 @@
                 <template #body>
                     <v-form ref="editForm" v-model="modalEdit.isFormValid">
                         <Field
-                            v-model="field.value"
-                            v-for="(field, fieldIdx) in fields"
-                            v-bind="field.header.field"
-                            :key="field.header.value + '_' + fieldIdx"
-                            :header="field.header"
-                            :label="field.header.text"
-                            :error-messages="modalEdit.formErrors[field.errorKey]"
+                            v-model="item.value"
+                            v-for="(item, fieldIdx) in fieldComponents"
+                            v-bind="item.field.field"
+                            :key="item.valueKey + '_' + fieldIdx"
+                            :field="item.field"
+                            :item="item"
+                            :label="item.field.text"
+                            :error-messages="modalEdit.formErrors[item.errorKey]"
                             :class="{
                                 'mt-6': fieldIdx > 0
                             }"
                             outlined
                             clearable
                             hide-details="auto"
-                            @input="(value) => onFieldInput(field, value)"
+                            @input="(value) => onFieldInput(item, value)"
                         />
                     </v-form>
                 </template>
@@ -106,145 +135,158 @@
             </Modal>
 
             <!-- DATA (DESKTOP) -->
-            <v-data-table
+            <DataTable
+                v-if="preset.data.meta.view === 'datatable'"
                 v-model="selectedItems"
+                :preset.sync="preset"
                 :items="list"
                 :search="search"
                 :headers="_headers"
                 :loading="loading"
-                :options.sync="options"
+                :options="preset.data.meta"
                 :server-items-length="serverItemsLength"
-                :style="{
-                    flexGrow: 1,
-                    height: 0,
-                }"
-                :footer-props="{
-                    itemsPerPageOptions: [5, 10, 25, 50, -1],
-                }"
+                :items-per-page="preset.data.meta.itemsPerPage"
+                :can-edit="canEdit"
+                :can-delete="canDelete"
+                :style="flexStyle"
+                hide-default-footer
                 show-select
                 fixed-header
                 item-key="data.id"
                 class="fill-height overflow-y-auto"
                 @update:options="onDatatableUpdate"
+                @edit="onEditClick"
+                @delete="onDeleteClick"
+            />
+
+            <!-- DATA (CARDS) -->
+            <div
+                v-else-if="preset.data.meta.view === 'cards'"
+                :style="flexStyle"
+                class="d-flex flex-column"
             >
-                <!-- V-SLOT -->
-                <template v-for="header in headerSlots" #[header]="props">
-                    <slot :name="header" v-bind="props">
-                        <template v-if="props.header.hasMany">
-                            <div v-if="(props.value || props.header.hasMany.items(props.item)).filter(props.header.hasMany.filter || (() => true)).length > 0" class="d-flex align-center" style="gap: 0.5rem">
-                                <v-chip
-                                    v-for="item in (props.value || props.header.hasMany.items(props.item)).slice(0, 3)"
-                                    v-text="item.nestedProp(props.header.hasMany.itemText || 'data.text')"
-                                    :key="item.nestedProp(props.header.hasMany.itemText || 'data.text')"
-                                    x-small
-                                ></v-chip>
-                                <v-chip
-                                    v-if="(props.value || props.header.hasMany.items(props.item)).length > 3"
-                                    v-text="'+ ' + ((props.value || props.header.hasMany.items(props.item)).length - 3)"
-                                    x-small
-                                    color="opacity-33"
-                                ></v-chip>
-                            </div>
-                            <span v-else v-text="props.header.emptyText || $t('dataManager.emptyText')"></span>
-                        </template>
-                        <template v-else-if="typeof props.value === 'boolean'">
-                            <v-icon v-if="props.value" color="success">mdi-check</v-icon>
-                            <v-icon v-else color="error">mdi-close</v-icon>
-                        </template>
-                        <template v-else-if="typeof props.value === 'number'">
-                            <v-chip small v-text="props.value"></v-chip>
-                        </template>
-                        <template v-else-if="props.value instanceof MediaModel">
-                            <v-img :src="props.value.data.url" width="3rem" height="3rem">
-                                <template #placeholder>
-                                    <v-skeleton-loader type="image" />
-                                </template>
-                            </v-img>
-                        </template>
-                        <template v-else-if="props.header.hasOne && props.header.hasOne.i18n">
-                            <span v-if="!props.value[0].data.id" v-text="$t('dataManager.noItem')" class="text-no-wrap"></span>
-                            <span v-else v-text="props.value[0].data.text"></span>
-                        </template>
-                        <span v-else v-text="props.value"></span>
-                    </slot>
-                </template>
+                <FilterBar
+                    v-if="filterableHeaders.length > 0"
+                    v-model="preset"
+                    :headers="headers"
+                    dense
+                    flat
+                    style="flex: 0"
+                    color="transparent"
+                />
 
-                <!-- CREATED AT -->
-                <template #item.data.created_at="{ item }">
-                    <span class="text-no-wrap">{{ item.data.created_at | humanDate }}</span>
-                </template>
+                <v-container :style="flexStyle" class="pa-4 overflow-auto background" fluid>
+                    <DataCards
+                        v-model="selectedItems"
+                        :items="list"
+                        :headers="_headers"
+                        :can-edit="canEdit"
+                        :can-delete="canDelete"
+                        @edit="onEditClick"
+                        @delete="onDeleteClick"
+                    />
+                </v-container>
+            </div>
 
-                <!-- UPDATED AT -->
-                <template #item.data.updated_at="{ item }">
-                    <span class="text-no-wrap">{{ item.data.updated_at | humanDate }}</span>
-                </template>
+            <!-- DATA (CALENDAR) -->
+            <v-sheet
+                v-else-if="preset.data.meta.view === 'calendar'"
+                class="d-flex flex-column fill-height"
+            >
+                <FilterBar
+                    v-if="filterableHeaders.length > 0"
+                    v-model="preset"
+                    :headers="headers"
+                    dense
+                    style="flex: 0"
+                    flat
+                    color="transparent"
+                />
+                <v-divider />
+                <DataCalendar
+                    v-model="selectedItems"
+                    :items="list"
+                    :headers="_headers"
+                    :can-edit="canEdit"
+                    :can-delete="canDelete"
+                    style="flex: 1"
+                    @edit="onEditClick"
+                    @delete="onDeleteClick"
+                />
+            </v-sheet>
 
-                <!-- ACTIONS -->
-                <template #item._action="{ item, index }">
-                    <div class="d-flex">
-
-                        <!-- EDIT -->
-                        <v-tooltip left>
-                            <template #activator="{ attrs, on }">
-                                <v-btn v-bind="attrs" v-on="on" :disabled="!canEdit" icon @click.stop="onEditClick(item)">
+            <!-- FOOTER -->
+            <v-divider />
+            <v-sheet class="px-4 py-3 d-flex align-center justify-space-between" style="gap: 1rem">
+                <div class="d-flex align-center" style="gap: 1rem">
+                    <v-menu transition="slide-y-reverse-transition" top>
+                        <template #activator="{ on, attrs }">
+                            <v-btn v-bind="attrs" v-on="on" color="primary" :disabled="!canBulkAction">
+                                <span v-text="$t('menu.bulk')"></span>
+                                <v-icon right>mdi-chevron-up</v-icon>
+                            </v-btn>
+                        </template>
+                        <v-list>
+                            <v-list-item :disabled="!canEdit" @click="onBulkEditClick">
+                                <v-list-item-icon>
                                     <v-icon>mdi-pencil</v-icon>
-                                </v-btn>
-                            </template>
-                            <span v-text="$t('btn.edit')"></span>
-                        </v-tooltip>
+                                </v-list-item-icon>
+                                <v-list-item-title v-text="$t('btn.edit')"></v-list-item-title>
+                            </v-list-item>
+                            <v-list-item :disabled="!canDelete" class="error--text" @click="onBulkDeleteClick">
+                                <v-list-item-icon>
+                                    <v-icon color="error">mdi-trash-can-outline</v-icon>
+                                </v-list-item-icon>
+                                <v-list-item-title v-text="$t('btn.delete')"></v-list-item-title>
+                            </v-list-item>
+                        </v-list>
+                    </v-menu>
 
-                        <!-- DELETE -->
-                        <v-tooltip left>
-                            <template #activator="{ attrs, on }">
-                                <v-btn v-bind="attrs" v-on="on" :disabled="!canDelete" icon @click.stop="onDeleteClick(item)">
-                                    <v-icon color="error">mdi-delete</v-icon>
-                                </v-btn>
-                            </template>
-                            <span v-text="$t('btn.delete')"></span>
-                        </v-tooltip>
-                    </div>
-                </template>
+                    <!-- REFRESH -->
+                    <v-btn
+                        :block="$vuetify.breakpoint.smAndDown"
+                        :disabled="!canRefresh"
+                        text
+                        @click="onRefreshClick"
+                    >
+                        <v-icon left>mdi-refresh</v-icon>
+                        <span v-text="$t('btn.refresh')"></span>
+                    </v-btn>
+                </div>
+                <div class="d-flex align-center caption" style="gap: 2rem">
+                    <span v-text="$t('footer.rowsPerPage')"></span>
 
-                <template #footer.prepend>
-                    <div class="d-flex align-center" style="gap: 1rem">
+                    <v-select
+                        v-model="preset.data.meta.itemsPerPage"
+                        :items="[10, 25, 50, -1]"
+                        style="width: min-content"
+                        class="pa-0"
+                        outlined
+                        hide-details
+                        dense
+                    >
+                        <template #item="{ item }">
+                            <span v-if="item === -1" v-text="$t('label.all')"></span>
+                            <span v-else v-text="item"></span>
+                        </template>
+                        <template #selection="{ item }">
+                            <span v-if="item === -1" v-text="$t('label.all')"></span>
+                            <span v-else v-text="item"></span>
+                        </template>
+                    </v-select>
 
-                        <v-menu transition="slide-y-reverse-transition" top>
-                            <template #activator="{ on, attrs }">
-                                <v-btn v-bind="attrs" v-on="on" color="primary" :disabled="!canBulkAction">
-                                    <span v-text="$t('menu.bulk')"></span>
-                                    <v-icon right>mdi-chevron-up</v-icon>
-                                </v-btn>
-                            </template>
-                            <v-list>
-                                <v-list-item :disabled="!canEdit" @click="onBulkEditClick">
-                                    <v-list-item-icon>
-                                        <v-icon>mdi-pencil</v-icon>
-                                    </v-list-item-icon>
-                                    <v-list-item-title v-text="$t('btn.edit')"></v-list-item-title>
-                                </v-list-item>
-                                <v-list-item :disabled="!canDelete" class="error--text" @click="onBulkDeleteClick">
-                                    <v-list-item-icon>
-                                        <v-icon color="error">mdi-trash-can-outline</v-icon>
-                                    </v-list-item-icon>
-                                    <v-list-item-title v-text="$t('btn.delete')"></v-list-item-title>
-                                </v-list-item>
-                            </v-list>
-                        </v-menu>
+                    <span>{{ offsetStart + 1 }}-{{ offsetEnd }} of {{ serverItemsLength }}</span>
 
-                        <!-- REFRESH -->
-                        <v-btn
-                            :block="$vuetify.breakpoint.smAndDown"
-                            :disabled="!canRefresh"
-                            :loading="loading"
-                            text
-                            @click="onRefreshClick"
-                        >
-                            <v-icon left>mdi-refresh</v-icon>
-                            <span v-text="$t('btn.refresh')"></span>
+                    <div>
+                        <v-btn :disabled="!canGoPrevious" icon @click="onPreviousClick">
+                            <v-icon>mdi-chevron-left</v-icon>
+                        </v-btn>
+                        <v-btn :disabled="!canGoNext" class="ml-3" icon @click="onNextClick">
+                            <v-icon>mdi-chevron-right</v-icon>
                         </v-btn>
                     </div>
-                </template>
-            </v-data-table>
+                </div>
+            </v-sheet>
         </v-card-text>
     </v-card>
 </template>
@@ -252,10 +294,16 @@
 <script lang="ts">
 import {Vue, Component, VModel, Prop, Watch, Ref} from 'vue-property-decorator';
 import Modal from "@/components/generic/Modal.vue";
-import Field from "@/components/Field.vue";
+import Field from "@/components/fields/Field.vue";
+import DataTable from "@/components/DataTable.vue";
+import DataCards from "@/components/DataCards.vue";
+import DataCalendar from "@/components/DataCalendar.vue";
+import PresetManager from "@/components/PresetManager.vue";
+import FilterBar from "@/components/FilterBar.vue";
 import BaseModel from "@/models/BaseModel";
 import MediaModel from "@/models/MediaModel";
 import Query from "@/utils/Query";
+import DatatablePresetModel from '@/models/DatatablePresetModel';
 import { VForm } from 'vuetify/lib';
 
 let searchTimeout: any;
@@ -264,6 +312,11 @@ let searchTimeout: any;
     components: {
         Modal,
         Field,
+        DataTable,
+        DataCards,
+        DataCalendar,
+        PresetManager,
+        FilterBar,
     }
 })
 export default class DataManager extends Vue {
@@ -274,23 +327,38 @@ export default class DataManager extends Vue {
     @VModel({ default: () => ([]) }) list!: Array<any>
     @Prop() defaultModel: new (props: any) => BaseModel
     @Prop({ default: () => ([]) }) headers!: Array<any>
-    @Prop() resource!: string
+    @Prop({ default: () => ([]) }) fields!: Array<any>
+    @Prop() resource!: string | ((context: null | BaseModel, props?: any) => string)
     @Prop() sortBy!: Array<string>
     @Prop() sortDesc!: Array<boolean>
     @Prop() id!: string
+    @Prop({ default: null }) context: null | BaseModel
+    @Prop({ default: () => ({}) }) modalAttrs: any
+    @Prop({ default: 'datatable' }) view!: string
+    @Prop({ type: Boolean, default: false }) hideSearch: boolean
+    @Prop({ type: Boolean, default: false }) hidePresets: boolean
+    @Prop({ type: Boolean, default: false }) flexHeight: boolean
+    @Prop({ default: () => (['datatable', 'cards', 'calendar']) }) availableViews!: Array<string>
 
     MediaModel = MediaModel
+    isMounted: boolean = false
     loaded: boolean = false
     loading: boolean = false
     deleting: boolean = false
     saving: boolean = false
     search: string | null = null
-    options: any = {
-        page: 1,
-        itemsPerPage: 10,
-        sortBy: ['data.created_at'],
-        sortDesc: [true],
-    }
+    preset: DatatablePresetModel = new DatatablePresetModel({
+        meta: {
+            page: 1,
+            itemsPerPage: 10,
+            sortBy: ['data.created_at'],
+            sortDesc: [true],
+            filters: [],
+            view: null,
+            calendarType: 'month',
+        }
+    });
+    defaultPreset: DatatablePresetModel | null = null
     serverItemsLength: number = 0
     selectedItems: Array<any> = []
     modalEdit: {
@@ -319,6 +387,51 @@ export default class DataManager extends Vue {
         }, 1000);
     }
 
+    @Watch('preset.data.meta.view')
+    onViewChanged() {
+        this.isMounted = false
+        setTimeout(() => {
+            this.isMounted = true;
+        })
+    }
+
+    @Watch('context.data.id', { deep: true })
+    onContextChange() {
+        this.list = [];
+        this.load();
+    }
+
+    get _modalAttrs(): any {
+        return Object.assign({
+            title: !this.currentItem.data.id ? this.$i18n.t('admin.modal.add') : this.$i18n.tc('admin.modal.edit', this.modalEdit.list.length),
+            persistent: this.dataIsDifferent,
+            maxWidth: 800,
+            scrollable: true,
+        }, this.modalAttrs);
+    }
+
+    get flexStyle(): any {
+        return this.flexHeight ? {
+            height: 0,
+            flexGrow: 1,
+        } : null;
+    }
+
+    get offsetStart(): number {
+        return this.preset.data.meta.itemsPerPage * (this.preset.data.meta.page - 1);
+    }
+
+    get offsetEnd(): number {
+        const total = this.preset.data.meta.itemsPerPage === -1
+            ? this.serverItemsLength
+            : this.preset.data.meta.itemsPerPage;
+        let offsetEnd = this.offsetStart + total;
+        if (offsetEnd > this.serverItemsLength) {
+            offsetEnd = this.serverItemsLength;
+        }
+        return offsetEnd;
+    }
+
     get canBulkAction(): boolean {
         return this.ready
             && this.selectedItems.length > 0
@@ -329,15 +442,15 @@ export default class DataManager extends Vue {
     }
 
     get canRefresh(): boolean {
-        return this.ready && this.editableHeaders.length > 0;
-    }
-
-    get canEdit(): boolean {
         return this.ready;
     }
 
+    get canEdit(): boolean {
+        return this.ready && this.fields.length > 0;
+    }
+
     get canDelete(): boolean {
-        return this.ready && this.editableHeaders.length > 0;
+        return this.ready;
     }
 
     get canSave(): boolean {
@@ -362,50 +475,50 @@ export default class DataManager extends Vue {
             && !this.deleting;
     }
 
-    get itemSlots(): Array<any> {
-        return this.headers.map((header: any) => 'item.' + header.value);
+    get filterableHeaders(): Array<any> {
+        return this.headers.filter(header => header.filterable);
     }
 
-    get editableHeaders(): Array<any> {
-        return this.headers.filter((header: any) => header.editable || header.createOnly || header.editOnly);
-    }
+    get fieldComponents(): Array<any> {
+        return this.fields.map((field: any) => {
+            const valueKey = (field.field && field.field.value) || field.value;
 
-    get fields(): Array<any> {
-        return this.editableHeaders.map((header: any) => {
-            const currentItem = this.currentItem;
-            let value;
-            try {
-                value = eval('currentItem.' + header.value);
-            } catch (e) {
-
+            if (valueKey === undefined) {
+                return {
+                    field,
+                    valueKey,
+                    item: this.currentItem,
+                };
             }
 
-            const relationship = header.hasMany || header.hasOne;
-            if (Array.isArray(value) && relationship && relationship.filter) {
-                value = value.filter(relationship.filter);
-            }
+            let value = this.currentItem.nestedProp(valueKey);
 
-            const errorKey = header.value.indexOf('data.') === 0
-                ? header.value.substring(5)
-                : header.value;
+            const errorKey = valueKey.indexOf('data.') === 0
+                ? valueKey.substring(5)
+                : valueKey;
 
             return {
-                header,
+                field,
                 value,
                 errorKey,
-                item: currentItem,
+                valueKey,
+                item: this.currentItem,
             };
         });
-    }
-
-    get headerSlots(): Array<any> {
-        return this.headers.map((header: any) => 'item.' + header.value);
     }
 
     get _headers(): Array<any> {
         return this.headers
             .filter((header: any) => !header.createOnly && !header.editOnly)
             .concat({ value: '_action', sortable: false, width: 0 });
+    }
+
+    get canGoPrevious(): boolean {
+        return this.preset.data.meta.page > 1;
+    }
+
+    get canGoNext(): boolean {
+        return this.offsetEnd < this.serverItemsLength;
     }
 
     onSearchKeyUpEnter(): void {
@@ -417,9 +530,11 @@ export default class DataManager extends Vue {
         this.load();
     }
 
-    onDatatableUpdate(options: any): void {
+    onDatatableUpdate(preset: DatatablePresetModel): void {
         if (this.ready) {
-            this.load(options, this.search);
+            this.load(new DatatablePresetModel({
+                meta: preset
+            }), this.search);
         }
     }
 
@@ -428,7 +543,7 @@ export default class DataManager extends Vue {
     }
 
     onFieldInput(field: any, value: any) {
-        const splittedValue = field.header.value.split('.');
+        const splittedValue = field.valueKey.split('.');
         const lastValue = splittedValue[splittedValue.length - 1]
         let obj = field.item;
         for (let i = 0; i < splittedValue.length - 1; i++) {
@@ -496,14 +611,48 @@ export default class DataManager extends Vue {
         })
     }
 
+    onPreviousClick(): void {
+        this.preset.data.meta.page--;
+    }
+
+    onNextClick(): void {
+        this.preset.data.meta.page++;
+    }
+
     saveItems(models: BaseModel | Array<BaseModel>): Promise<BaseModel | Array<BaseModel>> {
+        const toDelete: Array<BaseModel> = [];
+        (Array.isArray(models) ? models : [models]).forEach((model: BaseModel) => {
+            const originalModel = model.getOriginalModel();
+            this.fields.forEach(field => {
+                if (field.hasMany || field.hasOne) {
+                    const prop = model.nestedProp(field.value);
+                    const originalProp = originalModel.nestedProp(field.value);
+                    if (Array.isArray(prop) && Array.isArray(originalProp)) {
+                        const removedIdx = originalProp.findIndex(originalItem => prop.findIndex(item => (typeof item === 'number' ? item : item.data.id) === originalItem.data.id));
+                        if (removedIdx !== -1 && !toDelete.find(item => item.data.id === originalProp[removedIdx].data.id)) {
+                            toDelete.push(originalProp[removedIdx]);
+                        }
+                    }
+                }
+            });
+        });
+
+        const promises = [
+            typeof this.resource === 'function'
+                ? this.resource(this.context, models)
+                : Query.post(this.resource + '/bulk', models)
+        ];
+        if (toDelete.length > 0) {
+            promises.push(Query.delete(toDelete[0].resource + '/bulk', toDelete));
+        }
+
         this.saving = true;
-        return Query.post(this.resource + '/bulk', models)
-            .then(response => {
+        return Promise.all(promises)
+            .then(([postResponse, destroyResponse]) => {
                 this.modalEdit.formErrors = {};
                 return this.load()
                     .then(() => {
-                        this.$snack(this.$i18n.tc('dataManager.saveItems.success', response.length), 'success');
+                        this.$snack(this.$i18n.tc('dataManager.saveItems.success', postResponse.length), 'success');
                         return models;
                     });
             })
@@ -537,9 +686,14 @@ export default class DataManager extends Vue {
 
     deleteItems(models: BaseModel | Array<BaseModel>) {
         this.deleting = true;
-        return this.$shouldDelete((models) => Query.delete(this.resource + '/bulk', models.map((model: BaseModel) => model.data.id)), models)
+
+        const path = typeof this.resource === 'function'
+            ? this.resource(this.context)
+            : this.resource;
+
+        return this.$shouldDelete((models: any) => Query.delete(path + '/bulk', models.map((model: BaseModel) => model.data.id)), models)
             .then(response => {
-                if (response === null) {
+                if (response.length === 0) {
                     return false;
                 }
                 return this.load().then(() => {
@@ -564,16 +718,24 @@ export default class DataManager extends Vue {
         }
     }
 
-    load(options = this.options, search = this.search): Promise<any> {
+    load(preset = this.preset, search = this.search): Promise<any> {
         clearTimeout(searchTimeout);
 
-        this.loading = true;
-        return Query.get(this.resource, {
-            ...options,
+        const params = {
+            ...preset.data.meta,
             search: search === null ? '' : search.trim(),
-        })
+        };
+        const path = typeof this.resource === 'function'
+            ? this.resource(this.context)
+            : this.resource;
+
+        this.loading = true;
+        return Query.get(path, params)
             .then(response => {
-                this.list = response.data.map((item: any) => new this.defaultModel(item));
+                this.list = response.data;
+                if (response.data.length > 0 && !(response.data[0] instanceof BaseModel)) {
+                    this.list = response.data.map((item: any) => new this.defaultModel(item));
+                }
                 this.serverItemsLength = response.length;
                 this.loaded = true;
                 return this.list;
@@ -584,28 +746,17 @@ export default class DataManager extends Vue {
 
     created() {
         if (this.sortBy) {
-            this.options.sortBy = this.sortBy;
-            this.options.sortDesc = this.sortDesc || this.options.sortDesc;
+            this.preset.data.sortBy = this.sortBy;
+            this.preset.data.sortDesc = this.sortDesc || this.preset.data.sortDesc;
         }
 
+        this.defaultPreset = (this.preset.clone() as DatatablePresetModel).data;
+        this.preset.data.meta.view = this.view;
         this.load();
+    }
+
+    mounted() {
+        this.isMounted = true;
     }
 }
 </script>
-
-<style lang="scss" scoped>
-.v-data-table {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-.v-data-table ::v-deep .v-data-table__wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    flex: 1;
-}
-.v-data-table ::v-deep .v-data-footer {
-    flex: 0;
-}
-</style>

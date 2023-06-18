@@ -3,7 +3,9 @@ import App from './views/App.vue'
 import Restricted from './views/Restricted.vue'
 import appRoutes from '@/routes/app.routes';
 import adminRoutes from '@/routes/admin.routes';
+import schoolingRoutes from '@/routes/schooling.routes';
 import restrictedRoutes from '@/routes/restricted.routes'
+import DataManager from '@/components/DataManager.vue';
 import VueRouter from 'vue-router'
 import VueHotkey from 'v-hotkey'
 import PortalVue from 'portal-vue'
@@ -49,6 +51,8 @@ Vue.use(Sound)
 Vue.use(Voices)
 Vue.use(PortalVue)
 
+Vue.component('DataManager', DataManager);
+
 let currentInstance: Vue;
 const render = (
 	component: VueConstructor,
@@ -85,18 +89,29 @@ const render = (
 	}).$mount('#app');
 };
 
-let userRoutes = [...appRoutes];
+const getRoutes = (user: UserModel) => {
+    let routes = [...appRoutes];
+    if (user.hasRole(['teacher'])) {
+        routes = routes.concat(schoolingRoutes);
+    }
+    if (user.hasRole(['dev', 'admin'])) {
+        // @ts-ignore
+        routes = routes.concat(adminRoutes);
+    }
+    return routes;
+}
+
+
 Services.isLoggedIn()
     .then(response => {
         const user = new UserModel(response);
         store.commit('user', user);
-        if (user.hasRole(['dev', 'admin'])) {
-            userRoutes = userRoutes.concat(adminRoutes);
-        }
-        render(App, userRoutes)
+        let routes = getRoutes(user);
+        render(App, routes)
     })
     .catch(() => render(Restricted, restrictedRoutes));
 
-EventBus.subscribe('RENDER_APP', () => render(App, userRoutes));
+EventBus.subscribe('LOGGED_IN', () => render(App, getRoutes(store.state.user)));
+EventBus.subscribe('RENDER_APP', () => render(App, getRoutes(store.state.user)));
 EventBus.subscribe('RENDER_RESTRICTED', () => render(Restricted, restrictedRoutes));
-EventBus.subscribe('APP_RELOAD', () => render(App, userRoutes));
+EventBus.subscribe('APP_RELOAD', () => render(App, getRoutes(store.state.user)));

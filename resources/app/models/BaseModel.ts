@@ -1,19 +1,31 @@
-import Vue from 'vue';
-import PlaybackSettingsModel from "@/models/PlaybackSettingsModel";
+import Text from '@/utils/Text';
 
 export default class BaseModel {
 
+    public static staticAutoIncrementId: number = 0;
+    public autoIncrementId: number = 0;
     public data: any = {};
     public originalDataJSON: string | null = null;
+    public resource: string | null = null;
     protected defaultStructure: any = {}
 
-    constructor(data: any = {}) {}
+    constructor(data: any = {}) {
+        this.autoIncrementId = BaseModel.staticAutoIncrementId++;
+
+        if (this.resource === null) {
+            const resource = Text.toCamelCase(this.constructor.name.substring(0, this.constructor.name.indexOf('Model')));
+            this.resource = resource;
+        }
+    }
 
     mapDefaultValues(data: any) {
         const mapObject = (obj: any, newData: any, defaultStructure: any) => {
             Object.assign(obj, defaultStructure);
             Object.keys(obj).forEach(key => {
-                if (
+                if (obj[key] instanceof BaseModel && typeof newData[key] === 'object') {
+                    obj[key] = new obj[key].constructor(newData[key]);
+                }
+                else if (
                     (!Array.isArray(obj[key]) && typeof obj[key] === 'object' && obj[key] !== null) &&
                     (!Array.isArray(defaultStructure[key]) && typeof defaultStructure[key] === 'object')
                 ) {
@@ -45,6 +57,19 @@ export default class BaseModel {
         const newData = this.toSaveObject();
         this.originalDataJSON = JSON.stringify(newData);
         return newData;
+    }
+
+    resetValues() {
+        const originalModel = this.getOriginalModel();
+        this.data = originalModel.data;
+    }
+
+    getOriginalData(): any {
+        return JSON.parse(this.originalDataJSON || '');
+    }
+
+    getOriginalModel(): any {
+        return this.constructor(JSON.parse(this.originalDataJSON || ''));
     }
 
     isDifferentFromOriginal(data?: any): boolean {
@@ -79,7 +104,7 @@ export default class BaseModel {
         return obj;
     }
 
-    clone(clean = true): BaseModel {
+    clone<T>(clean = true): T {
         const clone = this.constructor(this.toSaveObject());
         if (clean) {
             ['id', 'created_at', 'updated_at', 'created_by', 'updated_by'].forEach(key => {
@@ -93,5 +118,26 @@ export default class BaseModel {
 
     isValid(): boolean {
         return true;
+    }
+
+    nestedProp(prop: any): any {
+        let item: any = this;
+
+        if (prop instanceof Function) {
+            return prop(item);
+        } else if (item[prop] !== undefined) {
+            return item[prop];
+        } else {
+            const props = prop.split('.');
+            for (let i = 0; i < props.length; i++) {
+                const p = props[i];
+                if (item[p]) {
+                    item = item[p];
+                } else {
+                    return undefined;
+                }
+            }
+            return item;
+        }
     }
 }

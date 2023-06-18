@@ -14,7 +14,7 @@ class Dictionaries extends Migration
     public function up()
     {
         Schema::create('dictionary_categories', function (Blueprint $table) {
-            $table->uuid('id')->unique();
+            $table->uuid('id')->unique()->primary();
             $table->integer('total_dictionaries')->default(0);
             $table->foreignUuid('media_id')->nullable()->references('id')->on('medias');
             $table->timestamps();
@@ -24,7 +24,7 @@ class Dictionaries extends Migration
         });
 
         Schema::create('dictionary_category_i18ns', function (Blueprint $table) {
-            $table->uuid('id')->unique();
+            $table->uuid('id')->unique()->primary();
             $table->foreignUuid('dictionary_category_id')->references('id')->on('dictionary_categories');
             $table->foreignId('language_id')->references('id')->on('languages');
             $table->string('text');
@@ -35,7 +35,7 @@ class Dictionaries extends Migration
         });
 
         Schema::create('dictionaries', function (Blueprint $table) {
-            $table->uuid('id')->unique();
+            $table->uuid('id')->unique()->primary();
             $table->foreignUuid('dictionary_category_id')->nullable()->references('id')->on('dictionary_categories');
             $table->integer('total_items')->default(0);
             $table->foreignUuid('media_id')->nullable()->references('id')->on('medias');
@@ -46,7 +46,7 @@ class Dictionaries extends Migration
         });
 
         Schema::create('dictionary_i18n', function (Blueprint $table) {
-            $table->uuid('id')->unique();
+            $table->uuid('id')->unique()->primary();
             $table->foreignUuid('dictionary_id')->references('id')->on('dictionaries');
             $table->foreignId('language_id')->references('id')->on('languages');
             $table->enum('type', ['title', 'body']);
@@ -58,7 +58,7 @@ class Dictionaries extends Migration
         });
 
         Schema::create('dictionary_items', function (Blueprint $table) {
-            $table->uuid('id')->unique();
+            $table->uuid('id')->unique()->primary();
             $table->foreignUuid('dictionary_id')->references('id')->on('dictionaries');
             $table->foreignUuid('media_id')->nullable()->references('id')->on('medias');
             $table->timestamps();
@@ -68,7 +68,7 @@ class Dictionaries extends Migration
         });
 
         Schema::create('dictionary_item_i18ns', function (Blueprint $table) {
-            $table->uuid('id')->unique();
+            $table->uuid('id')->unique()->primary();
             $table->foreignUuid('dictionary_item_id')->references('id')->on('dictionary_items');
             $table->foreignId('language_id')->references('id')->on('languages');
             $table->string('text');

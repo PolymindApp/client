@@ -4,11 +4,11 @@ import BaseModel from "@/models/BaseModel";
 
 export default {
     install: function (Vue: VueConstructor): void {
-        Vue.prototype.$shouldDelete = function (
-            promise: <T>(models: BaseModel | Array<BaseModel>) => Promise<T>,
-            models: BaseModel | Array<BaseModel>,
+        Vue.prototype.$shouldDelete = function<T> (
+            promise: (models: Array<T>) => Promise<Array<T>>,
+            models: T | Array<T>,
             key?: string,
-        ): Promise<any> {
+        ): Promise<Array<T>> {
             const modelsInArray = Array.isArray(models) ? models : [models];
             return new Promise((resolve, reject) => {
                 const btn = {
@@ -56,7 +56,7 @@ export default {
                     },
                     on: {
                         close: () => {
-                            resolve(null);
+                            resolve([]);
                         }
                     }
                 })
@@ -67,10 +67,10 @@ export default {
 
 declare module 'vue/types/vue' {
     interface Vue {
-        $shouldDelete: (
-            promise: <T>(model: any | Array<any>) => Promise<T>,
-            models: any | Array<any>,
+        $shouldDelete: <T>(
+            promise: (model: Array<T>) => Promise<Array<T>>,
+            models: T | Array<T>,
             key?: string,
-        ) => Promise<any>
+        ) => Promise<Array<T>>
     }
 }

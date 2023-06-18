@@ -1,7 +1,6 @@
 import BaseModel from './BaseModel';
 import {I18n} from "@/database";
 import LanguageModel from "@/models/LanguageModel";
-import Rules from '@/utils/Rules';
 
 export default class I18nModel extends BaseModel {
 
@@ -23,7 +22,7 @@ export default class I18nModel extends BaseModel {
         },
     }
 
-    constructor(data?: I18n) {
+    constructor(data?: any) {
         super(data);
         this.mapDefaultValues(data);
         this.data.language = new LanguageModel(this.data.language);

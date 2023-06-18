@@ -3,9 +3,23 @@
         <template #prepend>
             <v-sheet :color="$vuetify.breakpoint.smAndDown ? 'primary' : null" :dark="$vuetify.breakpoint.smAndDown">
                 <v-list-item class="pt-4 d-flex align-center">
-                    <div class="d-flex align-center justify-center no-select" style="gap: 1rem; flex: 1">
-                        <img :src="logo" height="37" />
-                        <div class="title">Polymind</div>
+                    <div class="d-flex align-center justify-center no-select overflow-hidden" style="gap: 0.5rem; flex: 1">
+                        <v-avatar width="37" height="37">
+                            <img :src="$store.state.user.data.avatar.data.url" />
+                        </v-avatar>
+                        <div class="overflow-hidden">
+                            <div class="title text-truncate" v-text="$store.state.user.data.name"></div>
+                            <div v-if="$store.state.user.data.roles.length > 0" class="mt-n3 text-truncate">
+                                <small
+                                    v-for="(role, roleIdx) in $store.state.user.data.roles"
+                                    :key="role.data.id"
+                                    class="overline text--disabled"
+                                >
+                                    <span v-if="roleIdx > 0">, </span>
+                                    <span v-text="role.data.name"></span>
+                                </small>
+                            </div>
+                        </div>
                     </div>
                     <v-btn @click.prevent="_value = false" icon>
                         <v-icon>mdi-close</v-icon>
@@ -21,14 +35,31 @@
                             </v-btn>
                         </template>
                         <v-list>
-                            <v-list-item :key="account.email" v-for="account in accounts" @click="() => handleSwitchAccountClick(account)">
+                            <v-list-item :to="{ name: 'profile', params: { uuid: $store.state.user.data.id }}">
                                 <v-list-item-icon>
-                                    <v-icon color="secondaryDark" left>mdi-account</v-icon>
+                                    <v-icon>mdi-account-edit-outline</v-icon>
                                 </v-list-item-icon>
                                 <v-list-item-content>
-                                    <span v-text="account.email"></span>
+                                    <span v-text="$t('sidebar.editProfile')"></span>
                                 </v-list-item-content>
                             </v-list-item>
+                            <template v-if="accounts.length > 0">
+                                <v-divider class="my-2" />
+                                <v-list-item :key="account.email" v-for="account in accounts" @click="() => handleSwitchAccountClick(account)">
+                                    <v-list-item-avatar>
+                                        <v-img :src="account.avatar.url">
+                                            <template #placeholder>
+                                                <v-skeleton-loader type="image" />
+                                            </template>
+                                        </v-img>
+                                    </v-list-item-avatar>
+                                    <v-list-item-content>
+                                        <div v-text="account.name"></div>
+                                        <div class="caption" v-text="account.email"></div>
+                                    </v-list-item-content>
+                                </v-list-item>
+                            </template>
+                            <v-divider class="my-2" />
                             <v-list-item @click="$emit('logout')">
                                 <v-list-item-icon>
                                     <v-icon color="secondaryDark" left>mdi-logout-variant</v-icon>
@@ -93,6 +124,19 @@
             <v-alert v-else-if="hasNoItemFound" key="alert_search" class="mx-2" type="info" text outlined>
                 <span v-text="$t('sidebar.search.noResults')"></span>
             </v-alert>
+
+            <!-- ADMIN -->
+            <template v-if="$store.state.user.hasRole('teacher')">
+                <v-subheader v-text="$t('sidebar.schooling.title')"></v-subheader>
+                <v-list-item :to="{ name: 'schooling.classes' }" color="primary">
+                    <v-list-item-icon>
+                        <v-icon>mdi-google-classroom</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>
+                        <span v-text="$t('sidebar.schooling.classes')"></span>
+                    </v-list-item-title>
+                </v-list-item>
+            </template>
 
             <!-- ADMIN -->
             <template v-if="$store.state.user.hasRole('admin')">
